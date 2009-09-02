@@ -72,4 +72,4 @@ doctest:
 # for each project admin
 sf_fer_perez:
 	@echo "Copying html files to sourceforge..."
-	rsync -e ssh _build/html/ fer_perez,nipy@web.sourceforge.net:htdocs/home/nitime
+	rsync -e ssh _build/html/ fer_perez,nipy@web.sourceforge.net:htdocs/nitime
