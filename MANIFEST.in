@@ -1,0 +1,5 @@
+include *.txt *.py
+include THANKS
+include LICENSE
+graft doc
+global-exclude *~ *.swp
