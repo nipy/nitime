@@ -102,6 +102,22 @@ class TimeSeriesBase(object):
         # information without the danger of name clashes in the future.
         self.metadata = {}
 
+
+    def __len__(self):
+        """Return the length of the time series."""
+        return self.data.shape[-1]
+
+
+    def _validate_dimensionality(self):
+        """Check that the data and time have the proper dimensions.
+        """
+
+        if self.time.ndim != 1:
+            raise ValueError("time array must be one-dimensional")
+        npoints = self.data.shape[-1]
+        if npoints != len(self.time):
+            raise ValueError("mismatch of time and data dimensions")
+
         
 class UniformTimeSeries(TimeSeriesBase):
     """Represent data collected at uniform intervals.
@@ -232,7 +248,7 @@ class UniformTimeSeries(TimeSeriesBase):
           values.  Note that this class assumes that your times are uniformly
           sampled.
         time_unit :  string
-          The unit of time
+          The unit of time.
         """
         # Sanity checks
         # There are only 3 valid ways of specifying the sampling.  Check which
@@ -279,11 +295,38 @@ class UniformTimeSeries(TimeSeriesBase):
 
 
 class NonUniformTimeSeries(TimeSeriesBase):
-    """
+    """Represent data collected at arbitrary time points.
+
+    This class combines a one dimensional array of time values (assumed, but
+    not verified, to be monotonically increasing) with an n-dimensional array
+    of data values.
+
+    Examples
+    --------
+    >>> t = np.array([0.3, 0.5, 1, 1.9])
+    >>> y = np.array([4.7, 8.4, 9.1, 10.4])
+    >>> uts = NonUniformTimeSeries(t,y)
+    >>> uts.time
+    array([  4.7,   8.4,   9.1,  10.4])
+    >>> uts.data
+    array([ 0.3,  0.5,  1. ,  1.9])
+    >>> uts.time_unit
+    's'
     """
 
     def __init__(self,data,time,time_unit='s'):
-        """
+        """Construct a new NonUniformTimeSeries from data and time.
+
+        Parameters
+        ----------
+        data : ndarray
+          An n-dimensional dataset whose last axis runs along the time
+          direction.
+        time : 1-d array
+          A sorted array of time values, with as many points as the last
+          dimension of the dataset.
+        time_unit :  string
+          The unit of time.
         """
         # Call the common constructor to get the real object initialized
         TimeSeriesBase.__init__(self,data,time_unit)
