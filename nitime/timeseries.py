@@ -27,9 +27,16 @@ __all__ = ['time_units',
 # Imports
 #-----------------------------------------------------------------------------
 
+import warnings
 import numpy as np
-import nifti
 
+#Pynifti is an optional dependency, used in a handful of functions for reading
+#data from fMRI nifti files:
+try:
+    import nifti
+except ImportError:
+   print('Warning: nifti could not be imported')
+    
 # Our own
 from nitime import descriptors as desc
 from nitime import utils as tsu
@@ -334,7 +341,7 @@ class NonUniformTimeSeries(TimeSeriesBase):
         self.time = np.asarray(time)
 
 
-def time_series_from_nifti(nifti_im,coords,normalize=False,detrend=False,
+def time_series_from_nifti(nifti_file,coords,normalize=False,detrend=False,
                            average=False,f_c=0.01,TR=None):
     """ Make a time series from a Nifti file, provided coordinates into the
             Nifti file 
@@ -342,9 +349,10 @@ def time_series_from_nifti(nifti_im,coords,normalize=False,detrend=False,
     Parameters
     ----------
 
-    analyze_im: nifti.image.NiftiImage object
-           an object derived from the Nifti file containing the time-series data
+    nifti_file: string.
 
+           The full path to the file from which the time-series is extracted 
+     
     coords: ndarray or list of ndarrays
            x,y,z (slice,inplane,inplane) coordinates of the ROI from which the
            time-series is to be derived. If the list has more than one such
@@ -380,13 +388,15 @@ def time_series_from_nifti(nifti_im,coords,normalize=False,detrend=False,
     time-series object
 
         """
+    #get the nifti image object from the file: 
+    nifti_im = nifti.NiftiImage(nifti_file)
+    
     #extract the data from the file: 
     nifti_data = nifti_im.asarray()
     
     #Per default read TR from file:
     if TR is None:
         TR = nifti_im.getRepetitionTime()/1000.0 #in msec - convert to seconds
-
 
     #If we got a list of coord arrays, we're happy. Otherwise, we want to force
     #our input to be a list:

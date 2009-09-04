@@ -94,7 +94,7 @@ def test_coherence_multi_taper():
     np.testing.assert_array_almost_equal(c[0,1],c[1,0])
 
 def test_coherence_partial():
- """ Test partial coherence"""
+    """ Test partial coherence"""
 
     t = np.linspace(0,16*np.pi,1024)
     x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + np.random.rand(t.shape[-1])

@@ -49,6 +49,14 @@ Sphinx_
   Required for building the documentation
 
 
+Optional
+~~~~~~~~
+
+`Pynifti <http://niftilib.sourceforge.net/pynifti/>`_
+  Required for functions that read nifti data. If you don't have it installed,
+  you can still use most of the functions.
+  
+
 Getting the latest release
 --------------------------
 

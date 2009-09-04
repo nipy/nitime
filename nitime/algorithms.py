@@ -4,8 +4,10 @@ Algorithms for analysis of time-series derived from neuroimaging data
 
 1. Coherency: calculate the pairwise correlation between time-series in the
 frequency domain and related quantities
+
 2. Spectral estimation: calculate the spectra of time-series and cross-spectra
 between time-series
+
 3. Event-related analysis: calculate the correlation between time-series and
 external events
 
@@ -1801,9 +1803,11 @@ def DPSS_windows(N, W, Kmax):
     -------
     v : ndarray
         an array of DPSS windows shaped (Kmax-1, N)
+
     Notes
     -----
     Tridiagonal form of DPSS calculation from:
+
     Slepian, D. Prolate spheroidal wave functions, Fourier analysis, and
     uncertainty V: The discrete case. Bell System Technical Journal,
     Volume 57 (1978), 1371430
