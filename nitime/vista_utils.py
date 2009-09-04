@@ -2,7 +2,9 @@
 # mrVista utils
 # For the analysis of data created by the mrVista package
 #-----------------------------------------------------------------------------   
-
+"""These utilities can be used for extracting and processing fMRI data analyzed
+using the Matlab toolbox mrVista (http://white.stanford.edu/mrvista)
+""" 
 import numpy as np
 import scipy.io as sio
 import timeseries as ts
