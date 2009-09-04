@@ -35,7 +35,7 @@ import numpy as np
 try:
     import nifti
 except ImportError:
-   print('Warning: nifti could not be imported)
+   print('Warning: nifti could not be imported')
     
 # Our own
 from nitime import descriptors as desc
