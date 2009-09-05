@@ -215,7 +215,7 @@ def coherence(time_series,csd_method=None):
 
     .. math::
 
-        Coh_{XY}(\lambda) = |{R_{xy}(\lambda)}|^2 = 
+        Coh_{xy}(\lambda) = |{R_{xy}(\lambda)}|^2 = 
         \frac{|{f_{xy}(\lambda)}|^2}{f_{xx}(\lambda) \cdot f_{yy}(\lambda)}
 
     .. [1] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring temporal
@@ -276,7 +276,7 @@ def coherence_calculate(fxy, fxx, fyy):
 
     .. math::
 
-        Coh_{XY}(\lambda) = |{R_{xy}(\lambda)}|^2 = 
+        Coh_{xy}(\lambda) = |{R_{xy}(\lambda)}|^2 = 
         \frac{|{f_{xy}(\lambda)}|^2}{f_{xx}(\lambda) \cdot f_{yy}(\lambda)}
 
     .. [1] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring temporal
@@ -364,9 +364,9 @@ def coherency_regularized(time_series,epsilon,alpha,csd_method=None):
     -----
     The regularization scheme is as follows:
 
-    ..math::
-             coherence(x,y) = \frac{(alpha*fxx + epsilon)}
-                      {sqrt{alpha^{2}*((fxx+epsilon)*(fyy+epsilon))}}
+    .. math::
+        Coh_{xy}^R = \frac{(\alpha f_{xx} + \epsilon) ^2}
+		{\alpha^{2}(f_{xx}+\epsilon)(f_{yy}+\epsilon)}
 
     See also
     --------
@@ -425,11 +425,9 @@ def coherency_reqularized_calculate(fxy, fxx, fyy, epsilon, alpha):
 
     The regularization scheme used is as follows:
 
-    ..math::
-    
-     coherence(x,y) = \frac{(alpha*fxx + epsilon)}
-                      {sqrt{alpha^{2}*((fxx+epsilon)*(fyy+epsilon))}}
-
+    .. math::
+        Coh_{xy}^R = \frac{(\alpha f_{xx} + \epsilon) ^2}
+		{\alpha^{2}(f_{xx}+\epsilon)(f_{yy}+\epsilon)}
     """
     
     return ( ( (alpha*fxy + epsilon) ) /
