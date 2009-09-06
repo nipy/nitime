@@ -739,6 +739,7 @@ class CorrelationAnalyzer(desc.ResetMixin):
     def __init__(self,time_series):
         #Initialize data from the time series
         self.data = time_series.data
+        self.sampling_interval=time_series.sampling_interval
 
     @desc.setattr_on_read
     def correlation(self):
@@ -747,7 +748,62 @@ class CorrelationAnalyzer(desc.ResetMixin):
 
         return np.corrcoef(self.data)  
 
+    @desc.setattr_on_read
+    def xcorr(self):
+        """The cross-correlation between every pairwise combination time-series
+        in the object. Uses np.correlation('full').
 
+        Returns
+        -------
+
+        UniformTimeSeries: the time-dependent cross-correlation, with zero-lag
+        at time=0"""
+        tseries_length = self.data.shape[0]
+        t_points = self.data.shape[-1]
+        xcorr = np.zeros((tseries_length,
+                          tseries_length,
+                          t_points*2-1))
+         
+        for i in xrange(tseries_length): 
+            for j in xrange(i,tseries_length):
+                xcorr[i][j] = tsu.xcorr(self.data[i],self.data[j])
+
+        idx = tsu.tril_indices(tseries_length,-1)
+        xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
+
+        return UniformTimeSeries(xcorr,sampling_interval=self.sampling_interval,
+                                 t0=-self.sampling_interval*t_points+1)
+    @desc.setattr_on_read
+    def xcorr_norm(self):
+        """The cross-correlation between every pairwise combination time-series
+        in the object, where the zero lag correlation is normalized to be equal
+        to the correlation coefficient between the time-series
+
+        Returns
+        -------
+
+        UniformTimeSeries: the time-dependent cross-correlation, with zero-lag
+        at time=0"""
+
+        tseries_length = self.data.shape[0]
+        t_points = self.data.shape[-1]
+        xcorr = np.zeros((tseries_length,
+                          tseries_length,
+                          t_points*2-1))
+         
+        for i in xrange(tseries_length): 
+            for j in xrange(i,tseries_length):
+                xcorr[i,j] = tsu.xcorr(self.data[i],self.data[j])
+                xcorr[i,j] /= max(xcorr[i,j])
+                xcorr[i,j] *= np.corrcoef(self.data[i],self.data[j])[0,1]
+
+        idx = tsu.tril_indices(tseries_length,-1)
+        xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
+
+        return UniformTimeSeries(xcorr,sampling_interval=self.sampling_interval,
+                                 t0=-self.sampling_interval*t_points+1)
+
+    
 ##Event-related analysis:
 class EventRelatedAnalyzer(desc.ResetMixin): 
     """Analyzer object for reverse-correlation/event-related analysis

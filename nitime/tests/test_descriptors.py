@@ -6,7 +6,7 @@
 
 import nose.tools as nt
 
-from ...timeseries import descriptors as desc
+from nitime import descriptors as desc
 
 #-----------------------------------------------------------------------------
 # Support classes and functions

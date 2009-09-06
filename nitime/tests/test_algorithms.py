@@ -1,9 +1,8 @@
 import numpy as np
 from numpy.testing import *
 from scipy.signal import signaltools
-from nipy.timeseries import algorithms as tsa
-from nipy.testing import *
-from nipy.timeseries import utils as ut
+from nitime import algorithms as tsa
+from nitime import utils as ut
 
 def test_scipy_resample():
     """ Tests scipy signal's resample function
