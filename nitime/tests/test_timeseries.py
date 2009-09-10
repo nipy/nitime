@@ -25,8 +25,13 @@ def test_CorrelationAnalyzer():
     np.testing.assert_array_almost_equal(C.xcorr.data[0,1],C.xcorr.data[1,0])
     
     #Test the normalized cross-correlation
-    #Should be equal to 1 at 0 time-lag:
+    #The cross-correlation should be equal to the correlation at time-lag 0
+    np.testing.assert_equal(C.xcorr_norm.data[0,1,C.xcorr_norm.time==0]
+                            ,C.correlation[0,1])
+
+    #And the auto-correlation should be equal to 1 at 0 time-lag:
     np.testing.assert_equal(C.xcorr_norm.data[0,0,C.xcorr_norm.time==0],1)
+
 
     
 

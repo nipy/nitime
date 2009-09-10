@@ -410,7 +410,7 @@ def time_series_from_nifti(nifti_file,coords,normalize=False,detrend=False,
 
     #Make a list the size of the coords-list, with place-holder 0's
     data_out = list([0]) * len(coords)
-    
+
     for c in xrange(len(coords)): 
         data_out[c] = nifti_data[:,coords[c][0],coords[c][1],coords[c][2]].T
         #Take the transpose in order to make time the last dimension
@@ -429,7 +429,7 @@ def time_series_from_nifti(nifti_file,coords,normalize=False,detrend=False,
 
     #Convert this into the array with which the time-series object is
     #initialized:
-    data_out = np.array(data_out)
+    data_out = np.array(data_out).squeeze()
         
     tseries = UniformTimeSeries(data_out,sampling_interval=TR)
 
@@ -794,15 +794,14 @@ class CorrelationAnalyzer(desc.ResetMixin):
         for i in xrange(tseries_length): 
             for j in xrange(i,tseries_length):
                 xcorr[i,j] = tsu.xcorr(self.data[i],self.data[j])
-                xcorr[i,j] /= max(xcorr[i,j])
-                xcorr[i,j] *= np.corrcoef(self.data[i],self.data[j])[0,1]
+                xcorr[i,j] /= (xcorr[i,j,t_points])
+                xcorr[i,j] *= self.correlation[0,1]
 
         idx = tsu.tril_indices(tseries_length,-1)
         xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
 
         return UniformTimeSeries(xcorr,sampling_interval=self.sampling_interval,
-                                 t0=-self.sampling_interval*t_points+1)
-
+                                 t0=-self.sampling_interval*t_points)
     
 ##Event-related analysis:
 class EventRelatedAnalyzer(desc.ResetMixin): 
