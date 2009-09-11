@@ -135,14 +135,14 @@ def coherency_calculate(fxy, fxx, fyy):
     Notes
     -----
     
-    This is an implementation of equation (1) of Sun et al. (2005) [1]_: 
+    This is an implementation of equation (1) of Sun et al. (2005) [Sun2005]_: 
 
     .. math::
 
         R_{xy} (\lambda) = \frac{f_{xy}(\lambda)}
         {\sqrt{f_{xx} (\lambda) \cdot f_{yy}(\lambda)}}
 
-    .. [1] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
+    .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
         temporal dynamics of functional networks using phase spectrum of fMRI
         data. Neuroimage, 28: 227-37.
 
@@ -211,16 +211,16 @@ def coherence(time_series,csd_method=None):
     Notes
     -----
     
-    This is an implementation of equation (2) of Sun et al. (2005) [1]_:
+    This is an implementation of equation (2) of Sun et al. (2005) [Sun2005]_:
 
     .. math::
 
         Coh_{xy}(\lambda) = |{R_{xy}(\lambda)}|^2 = 
         \frac{|{f_{xy}(\lambda)}|^2}{f_{xx}(\lambda) \cdot f_{yy}(\lambda)}
 
-    .. [1] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring temporal
-        dynamics of functional networks using phase spectrum of fMRI data.
-        Neuroimage, 28: 227-37.
+    .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
+        temporal dynamics of functional networks using phase spectrum of fMRI
+        data.  Neuroimage, 28: 227-37.
 
     See also
     --------
@@ -272,16 +272,16 @@ def coherence_calculate(fxy, fxx, fyy):
     Notes
     -----
     
-    This is an implementation of equation (2) of Sun et al. (2005) [1]_:
+    This is an implementation of equation (2) of Sun et al. (2005) [Sun2005]_:
 
     .. math::
 
         Coh_{xy}(\lambda) = |{R_{xy}(\lambda)}|^2 = 
         \frac{|{f_{xy}(\lambda)}|^2}{f_{xx}(\lambda) \cdot f_{yy}(\lambda)}
 
-    .. [1] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring temporal
-        dynamics of functional networks using phase spectrum of fMRI data.
-        Neuroimage, 28: 227-37.
+    .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
+        temporal dynamics of functional networks using phase spectrum of fMRI
+        data.  Neuroimage, 28: 227-37.
 
     See also
     --------
@@ -634,7 +634,7 @@ def coherency_bavg(time_series,lb=0,ub=None,csd_method=None):
     Notes
     -----
     
-    This is an implementation of equation (A4) of Sun et al. (2005) [1]_: 
+    This is an implementation of equation (A4) of Sun et al. (2005) [Sun2005]_: 
 
     .. math::
 
@@ -642,7 +642,7 @@ def coherency_bavg(time_series,lb=0,ub=None,csd_method=None):
         \frac{\left|{\sum_\lambda{\hat{f_{xy}}}}\right|^2}
         {\sum_\lambda{\hat{f_{xx}}}\cdot sum_\lambda{\hat{f_{yy}}}} 
 
-    .. [1] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
+    .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
         temporal dynamics of functional networks using phase spectrum of fMRI
         data. Neuroimage, 28: 227-37.
 
@@ -704,7 +704,7 @@ def coherency_bavg_calculate(fxy, fxx, fyy):
     Notes
     -----
     
-    This is an implementation of equation (A4) of Sun et al. (2005) [1]_: 
+    This is an implementation of equation (A4) of Sun et al. (2005) [Sun2005]_: 
 
     .. math::
 
@@ -712,7 +712,7 @@ def coherency_bavg_calculate(fxy, fxx, fyy):
         \frac{\left|{\sum_\lambda{\hat{f_{xy}}}}\right|^2}
         {\sum_\lambda{\hat{f_{xx}}}\cdot sum_\lambda{\hat{f_{yy}}}} 
 
-    .. [1] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
+    .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
         temporal dynamics of functional networks using phase spectrum of fMRI
         data. Neuroimage, 28: 227-37.
     """
@@ -907,14 +907,14 @@ def coherence_partial(time_series,r,csd_method=None):
     Notes
     -----
     
-    This is an implementation of equation (2) of Sun et al. (2004) [1]_: 
+    This is an implementation of equation (2) of Sun et al. (2004) [Sun2004]_: 
 
     .. math::
 
         Coh_{xy|r} = \frac{|{R_{xy}(\lambda) - R_{xr}(\lambda)
         R_{ry}(\lambda)}|^2}{(1-|{R_{xr}}|^2)(1-|{R_{ry}}|^2)}
 
-    .. [1] F.T. Sun and L.M. Miller and M. D'Esposito(2004). Measuring
+    .. [Sun2004] F.T. Sun and L.M. Miller and M. D'Esposito(2004). Measuring
     interregional functional connectivity using coherence and partial coherence
     analyses of fMRI data Neuroimage, 21: 647-58.
     """
@@ -974,14 +974,14 @@ def coherence_partial_calculate(fxy,fxx,fyy,fxr,fry,frr):
 
     Notes
     -----
-    This is an implementation of equation (2) of Sun et al. (2004) [1]_: 
+    This is an implementation of equation (2) of Sun et al. (2004) [Sun2004]_: 
 
     .. math::
 
         Coh_{xy|r} = \frac{|{R_{xy}(\lambda) - R_{xr}(\lambda)
         R_{ry}(\lambda)}|^2}{(1-|{R_{xr}}|^2)(1-|{R_{ry}}|^2)}
 
-    .. [1] F.T. Sun and L.M. Miller and M. D'Esposito(2004). Measuring
+    .. [Sun2004] F.T. Sun and L.M. Miller and M. D'Esposito(2004). Measuring
     interregional functional connectivity using coherence and partial coherence
     analyses of fMRI data Neuroimage, 21: 647-58.
     """
@@ -1095,15 +1095,15 @@ def coherency_phase_spectrum (time_series,csd_method=None):
     Notes
     -----
     
-    This is an implementation of equation (3) of Sun et al. (2005) [1]_:
+    This is an implementation of equation (3) of Sun et al. (2005) [Sun2005]_:
 
     .. math::
 
         \phi(\lambda) = arg [R_{xy} (\lambda)] = arg [f_{xy} (\lambda)]
 
-    .. [1] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring temporal
-        dynamics of functional networks using phase spectrum of fMRI data.
-        Neuroimage, 28: 227-37.
+    .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
+        temporal dynamics of functional networks using phase spectrum of fMRI
+        data.  Neuroimage, 28: 227-37.
     """
     if csd_method is None:
         csd_method = {'this_method':'mlab'} #The default
@@ -1143,15 +1143,15 @@ def coherency_phase_spectrum_calculate(fxy):
     Notes
     -----
     
-    This is an implementation of equation (3) of Sun et al. (2005) [1]_:
+    This is an implementation of equation (3) of Sun et al. (2005) [Sun2005]_:
 
     .. math::
 
         \phi(\lambda) = arg [R_{xy} (\lambda)] = arg [f_{xy} (\lambda)]
 
-    .. [1] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring temporal
-        dynamics of functional networks using phase spectrum of fMRI data.
-        Neuroimage, 28: 227-37.
+    .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
+        temporal dynamics of functional networks using phase spectrum of fMRI
+        data.  Neuroimage, 28: 227-37.
     """
     phi = np.angle(fxy)
     
@@ -1269,13 +1269,13 @@ def coherency_phase_delay_bavg_calculate(f,fxy):
     Notes
     -----
     
-    This is an implementation of equation (8) of Sun et al. (2005) [1]_: 
+    This is an implementation of equation (8) of Sun et al. (2005) [Sun2005]_: 
 
     .. math::
 
     XXX Write down the equation
 
-    .. [1] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
+    .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
         temporal dynamics of functional networks using phase spectrum of fMRI
         data. Neuroimage, 28: 227-37.
    
@@ -1309,14 +1309,14 @@ def correlation_spectrum(x1,x2, Fs=2, norm=False):
     
     Notes
     -----
-    Equation 15 of Cordes et al (2000) [1]_:
+    Equation 15 of Cordes et al (2000) [Cordes2000]_:
 
     .. math::
 
     XXX write down the equation
 
-    .. [1] D Cordes, V M Haughton, K Arfanakis, G J Wendt, P A Turski, C H
-    Moritz, M A Quigley, M E Meyerand (2000). Mapping functionally related
+    .. [Cordes2000] D Cordes, V M Haughton, K Arfanakis, G J Wendt, P A Turski,
+    C H Moritz, M A Quigley, M E Meyerand (2000). Mapping functionally related
     regions of brain with functional connectivity MR imaging. AJNR American
     journal of neuroradiology 21:1636-44
     
@@ -1346,7 +1346,7 @@ def correlation_spectrum(x1,x2, Fs=2, norm=False):
 #-----------------------------------------------------------------------------
 
 def fir(timeseries,design):
-    """Calculate the FIR (finite impulse response) HRF, according to [1]_
+    """Calculate the FIR (finite impulse response) HRF, according to [Burock2000]_
     
     
     Parameters
@@ -1378,13 +1378,13 @@ def fir(timeseries,design):
     Notes
     -----
 
-    Implements equation for in [1]_:
+    Implements equation for in[Burock2000]_:
 
     .. math::
 
         \hat{h} = (X^T X)^{-1} X^T y
         
-    .. [1] M.A. Burock and A.M.Dale (2000). Estimation and Detection of
+    .. [Burock2000] M.A. Burock and A.M.Dale (2000). Estimation and Detection of
         Event-Related fMRI Signals with Temporally Correlated Noise: A
         Statistically Efficient and Unbiased Approach. Human Brain Mapping,
         11:249-260
@@ -2328,6 +2328,3 @@ def cache_to_coherency(cache,ij):
 #--------------------------------------------------------------------------------
 
 """XXX docstring for Granger causality algorithms """
-
-    
-    
