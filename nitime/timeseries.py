@@ -221,8 +221,8 @@ class UniformTimeSeries(TimeSeriesBase):
         # done, we just look at the first two elements of the time array.
         return 1.0/self.sampling_interval
 
-    def __init__(self,data,t0=None,sampling_interval=None,sampling_rate=None,
-                 time=None,time_unit='s'):
+    def __init__(self, data, t0=None, sampling_interval=None,
+                 sampling_rate=None, time=None, time_unit='s'):
         """Create a new UniformTimeSeries.
 
         This class assumes that data is uniformly sampled, but you can specify
