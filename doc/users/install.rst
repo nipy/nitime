@@ -60,10 +60,7 @@ Optional
 Getting the latest release
 --------------------------
 
-This will be possible once we `release.
-<https://sourceforge.net/apps/trac/nipy/roadmap>`_
-
-The latest release is `here <http://sourceforge.net/projects/nipy/files/latest>`_.
+The code is here: http://github.com/fperez/nitime
 
 Building from source
 --------------------
