@@ -5,6 +5,7 @@ XXX wrie top level doc-string
 """
 import numpy as np
 import scipy.linalg as linalg
+import scipy.stats as stats
 
 #-----------------------------------------------------------------------------
 # Spectral estimation testing utilities
@@ -868,29 +869,30 @@ def fir_design_matrix(events,len_hrf):
 
     return fir_matrix
 
-
-def dirac_delta(i,j):
-    """The dirac delta function:
-
-    .. math::
-        \delta_{i,j} = 1 for i=j
-                       0 otherwise
-    """
-
-    if i==j:
-        return 1
-    else:
-        return 0
-
 #----------goodness of fit utilities ----------------------------------------
 
-def residual_sum_of_squares(x,x_hat):
-    """The sum of the squares of the discrepancies between a variable x and an
-    estimate of that variable (x_hat) """
-
-    return np.sum((x-x_hat)**2)
+def noise_covariance_matrix(x,y):
+    """ Calculates the noise covariance matrix of the estimation of x from y,
+    where x and y are n-dimensional time-series like objects
     
-def akaike_information_criterion(sigma,p,n):
+    Example
+    -------
+    
+    >>> x = np.matrix([[1,2,3],[4,5,6],[7,8,9]])
+    >>> y = np.matrix([[1,2,3],[4,4,4],[7,7,7]])
+    >>> a = noise_covariance_matrix(x,y)
+    >>> a
+    array([[ 0.        ,  0.        ,  0.        ],
+       [ 0.        ,  0.33333333,  0.66666667],
+       [ 0.        ,  0.66666667,  1.33333333]])
+
+    """
+    e = x-y
+
+    return stats.cov(e)
+    
+
+def akaike_information_criterion(sigma,m,n):
     """ A measure of the goodness of fit of a statistical model based on the
     number of parameters,  and the model likelihood, calculated from the
     discrepancy between the variable x and the model estimate of that
@@ -899,14 +901,11 @@ def akaike_information_criterion(sigma,p,n):
     Parameters
     ----------
 
-    k: int,
-       the number of model parameters
-
-    x: 1d np array
-       the true data
-
-    n: int,
-       the total number of 
+    sigma: a square matrix, the error covariance matrix of the model fit
+    
+    m: int, the number of parameters in the model.
+    
+    n: int, the total number of time-points/samples 
 
     Returns
     -------
@@ -923,7 +922,11 @@ def akaike_information_criterion(sigma,p,n):
 
     AIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m}{N_{total}},
 
-    where $\Sigma$ is the noise covariance matrix, containing in $\Sigma_{i,j}$
+    where $\Sigma$ is the noise covariance matrix. In auto-regressive model
+    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual variance
+    in estimating time-series $i$ from $j$, $p$ is the dimensionality of the
+    data, $m$ is the number of parameters in the model and $N_{total}$ is the
+    number of time-points.   
     
     .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
        Basic Theory and Application to
@@ -932,25 +935,22 @@ def akaike_information_criterion(sigma,p,n):
     See also: http://en.wikipedia.org/wiki/Akaike_information_criterion
     """
     
-    AIC = 2*(np.log(linalg.det(sigma))) + ( ( 2*(p**2) * m ) / (n) )
-
+    AIC = (2*( np.log(linalg.det(sigma)) ) +
+           ( (2*(sigma.shape[0]**2) * m ) / (n) ))
     
     return AIC
 
-def akaike_information_criterion_c(k,x,x_hat):
+def akaike_information_criterion_c(sigma,m,n):
     """ The Akaike Information Criterion, corrected for small sample size.
 
     Parameters
     ----------
+
+    sigma: a square matrix, the error covariance matrix of the model fit
     
-    k: int,
-       the number of model parameters
-
-    x: 1d np array
-       the true data
-
-    x_hat: 1d np array
-        the data as estimated by the model
+    m: int, the number of parameters in the model.
+    
+    n: int, the total number of time-points/samples 
 
 
     Returns
@@ -961,30 +961,37 @@ def akaike_information_criterion_c(k,x,x_hat):
 
     Notes
     -----
-    See http://en.wikipedia.org/wiki/Akaike_information_criterion"""
+    Taken from: http://en.wikipedia.org/wiki/Akaike_information_criterion:
 
-    n = x.shape[-1]
-    AIC = akaike_information_criterion(k,x,x_hat)
-    AICc = AIC + (2*k*(k+1))/(n-k-1)
+    .. math::
+
+    AICc = AIC + \frac{2m(m+1)}{n-m-1}
+
+    Where m is the number of parameters in the model and n is the number of
+    time-points in the data.
+
+    See also :func:`akaike_information_criterion`
+    
+    """
+
+    AIC = akaike_information_criterion(sigma,m,n)
+    AICc = AIC + (2*m*(m+1))/(n-m-1)
 
     return AICc
 
-def schwarz_criterion(k,x,x_hat):
-    """The Schwarz criterion also known as the Bayesian Information Criterion
-    is a measure of goodness of fit of a statistical model, based on the number
-    of model parameters and the likelihood of the model
+def bayesian_information_criterion(sigma,m,n):
+    """The Bayesian Information Criterion, also known as the Schwarz criterion
+     is a measure of goodness of fit of a statistical model, based on the
+     number of model parameters and the likelihood of the model
 
     Parameters
     ----------
 
-    k: int,
-       the number of model parameters
-
-    x: 1d np array
-       the true data
-
-    x_hat: 1d np array
-        the data as estimated by the model
+    sigma: a square matrix, the error covariance matrix of the model fit
+    
+    m: int, the number of parameters in the model.
+    
+    n: int, the total number of time-points/samples 
     
     Returns
     -------
@@ -994,12 +1001,28 @@ def schwarz_criterion(k,x,x_hat):
 
     Notes
     -----
+        This is an implementation of equation (51) in Ding et al. (2006)
+    [Ding2006]_:
+
+    .. math ::
+
+    BIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m log(N_{total})}{N_{total}},
+
+    where $\Sigma$ is the noise covariance matrix. In auto-regressive model
+    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual variance
+    in estimating time-series $i$ from $j$, $p$ is the dimensionality of the
+    data, $m$ is the number of parameters in the model and $N_{total}$ is the
+    number of time-points.   
+    
+    .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
+       Basic Theory and Application to
+       Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
+
+    
     See http://en.wikipedia.org/wiki/Schwarz_criterion
+
     """ 
 
-    n = x.shape[-1]
-    RSS = residual_sum_of_squares(x,x_hat)
-    
-    BIC = n * np.log(RSS/n) + k*np.log(n)
-
+    BIC =  (2*( np.log(linalg.det(sigma)) ) +
+           ( (2*(sigma.shape[0]**2) * m * np.log(n)) / (n) ))
     return BIC
