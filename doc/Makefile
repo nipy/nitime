@@ -23,7 +23,7 @@ help:
 	      		"items (ChangeLog)"
 	@echo "  linkcheck check all external links for integrity"
 	@echo "  doctest   run all doctests embedded in the documentation"
-	@echo "  sf_cburns copy html files to sourceforge (cburns only)"
+	@echo "  sf_fer_perez copy html files to sourceforge (fer_perez only)"
 
 clean:
 	-rm -rf _build/* *~ api/generated

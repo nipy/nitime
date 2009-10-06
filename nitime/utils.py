@@ -5,7 +5,6 @@ XXX wrie top level doc-string
 """
 import numpy as np
 import scipy.linalg as linalg
-import scipy.stats as stats
 
 #-----------------------------------------------------------------------------
 # Spectral estimation testing utilities
@@ -872,26 +871,25 @@ def fir_design_matrix(events,len_hrf):
 #----------goodness of fit utilities ----------------------------------------
 
 def noise_covariance_matrix(x,y):
-    """ Calculates the noise covariance matrix of the estimation of x from y,
-    where x and y are n-dimensional time-series like objects
+    """ Calculates the noise covariance matrix of x-y, where x and y are
+    n-dimensional time-series like objects
     
     Example
     -------
     
-    >>> x = np.matrix([[1,2,3],[4,5,6],[7,8,9]])
-    >>> y = np.matrix([[1,2,3],[4,4,4],[7,7,7]])
-    >>> a = noise_covariance_matrix(x,y)
+    >>> x = np.matrix([[1,2,3],[1,2,3],[1,2,3]])
+    >>> y = np.matrix([[1,2,3],[1,1,1],[3,3,3]])
+    >>> a = ut.noise_covariance_matrix(x,y)
     >>> a
-    array([[ 0.        ,  0.        ,  0.        ],
-       [ 0.        ,  0.33333333,  0.66666667],
-       [ 0.        ,  0.66666667,  1.33333333]])
+    array([[ 0.,  0.,  0.],
+           [ 0.,  1.,  1.],
+           [ 0.,  1.,  1.]])
 
     """
     e = x-y
 
-    return stats.cov(e)
+    return np.cov(e)
     
-
 def akaike_information_criterion(sigma,m,n):
     """ A measure of the goodness of fit of a statistical model based on the
     number of parameters,  and the model likelihood, calculated from the
