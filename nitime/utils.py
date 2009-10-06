@@ -4,6 +4,7 @@ XXX wrie top level doc-string
 
 """
 import numpy as np
+import scipy.linalg as linalg
 
 #-----------------------------------------------------------------------------
 # Spectral estimation testing utilities
@@ -881,16 +882,17 @@ def dirac_delta(i,j):
     else:
         return 0
 
-#goodness of fit utilities: 
+#----------goodness of fit utilities ----------------------------------------
+
 def residual_sum_of_squares(x,x_hat):
     """The sum of the squares of the discrepancies between a variable x and an
     estimate of that variable (x_hat) """
 
     return np.sum((x-x_hat)**2)
     
-def akaike_information_criterion(k,x,x_hat):
+def akaike_information_criterion(sigma,p,n):
     """ A measure of the goodness of fit of a statistical model based on the
-    number of parameters, k and the model likelihood, calculated from the
+    number of parameters,  and the model likelihood, calculated from the
     discrepancy between the variable x and the model estimate of that
     variable.
 
@@ -903,9 +905,8 @@ def akaike_information_criterion(k,x,x_hat):
     x: 1d np array
        the true data
 
-    x_hat: 1d np array
-        the data as estimated by the model
-
+    n: int,
+       the total number of 
 
     Returns
     -------
@@ -915,14 +916,25 @@ def akaike_information_criterion(k,x,x_hat):
         
     Notes
     -----
-    See http://en.wikipedia.org/wiki/Akaike_information_criterion
+    This is an implementation of equation (50) in Ding et al. (2006)
+    [Ding2006]_:
+
+    .. math ::
+
+    AIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m}{N_{total}},
+
+    where $\Sigma$ is the noise covariance matrix, containing in $\Sigma_{i,j}$
+    
+    .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
+       Basic Theory and Application to
+       Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
+    
+    See also: http://en.wikipedia.org/wiki/Akaike_information_criterion
     """
     
-    RSS = residual_sum_of_squares(x,x_hat)
-    n = x.shape[-1]
-    
-    AIC = 2*k + float(n)*(np.log( (2*np.pi*RSS) /float(n)) + 1)
+    AIC = 2*(np.log(linalg.det(sigma))) + ( ( 2*(p**2) * m ) / (n) )
 
+    
     return AIC
 
 def akaike_information_criterion_c(k,x,x_hat):
