@@ -871,8 +871,16 @@ def fir_design_matrix(events,len_hrf):
 #----------goodness of fit utilities ----------------------------------------
 
 def noise_covariance_matrix(x,y):
-    """ Calculates the noise covariance matrix of x-y, where x and y are
-    n-dimensional time-series like objects
+    """ Calculates the noise covariance matrix of the errors in predicting a
+    time-series
+    
+    Parameters
+    ----------
+    x,y: ndarray, where x is the actual time-series and y is the prediction
+
+    Returns
+    -------
+    np.matrix, the noise covariance matrix
     
     Example
     -------
@@ -888,9 +896,9 @@ def noise_covariance_matrix(x,y):
     """
     e = x-y
 
-    return np.cov(e)
+    return np.matrix(np.cov(e))
     
-def akaike_information_criterion(sigma,m,n):
+def akaike_information_criterion(x,y,m):
     """ A measure of the goodness of fit of a statistical model based on the
     number of parameters,  and the model likelihood, calculated from the
     discrepancy between the variable x and the model estimate of that
@@ -899,12 +907,12 @@ def akaike_information_criterion(sigma,m,n):
     Parameters
     ----------
 
-    sigma: a square matrix, the error covariance matrix of the model fit
+    x: the actual time-series
+
+    y: the model prediction for the time-series
     
     m: int, the number of parameters in the model.
     
-    n: int, the total number of time-points/samples 
-
     Returns
     -------
 
@@ -932,19 +940,20 @@ def akaike_information_criterion(sigma,m,n):
     
     See also: http://en.wikipedia.org/wiki/Akaike_information_criterion
     """
-    
+    sigma = noise_covariance_matrix(x,y)
     AIC = (2*( np.log(linalg.det(sigma)) ) +
-           ( (2*(sigma.shape[0]**2) * m ) / (n) ))
+           ( (2*(sigma.shape[0]**2) * m ) / (x.shape[-1]) ))
     
     return AIC
 
-def akaike_information_criterion_c(sigma,m,n):
+def akaike_information_criterion_c(x,y,m):
     """ The Akaike Information Criterion, corrected for small sample size.
 
     Parameters
     ----------
+    x: the actual time-series
 
-    sigma: a square matrix, the error covariance matrix of the model fit
+    y: the model prediction for the time-series
     
     m: int, the number of parameters in the model.
     
@@ -972,12 +981,12 @@ def akaike_information_criterion_c(sigma,m,n):
     
     """
 
-    AIC = akaike_information_criterion(sigma,m,n)
-    AICc = AIC + (2*m*(m+1))/(n-m-1)
+    AIC = akaike_information_criterion(x,y,m)
+    AICc = AIC + (2*m*(m+1))/(x.shape[-1]-m-1)
 
     return AICc
 
-def bayesian_information_criterion(sigma,m,n):
+def bayesian_information_criterion(x,y,m):
     """The Bayesian Information Criterion, also known as the Schwarz criterion
      is a measure of goodness of fit of a statistical model, based on the
      number of model parameters and the likelihood of the model
@@ -985,7 +994,9 @@ def bayesian_information_criterion(sigma,m,n):
     Parameters
     ----------
 
-    sigma: a square matrix, the error covariance matrix of the model fit
+    x: the actual time-series
+
+    y: the model prediction for the time-series
     
     m: int, the number of parameters in the model.
     
@@ -1020,7 +1031,7 @@ def bayesian_information_criterion(sigma,m,n):
     See http://en.wikipedia.org/wiki/Schwarz_criterion
 
     """ 
-
+    sigma = noise_covariance_matrix(x,y)
     BIC =  (2*( np.log(linalg.det(sigma)) ) +
-           ( (2*(sigma.shape[0]**2) * m * np.log(n)) / (n) ))
+           ( (2*(sigma.shape[0]**2) * m * np.log(x.shape[-1])) / (x.shape[-1]) ))
     return BIC

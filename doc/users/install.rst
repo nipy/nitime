@@ -62,6 +62,11 @@ Getting the latest release
 
 The code is here: http://github.com/fperez/nitime
 
+You can grab a copy of the code by using the following command (assuming you
+have git installed)::
+
+	git clone git://github.com/fperez/nitime.git
+
 Building from source
 --------------------
 
