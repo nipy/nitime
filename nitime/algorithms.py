@@ -2159,10 +2159,10 @@ def cache_fft(time_series,ij,lb=0,ub=None,
     
     Notes
     ----
-    * For now, requires method to be mlab
-    * Notice that detrending the input is not an option here, in order to save
+    - For now, the only method implemented is 'mlab'
+    - Notice that detrending the input is not an option here, in order to save
     time on an empty function call!
-
+    
     """
     if method is None:
         method = {'this_method':'mlab'} #The default
@@ -2212,7 +2212,7 @@ def cache_fft(time_series,ij,lb=0,ub=None,
         #This is the normalization factor for one-sided estimation, taking into
         #account the sampling rate. This makes the PSD a density function, with
         #units of dB/Hz, so that integrating over frequencies gives you the RMS
-        #(this should be in the tests!).
+        #(XXX this should be in the tests!).
         norm_val = (np.abs(window_vals)**2).sum()*(Fs/2)
         
     else:
@@ -2283,6 +2283,28 @@ def cache_to_psd(cache,ij):
     
     
     return Pxx
+
+def cache_to_phase(cache,ij):
+    """ From a set of cached set of windowed fft's, calculate the
+    frequency-band dependent phase for all the ij"""
+
+    #This is the way it is saved by cache_spectra:
+    FFT_slices=cache['FFT_slices']
+
+    Phase = {}
+
+    all_channels = set()
+    for i,j in ij:
+        all_channels.add(i); all_channels.add(j)
+    n_channels = len(all_channels)
+
+    for i in all_channels:
+        Phase[i] = np.angle(FFT_slices[i])
+        #If there is more than one window, average over all the windows: 
+        if FFT_slices[i].shape[0]>1:
+            Phase[i] = np.mean(Phase[i],0)
+    
+    return Phase
 
 def cache_to_coherency(cache,ij):
     """From a set of cached spectra, calculate the coherency

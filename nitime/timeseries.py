@@ -691,14 +691,6 @@ class CoherenceAnalyzer(desc.ResetMixin):
         
         return p_coherence        
         
-    def coherency_seed(self,time_series):
-        """A function which uses the data in the CoherenceAnalyzer as a
-        seed and pits it against all the different rows in the input
-        time_series, while not calculating the entire pair-wise coherency
-        matrix for the input""" 
-        #XXX implement! 
-        raise NotImplementedError
-
 class SparseCoherenceAnalyzer(desc.ResetMixin):
     """This analyzer is intended for analysis of large sets of data, in which
     possibly only a subset of combinations of time-series needs to be compared.
@@ -707,31 +699,104 @@ class SparseCoherenceAnalyzer(desc.ResetMixin):
     combinations. Importantly, this class implements only the mlab csd function
     and cannot use other methods of spectral estimation""" 
 
-    def __init__(self,time_series,ij,method=None):
-        """The  constructor for the SparseCoherenceAnalyzer """ 
+    def __init__(self,time_series,ij,method=None,lb=0,ub=None,
+                 prefer_speed_over_memory=False,
+                 scale_by_freq=True):
+        """The constructor for the SparseCoherenceAnalyzer
+
+        Parameters
+        ----------
+
+        time_series: a time-series object
+    
+        ij: a list of tuples, each containing a pair of indices.
+
+           The resulting cache will contain the fft of time-series in the rows
+           indexed by the unique elements of the union of i and j
+    
+        lb,ub: float,optional, default: lb=0, ub=None (max frequency)
+
+            define a frequency band of interest
+
+        prefer_speed_over_memory: Boolean, optional, default=False
+
+            Does exactly what the name implies. If you have enough memory
+
+        method: optional, dict
+
+         The method for spectral estimation (see `func`:algorithms.get_spectra:)
+
+        """ 
         #Initialize variables from the time series
         self.data = time_series.data
         self.sampling_rate = time_series.sampling_rate
         self.ij = ij
-        
         #Set the variables for spectral estimation (can also be entered by user):
         if method is None:
             self.method = {'this_method':'mlab'}
 
         else:
             self.method = method
-        if method['this_method']!='mlab':
+
+        if self.method['this_method']!='mlab':
             raise ValueError("For SparseCoherenceAnalyzer, spectral estimation"
             "method must be mlab")
             
         self.method['Fs'] = self.method.get('Fs',self.sampling_rate)
 
+        #Additional parameters for the coherency estimation: 
+        self.lb = lb
+        self.ub = ub
+        self.prefer_speed_over_memory = prefer_speed_over_memory
+        self.scale_by_freq = scale_by_freq
+        
+    @desc.setattr_on_read
+    def cache(self):
+        """Caches the fft windows required by the other methods of the
+        SparseCoherenceAnalyzer. Calculate only once and reuse
+        """
+        f,cache = tsa.cache_fft(self.data,self.ij,
+                          lb=self.lb,ub=self.ub,
+                          method=self.method,
+                          prefer_speed_over_memory=self.prefer_speed_over_memory,
+                          scale_by_freq=self.scale_by_freq)
+
+        return cache
+    
     @desc.setattr_on_read
     def coherency(self):
-        f,cache = tsa.cache_fft(cache_fft)
-        coherency = tsa.cache_to_coherency(cache,self.ij)
+        coherency = tsa.cache_to_coherency(self.cache,self.ij)
+
         return coherency
-            
+    
+    @desc.setattr_on_read
+    def spectrum(self):
+        """get the spectrum for the collection of time-series in this analyzer
+        """ 
+        spectrum = tsa.cache_to_psd(self.cache,self.ij)
+
+        return spectrum
+    
+    @desc.setattr_on_read
+    def phases(self):
+        """The frequency-band dependent phases of the spectra of the
+           time-series i,j in the analyzer"""
+        
+        phase= tsa.cache_to_phase(self.cache,self.ij)
+
+        return phase
+
+    @desc.setattr_on_read
+    def frequencies(self):
+        """Get the central frequencies for the frequency bands, given the
+           method of estimating the spectrum """
+
+        NFFT = self.method.get('NFFT',64)
+        Fs = self.method.get('Fs')
+        freqs = tsu.get_freqs(Fs,NFFT)
+
+        return freqs
+        
 class CorrelationAnalyzer(desc.ResetMixin):
     """Analyzer object for correlation analysis. Has the same API as the
     CoherenceAnalyzer"""
