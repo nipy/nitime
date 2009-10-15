@@ -21,31 +21,18 @@ NumPy_ 1.3 or later
 SciPy_ 0.7 or later
   Numpy and Scipy are high-level, optimized scientific computing libraries.
 
-NetworkX_ 1.0
-  Python package for working with complex networks.
-
-IPython_ 0.10
-  Interactive python environment. This is necessary for the parallel
-  components of the pipeline engine.
-  
-    * The IPython.kernel (parallel computing component) has the
-      following dependencies:
-
-      * `Twisted <http://twistedmatrix.com/trac/>`_
-      * zope.interface: which is also a dependecy of Twisted and was
-        installed automatically for me when I installed Twisted.
-
+Matplotlib_
+  Python plotting library. In particular, :mod:`Nitime` makes use of the
+  :mod:`matplotlib.mlab` module for some implementation of numerical algorithms
 
 Strong Recommandations
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Matplotlib_
-  Python plotting library.
+IPython_ 0.10
+  Interactive python environment. This is necessary for the parallel
+  components of the pipeline engine.
 
 Sphinx_
-  Required for building the documentation
-
-`Graphviz <http://www.graphviz.org/>`_
   Required for building the documentation
 
 
