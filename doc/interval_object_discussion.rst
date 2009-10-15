@@ -13,5 +13,3 @@ OR: It can be an original object with the default constructor as similar as
 possible to the constructor of the slice object, so that we can use slice-like
 operations, but still maintain slice algebra and such.
 
-
-

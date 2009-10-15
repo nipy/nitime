@@ -29,13 +29,6 @@ __all__ = ['time_units',
 
 import warnings
 import numpy as np
-
-#Pynifti is an optional dependency, used in a handful of functions for reading
-#data from fMRI nifti files:
-try:
-    import nifti
-except ImportError:
-   print('Warning: nifti could not be imported')
     
 # Our own
 from nitime import descriptors as desc
@@ -388,6 +381,11 @@ def time_series_from_nifti(nifti_file,coords,normalize=False,detrend=False,
     time-series object
 
         """
+    try:
+        import nifti 
+    except ImportError: 
+        print "pynifti not available"
+    
     #get the nifti image object from the file: 
     nifti_im = nifti.NiftiImage(nifti_file)
     
