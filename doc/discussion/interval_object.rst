@@ -1,9 +1,15 @@
+.. _interval_object:
+
 =================
  Interval object
 =================
 
-Intervals are very useful! Every time-series data object has a time dimension
-and we will use *Interval* objects to select (slice) subsets of the data.
+Intervals are very useful! Often we want to analyze events occuring within
+particular intervals of time. A series of intervals surrounding particular
+events would be useful for various kinds of event-related analysis.
+
+Every time-series data object has a time dimension and we will use *Interval*
+objects to select (slice) subsets of the data.
 
 I think, we would like to have a scalar and an array version of this object
 and I am not sure if we should implement a new *timeinterval* dtype, or if we
