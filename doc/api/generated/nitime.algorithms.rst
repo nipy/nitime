@@ -25,6 +25,9 @@ Functions
 .. autofunction:: nitime.algorithms.cache_to_coherency
 
 
+.. autofunction:: nitime.algorithms.cache_to_phase
+
+
 .. autofunction:: nitime.algorithms.cache_to_psd
 
 

@@ -1,3 +1,5 @@
+.. _time_series_access:
+
 ====================
  Time-series access
 ====================
@@ -6,14 +8,14 @@ Since one dimension of time-series data is associated with time, there is a
 natural way to index into time-series data using time objects. The result of
 an indexing operation depends on what kind of time objects is used: We have
 scalar and array-like time objects, and we have time-objects representing time
-points and time intervals (see `ref`:base_class_discussion.rst:). Furthermore,
+points and time intervals (see :ref:`base_classes`). Furthermore,
 we have two fundamentally different data types: *TimeSeries*, which is data
 sampled during a continuous stretch of time, and *Events*, which is data
-sampled at discrete time points (see `ref`:events_class_discussion.rst:).
+sampled at discrete time points (see :ref:`event_class`).
 
-We implement the indexing operation using the method `func`:ts.at: with the
-plan to later map the method `func`:ts.__getitem__: to the function
-`func`:ts.at:. However, using the function `func`:ts.at: directly is more
+We implement the indexing operation using the method :func:`ts.at` with the
+plan to later map the method :func:`ts.__getitem__` to the function
+:func:`ts.at`. However, using the function :func:`ts.at` directly is more
 flexible since it allows to use additional keyword arguments.
 
 Before we discuss all the different possible indexing operations, we first
@@ -51,7 +53,7 @@ establish as set of guiding principles for time-series access:
   for indexing.
 
 * Every time-series data (and time) object to implements a method
-  `func`:to.time2index: that given a (scalar) time point t returns an integer
+  :func:`to.time2index` that given a (scalar) time point t returns an integer
   index i suitable for indexing both into the nd-array to.data and into
   to.time:
 
@@ -59,8 +61,8 @@ establish as set of guiding principles for time-series access:
   time_point = to.time.at(t) = to.time[t] = to.time[to.time2index(t)]
 
 * Every time-series data (and time) object to implements a method
-  `func`:to.aslice: that given a (scalar) time interval ti (see
-  `ref`:interval_object_discussion.rst:) returns an integer slice slice(i,j)
+  :func:`to.aslice` that given a (scalar) time interval ti (see
+  :ref:`interval_object`) returns an integer slice slice(i,j)
   suitable for indexing both into the nd-array to.data and into to.time:
 
   to.interval2slice(ti) = slice(to.time2index(ti.start), to.time2index(ti.stop))
@@ -120,9 +122,9 @@ Interval
 ~~~~~~~~
 
 Here, ti is an array-like Interval object, not a scalar Interval (see
-`ref`:interval_object_discussion.rst:). This is the only case, I am not quite
-sure what to expect and if it even makes sense to implement this. One thing
-that would make sense is that
+:ref:`interval_object`). This is the only case, I am not quite sure what to
+expect and if it even makes sense to implement this. One thing that would make
+sense is that
 
   ti.at(t) returns another Interval array containing all intervals that
   contain the time point t.
@@ -143,8 +145,9 @@ Access with a *TimePoint* array tp into a *TimeSeries* object ts returns a new
 Indexing using a (scalar) Interval
 ----------------------------------
 
-Access using intervals (see `ref`:interval_object_discussion.rst: ), will give
-you back a uniform time-series objects with the time being of length of
-t_start-t_end and with the ts.t0 offset by the intervals t_offset.
+Access using intervals (see :ref:`interval_object` ), will give you back a
+uniform time-series objects with the time being of length of t_start-t_end and
+with the ts.t0 offset by the intervals t_offset.
 
-This works for *TimeSeries*, *Event*, and *TimePoint* classes.
+This works for :class:`TimeSeries`, :class:`Event`, and :class:`TimePoint`
+classes.

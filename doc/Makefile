@@ -73,3 +73,8 @@ doctest:
 sf_fer_perez:
 	@echo "Copying html files to sourceforge..."
 	rsync -avH --delete -e ssh _build/html/ fer_perez,nipy@web.sourceforge.net:htdocs/nitime
+
+#Trying to make a target for arokem:
+sf_arokem:
+	@echo "Copying html files to sourceforge..."
+	rsync -avH --delete -e ssh _build/html/ arokem,nipy@web.sourceforge.net:htdocs/nitime
