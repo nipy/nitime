@@ -5,7 +5,7 @@ Coherence/y use-cases
 
 import numpy as np
 from matplotlib.pylab import *
-import nipy.timeseries as nipyts
+import nitime as nipyts
 tsa = nipyts.algorithms
 tsu = nipyts.utils
 ts= nipyts.timeseries
@@ -32,8 +32,8 @@ x = np.sin(10*t) + np.sin(12*t) + 0.05*np.random.randn(t.shape[-1])
 y = np.sin(10*t) + np.sin(12*t + pi/2) + 0.05*np.random.randn(t.shape[-1])
 
 #Noise and a phase shifted copy of the same noise (+ independent noise):
-x = np.random.randn(t.shape[-1])
-y = np.roll(x,25) + 0.1*np.random.randn(t.shape[-1])
+#x = np.random.randn(t.shape[-1])
+#y = np.roll(x,25) + 0.1*np.random.randn(t.shape[-1])
 
 data = np.vstack([x,y])
 
@@ -48,15 +48,12 @@ plot(C1.frequencies,C1.coherence[0,1])
 method = {'this_method':'multi_taper_csd'}
 C2 = ts.CoherenceAnalyzer(tSeries,method)
 plot(C2.frequencies,C2.coherence[0,1])
-show()
 
 figure()
 plot(C1.frequencies,C1.phase[0,1])
 plot(C2.frequencies,C2.phase[0,1])
-show()
 
 figure()
 plot(C1.frequencies,C1.delay[0,1])
 plot(C2.frequencies,C2.delay[0,1])
-show()
 
