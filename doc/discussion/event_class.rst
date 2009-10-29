@@ -35,12 +35,12 @@ data
 ----
 
 Correspondingly, the data of a *TimeSeries* object, can be thought of
-n-dimensional data recorded during a continuous stretch of time and
-represented by n-dimensional data points, one for each time bin. As discussed
-in more detail in :ref:`time_series_access_discussion.rst`, when we index
-sampled data with a single time point $t$, we would like to obtain the data
-corresponding to the time bin that contains this time point (which is
-represented by the largest $t_i$ with $t_i<=t$.
+n-dimensional data recorded during a continuous stretch of time and represented
+by n-dimensional data points, one for each time bin. As discussed in more
+detail in :ref:`time_series_access`, when we index sampled data with a single
+time point $t$, we would like to obtain the data corresponding to the time bin
+that contains this time point (which is represented by the largest $t_i$ with
+$t_i<=t$.
 
 
 
@@ -66,7 +66,7 @@ Correspondingly, the data can be thought of as a list of n-dimensional data
 points recorded at the given time-points. When we index events by a single
 time point $t$, we expect to obtain the data that was recorded at that point
 in time, or at a point in time closest to $t$ (see
-:ref:`time_series_access__discussion.rst`)
+:ref:`time_series_access`)
 
 
 Time points
@@ -82,7 +82,7 @@ which the eyes moved or at which a button was pressed. Subsequently, we might
 want to assign data to these time points, such as the movie frame present at
 the screen during the eye movement or during the button press. We can do this
 by indexing with the *TimePoint* objects into the movie *TimeSeries* (see
-:ref:`time_series_access__discussion.rst`).
+:ref:`time_series_access`).
 
 The distinction between *TimePoint* and *Event* is important, because it makes
 sense to use *TimePoint* to index into other time-series, but it does not
