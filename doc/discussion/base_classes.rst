@@ -5,7 +5,7 @@
 ==============
 
 We have two sets of base-classes. The first is used in order to represent time
-andinherits from :class:`np.ndarray`, see :ref:`time_classes`. The other are
+and inherits from :class:`np.ndarray`, see :ref:`time_classes`. The other are
 data containers, used to represent different kinds of time-series data, see
 :ref:`time_series_classes`
 
