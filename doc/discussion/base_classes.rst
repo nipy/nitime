@@ -16,13 +16,20 @@ Time
 
 The first set of base classes is a set of representations of time. All these
 classes inherit from :class:`np.array` with the dtype limited to be
-:class:`datetime64`.
+:class:`timedelta64`. The reason we want to use :class:`timedelta64` and not
+:class:`datetime64` is that while the latter represents *absolute* time (that
+is, time including the date and time), the former represents *relative* time,
+which is the more useful representation, when it comes to experimental
+data. This is because most often the absolute calender time of the occurence of
+events in an experiment is of no importance. Rather, the comparison of the time
+progression of different experiments conducted in different calendar times
+(different days, different times in the same day) is more common. 
 
 These representation will all serve as the underlying machinery to index into
 the :class:`TimeSeries` objects with arrays of time-points.  The additional
 functionality common to all of these is described in detail in
 :ref:`time_series_access`. Briefly, they will all have a :func:`at` method,
-which allows indexing with arrays of :class:`datetime64`. The result of this
+which allows indexing with arrays of :class:`timedelta64`. The result of this
 indexing will be to return the time-point in the the respective which is most
 appropriate (see :ref:`time_series_access` for details). They will also all
 have a :func:`index_at` method, which returns the integer index of this time in
@@ -53,8 +60,12 @@ This class can be used in order to represent time with a varying sampling rate,
 or also represent events which occur at different times in an ordered
 series. Thus, the time-points in this representation are unique (should they be
 unique?) and are ordered. This will be used as the time representation used in
-the :ref:`NonUniformTimeSeries` class.   
-
+the :ref:`NonUniformTimeSeries` class. As in the case of the
+:class:`np.ndarray`, slicing into this kind of representation should allow a
+reshaping operation to occur, which would change the dimensions of the
+underlying array. In this case, this should allow to induce a ragged/jagged
+array structure to emerge (see
+http://en.wikipedia.org/wiki/Array_data_structure for details).
 
 .. _UniformTime:
 
@@ -68,11 +79,25 @@ explicit representation of :attribute:`t_0`, :attribute:`sampling_rate` and
 element in this array can be used in order to represent the entire time
 interval $t$, such that: $t_i\leq t < t + \delta t$, where $t_i$ is the nominal
 value held by that element of the array, and $\delta t$ is the value of
-:attribute:`sampling_interval`.  Notice that this kind of class can be reshaped
-in such a way that it gets more dimensions (see also :ref:`time_table`). The
-:ref:`NonUniformTime` class will be designed such that in the future it too can
-be reshaped as a ragged/jagged array (see
-http://en.wikipedia.org/wiki/Array_data_structure for details).
+:attribute:`sampling_interval`. As in the case of the
+:ref:`NonUniformTimeSeries`, this kind of class can be reshaped in such a way
+that induces an increase in the number of dimensions (see also
+:ref:`time_table`).
+
+This object will contain additional attributes that are not shared by the other
+time objects. In particular, an object of :class:`UniformTime`, UT, will have
+the following:
+
+* :attribute:`UT.t_0`: the first time-point in the series.
+* :attribute:`UT.sampling_rate`: the sampling rate of the series.
+* :attribute:`UT.sampling_interval`: the value of $\delta t$, mentioned above.
+* Would we want to have an :attribute:`UT.duration`? This would have the total
+  time (in dtype :class:`deltatime64`) of the series.
+
+Obviously, :attribute:`UT.sampling_rate` and :attribute:`UT.sampling_interval`
+are interchangeable, but can both be useful. Therefore, these would be
+implemented in the object with a :func:`setattr_on_read` decoration and the
+object should inherit :class:`ResetMixin`
 
 
 .. _time_table:
@@ -104,16 +129,20 @@ In implementing these objects, we follow the following principles:
   a clean and compact implementation, which doesn't carry all manner of
   unwanted properties into a bloated object with obscure and unknown behaviors.
 * In tandem, one of their attributes is one of the base classes described
-  above, in :ref:`time_classes`
+  above, in :ref:`time_classes`. This is the :attribute:`time` attribute of the
+  time-series object. Therefore, it is implemented in the object with a
+  :func:`desc.setattr_on_read` decoration, so that it is only generated if it
+  is needed. 
 * Access into the object and into the object will be uniform across the
   different classes :attribute:`data` and into the object. Described in
   :ref:`time_series_access`.
 * In particular, we want to enable indexing into these data-containers with
-  both arrays of time-points (arrays of dtype :class:`datetime64`), with
+  both arrays of time-points (arrays of dtype :class:`timedelta64`), with
   intervals (see :ref:`interval_class`) and also, eventually, with
   integers. This should include operations that behave like :class:`np.ndarray`
   'fancy indexing. See :ref:`time_series_access` for detail.
 
+ 
 .. _EventSeries:
 :class:`EventSeries`
 --------------------
