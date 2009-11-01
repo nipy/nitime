@@ -97,7 +97,7 @@ the following:
 Obviously, :attribute:`UT.sampling_rate` and :attribute:`UT.sampling_interval`
 are interchangeable, but can both be useful. Therefore, these would be
 implemented in the object with a :func:`setattr_on_read` decoration and the
-object should inherit :class:`ResetMixin`
+object should inherit :class:`ResetMixin`. 
 
 
 .. _time_table:

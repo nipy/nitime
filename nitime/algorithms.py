@@ -20,6 +20,7 @@ can be used on any type of data which can be represented in numpy arrays.
 #import packages:
 import numpy as np
 from scipy import signal 
+from scipy import stats
 from matplotlib import mlab
 from scipy import linalg
 import utils as ut
