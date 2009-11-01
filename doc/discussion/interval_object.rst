@@ -8,6 +8,31 @@ Intervals are very useful! Often we want to analyze events occuring within
 particular intervals of time. A series of intervals surrounding particular
 events would be useful for various kinds of event-related analysis.
 
+
+
+
+
+--
+Even though there is a dtype *timedelta64*, this does not have all the
+information we would like to associate with a time interval. In particular, a
+time interval should at least specify a start time t_start and a stop time
+t_stop, and potentially an additional attribute t_offset (see
+:ref:`interval_object`).
+
+
+Interval (array)
+----------------
+
+This class corresponds to a list of time intervals which don't have to be
+contiguous and can even be overlapping. Each element is a *timeinterval* (see
+:ref:`interval_object`) and can be used to index into all of the
+time-series classes.
+--
+
+
+
+
+
 Every time-series data object has a time dimension and we will use *Interval*
 objects to select (slice) subsets of the data.
 

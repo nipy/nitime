@@ -4,6 +4,13 @@
  Base classes
 ==============
 
+We have two sets of base-classes. The first is used in order to represent time
+andinherits from :class:`np.ndarray`, see :ref:`time_classes`. The other are
+data containers, used to represent different kinds of time-series data, see
+:ref:`time_series_classes`
+
+.. _time_classes:
+
 Time
 ====
 
@@ -20,8 +27,8 @@ indexing will be to return the time-point in the the respective which is most
 appropriate (see :ref:`time_series_access` for details). They will also all
 have a :func:`index_at` method, which returns the integer index of this time in
 the underlying array. Finally, they will all have a :func:`during` method,
-which will allow indexing into these objects with an interval bject. This will
-return the appropriate times corresponding to an :ref:`interval_object` and
+which will allow indexing into these objects with an interval object. This will
+return the appropriate times corresponding to an :ref:`interval_class` and
 :func:`index_during`, which will return the array of integers corresponding to
 the indices of these time-points in the array.
 
@@ -43,7 +50,11 @@ data is sampled in order of channel and not in order of time.
 -------------------------
 
 This class can be used in order to represent time with a varying sampling rate,
-or also represent contains time-points that 
+or also represent events which occur at different times in an ordered
+series. Thus, the time-points in this representation are unique (should they be
+unique?) and are ordered. This will be used as the time representation used in
+the :ref:`NonUniformTimeSeries` class.   
+
 
 .. _UniformTime:
 
@@ -56,121 +67,98 @@ explicit representation of :attribute:`t_0`, :attribute:`sampling_rate` and
 :method:`setattr_on_read`, which can be computed from each other).Thus, each
 element in this array can be used in order to represent the entire time
 interval $t$, such that: $t_i\leq t < t + \delta t$, where $t_i$ is the nominal
-value held by that element of the array, and $\delta t$ is the
-value of :attribute:`sampling_interval`.
+value held by that element of the array, and $\delta t$ is the value of
+:attribute:`sampling_interval`.  Notice that this kind of class can be reshaped
+in such a way that it gets more dimensions (see also :ref:`time_table`). The
+:ref:`NonUniformTime` class will be designed such that in the future it too can
+be reshaped as a ragged/jagged array (see
+http://en.wikipedia.org/wiki/Array_data_structure for details).
 
 
+.. _time_table:
 
-We have two basic classes for time-series data, the current *TimeSeries* which
-we can think of (uniformly or non-uniformly) sampled data, and *Event* (see
-:ref:`event_class`). The time dimension of a *TimeSeries*
-object can be thought of as (uniformly or non-uniformly sampled) continuous
-stretch of time (or time interval), whereas the time dimension of an *Event* is
-a list of discrete time stamps. Corresponding to these two cases, we introduce
-two time classes: *TimeBin* and *TimePoint*.
-
-Both *TimeBin* and *TimePoint* are represented by a 1-dimensional nd-array of
-dtype time, but they allow indexing with time variables instead of usual integer
-indices or slices. Both *TimeBin* and *TimePoint*  can be implemented as either
-a thin wrapper around nd-array or even as a nd-array sub-class.
-
-We have the following principles:
-
-* All data classes have a time dimension represented by the *time* attribute.
-* All time classes can be used to index into each data class.
-
-We want to limit ourselves to as few as possible classes (but not fewer :-). In
-particular, the time classes have to be specific enough to be able to do
-specify all common use cases to index into data by time, and the data classes
-have to be specific enough so that we know what to expect when we index into
-them.
++-------+----------------+----+---------+--------------------+------------------+
+|       | class          | 1d | ordered | unique time points | uniform sampling |
++=======+================+====+=========+====================+==================+
+|       | EventArray     | y  |    n    |         n          |         n	|
+|       |----------------+----+---------+--------------------+------------------+
+| Time  | NonUniformTime | n  |    y    |         y          |         n        |
+|  	|----------------+----+---------+--------------------+------------------+  
+|       | UniformTime    | n  |    y    |         y          |         y        |
++-------+----------------+----+---------+--------------------+------------------+
 
 
-Time classes
-============
+.. _time_series_classes:
 
-There are two fundamental time classes, *TimeBin* corresponding to contiguous
-time intervals, broken up into smaller bins, and *TimePoint* corresponding
-to discrete time points. The corresponding elementary scalar types are just
-dtype *datetime64* scalars. Additionally, we will need time-intervals which are
-not necessarily contiguous, the *Interval* (array) class with scalars of a
-new dtype *timeinterval*.
+Time-series 
+===========
 
+These are data container classes for representing different kinds of
+time-series data types.
 
-+-------------+------------+-------------------+-----------------+-----------------+------------------+
-|             | class      | subclass          | scalar type     | contiguous data | uniform sampling |
-+=============+============+===================+=================+=================+==================+
-|             | *TimeBin*  | *UniformTimeBin*  | *datetime64*    |      X          |        X         |
-|             |            +-------------------+-----------------+-----------------+------------------+
-| time        |            |                   | *datetime64*    |      X          |                  |
-| intervals   +------------+-------------------+-----------------+-----------------+------------------+
-|             | *Interval*                     | *timeinterval*  |                 |                  |
-+-------------+--------------------------------+-----------------+-----------------+------------------+
-| time points | *TimePoint*                    | *datetime64*    |                 |                  |
-+-------------+--------------------------------+-----------------+-----------------+------------------+
+In implementing these objects, we follow the following principles:
 
+* The time-series data representations do not inherit from
+  :class:`np.ndarray`. Instead, one of their attributes is a :attribute:`data`
+  attribute, which *is* a :class:`np.ndarray`. This principle should allow for
+  a clean and compact implementation, which doesn't carry all manner of
+  unwanted properties into a bloated object with obscure and unknown behaviors.
+* In tandem, one of their attributes is one of the base classes described
+  above, in :ref:`time_classes`
+* Access into the object and into the object will be uniform across the
+  different classes :attribute:`data` and into the object. Described in
+  :ref:`time_series_access`.
+* In particular, we want to enable indexing into these data-containers with
+  both arrays of time-points (arrays of dtype :class:`datetime64`), with
+  intervals (see :ref:`interval_class`) and also, eventually, with
+  integers. This should include operations that behave like :class:`np.ndarray`
+  'fancy indexing. See :ref:`time_series_access` for detail.
 
-time-point (scalar)
--------------------
+.. _EventSeries:
+:class:`EventSeries`
+--------------------
 
-A time-point is a scalar number of dtype *datetime64*. It can be used to either
-represent a time bin (in the *TimeBin* array class) or to represent a
-time-point in the *TimePoint* class.
-
-
-time-interval (scalar)
-----------------------
-
-Do we want to implement an new dtype for this?
-
-Even though there is a dtype *timedelta64*, this does not all the information
-we would like to associate with a time interval. In particular, a time interval
-should at least specify a start time t_start and a stop time t_stop, and
-potentially an additional attribute t_offset (see
-:ref:`interval_object`).
+This is an object which represents a collection of events. For example, this
+can represent discrete button presses occuring during an experiment. This
+object contains a :ref:`EventArray` as its representation of time. This means
+that the events recorded in the :attribute:`data` array can be organized
+according to any organizing principle you would want, not neccesarily according
+to their organization or order in time. For example, if events are read from
+different devices, the order of the events in the data array can be arbitrarily
+chosen to be the order of the devices from which data is read.
 
 
-TimeBin (array)
----------------
+.. _NonUniformTimeSeries:
+:class:`NonUniformTimeSeries`
+-----------------------------
 
-This class represents the time axis of *TimeSeries* data. It is essentially a
-one-dimensional nd-array of dtype *datetime64* and each element corresponds to
-the left edge of a time bin.  *TimeBin* allows special indexing using time
-objects (see :ref:`time_series_access`).
-
-TimePoint (array)
------------------
-
-Maybe *TimeStamp* would be a better name?
-
-This class is essentially a nd-array of dtype *datetime64* representing
-discrete time points (Think of spike trains, for example) and each element
-corresponds to the left edge of a time bin.
-
-This class represents the time axis of *Event* data.  *TimePoint* allows
-special indexing using time objects (see
-:ref:`time_series_access`).
+As in the case of the :ref:`EventSeries`, this object also represents a
+collection of events. However, in contrast, these events must be ordered. This
+can be used, for example, in order to represent a rare event in continuous
+time, such as a spike-train. Alternatively, it could be used in order to
+represent continuous time sampling, which is done not in a constant
+sampling-rate (what is an example of that?). The representation of time here is
+:ref:`NonUniformTime`.
 
 
-Interval (array)
-----------------
+.. _UniformTimeSeries:
+:class:`UniformTimeSeries`
+--------------------------
 
-This class corresponds to a list of time intervals which don't have to be
-contiguous and can even be overlapping. Each element is a *timeinterval* (see
-:ref:`interval_object`) and can be used to index into all of the
-time-series classes.
+This represents time-series of data collected continuously and regularly. Can
+be used in order to represent typical physiological data measurements, such as
+measurements of BOLD responses, or of membrane-potential. The representation of
+time here is :ref:`UniformTime`.
 
 
-Data classes
-============
+.. _time_series_table:
 
-+---------------+---------------------+------------------+-----------------+------------------+
-| class         | Subclass            | contains         | contiguous data | uniform sampling |
-+===============+=====================+==================+=================+==================+
-| *TimeSeries*  | *UniformTimeSeries* | *UniformTimeBin* |      X          |        X         |
-|               +---------------------+------------------+-----------------+------------------+
-|               |                     | *TimeBin*        |      X          |                  |
-+---------------+---------------------+------------------+-----------------+------------------+
-| *Event*       |                     | *TimePoint*      |                 |                  |
-+---------------+---------------------+------------------+-----------------+------------------+
-
++--------+---------------------+---------------+-----------------+
+|        | class               |    time       | example         |
++========+=====================+===============+=================+
+|        | EventSeries         | EventArray    | button presses  |
+|        |---------------------+---------------+-----------------+
+|  Time- | NonUniformTimeSeries| NonUniformTime| spike trains    |
+| Series |---------------------+---------------+-----------------+ 
+|        | UniformTimeSeri     | UniformTime   | BOLD            |
++--------+---------------------+---------------+-----------------+
