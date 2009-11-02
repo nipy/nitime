@@ -2423,7 +2423,7 @@ def autocov(x):
     autocov = np.empty((n,n))
 
     for i in range(n):
-        autocov[i] = np.correlate(x,np.roll(x,i),'same') - x.mean()**2
+        autocov[i] = np.correlate(x,np.roll(x,-i),'same') - x.mean()**2
 
     return autocov
         
