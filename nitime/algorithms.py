@@ -2377,3 +2377,57 @@ def gauss_white_noise(npts):
 
     # XXX No validation that output is gaussian enough yet
     return n
+
+def autocov(x):
+    """ Calculate the auto-covariance of a signal.
+
+    This assumes that the signal is wide-sense stationary
+
+    Parameters
+    ----------
+
+    x: 1-d float array
+
+    The signal
+
+    Returns
+    -------
+
+    nXn array (where n is x.shape[0]) with the autocovariance matrix of the
+    signal x
+
+    Notes
+    -----
+
+    See: http://en.wikipedia.org/wiki/Autocovariance
+
+    Examples:
+    ---------
+
+    >>> x = np.random.randn(3)
+    >>> a = tsa.autocov(x)
+    >>> a
+    array([[ 1.05518268,  2.81185132,  1.05518268],
+          [ 2.40275058,  1.36620712,  0.51137247],
+          [ 0.24181483,  1.36620712,  2.57539073]])
+    >>> x = tsa.gauss_white_noise(3)
+    >>> a = tsa.autocov(x)
+    >>> a
+    array([[-0.30238689,  0.78882452, -0.30238689],
+          [ 0.7937778 , -0.17635249, -0.00367334],
+          [-0.11933134, -0.17635249, -0.08868673]])
+    
+    """
+
+    n = x.shape[0]
+    autocov = np.empty((n,n))
+
+    for i in range(n):
+        autocov[i] = np.correlate(x,np.roll(x,i),'same') - x.mean()**2
+
+    return autocov
+        
+        
+    
+    
+    
