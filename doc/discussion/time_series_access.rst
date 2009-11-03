@@ -5,149 +5,149 @@
 ====================
 
 Since one dimension of time-series data is associated with time, there is a
-natural way to index into time-series data using time objects. The result of
-an indexing operation depends on what kind of time objects is used: We have
-scalar and array-like time objects, and we have time-objects representing time
-points and time intervals (see :ref:`base_classes`). Furthermore,
-we have two fundamentally different data types: *TimeSeries*, which is data
-sampled during a continuous stretch of time, and *Events*, which is data
-sampled at discrete time points (see :ref:`event_class`).
+natural way to index into time-series data using time objects as indices. For
+the data classes (:ref:`time_series_classes`) an indexing operation performed
+with a single time-point (a single-element array of dtype
+:class:`timedelta64`. Wondering why :class:`timedelta64` and not
+:class:`datetime64`? See discussion in :ref:`time_classes`) should result in
+returning the data at that time-point - that is, removal of the time-dimension
+from the data.
 
-We implement the indexing operation using the method :func:`ts.at` with the
-plan to later map the method :func:`ts.__getitem__` to the function
-:func:`ts.at`. However, using the function :func:`ts.at` directly is more
-flexible since it allows to use additional keyword arguments.
+The base-classes representing time (:ref:`time_classes`) serve as natural
+intermediaries in this process, by providing the integer index of a particular
+time-point (or returning an array of integers, as the case may be, see
+below). Therefore, these classes should include a method which performs this
+conversion, :func:`index_at`. This function should accept as parameter an array
+of dtype :class:`timedelta64` and return integers corresponding to the
+location of that time-point in the different types of time classes.
 
-Before we discuss all the different possible indexing operations, we first
-establish as set of guiding principles for time-series access:
+Access into Time classes
+------------------------
 
-* Every time-series data object has a *data* attribute which is an instance of
-  an nd-array array and a *time* attribute which is an instance of a time
-  class. (Scalar time-series objects don't exist, since the data attribute is
-  always an nd-array).
-* Indexing using integer indices and ordinary slices (with integer start,
-  stop, and step) has the same effect as indexing the underlying nd-array using
-  the same indices and slices.
+:class:`EventArray`
+~~~~~~~~~~~~~~~~~~~
 
-  to.at(i) = to[i] = to.data[...,i]
-  to.time(i) = to.time[i] = to.time.asarray()[i]
+:func:`ev.index_at(t)` returns the indices of the values in the array that are
+*closest* to t. That is, it returns i, such that $\forall i: \abs{(t-t_i)}$ is
+the minimal. 
 
-  I would argue that here we have another reason to choose the time dimension
-  as the first dimension (not last): this would allow to rewrite the first
-  line above:
+Potentially, an optional 'tolerance' argument can be implemented, specifying a
+maximal time difference between the index time and the returned time.
 
-  to.at(i) = to[i] = to.data[i]
 
-* Every time-series data object can be accessed (indexed) using any time object.
-* The result of indexing into a time-series data object using a time object is
-  always again either an instance of the same time-series data class or an
-  instance of a vanilla nd-array. The latter case only occurs, when a single
-  time point is used to index into the time-series data and is analogous to
-  indexing with a single integer into an nd-array.
-* There are scalar and array-like time objects. Every array-like time object
-  can be accessed (indexed) using any time object (just like the data
-  objects).
-* The result of indexing into a array-like time object using another time
-  object is always again an instance of the same array-like time object or a
-  time scalar. The latter case only occurs, when a single time point is used
-  for indexing.
+:class:`NonUniformTime`
+~~~~~~~~~~~~~~~~~~~~~~~
 
-* Every time-series data (and time) object to implements a method
-  :func:`to.time2index` that given a (scalar) time point t returns an integer
-  index i suitable for indexing both into the nd-array to.data and into
-  to.time:
+As above, :func:`nut.index_at(t)` also returns the indices in the array that
+are closest to t. Since :class:`NonUniformTime` is ordered, this should give
+you either the index below or the index above the time-point you provide as
+input, depending on what interval ($\abs{t-t_i}$ or $\abs{t-t_{i+1}}$ is
+smaller.
 
-  data_point = to.at(t) = to[t] = to.data[...,to.assindex(t)]
-  time_point = to.time.at(t) = to.time[t] = to.time[to.time2index(t)]
 
-* Every time-series data (and time) object to implements a method
-  :func:`to.aslice` that given a (scalar) time interval ti (see
-  :ref:`interval_object`) returns an integer slice slice(i,j)
-  suitable for indexing both into the nd-array to.data and into to.time:
+:class:`UniformTime`
+~~~~~~~~~~~~~~~~~~~~
 
-  to.interval2slice(ti) = slice(to.time2index(ti.start), to.time2index(ti.stop))
+:func:`ut.index_at(t)` returns the indices of the values in the array that are
+the largest time values, smaller thatn the input values t. That is, it returns i
+for which $t_i$ is the maximal one, which still fulfills: $t_i<t$.  
+
+Questions
+~~~~~~~~~
+The follwing questions apply to all three cases: 
+
+* what happens when the t is smaller than the smallest entry in the array
+  return None?
+* what happens when t is larget than the last entry in the time array? return
+  None?
+
+:func:`at`
+~~~~~~~~~~
+
+This function extracts the value of the time array, which corresponds to the
+output of :func:`index_at` with an input t. 
+
+That is, for an instance :class:`T` of one of the time classes, this function
+will return:
+
+.. code-block:: python
+
+     T.time[T.index_at(t)]
+
+
+Indexing into data time-series objects
+--------------------------------------
+
+Indexing with time
+~~~~~~~~~~~~~~~~~~
+
+The above function :func:`index_at()` serves as the basis for the
+implementation of the function :func:`at()` for the time-series data objects.
+This function returns the part of the data in :class:`UniformTimeSeries.data`
+(or the equivalent data structure in :class:`EventSeries' and
+:class:`NonUniformTimeSeries`) that corresponds to the times provided.
+
+Importantly, the result of indexing into a time-series data object using a time
+object is always again either an instance of the same time-series data class or
+an instance of a vanilla nd-array. The latter case only occurs, when a single
+time point is used to index into the time-series data and is analogous to
+indexing with a single integer into an nd-array. Conversion between different
+time-series classes can occur if the indexing time-points are non-uniform (for
+conversion between :class:`UniformTimeSeries` and
+:class:`NonUniformTimeSeries`) or if the time-points are not ordered (for
+conversion from :class:`UniformTimeSeries` or from
+:class:`NonUniformTimeSeries` to :class:`EventSeries`).  
+
+Currently, the plan is to implement the indexing operation using the method
+:func:`at` and only later to map the method :func:`ts.__getitem__` to the
+function :func:`ts.at`. For now, we not that using the function :func:`ts.at`
+directly is more flexible since it allows to use additional keyword arguments,
+so, for now, it is unclear what to set as the default behavior for :func:`at`,
+which will be executed by :func:`__getitem__`. 
+
+The function :func:`during()` will receive as input a :class:`TimeInterval`
+objects and will return the data corresponding to the interval, while dealing
+appropriately with the :attribute:`TI.step` (see :ref:`interval_object` for
+details). How is this done? For an object of class :class:`UniformTimeSeries`,
+access using intervals, will give you back a uniform time-series objects with
+the time being of length of :attribute:`TI.t0` - :attribute:`TI.t_end` and with
+the :attribute:`TS.t0` offset by the :class:`TimeInterval`'s
+:attribute:`TI.step`. 
+
+Indexing with integers
+~~~~~~~~~~~~~~~~~~~~~~
+
+In parallel to the access with time-points, described above, we would like to
+implement indexing the time-series classes directly using integer indices and
+ordinary slices (with integer start, stop, and step). This should have the same
+effect as indexing the underlying nd-array using the same indices and slices,
+such that:
+
+.. code-block:: python
+
+	       T.at(T.time.index_at(i)) = T[i] = T.data[...,i]
+  	       T.time.at(i) = T.time[i] = to.time.asarray()[i]
+
+In order to make the above code more compact, would be another reason to
+implement the the time dimension as the first dimension (not last, see
+:ref:`time_series_classes`): this would allow to rewrite the above:
+
+.. code-block:: python
+
+   		T.at(i) = T[i] = T.data[i]
+
+	       
+Every time-series data (and time) object to implements a method
+:func:`T.slice_at` that given a (scalar) time interval ti (see
+:ref:`interval_object`) returns an integer slice slice(i,j) suitable for
+indexing both into the nd-array to.data and into to.time:
+
+   to.interval2slice(ti) = slice(to.time2index(ti.start), to.time2index(ti.stop))
 
   data_slice = to.data[...,to.interval2slice(ti)]
   time_slice = to.time[to.interval2slice(ti)]
 
  
-Indexing using a (scalar) TimePoint
------------------------------------
-
-In the following, $t$ is a single time point represented by either a scalar of
-the *TimePoint* class, by a scalar nd-array of dtype *datetime64*, or by a
-floating point number. If *t* is represented as a floating point number, its
-time unit is determined by the time unit of the object it is indexing into.
 
 
-TimeSeries
-~~~~~~~~~~
 
-  ts.at(t) returns an nd-array ts.data[:,i], where ts.time.at(i) is the last
-  time-point *preceding* t.
-
-* what happens when $t<ts.t0$? return None?
-* what happens when t is outside the last bin? return None?
-
-
-Event
-~~~~~
-
-  ev.at(t) returns an nd-array ev.data[:,i], where ev.time.at(i) is the
-  time-point *closest* to t.
-
-* should there be an optional argument specifying a maximal time difference
-  between the index time and the returned time?
-
-
-TimeBin
-~~~~~~~
-
-  tb.at(t) returns the last time point preceding t.
-
-* what happens when $t<tb.t0$? return None?
-* what happens when t is outside the last bin? return None?
-
-
-TimePoint
-~~~~~~~~~
-
-  tp.at(t) returns the time point closest to t.
-
-* should there be an optional argument specifying a maximal time difference
-  between the index time and the returned time?
-
-
-Interval
-~~~~~~~~
-
-Here, ti is an array-like Interval object, not a scalar Interval (see
-:ref:`interval_object`). This is the only case, I am not quite sure what to
-expect and if it even makes sense to implement this. One thing that would make
-sense is that
-
-  ti.at(t) returns another Interval array containing all intervals that
-  contain the time point t.
-
-
-Indexing using a TimePoint array
---------------------------------
-
-TimeSeries
-~~~~~~~~~~
-
-Access with a *TimePoint* array tp into a *TimeSeries* object ts returns a new
-*Event* object with time attribute tp and with data attribute
-
-  np.array([ts[i] for i in tp],dtype=datetime64)
-
-
-Indexing using a (scalar) Interval
-----------------------------------
-
-Access using intervals (see :ref:`interval_object` ), will give you back a
-uniform time-series objects with the time being of length of t_start-t_end and
-with the ts.t0 offset by the intervals t_offset.
-
-This works for :class:`TimeSeries`, :class:`Event`, and :class:`TimePoint`
-classes.

@@ -58,13 +58,12 @@ data is sampled in order of channel and not in order of time.
 
 This class can be used in order to represent time with a varying sampling rate,
 or also represent events which occur at different times in an ordered
-series. Thus, the time-points in this representation are unique (should they be
-unique?) and are ordered. This will be used as the time representation used in
-the :ref:`NonUniformTimeSeries` class. As in the case of the
-:class:`np.ndarray`, slicing into this kind of representation should allow a
-reshaping operation to occur, which would change the dimensions of the
-underlying array. In this case, this should allow to induce a ragged/jagged
-array structure to emerge (see
+series. Thus, the time-points in this representation are ordered (and
+unique?). This will be used as the time representation used in the
+:ref:`NonUniformTimeSeries` class. As in the case of the :class:`np.ndarray`,
+slicing into this kind of representation should allow a reshaping operation to
+occur, which would change the dimensions of the underlying array. In this case,
+this should allow to induce a ragged/jagged array structure to emerge (see
 http://en.wikipedia.org/wiki/Array_data_structure for details).
 
 .. _UniformTime:
@@ -107,7 +106,7 @@ object should inherit :class:`ResetMixin`.
 +=======+================+====+=========+====================+==================+
 |       | EventArray     | y  |    n    |         n          |         n	|
 |       |----------------+----+---------+--------------------+------------------+
-| Time  | NonUniformTime | n  |    y    |         y          |         n        |
+| Time  | NonUniformTime | n  |    y    |         ? d          |         n        |
 |  	|----------------+----+---------+--------------------+------------------+  
 |       | UniformTime    | n  |    y    |         y          |         y        |
 +-------+----------------+----+---------+--------------------+------------------+
@@ -128,6 +127,13 @@ In implementing these objects, we follow the following principles:
   attribute, which *is* a :class:`np.ndarray`. This principle should allow for
   a clean and compact implementation, which doesn't carry all manner of
   unwanted properties into a bloated object with obscure and unknown behaviors.
+  We have previously decided to make the time the last dimension in this
+  object, but recently we have been considering making this a user choice (in
+  order to enable indexing into the data by time in a straight-forward manner
+  (using expressions such as :class:`TI.data[i]`. If we want to make this
+  flexible, I would argue that there needs to be an attribute
+  :attribute:`time_last`, which would hold this decision. We need to hash out
+  this issue a bit more (and more, and more...). 
 * In tandem, one of their attributes is one of the base classes described
   above, in :ref:`time_classes`. This is the :attribute:`time` attribute of the
   time-series object. Therefore, it is implemented in the object with a

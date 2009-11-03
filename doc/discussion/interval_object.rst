@@ -62,10 +62,12 @@ consistent, in the same manner that is already implemented in
   know yet, how long the sliced object will be (it depends on the sampling
   interval of the sliced object). If we just use len=0, the indices method just
   returns a 3-tuple that still contains all necessary information and can be
-  used for slicing::
-       
-       >>>TI.indices(0)
-       (TI.t0 TI.t_end, TI.t_step)
+  used for slicing:
+
+.. code-block:: python
+
+   TI.indices(0)
+   (TI.t0 TI.t_end, TI.t_step)
 
 .. _interval_initialization:
 
@@ -74,12 +76,16 @@ Initialization
 
 There are various different ways to initialize a :class:`TimeInterval`:
 
-* With two time points t_start and t_stop, both of dtype :class:`deltatime64`::
+* With two time points t_start and t_stop, both of dtype :class:`deltatime64`:
+
+.. code-block:: python
 
        TimeInterval(t0=t1,t_end=t2)
 
 * With a time point :attribute:`t0` (dtype :class:`deltatime64`) and a duration
-  (dtype :class:`timedelta64`)::
+  (dtype :class:`timedelta64`):
+
+.. code-block:: python
 
        TimeInterval(t0=t1,duration=t2) 
  
@@ -89,10 +95,17 @@ There are various different ways to initialize a :class:`TimeInterval`:
   relevance of this third argument will become relevant when the time interval
   is used to slice into a time-series object (see
   :ref:`time_series_access`). If not provided, this would default to be equal
-  to t0::
-  
-  TimeInterval(t0=t1, t_end=t2, t_step=delta_t) or TimeInterval (t0=t1,
-  duration=delta_t1, t_step=delta_t2)
+  to t0:
+
+.. code-block:: python
+
+   TimeInterval(t0=t1, t_end=t2, t_step=delta_t)
+
+or
+
+.. code-block:: python
+
+   TimeInterval (t0=t1,duration=delta_t1, t_step=delta_t2)
   
 * With two floating point numbers, which will be interpreted as time points
   :attribute:`t0` and :attribute:`t_end`. This convention would be convenient,
