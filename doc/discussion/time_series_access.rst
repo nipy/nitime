@@ -9,9 +9,9 @@ natural way to index into time-series data using time objects as indices. For
 the data classes (:ref:`time_series_classes`) an indexing operation performed
 with a single time-point (a single-element array of dtype
 :class:`timedelta64`. Wondering why :class:`timedelta64` and not
-:class:`datetime64`? See discussion in :ref:`time_classes`) should result in
-returning the data at that time-point - that is, removal of the time-dimension
-from the data.
+:class:`datetime64`? See discussion in :ref:`time_classes` and
+:ref:`comment_timedelta64`) should result in returning the data at that
+time-point - that is, removal of the time-dimension from the data.
 
 The base-classes representing time (:ref:`time_classes`) serve as natural
 intermediaries in this process, by providing the integer index of a particular
@@ -28,7 +28,7 @@ Access into Time classes
 ~~~~~~~~~~~~~~~~~~~
 
 :func:`ev.index_at(t)` returns the indices of the values in the array that are
-*closest* to t. That is, it returns i, such that $\forall i: \abs{(t-t_i)}$ is
+*closest* to t. That is, it returns i, such that $|(t-t_i)|$ is
 the minimal. 
 
 Potentially, an optional 'tolerance' argument can be implemented, specifying a
@@ -41,7 +41,7 @@ maximal time difference between the index time and the returned time.
 As above, :func:`nut.index_at(t)` also returns the indices in the array that
 are closest to t. Since :class:`NonUniformTime` is ordered, this should give
 you either the index below or the index above the time-point you provide as
-input, depending on what interval ($\abs{t-t_i}$ or $\abs{t-t_{i+1}}$ is
+input, depending on what interval ($|t-t_i|$ or $|t-t_{i+1}|$) is
 smaller.
 
 
@@ -137,15 +137,19 @@ implement the the time dimension as the first dimension (not last, see
    		T.at(i) = T[i] = T.data[i]
 
 	       
-Every time-series data (and time) object to implements a method
-:func:`T.slice_at` that given a (scalar) time interval ti (see
+Every time-series data (and time) object would also implements a method
+:func:`T.slice_at` that given a :class:`TimeInterval` object TI (see
 :ref:`interval_object`) returns an integer slice slice(i,j) suitable for
-indexing both into the nd-array to.data and into to.time:
+indexing both into the nd-array :attribute:`T.data` and into
+:attribute:`T.time`:
 
-   to.interval2slice(ti) = slice(to.time2index(ti.start), to.time2index(ti.stop))
+.. code-block:: python
 
-  data_slice = to.data[...,to.interval2slice(ti)]
-  time_slice = to.time[to.interval2slice(ti)]
+
+   T.interval2slice(TI) = slice(T.time2index(TI.t0), T.time2index(TI.t_end))
+
+  data_slice = T.data[...,T.slice_at(TI)]
+  time_slice = T.time[T.slice_at(TI)]
 
  
 
