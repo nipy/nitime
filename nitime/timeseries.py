@@ -792,8 +792,9 @@ class SparseCoherenceAnalyzer(desc.ResetMixin):
         NFFT = self.method.get('NFFT',64)
         Fs = self.method.get('Fs')
         freqs = tsu.get_freqs(Fs,NFFT)
-
-        return freqs
+        lb_idx,ub_idx = tsu.get_bounds(freqs,self.lb,self.ub)
+        
+        return freqs[lb_idx:ub_idx]
         
 class CorrelationAnalyzer(desc.ResetMixin):
     """Analyzer object for correlation analysis. Has the same API as the
