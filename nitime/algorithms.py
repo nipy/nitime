@@ -2307,17 +2307,34 @@ def cache_to_phase(cache,ij):
     
     return Phase
 
-def cache_to_coherency(cache,ij):
+def cache_to_coherency(cache,ij,
+                       freqs=None,lb=0,ub=None):
     """From a set of cached spectra, calculate the coherency
     relationships
 
     Parameters
     ----------
-    cache: a cache with fft's, created by .. function:: cache_fft
+    cache: a cache with fft's, created by :func:`cache_fft`
 
-    ij: the pairs of 
+    ij: the pairs of
+
+    freqs: float array, optional. The middle frequencies of the frequency bands
+    in the fft. Only useful if you want to calculate the coherency over a
+    limited band of frequencies
+
+    lb: int, optional. Used for extracting the coherency over a limited band of frequencue 
+
+    ub: 
+
+    
+    
     """
 
+    if freqs is not None: 
+        lb_idx,ub_idx = ut.get_bounds(freqs,lb,ub)
+    else:
+        lb_idx,ub_idx=0,None
+        
     #This is the way it is saved by cache_spectra:
     FFT_slices=cache['FFT_slices']
     FFT_conj_slices=cache['FFT_conj_slices']
@@ -2331,9 +2348,11 @@ def cache_to_coherency(cache,ij):
 
         #If we made the conjugate slices:
         if FFT_conj_slices:
-            Pxy = FFT_slices[i] * FFT_conj_slices[j]
+            Pxy = (FFT_slices[i][lb_idx:ub_idx] *
+                   FFT_conj_slices[j][lb_idx:ub_idx])
         else:
-            Pxy = FFT_slices[i] * np.conjugate(FFT_slices[j])
+            Pxy = (FFT_slices[i][lb_idx:ub_idx] *
+                   np.conjugate(FFT_slices[j])[lb_idx:ub_idx])
 
         #If there is more than one window
         if FFT_slices.items()[0][1].shape[0]>1:
