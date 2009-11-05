@@ -27,7 +27,7 @@ Access into Time classes
 :class:`EventArray`
 ~~~~~~~~~~~~~~~~~~~
 
-:func:`ev.index_at(t)` returns the indices of the values in the array that are
+:func:`ev.index_at` returns the indices of the values in the array that are
 *closest* to t. That is, it returns i, such that $|(t-t_i)|$ is
 the minimal. 
 
@@ -38,7 +38,7 @@ maximal time difference between the index time and the returned time.
 :class:`NonUniformTime`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-As above, :func:`nut.index_at(t)` also returns the indices in the array that
+As above, :func:`nut.index_at` also returns the indices in the array that
 are closest to t. Since :class:`NonUniformTime` is ordered, this should give
 you either the index below or the index above the time-point you provide as
 input, depending on what interval ($|t-t_i|$ or $|t-t_{i+1}|$) is
@@ -48,7 +48,7 @@ smaller.
 :class:`UniformTime`
 ~~~~~~~~~~~~~~~~~~~~
 
-:func:`ut.index_at(t)` returns the indices of the values in the array that are
+:func:`ut.index_at` returns the indices of the values in the array that are
 the largest time values, smaller thatn the input values t. That is, it returns i
 for which $t_i$ is the maximal one, which still fulfills: $t_i<t$.  
 
@@ -81,10 +81,10 @@ Indexing into data time-series objects
 Indexing with time
 ~~~~~~~~~~~~~~~~~~
 
-The above function :func:`index_at()` serves as the basis for the
-implementation of the function :func:`at()` for the time-series data objects.
+The above function :func:`index_at` serves as the basis for the
+implementation of the function :func:`at` for the time-series data objects.
 This function returns the part of the data in :class:`UniformTimeSeries.data`
-(or the equivalent data structure in :class:`EventSeries' and
+(or the equivalent data structure in :class:`EventSeries` and
 :class:`NonUniformTimeSeries`) that corresponds to the times provided.
 
 Importantly, the result of indexing into a time-series data object using a time
@@ -99,20 +99,20 @@ conversion from :class:`UniformTimeSeries` or from
 :class:`NonUniformTimeSeries` to :class:`EventSeries`).  
 
 Currently, the plan is to implement the indexing operation using the method
-:func:`at` and only later to map the method :func:`ts.__getitem__` to the
+:func:`at` and only later to map the method :meth:`ts.__getitem__` to the
 function :func:`ts.at`. For now, we not that using the function :func:`ts.at`
 directly is more flexible since it allows to use additional keyword arguments,
 so, for now, it is unclear what to set as the default behavior for :func:`at`,
-which will be executed by :func:`__getitem__`. 
+which will be executed by :meth:`__getitem__`. 
 
-The function :func:`during()` will receive as input a :class:`TimeInterval`
+The function :func:`during` will receive as input a :class:`TimeInterval`
 objects and will return the data corresponding to the interval, while dealing
-appropriately with the :attribute:`TI.step` (see :ref:`interval_object` for
+appropriately with the :attr:`TI.t_step` (see :ref:`interval_class` for
 details). How is this done? For an object of class :class:`UniformTimeSeries`,
 access using intervals, will give you back a uniform time-series objects with
-the time being of length of :attribute:`TI.t0` - :attribute:`TI.t_end` and with
-the :attribute:`TS.t0` offset by the :class:`TimeInterval`'s
-:attribute:`TI.step`. 
+the time being of length of :attr:`TI.t_start` - :attr:`TI.t_stop` and with
+the :attr:`TS.t0` offset by the :class:`TimeInterval`'s
+:attr:`TI.t_step`. 
 
 Indexing with integers
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -126,7 +126,7 @@ such that:
 .. code-block:: python
 
 	       T.at(T.time.index_at(i)) = T[i] = T.data[...,i]
-  	       T.time.at(i) = T.time[i] = to.time.asarray()[i]
+  	       T.time.at(i) = T.time[i] = T.time.asarray()[i]
 
 In order to make the above code more compact, would be another reason to
 implement the the time dimension as the first dimension (not last, see
@@ -139,14 +139,15 @@ implement the the time dimension as the first dimension (not last, see
 	       
 Every time-series data (and time) object would also implements a method
 :func:`T.slice_at` that given a :class:`TimeInterval` object TI (see
-:ref:`interval_object`) returns an integer slice slice(i,j) suitable for
-indexing both into the nd-array :attribute:`T.data` and into
-:attribute:`T.time`:
+:ref:`interval_class`) returns an integer slice slice(i,j) suitable for
+indexing both into the nd-array :attr:`T.data` and into
+:attr:`T.time`:
 
 .. code-block:: python
 
 
-   T.interval2slice(TI) = slice(T.time2index(TI.t0), T.time2index(TI.t_end))
+   T.interval2slice(TI) = slice(T.time2index(TI.t_start),
+   T.time2index(TI.t_stop))
 
   data_slice = T.data[...,T.slice_at(TI)]
   time_slice = T.time[T.slice_at(TI)]

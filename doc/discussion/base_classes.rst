@@ -75,13 +75,13 @@ result in a ragged/jagged array.
 --------------------
 
 This class contains ordered time-points. In addition, this class has an
-explicit representation of :attribute:`t_0`, :attribute:`sampling_rate` and
-:attribute:`sampling_interval` (the latter two implemented as
-:method:`setattr_on_read`, which can be computed from each other). Thus, each
+explicit representation of :attr:`t_0`, :attr:`sampling_rate` and
+:attr:`sampling_interval` (the latter two implemented as
+:meth:`setattr_on_read`, which can be computed from each other). Thus, each
 element in this array can be used in order to represent the entire time
 interval $t$, such that: $t_i\leq t < t + \delta t$, where $t_i$ is the nominal
 value held by that element of the array, and $\delta t$ is the value of
-:attribute:`sampling_interval`. As in the case of the
+:attr:`sampling_interval`. As in the case of the
 :ref:`NonUniformTimeSeries`, this kind of class can be reshaped in such a way
 that induces an increase in the number of dimensions (see also
 :ref:`time_table`).
@@ -90,13 +90,13 @@ This object will contain additional attributes that are not shared by the other
 time objects. In particular, an object of :class:`UniformTime`, UT, will have
 the following:
 
-* :attribute:`UT.t_0`: the first time-point in the series.
-* :attribute:`UT.sampling_rate`: the sampling rate of the series.
-* :attribute:`UT.sampling_interval`: the value of $\delta t$, mentioned above.
-* :attribute:`UT.duration`: the total time (in dtype :class:`deltatime64`) of
+* :attr:`UT.t_0`: the first time-point in the series.
+* :attr:`UT.sampling_rate`: the sampling rate of the series.
+* :attr:`UT.sampling_interval`: the value of $\delta t$, mentioned above.
+* :attr:`UT.duration`: the total time (in dtype :class:`deltatime64`) of
   the series.
 
-Obviously, :attribute:`UT.sampling_rate` and :attribute:`UT.sampling_interval`
+Obviously, :attr:`UT.sampling_rate` and :attr:`UT.sampling_interval`
 are redundant, but can both be useful. Therefore, these would be implemented
 in the object with a :func:`setattr_on_read` decoration and the object should
 inherit :class:`ResetMixin`.
@@ -126,7 +126,7 @@ time-series data types.
 In implementing these objects, we follow the following principles:
 
 * The time-series data representations do not inherit from
-  :class:`np.ndarray`. Instead, one of their attributes is a :attribute:`data`
+  :class:`np.ndarray`. Instead, one of their attributes is a :attr:`data`
   attribute, which *is* a :class:`np.ndarray`. This principle should allow for
   a clean and compact implementation, which doesn't carry all manner of
   unwanted properties into a bloated object with obscure and unknown behaviors.
@@ -135,15 +135,15 @@ In implementing these objects, we follow the following principles:
   order to enable indexing into the data by time in a straight-forward manner
   (using expressions such as :class:`TI.data[i]`. If we want to make this
   flexible, I would argue that there needs to be an attribute
-  :attribute:`time_last`, which would hold this decision. We need to hash out
+  :attr:`time_last`, which would hold this decision. We need to hash out
   this issue a bit more (and more, and more...). 
 * In tandem, one of their attributes is one of the base classes described
-  above, in :ref:`time_classes`. This is the :attribute:`time` attribute of the
+  above, in :ref:`time_classes`. This is the :attr:`time` attribute of the
   time-series object. Therefore, it is implemented in the object with a
   :func:`desc.setattr_on_read` decoration, so that it is only generated if it
   is needed. 
 * Access into the object and into the object will be uniform across the
-  different classes :attribute:`data` and into the object. Described in
+  different classes :attr:`data` and into the object. Described in
   :ref:`time_series_access`.
 * In particular, we want to enable indexing into these data-containers with
   both arrays of time-points (arrays of dtype :class:`timedelta64`), with
@@ -153,13 +153,14 @@ In implementing these objects, we follow the following principles:
 
  
 .. _EventSeries:
+
 :class:`EventSeries`
 --------------------
 
 This is an object which represents a collection of events. For example, this
 can represent discrete button presses occuring during an experiment. This
 object contains a :ref:`EventArray` as its representation of time. This means
-that the events recorded in the :attribute:`data` array can be organized
+that the events recorded in the :attr:`data` array can be organized
 according to any organizing principle you would want, not neccesarily according
 to their organization or order in time. For example, if events are read from
 different devices, the order of the events in the data array can be arbitrarily
@@ -167,6 +168,7 @@ chosen to be the order of the devices from which data is read.
 
 
 .. _NonUniformTimeSeries:
+
 :class:`NonUniformTimeSeries`
 -----------------------------
 
@@ -180,6 +182,7 @@ time here is :ref:`NonUniformTime`.
 
 
 .. _UniformTimeSeries:
+
 :class:`UniformTimeSeries`
 --------------------------
 
@@ -189,13 +192,12 @@ measurements of BOLD responses, or of membrane-potential. The representation of
 time here is :ref:`UniformTime`.
 
 
-.. _time_series_table:
 .. +--------+----------------------+----------------+-----------------+
 .. |        | class                |    time        | example         |
 .. +========+======================+================+=================+
-.. |        | EventSeries          | EventArray     | button presses  |
-.. |        |----------------------+----------------+-----------------+
-.. |  Time  | NonUniformTimeSeries | NonUniformTime | spike trains    |
-.. | Series |----------------------+----------------+-----------------+ 
+.. |  Time  | EventSeries          | EventArray     | button presses  |
+.. | Series |----------------------+----------------+-----------------+
+.. |   	 | NonUniformTimeSeries | NonUniformTime | spike trains    |
+.. | 	 |----------------------+----------------+-----------------+ 
 .. |        | UniformTimeSeri      | UniformTime    | BOLD            |
 .. +--------+----------------------+----------------+-----------------+
