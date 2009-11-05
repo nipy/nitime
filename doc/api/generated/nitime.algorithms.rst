@@ -19,6 +19,9 @@ Functions
 .. autofunction:: nitime.algorithms.LD_AR_est
 
 
+.. autofunction:: nitime.algorithms.autocov
+
+
 .. autofunction:: nitime.algorithms.cache_fft
 
 
@@ -107,6 +110,9 @@ Functions
 
 
 .. autofunction:: nitime.algorithms.fir
+
+
+.. autofunction:: nitime.algorithms.gauss_white_noise
 
 
 .. autofunction:: nitime.algorithms.get_spectra
