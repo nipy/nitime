@@ -420,7 +420,8 @@ def time_series_from_nifti(nifti_file,coords,normalize=False,detrend=False,
         #replaced by a filter:
     
         if detrend:
-            data_out[c] = tsu.vista_detrend_tseries(data_out[c],TR,f_c)
+            from nitime import vista_utils as tsv
+            data_out[c] = tsv.vista_detrend_tseries(data_out[c],TR,f_c)
             
         if average:
             data_out[c] = np.mean(data_out[c],0)
