@@ -93,20 +93,36 @@ def hanning_window_spectrum(N, Fs):
     return f, make[1:]/make[1] 
 
 
-def ar_generator(N=512, sigma=1.):
+def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
+    """
     # this generates a signal u(n) = a1*u(n-1) + a2*u(n-2) + ... + v(n)
     # where v(n) is a stationary stochastic process with zero mean
     # and variance = sigma
     # this sequence is shown to be estimated well by an order 8 AR system
-    taps = np.array([2.7607, -3.8106, 2.6535, -0.9238])
-    v = np.random.normal(size=N, scale=sigma**0.5)
+    """
+    if coefs is None:
+        coefs = np.array([2.7607, -3.8106, 2.6535, -0.9238])
+    else:
+        coefs = np.asarray(coefs)
+
+    # The number of terms we generate must include the dropped transients, and
+    # then at the end we cut those out of the returned array.
+    N += drop_transients
+
+    # Typically uses just pass sigma in, but optionally they can provide their
+    # own noise vector, case in which we use it
+    if v is None:
+        v = np.random.normal(size=N, scale=sigma**0.5)
+        
     u = np.zeros(N)
-    P = len(taps)
+    P = len(coefs)
     for l in xrange(P):
-        u[l] = v[l] + np.dot(u[:l][::-1], taps[:l])
+        u[l] = v[l] + np.dot(u[:l][::-1], coefs[:l])
     for l in xrange(P,N):
-        u[l] = v[l] + np.dot(u[l-P:l][::-1], taps)
-    return u, v, taps
+        u[l] = v[l] + np.dot(u[l-P:l][::-1], coefs)
+        
+    # Only return the data after the drop_transients terms
+    return u[drop_transients:], v[drop_transients:], coefs
 
 def circularize(x,bottom=0,top=2*np.pi):
     """ Like a modulu operation into the continuous interval (bottom,top) where
