@@ -124,19 +124,49 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     # Only return the data after the drop_transients terms
     return u[drop_transients:], v[drop_transients:], coefs
 
-def circularize(x,bottom=0,top=2*np.pi):
+def circularize(x,bottom=0.,top=2*np.pi,deg=False):
     """ Like a modulu operation into the continuous interval (bottom,top) where
-    bottom defaults to 0 and top defaults to 2*pi""" 
+    bottom defaults to 0 and top defaults to 2*pi
 
-    if  np.all(x>=bottom) and np.all(x<=top):
-        return x
+    Parameters
+    ----------
+
+    x: ndarray - the
+
+    bottom: float, optional (defaults to 0). If you want to set the bottom of
+    the interval into which you modulu to something else than 0
+
+    top: float, optional (defaults to 2*pi). If you want to set the top of the
+    interval into which you modulu to something else than 2*pi
+
+    deg: bool, optional (defaults to False). If the input is in degrees,
+    instead of radians
+
+    Returns
+    -------
+
+    The input modulu-ized into the [top,bottom] interval.
+    
+    """ 
+    x = np.asarray([x])
+    
+    if deg:
+        x = np.deg2rad(x)
+        
+    if  np.all(x[np.isfinite(x)]>=bottom) and np.all(x[np.isfinite(x)]<=top):
+        if deg:
+            return np.squeeze(np.rad2deg(x))
+        else:
+            return np.squeeze(x)
     else:
         x[np.where(x<0)] += top
         
         x[np.where(x>top)] -= top
 
-    return(circularize(x))
-
+    if deg:
+        return circularize(np.rad2deg(x),bottom=bottom,top=top,deg=deg)
+    else:
+        return circularize(x,bottom=bottom,top=top)
 
 #-----------------------------------------------------------------------------
 # Correlation utils
