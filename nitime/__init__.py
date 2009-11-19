@@ -20,8 +20,10 @@ from version import version as __version__
 __status__   = 'alpha'
 __url__     = 'http://neuroimaging.scipy.org'
 
-
-import timeseries, algorithms, utils, vista_utils, viz
+#The order of the following is important - make sure to import according to the
+#order of dependency (for example, timeseries depends on descriptors, so
+#descriptors needs to be imported first): 
+import utils, algorithms, descriptors, timeseries, vista_utils, viz
 
 from timeseries import *
 
