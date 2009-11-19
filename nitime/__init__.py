@@ -21,7 +21,7 @@ __status__   = 'alpha'
 __url__     = 'http://neuroimaging.scipy.org'
 
 
-import timeseries, algorithms, utils, vista_utils
+import timeseries, algorithms, utils, vista_utils, viz
 
 from timeseries import *
 
