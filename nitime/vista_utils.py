@@ -8,6 +8,7 @@ using the Matlab toolbox mrVista (http://white.stanford.edu/mrvista)
 import numpy as np
 import scipy.io as sio
 import timeseries as ts
+import utils as tsu
 
 ##---- getROIcoords: -----------------------------------------------
 def vista_getROIcoords(ROI_file):
@@ -233,6 +234,6 @@ def vista_filter_coords(coords,filt,filt_thresh,up_sample_factor):
     newCoords[1,:] = coords[1,:] / up_sample_factor[1] - 1 #Inplane
     newCoords[2,:] = coords[2,:] / up_sample_factor[2] - 1 #Slices
 
-    coords_out = intersect_coords(newCoords,coords_filt)
+    coords_out = tsu.intersect_coords(newCoords,coords_filt)
         
     return coords_out
