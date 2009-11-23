@@ -3,12 +3,13 @@
 Depends on matplotlib.pyplot
 
 
-""" 
+"""
 
 from nitime import timeseries as ts
 from matplotlib import pyplot as plt
 
-def plot(time_series,fig=None):
+def plot_tseries(time_series,fig=None,axis=0,
+                 xticks=None,xunits=None,yticks=None,yunits=None):
     """plot a timeseries object
 
     Arguments
@@ -16,26 +17,32 @@ def plot(time_series,fig=None):
 
     time_series: a nitime time-series object
 
+    fig: a figure handle, opens a new figure if None
+
+    subplot: an axis number (if there are several in the figure to be opened),
+        defaults to 0.
+        
+    xticks:
+
+    yticks: 
     
     """  
 
     if fig is None:
         fig=plt.figure()
 
-#    ax = fig.
-    plt.plot(time_series.time,time_series.data.T)
+    if not fig.get_axes():
+        ax = fig.add_subplot(1,1,1)
+    else:
+        ax = fig.get_axes()[axis]
         
-##     for loc, spine in ax.spines.iteritems():
-##         if loc in ['left','bottom']:
-##              spine.set_position(('outward',10)) # outward by 10 points
-##         elif loc in ['right','top']:
-##             spine.set_color('none') # don't draw spine
-
-##     ax.set_xticks([0,11,22,45,90])        
-##     ax.set_xticklabels(['0','11','22','45','90'])
+    ax.plot(time_series.time,time_series.data.T)
+    
+##     ax.set_xticks([])        
+##     ax.set_xticklabels([])
 ##     ax.xaxis.set_ticks_position('bottom')
 ##     ax.yaxis.set_ticks_position('left')
-##     ax.set_xlim(0,95)
+##     ax.set_xlim()
 
     return fig
 
