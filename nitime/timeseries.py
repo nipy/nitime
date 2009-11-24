@@ -109,11 +109,13 @@ class EventArray(np.ndarray,TimeInterface):
     def __repr__(self):
         """Pass it through the conversion factor"""
         
-        return np.ndarray.__repr__(self/time_unit_conversion[self.time_unit]) 
+        return np.ndarray.__repr__(self/time_unit_conversion[self.time_unit]
+                                   )[:-1] + ", time_unit='%s')" % self.time_unit
         
-                   
+    def at()
+    
 #class UniformTime(TimeBase):
-    """A representation of uniform times """
+#    """A representation of uniform times """
     
 ##Time-series: 
 class TimeSeriesInterface(object):
