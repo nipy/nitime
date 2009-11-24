@@ -4,12 +4,7 @@ This file can be run as a script, and it will call unittest.main().  We must
 check that it works with unittest as well as with nose...
 """
 
-import sys; sys.path.insert(0, '/home/fperez/code/python/ptest')
-
-import ptest
-#reload(ptest)
-
-from ptest.decotest import (as_unittest, ipdoctest, ipdocstring,
+from decotest import (as_unittest, ipdoctest, ipdocstring,
                         ParametricTestCase, parametric)
 
 @as_unittest
@@ -17,99 +12,100 @@ def trivial():
     """A trivial test"""
     pass
 
-@ipdoctest
-def simple_dt():
-    """
-    >>> print 1+1
-    2
-    """
+## @ipdoctest
+## def simple_dt():
+##     """
+##     >>> print 1+1
+##     2
+##     """
 
-@ipdoctest
-def ipdt_flush():
-    """
-In [20]: print 1
-1
+## @ipdoctest
+## def ipdt_flush():
+##     """
+## In [20]: print 1
+## 1
 
-In [26]: for i in range(10):
-   ....:     print i,
-   ....:     
-   ....:     
-0 1 2 3 4 5 6 7 8 9
+## In [26]: for i in range(10):
+##    ....:     print i,
+##    ....:     
+##    ....:     
+## 0 1 2 3 4 5 6 7 8 9
 
-In [27]: 3+4
-Out[27]: 7
-"""
+## In [27]: 3+4
+## Out[27]: 7
+## """
 
     
-@ipdoctest
-def ipdt_indented_test():
-    """
-    In [20]: print 1
-    1
+## @ipdoctest
+## def ipdt_indented_test():
+##     """
+##     In [20]: print 1
+##     1
 
-    In [26]: for i in range(10):
-       ....:     print i,
-       ....:     
-       ....:     
-    0 1 2 3 4 5 6 7 8 9
+##     In [26]: for i in range(10):
+##        ....:     print i,
+##        ....:     
+##        ....:     
+##     0 1 2 3 4 5 6 7 8 9
 
-    In [27]: 3+4
-    Out[27]: 7
-    """
+##     In [27]: 3+4
+##     Out[27]: 7
+##     """
 
 
-class Foo(object):
-    """For methods, the normal decorator doesn't work.
+## class Foo(object):
+##     """For methods, the normal decorator doesn't work.
 
-    But rewriting the docstring with ip2py does, *but only if using nose
-    --with-doctest*.  Do we want to have that as a dependency?
-    """
+##     But rewriting the docstring with ip2py does, *but only if using nose
+##     --with-doctest*.  Do we want to have that as a dependency?
+##     """
 
-    @ipdocstring
-    def ipdt_method(self):
-        """
-    In [20]: print 1
-    3
+##     @ipdocstring
+##     def ipdt_method(self):
+##         """
+##     In [20]: print 1
+##     3
 
-    In [26]: for i in range(10):
-       ....:     print i,
-       ....:     
-       ....:     
-    0 1 2 3 4 5 6 7 8 9
+##     In [26]: for i in range(10):
+##        ....:     print i,
+##        ....:     
+##        ....:     
+##     0 1 2 3 4 5 6 7 8 9
 
-    In [27]: 3+4
-    Out[27]: 7
-    """
+##     In [27]: 3+4
+##     Out[27]: 7
+##     """
 
-    def normaldt_method(self):
-        """
-        >>> print 1+1
-        2
-        """
+##     def normaldt_method(self):
+##         """
+##         >>> print 1+1
+##         2
+##         """
     
-#-----------------------------------------------------------------------------
-# Broken tests - comment out decorators to see them, these are useful for
-# debugging and understanding how certain things work.
-#-----------------------------------------------------------------------------
+## #-----------------------------------------------------------------------------
+## # Broken tests - comment out decorators to see them, these are useful for
+## # debugging and understanding how certain things work.
+## #-----------------------------------------------------------------------------
 
-#@as_unittest
-def broken():
-    x, y = 1, 0
-    x/y
+## #@as_unittest
+## def broken():
+##     x, y = 1, 0
+##     x/y
 
 
-#@ipdoctest
-def broken_dt():
-    """
-    #>>> print 1+1
-    2
+## #@ipdoctest
+## def broken_dt():
+##     """
+##     #>>> print 1+1
+##     2
 
-    #>>> print 1+1
-    3
+##     #>>> print 1+1
+##     3
 
-    #>>> print 1+2
-    4
-    """
+##     #>>> print 1+2
+##     4
+##     """
+
 
 # Some examples of parametric tests.
 
