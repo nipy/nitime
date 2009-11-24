@@ -15,6 +15,7 @@ Authors
 -------
 - Ariel Rokem <arokem@berkeley.edu>, 
 - Fernando Perez <Fernando.Perez@berkeley.edu>.
+
 """
 #-----------------------------------------------------------------------------
 # Public interface
@@ -49,34 +50,80 @@ reload(tsu)
 # validation.  But we create them first as a list so we can print an ordered
 # and easy to read error message.
 
-time_units = ['as',  # attosecond
-              'fs',  # femtosecond
-              'ps',  # picosecond
-              'ns',  # nanosecond
+time_units = ['ns',  # nanosecond
               'us',  # microsecond
               'ms',  # millisecond
               's',   # second
               'm',   # minute
               'h',   # hour
               'D',   # day
-              'B',   # business day
               'W',   # week
-              'M',   # month
-              'Y',   # year
               ]
 
 time_units_set = set(time_units)
+
+#The basic resolution: 
+time_resolution = 'ns'
+
+#The other time_units are represented as cumulative multiples of the basic
+#resolution:  
+time_unit_conversion = [1, #ns
+                        1000, #us
+                        1000, #ms
+                        1000, #s
+                        60, #m
+                        60, #hour
+                        24, #D
+                        7   #W
+                        ]
 
 #-----------------------------------------------------------------------------
 # Class declarations
 #-----------------------------------------------------------------------------
 
+##Time: 
+class TimeInterface(object):
+    """ The minimal object interface for time representations
+
+    This should be thought of as an abstract base class. """
+
+    time_unit = None
+
+    
+class EventArray(np.ndarray,TimeInterface):
+    """Base-class for time representations, implementing the TimeInterface"""  
+    def __new__(cls, data, time_unit='s', dtype=None, copy=False):
+        #Check that the time units provided are sensible: 
+        if time_unit not in time_units_set:
+             raise ValueError('Invalid time unit %s, must be one of %s' %
+                             (time_unit,time_units))         
+
+        #Calculate the conversion factor from the internal representation (in
+        #'time_resolution') to the interface (in 'time_units'):
+        _conversion_factor = np.prod(time_unit_conversion[
+            time_units.index(time_reslution):time_units.index(time_unit)])
+
+        #Make an array, round to closest integer and re-represent in ints:
+        time = (np.asarray(data) * _conversion_factor).round().astype(np.int64)
+        self.time_unit = time_unit
+        
+        return time.view(cls)
+
+    def __array_finalize__(self,obj):
+        """XXX """
+
+        self.time_unit = obj.time_unit
+        
+                   
+#class UniformTime(TimeBase):
+    """A representation of uniform times """
+    
+##Time-series: 
 class TimeSeriesInterface(object):
     """The minimally agreed upon interface for all time series.
 
     This should be thought of as an abstract base class.
     """
-
     time = None
     data = None
     time_unit = None
@@ -91,7 +138,7 @@ class TimeSeriesBase(object):
         # Check that sensible time units were given
         if time_unit not in time_units_set:
             raise ValueError('Invalid time unit %s, must be one of %s' %
-                             (time_unit,_time_units))
+                             (time_unit,time_units))
         
         #: the data is an arbitrary numpy array
         self.data = np.asarray(data)
