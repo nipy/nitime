@@ -2,6 +2,14 @@ import numpy as np
 from numpy.testing import *
 from nitime import utils as ut
 import nitime.timeseries as ts
+import decotest
+
+@decotest.parametric
+def test_EventArray():
+
+    time1 = ts.EventArray(range(100),time_unit='ms')
+    time2 = time1+time1
+    yield np.testing.assert_equal(time2.time_unit,'ms')
 
 def test_CorrelationAnalyzer():
 
