@@ -28,16 +28,20 @@ progression of different experiments conducted in different calendar times
 These representation will all serve as the underlying machinery to index into
 the :class:`TimeSeries` objects with arrays of time-points.  The additional
 functionality common to all of these is described in detail in
-:ref:`time_series_access`. Briefly, they will all have a :func:`at` method,
+:ref:`time_series_access`. Briefly, they will all have an :func:`at` method,
 which allows indexing with arrays of :class:`timedelta64`. The result of this
-indexing will be to return the time-point in the the respective which is most
-appropriate (see :ref:`time_series_access` for details). They will also all
-have a :func:`index_at` method, which returns the integer index of this time in
-the underlying array. Finally, they will all have a :func:`during` method,
-which will allow indexing into these objects with an interval object. This will
-return the appropriate times corresponding to an :ref:`interval_class` and
-:func:`index_during`, which will return the array of integers corresponding to
-the indices of these time-points in the array.
+indexing will be to return the time-point in the the respective
+:class:`TimeSeries` which is most appropriate (see :ref:`time_series_access`
+for details). They will also all have an :func:`index_at` method, which returns
+the integer index of this time in the underlying array. Finally, they will all
+have a :func:`during` method, which will allow indexing into these objects with
+an :ref:`interval_class`. This will return the appropriate times corresponding to an
+:ref:`interval_class` and :func:`index_during`, which will return the array of
+integers corresponding to the indices of these time-points in the array.
+
+There are three types of Time base classes: :ref:`EventArray`
+:ref:`NonUniformTime`, and :ref:`UniformTime`. :ref:`time_table` captures
+the essential differences between them.
 
 .. _EventArray:
 
@@ -52,9 +56,9 @@ and possibly collected from several different channels, where the data is
 sampled in order of channel and not in order of time. As in the case of the
 :class:`np.ndarray`, slicing into this kind of representation should allow a
 reshaping operation to occur, which would change the dimensions of the
-underlying array. In this case, this should allow to induce a ragged/jagged
-array structure to emerge (see
-http://en.wikipedia.org/wiki/Array_data_structure for details).
+underlying array. In this case, this should allow a ragged/jagged array
+structure to emerge (see http://en.wikipedia.org/wiki/Array_data_structure for
+details).
 
 .. _NonUniformTime:
 
@@ -74,7 +78,7 @@ result in a ragged/jagged array.
 :class:`UniformTime`
 --------------------
 
-This class contains ordered time-points. In addition, this class has an
+This class contains ordered uniformly sampled time-points. This class has an
 explicit representation of :attr:`t_0`, :attr:`sampling_rate` and
 :attr:`sampling_interval` (the latter two implemented as
 :meth:`setattr_on_read`, which can be computed from each other). Thus, each
@@ -84,7 +88,8 @@ value held by that element of the array, and $\delta t$ is the value of
 :attr:`sampling_interval`. As in the case of the
 :ref:`NonUniformTimeSeries`, this kind of class can be reshaped in such a way
 that induces an increase in the number of dimensions (see also
-:ref:`time_table`).
+:ref:`time_table`). 
+..  XXX: is 'inducing an increase in the number of dimensions" the same as jagged/ragged array?
 
 This object will contain additional attributes that are not shared by the other
 time objects. In particular, an object of :class:`UniformTime`, UT, will have
@@ -104,13 +109,17 @@ inherit :class:`ResetMixin`.
 
 .. _time_table:
 
+Time Summary Table:
+-------------------
+
+A summary of the properties implied by different Time classes
 .. +-------+----------------+----+---------+--------------------+------------------+
 .. |       | class          | 1d | ordered | unique time points | uniform sampling |
 .. +=======+================+====+=========+====================+==================+
 .. |       | EventArray     | y  |    n    |         n          |         n        |
 .. |       +----------------+----+---------+--------------------+------------------+
 .. | Time  | NonUniformTime | n  |    y    |         ?          |         n        |
-.. |  	   +----------------+----+---------+--------------------+------------------+  
+.. |       +----------------+----+---------+--------------------+------------------+  
 .. |       | UniformTime    | n  |    y    |         y          |         y        |
 .. +-------+----------------+----+---------+--------------------+------------------+
 
@@ -130,18 +139,19 @@ In implementing these objects, we follow the following principles:
   attribute, which *is* a :class:`np.ndarray`. This principle should allow for
   a clean and compact implementation, which doesn't carry all manner of
   unwanted properties into a bloated object with obscure and unknown behaviors.
-  We have previously decided to make the time the last dimension in this
+  We have previously decided to make *time* the last dimension in this
   object, but recently we have been considering making this a user choice (in
   order to enable indexing into the data by time in a straight-forward manner
   (using expressions such as :class:`TI.data[i]`. If we want to make this
   flexible, I would argue that there needs to be an attribute
   :attr:`time_last`, which would hold this decision. We need to hash out
   this issue a bit more (and more, and more...). 
-* In tandem, one of their attributes is one of the base classes described
-  above, in :ref:`time_classes`. This is the :attr:`time` attribute of the
+* In tandem, one of their attributes is one of the :ref:`time_classes` base
+  classes described above. This is the :attr:`time` attribute of the
   time-series object. Therefore, it is implemented in the object with a
   :func:`desc.setattr_on_read` decoration, so that it is only generated if it
   is needed. 
+.. what is going on here? (XXX: fix the sentence below)
 * Access into the object and into the object will be uniform across the
   different classes :attr:`data` and into the object. Described in
   :ref:`time_series_access`.
@@ -197,7 +207,7 @@ time here is :ref:`UniformTime`.
 .. +========+======================+================+=================+
 .. |  Time  | EventSeries          | EventArray     | button presses  |
 .. | Series |----------------------+----------------+-----------------+
-.. |   	 | NonUniformTimeSeries | NonUniformTime | spike trains    |
-.. | 	 |----------------------+----------------+-----------------+ 
+.. |   	    | NonUniformTimeSeries | NonUniformTime | spike trains    |
+.. | 	    |----------------------+----------------+-----------------+ 
 .. |        | UniformTimeSeri      | UniformTime    | BOLD            |
 .. +--------+----------------------+----------------+-----------------+
