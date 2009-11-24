@@ -20,7 +20,7 @@ Authors
 #-----------------------------------------------------------------------------
 # Public interface
 #-----------------------------------------------------------------------------
-__all__ = ['time_units',
+__all__ = ['time_unit_conversion',
            'TimeSeriesInterface',
            'UniformTimeSeries',
            ]
@@ -50,32 +50,18 @@ reload(tsu)
 # validation.  But we create them first as a list so we can print an ordered
 # and easy to read error message.
 
-time_units = ['ns',  # nanosecond
-              'us',  # microsecond
-              'ms',  # millisecond
-              's',   # second
-              'm',   # minute
-              'h',   # hour
-              'D',   # day
-              'W',   # week
-              ]
-
-time_units_set = set(time_units)
+time_unit_conversion = {'ns':1,  # nanosecond
+                        'us':10**3,  # microsecond
+                        'ms':10**6,  # millisecond
+                        's':10**9,   # second
+                        'm':60*10**9,   # minute
+                        'h':3600*10**9,   # hour
+                        'D':24*3600*10**9,   # day
+                        'W':7*24*3600*10**9,   # week #This is not an SI unit
+                        }
 
 #The basic resolution: 
-time_resolution = 'ns'
-
-#The other time_units are represented as cumulative multiples of the basic
-#resolution:  
-time_unit_conversion = [1, #ns
-                        1000, #us
-                        1000, #ms
-                        1000, #s
-                        60, #m
-                        60, #hour
-                        24, #D
-                        7   #W
-                        ]
+base_unit = 'ns'
 
 #-----------------------------------------------------------------------------
 # Class declarations
@@ -88,31 +74,42 @@ class TimeInterface(object):
     This should be thought of as an abstract base class. """
 
     time_unit = None
-
     
 class EventArray(np.ndarray,TimeInterface):
     """Base-class for time representations, implementing the TimeInterface"""  
     def __new__(cls, data, time_unit='s', dtype=None, copy=False):
         #Check that the time units provided are sensible: 
-        if time_unit not in time_units_set:
+        if time_unit not in time_unit_conversion:
              raise ValueError('Invalid time unit %s, must be one of %s' %
-                             (time_unit,time_units))         
+                             (time_unit,time_unit_conversion.keys()))         
 
         #Calculate the conversion factor from the internal representation (in
         #'time_resolution') to the interface (in 'time_units'):
-        _conversion_factor = np.prod(time_unit_conversion[
-            time_units.index(time_reslution):time_units.index(time_unit)])
-
-        #Make an array, round to closest integer and re-represent in ints:
-        time = (np.asarray(data) * _conversion_factor).round().astype(np.int64)
-        self.time_unit = time_unit
         
-        return time.view(cls)
+        #Make an array, round to closest integer and re-represent in ints:
+        time = (np.asarray(data)*
+                time_unit_conversion[time_unit]).round().astype(np.int64)
+
+        time = time.view(cls)
+        time.time_unit = time_unit
+        
+        return time
 
     def __array_finalize__(self,obj):
         """XXX """
 
+        if obj is None: # own constructor, we're done
+            return
+        if not hasattr(obj, 'time_unit'): # looks like view cast
+            self.time_unit = 's'
+            return 
+
         self.time_unit = obj.time_unit
+        
+    def __repr__(self):
+        """Pass it through the conversion factor"""
+        
+        return np.ndarray.__repr__(self/time_unit_conversion[self.time_unit]) 
         
                    
 #class UniformTime(TimeBase):
@@ -136,9 +133,9 @@ class TimeSeriesBase(object):
     def __init__(self,data,time_unit):
         """Common constructor shared by all TimeSeries classes."""
         # Check that sensible time units were given
-        if time_unit not in time_units_set:
+        if time_unit not in time_unit_conversion:
             raise ValueError('Invalid time unit %s, must be one of %s' %
-                             (time_unit,time_units))
+                             (time_unit,time_unit_conversion.keys()))
         
         #: the data is an arbitrary numpy array
         self.data = np.asarray(data)

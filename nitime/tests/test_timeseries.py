@@ -11,6 +11,7 @@ def test_EventArray():
     time2 = time1+time1
     yield np.testing.assert_equal(time2.time_unit,'ms')
 
+    
 def test_CorrelationAnalyzer():
 
     Fs = np.pi
