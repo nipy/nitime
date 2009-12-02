@@ -11,6 +11,12 @@ def test_EventArray():
     time2 = time1+time1
     yield np.testing.assert_equal(time2.time_unit,'ms')
 
+@decotest.parametric
+def test_EventArray_index_at():
+
+    time1 = ts.EventArray(range(100),time_unit='ms')
+    idx = time1.index_at(1)
+    yield np.testing.assert_equal(idx,1)
     
 def test_CorrelationAnalyzer():
 
