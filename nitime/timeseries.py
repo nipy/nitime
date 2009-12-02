@@ -151,7 +151,7 @@ class EventArray(np.ndarray,TimeInterface):
             time_unit_conversion[self.time_unit])
             )[:-1] + ", time_unit='%s')" % self.time_unit
 
-    def __setitem__(self,key,val):
+#    def __setitem__(self,key,val):
 #        
 # XXX Need to implement - in particular, we want to look at the units -
 #        converting the values to what they need to be (in the base_unit) and
