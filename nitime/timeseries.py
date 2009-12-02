@@ -87,7 +87,7 @@ class EventArray(np.ndarray,TimeInterface):
         #'time_resolution') to the interface (in 'time_units'):
         
         #Make an array, round to closest integer and re-represent in ints:
-        time = (np.asarray(data)*
+        time = (np.asarray(data).astype(np.int64) *
                 time_unit_conversion[time_unit]).round().astype(np.int64)
 
         time = time.view(cls)
@@ -111,9 +111,18 @@ class EventArray(np.ndarray,TimeInterface):
         
         return np.ndarray.__repr__(self/time_unit_conversion[self.time_unit]
                                    )[:-1] + ", time_unit='%s')" % self.time_unit
+
+    def index_at(self,t,tol=None):
+        """ Find the integer indices that corresponds to the time t"""
         
-##    def index_at():
-## XXX need to implement 'index_at'    
+        t = EventArray(t,time_unit=self.time_unit)
+        d = np.abs(self-t*time_unit_conversion[self.time_unit])
+        
+        return np.argmin(d)
+
+        
+
+        
 
 ##    def at():
 ## XXX Need to implement 'at'
