@@ -1,7 +1,8 @@
 import numpy as np
-from numpy.testing import *
+import numpy.testing as npt
 from nitime import utils as ut
 import nitime.timeseries as ts
+import nose.tools as nt
 import decotest
 
 @decotest.parametric
@@ -9,7 +10,7 @@ def test_EventArray():
 
     time1 = ts.EventArray(range(100),time_unit='ms')
     time2 = time1+time1
-    yield np.testing.assert_equal(time2.time_unit,'ms')
+    yield npt.assert_equal(time2.time_unit,'ms')
 
 @decotest.ipdoctest    
 def test_EventArray_repr():
@@ -58,12 +59,36 @@ def test_EventArray_repr():
 
 
     """
+
+@decotest.parametric
+def test_EventArray_new():
+    for unit in ['ns','ms','s',None]:
+        for flag,assertion in [(True,nt.assert_not_equal),
+                (False, nt.assert_equal)]:
+            #default parameters (timeunits, copy flag, etc)
+            #list
+            time1 = ts.EventArray(range(5),time_unit=unit, copy=flag)
+            #numpy array (int)
+            time2 = ts.EventArray(np.arange(5), time_unit=unit, copy=flag)
+            #numpy array (float)
+            time2f = ts.EventArray(np.arange(5.), time_unit=unit, copy=flag)
+            #EventArray
+            time3 = ts.EventArray(time1, time_unit=unit, copy=flag)
+
+            yield npt.assert_equal(time1,time2)
+            yield npt.assert_equal(time2,time2f)
+            yield npt.assert_equal(time1,time3)
+            time3[0] +=100
+            yield assertion(time1[0],time3[0])
+            yield npt.assert_equal(time1[1:],time3[1:])
+
+
 @decotest.parametric
 def test_EventArray_index_at():
 
     time1 = ts.EventArray(range(100),time_unit='ms')
     idx = time1.index_at(1)
-    yield np.testing.assert_equal(idx,1)
+    yield npt.assert_equal(idx,1)
     
 def test_CorrelationAnalyzer():
 
@@ -77,22 +102,22 @@ def test_CorrelationAnalyzer():
     C = ts.CorrelationAnalyzer(T)
 
     #Test the symmetry: correlation(x,y)==correlation(y,x) 
-    np.testing.assert_equal(C.correlation[0,1],C.correlation[1,0])
+    npt.assert_equal(C.correlation[0,1],C.correlation[1,0])
     #Test the self-sameness: correlation(x,x)==1
-    np.testing.assert_equal(C.correlation[0,0],1)
-    np.testing.assert_equal(C.correlation[1,1],1)
+    npt.assert_equal(C.correlation[0,0],1)
+    npt.assert_equal(C.correlation[1,1],1)
 
     #Test the cross-correlation:
     #First the symmetry:
-    np.testing.assert_array_almost_equal(C.xcorr.data[0,1],C.xcorr.data[1,0])
+    npt.assert_array_almost_equal(C.xcorr.data[0,1],C.xcorr.data[1,0])
     
     #Test the normalized cross-correlation
     #The cross-correlation should be equal to the correlation at time-lag 0
-    np.testing.assert_equal(C.xcorr_norm.data[0,1,C.xcorr_norm.time==0]
+    npt.assert_equal(C.xcorr_norm.data[0,1,C.xcorr_norm.time==0]
                             ,C.correlation[0,1])
 
     #And the auto-correlation should be equal to 1 at 0 time-lag:
-    np.testing.assert_equal(C.xcorr_norm.data[0,0,C.xcorr_norm.time==0],1)
+    npt.assert_equal(C.xcorr_norm.data[0,0,C.xcorr_norm.time==0],1)
 
     #Does it depend on having an even number of time-points?
     #make another time-series with an odd number of items:
@@ -105,7 +130,7 @@ def test_CorrelationAnalyzer():
     C = ts.CorrelationAnalyzer(T)
 
     
-    np.testing.assert_equal(C.xcorr_norm.data[0,1,C.xcorr_norm.time==0]
+    npt.assert_equal(C.xcorr_norm.data[0,1,C.xcorr_norm.time==0]
                             ,C.correlation[0,1])
 
 

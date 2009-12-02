@@ -90,6 +90,8 @@ class EventArray(np.ndarray,TimeInterface):
 
         conv_fac = time_unit_conversion[time_unit]
         
+        # XXX: do we mean isinstance(data,TimeInterface) - it could also be
+        # NonUniformTime or UniformTime,  it doesn't have to be an EventArray,
         if isinstance(data,EventArray):
             if copy:
                 #Take the representation in the base_unit and copy it over:
