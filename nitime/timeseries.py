@@ -54,6 +54,8 @@ time_unit_conversion = {'ns':1,  # nanosecond
                         'us':10**3,  # microsecond
                         'ms':10**6,  # millisecond
                         's':10**9,   # second
+                        None:10**9,  #The default is seconds (when constructor
+                                     #doesn't get any input, it defaults to None)
                         'm':60*10**9,   # minute
                         'h':3600*10**9,   # hour
                         'D':24*3600*10**9,   # day
@@ -77,21 +79,57 @@ class TimeInterface(object):
     
 class EventArray(np.ndarray,TimeInterface):
     """Base-class for time representations, implementing the TimeInterface"""  
-    def __new__(cls, data, time_unit='s', dtype=None, copy=False):
+    def __new__(cls, data, time_unit=None, dtype=None, copy=False):
+        """XXX Write a doc-string - in particular, mention the the default
+        time-units to be used are seconds (which is why it is set to None) """ 
+
         #Check that the time units provided are sensible: 
         if time_unit not in time_unit_conversion:
              raise ValueError('Invalid time unit %s, must be one of %s' %
                              (time_unit,time_unit_conversion.keys()))         
 
-        #Calculate the conversion factor from the internal representation (in
-        #'time_resolution') to the interface (in 'time_units'):
+        conv_fac = time_unit_conversion[time_unit]
         
-        #Make an array, round to closest integer and re-represent in ints:
-        time = (np.asarray(data).astype(np.int64) *
-                time_unit_conversion[time_unit]).round().astype(np.int64)
+        if isinstance(data,EventArray):
+            if copy:
+                #Take the representation in the base_unit and copy it over:
+                time = data.copy()
+            else:
+                #Otherwise, look at it
+                time = np.asarray(data)
+
+            #If input has units and user did not provide units to convert to: 
+            if time_unit is None:
+                time_unit = data.time_unit
+        else:
+
+            #Convert to an array, so that you can test what kind of dtype it has:
+            data = np.asarray(data)
+            if issubclass(data.dtype.type,np.integer):
+                #If this is an array of integers, cast to 64 bit integer and
+                #convert to the base_unit.  
+                #XXX This will fail when even 64 bit is not large enough to avoid
+                #wrap-around 
+                if copy:
+                    #'.astype(np.int64)' makes a copy.
+                    time = ( data.astype(np.int64)*conv_fac)
+                else:
+                    #This doesn't make a copy if dtype is already int64:
+                    time = ( np.asarray(data,dtype=np.int64)*conv_fac)
+            else:
+                #Otherwise: first convert, round and then cast to 64 
+                time=(np.asarray(data)*conv_fac).round().astype(np.int64)
+
 
         time = time.view(cls)
+
+        if time_unit is None:
+            time_unit = 's'
+            
+
         time.time_unit = time_unit
+
+        time._conversion_factor = conv_fac
         
         return time
 
@@ -109,14 +147,22 @@ class EventArray(np.ndarray,TimeInterface):
     def __repr__(self):
         """Pass it through the conversion factor"""
         
-        return np.ndarray.__repr__(self/time_unit_conversion[self.time_unit]
-                                   )[:-1] + ", time_unit='%s')" % self.time_unit
+        return np.ndarray.__repr__(self/float(
+            time_unit_conversion[self.time_unit])
+            )[:-1] + ", time_unit='%s')" % self.time_unit
+
+    def __setitem__(self,key,val):
+#        
+# XXX Need to implement - in particular, we want to look at the units -
+#        converting the values to what they need to be (in the base_unit) and
+#        then delegating to the ndarray.__setitem__
+#
+#    val = val *
 
     def index_at(self,t,tol=None):
         """ Find the integer indices that corresponds to the time t"""
-        
         t = EventArray(t,time_unit=self.time_unit)
-        d = np.abs(self-t*time_unit_conversion[self.time_unit])
+        d = np.abs(self-t)
         
         return np.argmin(d)
 
