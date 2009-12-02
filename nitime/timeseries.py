@@ -1029,9 +1029,9 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             data = self.data[i]
             u = np.unique(self.events[i])
             event_types = u[np.unique(self.events[i])!=0]
-            h[i] = np.empty((event_types.shape[0],self.len_hrf*2))
+            h[i] = np.empty((event_types.shape[0],self.len_hrf*2),dtype=complex)
             for e_idx in xrange(event_types.shape[0]):
-                this_e = (self.events[i]==event_types[e_idx]) * 1
+                this_e = (self.events[i]==event_types[e_idx]) * 1.0
                 this_h = tsa.event_related(data,
                                             this_e,
                                             self.len_hrf,

@@ -11,7 +11,7 @@ import timeseries as ts
 import utils as tsu
 
 ##---- getROIcoords: -----------------------------------------------
-def vista_getROIcoords(ROI_file):
+def getROIcoords(ROI_file):
     """Get the ROI coordinates for a given ROI and scan in the Gray
     
     Parameters 
@@ -41,7 +41,7 @@ def vista_getROIcoords(ROI_file):
 
 
 ##---- getTseries: -----------------------------------------------
-def vista_get_time_series_inplane(coords,time_series_file,
+def get_time_series_inplane(coords,time_series_file,
                                   f_c=0.01,up_sample_factor=[1,1,1],
                                   detrend=True,normalize=True,average=True,
                                   TR=None):
@@ -123,7 +123,7 @@ def vista_get_time_series_inplane(coords,time_series_file,
     return time_series
 
 #---detrend_tseries--------------------------------------------------------------
-def vista_detrend_tseries(time_series,TR,f_c,n_iterations=2):
+def detrend_tseries(time_series,TR,f_c,n_iterations=2):
     """ vista_detrend_tseries: detrending a-la DBR&DJH. A low-passed version is
     created by convolving with a box-car and then the low-passed version is
     subtracted from the signal, resulting in a high-passed version
@@ -208,7 +208,7 @@ def vista_detrend_tseries(time_series,TR,f_c,n_iterations=2):
 
 ##---- vista_filter_coords: -----------------------------------------------
 
-def vista_filter_coords(coords,filt,filt_thresh,up_sample_factor):
+def filter_coords(coords,filt,filt_thresh,up_sample_factor):
     
     """Filter the coords in an ROI, by the value in some other image (for
     example, the coherence in each of the voxels in the ROI)
