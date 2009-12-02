@@ -1379,7 +1379,7 @@ def fir(timeseries,design):
     Notes
     -----
 
-    Implements equation for in[Burock2000]_:
+    Implements equation 4 in[Burock2000]_:
 
     .. math::
 
