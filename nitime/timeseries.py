@@ -112,11 +112,16 @@ class EventArray(np.ndarray,TimeInterface):
         return np.ndarray.__repr__(self/time_unit_conversion[self.time_unit]
                                    )[:-1] + ", time_unit='%s')" % self.time_unit
         
-    def at()
-    
+##    def index_at():
+## XXX need to implement 'index_at'    
+
+##    def at():
+## XXX Need to implement 'at'
+
 #class UniformTime(TimeBase):
 #    """A representation of uniform times """
     
+
 ##Time-series: 
 class TimeSeriesInterface(object):
     """The minimally agreed upon interface for all time series.
@@ -959,6 +964,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             self.data = [time_series.data]
             
         self.sampling_rate = time_series.sampling_rate
+        self.sampling_interval = time_series.sampling_interval
         self.len_hrf=int(len_hrf)
         
     @desc.setattr_on_read
@@ -1004,24 +1010,6 @@ class EventRelatedAnalyzer(desc.ResetMixin):
     def xcorr(self):
         """Compute the cross-correlation estimate of the HRFs for different
         kinds of events
-
-        Parameters
-        ----------
-        events: a time_series object
-
-        The events which occured in tandem with the time-series in the
-        EventRelatedAnalyzer. This object's data has to have the same
-        dimensions as the data in the EventRelatedAnalyzer object. In each
-        sample in the time-series, there is an integer, which denotes the kind
-        of event which occured at that time. In time-bins in which
-        no event occured, a 0 should be entered
-
-        len_hrf: int
-
-        The expected length of the HRF (in the same time-units as
-        the events are represented (presumably TR). In this estimate, the event
-        ooccurence will be the center of the
-    
         
         Returns
         -------
@@ -1033,10 +1021,30 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         corresponds to time, and has length = len_hrf*2 (xcorr looks both back
         and forward for this length)
         
-        """ 
-        raise NotImplementedError
+        """
+        #Make a list to put the outputs in:
+        h = [0] * self._len_h
 
-    ## t0 for the object returned here needs to be the central time, not the
-    ## first time point, because the functions 'look' back and forth for
-    ## len_hrf bins
-    
+        for i in xrange(self._len_h):
+            data = self.data[i]
+            u = np.unique(self.events[i])
+            event_types = u[np.unique(self.events[i])!=0]
+            h[i] = np.empty((event_types.shape[0],self.len_hrf*2))
+            for e_idx in xrange(event_types.shape[0]):
+                this_e = (self.events[i]==event_types[e_idx]) * 1
+                this_h = tsa.event_related(data,
+                                            this_e,
+                                            self.len_hrf,
+                                            self.len_hrf
+                                            )
+                h[i][e_idx] = this_h
+                
+        h = np.array(h).squeeze()
+
+        ## t0 for the object returned here needs to be the central time, not the
+        ## first time point, because the functions 'look' back and forth for
+        ## len_hrf bins
+
+        return UniformTimeSeries(data=h,
+                                 sampling_rate=self.sampling_rate,
+                                 t0 = -1*self.len_hrf*self.sampling_interval)
