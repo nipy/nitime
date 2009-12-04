@@ -550,7 +550,7 @@ def time_series_from_analyze(analyze_file,coords,normalize=False,detrend=False,
     Parameters
     ----------
 
-    nifti_file: string.
+    analyze_file: string.
 
            The full path to the file from which the time-series is extracted 
      
