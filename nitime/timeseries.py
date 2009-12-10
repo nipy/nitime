@@ -79,7 +79,7 @@ class TimeInterface(object):
     
 class EventArray(np.ndarray,TimeInterface):
     """Base-class for time representations, implementing the TimeInterface"""  
-    def __new__(cls, data, time_unit=None, dtype=None, copy=False):
+    def __new__(cls, data, time_unit=None, copy=False):
         """XXX Write a doc-string - in particular, mention the the default
         time-units to be used are seconds (which is why it is set to None) """ 
 
@@ -89,45 +89,37 @@ class EventArray(np.ndarray,TimeInterface):
                              (time_unit,time_unit_conversion.keys()))         
 
         conv_fac = time_unit_conversion[time_unit]
-        
-        # XXX: do we mean isinstance(data,TimeInterface) - it could also be
-        # NonUniformTime or UniformTime,  it doesn't have to be an EventArray,
-        if isinstance(data,EventArray):
-            if copy:
-                #Take the representation in the base_unit and copy it over:
+
+
+        # We can only honor the copy flag in a very narrow set of cases
+        # if data is already an EventArray or if data is an ndarray with
+        # dtype=int64
+        if copy==False and getattr(data, 'dtype', None) == np.int64:
+            time = np.asarray(data)
+        else:
+            # XXX: do we mean isinstance(data,TimeInterface) - it could also be
+            # NonUniformTime or UniformTime,  it doesn't have to be an EventArray,
+            if isinstance(data, EventArray):
                 time = data.copy()
             else:
-                #Otherwise, look at it
-                time = np.asarray(data)
-
-            #If input has units and user did not provide units to convert to: 
-            if time_unit is None:
-                time_unit = data.time_unit
-        else:
-
-            #Convert to an array, so that you can test what kind of dtype it has:
-            data = np.asarray(data)
-            if issubclass(data.dtype.type,np.integer):
-                #If this is an array of integers, cast to 64 bit integer and
-                #convert to the base_unit.  
-                #XXX This will fail when even 64 bit is not large enough to avoid
-                #wrap-around 
-                if copy:
-                    #'.astype(np.int64)' makes a copy.
-                    time = ( data.astype(np.int64)*conv_fac)
+                data_arr = np.asarray(data)
+                if issubclass(data_arr.dtype.type,np.integer):
+                    #If this is an array of integers, cast to 64 bit integer and
+                    #convert to the base_unit.  
+                    #XXX This will fail when even 64 bit is not large enough to avoid
+                    #wrap-around 
+                    time = data_arr.astype(np.int64)*conv_fac
                 else:
-                    #This doesn't make a copy if dtype is already int64:
-                    time = ( np.asarray(data,dtype=np.int64)*conv_fac)
-            else:
-                #Otherwise: first convert, round and then cast to 64 
-                time=(np.asarray(data)*conv_fac).round().astype(np.int64)
-
+                    #Otherwise: first convert, round and then cast to 64 
+                    time=(data_arr*conv_fac).round().astype(np.int64)
 
         time = time.view(cls)
 
         if time_unit is None:
-            time_unit = 's'
-            
+            if isinstance(data, EventArray):
+                time_unit = data.time_unit
+            else:
+                time_unit = 's'
 
         time.time_unit = time_unit
 
