@@ -521,7 +521,7 @@ def time_series_from_nifti(nifti_file,coords,normalize=False,detrend=False,
     
         if detrend:
             from nitime import vista_utils as tsv
-            data_out[c] = tsv.vista_detrend_tseries(data_out[c],TR,f_c)
+            data_out[c] = tsv.detrend_tseries(data_out[c],TR,f_c)
             
         if average:
             data_out[c] = np.mean(data_out[c],0)
@@ -617,7 +617,7 @@ def time_series_from_analyze(analyze_file,coords,normalize=False,detrend=False,
     
         if detrend:
             from nitime import vista_utils as tsv
-            data_out[c] = tsv.vista_detrend_tseries(data_out[c],TR,f_c)
+            data_out[c] = tsv.detrend_tseries(data_out[c],TR,f_c)
             
         if average:
             data_out[c] = np.mean(data_out[c],0)
