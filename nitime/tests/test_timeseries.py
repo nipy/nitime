@@ -133,7 +133,6 @@ def test_CorrelationAnalyzer():
     npt.assert_equal(C.xcorr_norm.data[0,1,C.xcorr_norm.time==0]
                             ,C.correlation[0,1])
 
-
 def test_EventRelatedAnalyzer():
 
     cycles = 10
@@ -148,3 +147,15 @@ def test_EventRelatedAnalyzer():
     T_events = ts.UniformTimeSeries(events,sampling_rate=1)
     E = ts.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2))
 
+def test_CoherenceAnalyzer():
+
+    Fs = np.pi
+    t = np.arange(1024)
+    x = np.sin(10*t) + np.random.rand(t.shape[-1])
+    y = np.sin(10*t) + np.random.rand(t.shape[-1])
+
+    T = ts.UniformTimeSeries(np.vstack([x,y]),sampling_rate=Fs)
+
+    C = ts.CoherenceAnalyzer(T)
+
+    
