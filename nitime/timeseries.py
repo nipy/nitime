@@ -1153,9 +1153,9 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         raise NotImplementedError
     
     @desc.setattr_on_read
-    def xcorr(self):
-        """Compute the cross-correlation estimate of the HRFs for different
-        kinds of events
+    def event_related_zscored(self):
+        """Compute the normalized cross-correlation estimate of the HRFs for
+        different kinds of events
         
         Returns
         -------
@@ -1178,7 +1178,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             h[i] = np.empty((event_types.shape[0],self.len_hrf*2),dtype=complex)
             for e_idx in xrange(event_types.shape[0]):
                 this_e = (self.events[i]==event_types[e_idx]) * 1.0
-                this_h = tsa.event_related(data,
+                this_h = tsa.event_related_zscored(data,
                                             this_e,
                                             self.len_hrf,
                                             self.len_hrf
