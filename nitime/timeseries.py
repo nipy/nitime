@@ -53,12 +53,15 @@ reload(tsu)
 # validation.  But we create them first as a list so we can print an ordered
 # and easy to read error message.
 
-time_unit_conversion = {'ns':1,  # nanosecond
+time_unit_conversion = {
+                        #'ps': 1, #picosecond - see comment below
+                        'ns':1,  # nanosecond
                         'us':10**3,  # microsecond
                         'ms':10**6,  # millisecond
                         's':10**9,   # second
-                        None:10**9,  #The default is seconds (when constructor
-                                     #doesn't get any input, it defaults to None)
+                        None:10**9, #The default is seconds (when constructor
+                                     #doesn't get any input, it defaults to
+                                     #None)
                         'm':60*10**9,   # minute
                         'h':3600*10**9,   # hour
                         'D':24*3600*10**9,   # day
@@ -67,6 +70,9 @@ time_unit_conversion = {'ns':1,  # nanosecond
 
 #The basic resolution: 
 base_unit = 'ns'
+
+#With picoseconds as the base_unit, we can still represent times up to 292
+#years - should we move to picoseconds? 
 
 #-----------------------------------------------------------------------------
 # Class declarations
@@ -93,7 +99,6 @@ class EventArray(np.ndarray,TimeInterface):
 
         conv_fac = time_unit_conversion[time_unit]
 
-
         # We can only honor the copy flag in a very narrow set of cases
         # if data is already an EventArray or if data is an ndarray with
         # dtype=int64
@@ -101,22 +106,26 @@ class EventArray(np.ndarray,TimeInterface):
             time = np.asarray(data)
         else:
             # XXX: do we mean isinstance(data,TimeInterface) - it could also be
-            # NonUniformTime or UniformTime,  it doesn't have to be an EventArray,
+            # NonUniformTime or UniformTime, it doesn't have to be an
+            # EventArray
             if isinstance(data, EventArray):
                 time = data.copy()
             else:
                 data_arr = np.asarray(data)
                 if issubclass(data_arr.dtype.type,np.integer):
-                    #If this is an array of integers, cast to 64 bit integer and
-                    #convert to the base_unit.  
-                    #XXX This will fail when even 64 bit is not large enough to avoid
-                    #wrap-around 
+                    #If this is an array of integers, cast to 64 bit integer
+                    #and convert to the base_unit.
+                    #XXX This will fail when even 64 bit is not large enough to
+                    #avoid wrap-around
                     time = data_arr.astype(np.int64)*conv_fac
                 else:
                     #Otherwise: first convert, round and then cast to 64 
                     time=(data_arr*conv_fac).round().astype(np.int64)
 
-        time = time.view(cls)
+        #Make sure you have an array on your hands (for example, if you input
+        #an integer, you might have reverted to an integer when multiplying
+        #with the conversion factor:            
+        time = np.asarray(time).view(cls)
 
         if time_unit is None:
             if isinstance(data, EventArray):
@@ -140,7 +149,7 @@ class EventArray(np.ndarray,TimeInterface):
             return 
 
         self.time_unit = obj.time_unit
-        
+
     def __repr__(self):
         """Pass it through the conversion factor"""
         
@@ -158,17 +167,19 @@ class EventArray(np.ndarray,TimeInterface):
 
     def index_at(self,t,tol=None):
         """ Find the integer indices that corresponds to the time t"""
-        t = EventArray(t,time_unit=self.time_unit)
-        d = np.abs(self-t)
         
-        return np.argmin(d)
-
+        t_e = EventArray(t,time_unit=self.time_unit)
+        d = np.abs(np.array(self)-np.asarray(t_e))
+        
+        if tol is None:
+            idx=np.where(np.asarray(d)==0)
+        else:
+            idx=np.where(np.asarray(d)<tol)            
         
 
-        
-
-##    def at():
-## XXX Need to implement 'at'
+    def at(self,t,tol=None):
+        """ Returns the values of the items at the "
+        return self.data[self.index_at(t,tol=tol)]
 
 #class UniformTime(TimeBase):
 #    """A representation of uniform times """
