@@ -1448,7 +1448,7 @@ def event_related_zscored(tseries,events,Tbefore, Tafter, Fs=1):
 
 def gamma_hrf(tau,n,delta,t_max,Fs=1.0,a=1):
 
-    """A gamma function hrf model, with two parameters, based on [Boynton1996]_
+    r"""A gamma function hrf model, with two parameters, based on [Boynton1996]_
 
 
     Parameters
@@ -1468,7 +1468,7 @@ def gamma_hrf(tau,n,delta,t_max,Fs=1.0,a=1):
     Returns
     -------
 
-    h: the gamma function
+    h: the gamma function hrf, as a function of time
     
     Notes
     -----
