@@ -15,6 +15,9 @@ Authors
 -------
 - Ariel Rokem <arokem@berkeley.edu>, 
 - Fernando Perez <Fernando.Perez@berkeley.edu>.
+- Mike Trumpis <mtrumpis@gmail.com>
+- Paul Ivanov <pivanov@berkeley.edu>
+- Kilian Koepsell <kilian@berkeley.edu>
 
 """
 #-----------------------------------------------------------------------------
