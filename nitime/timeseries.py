@@ -18,6 +18,7 @@ Authors
 - Mike Trumpis <mtrumpis@gmail.com>
 - Paul Ivanov <pivanov@berkeley.edu>
 - Kilian Koepsell <kilian@berkeley.edu>
+- Tim Blanche <tjb@berkeley.edu> 
 
 """
 #-----------------------------------------------------------------------------
