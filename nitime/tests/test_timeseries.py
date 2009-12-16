@@ -74,6 +74,10 @@ def test_EventArray_new():
             time2f = ts.EventArray(np.arange(5.), time_unit=unit, copy=flag)
             #EventArray
             time3 = ts.EventArray(time1, time_unit=unit, copy=flag)
+            #integer
+            time4 = ts.EventArray(5,time_unit=unit,copy=flag)
+            #float
+            time5 = ts.EventArray(5.0,time_unit=unit,copy=flag)
 
             yield npt.assert_equal(time1,time2)
             yield npt.assert_equal(time2,time2f)
@@ -81,14 +85,16 @@ def test_EventArray_new():
             time3[0] +=100
             yield assertion(time1[0],time3[0])
             yield npt.assert_equal(time1[1:],time3[1:])
-
+            yield npt.assert_equal(time4,time5)
 
 @decotest.parametric
 def test_EventArray_index_at():
 
-    time1 = ts.EventArray(range(100),time_unit='ms')
-    idx = time1.index_at(1)
-    yield npt.assert_equal(idx,1)
+    time1 = ts.EventArray(range(10),time_unit='ms')
+    for i in xrange(10):
+        idx = time1.index_at(i)
+        yield npt.assert_equal(idx,i)
+    
     
 def test_CorrelationAnalyzer():
 
