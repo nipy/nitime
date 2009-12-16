@@ -1446,7 +1446,7 @@ def event_related_zscored(tseries,events,Tbefore, Tafter, Fs=1):
              / stdSurr )
 
 
-def gamma_hrf(tau,n,delta,t_max,Fs):
+def gamma_hrf(tau,n,delta,t_max,Fs=1.0,a=1):
 
     """A gamma function hrf model, with two parameters, based on [Boynton1996]_
 
@@ -1460,7 +1460,11 @@ def gamma_hrf(tau,n,delta,t_max,Fs):
 
     delta: a pure delay, allowing for an additional delay from the onset of the
     time-series to the beginning of the gamma hrf
-    
+
+    Fs: float, the sampling rate
+
+    a: float, a scaling factor
+
     Returns
     -------
 
@@ -1482,16 +1486,15 @@ def gamma_hrf(tau,n,delta,t_max,Fs):
        Resonance Imaging in Human V1. J Neurosci 16: 4207-4221 
     
     """
-
-    #XXX need to figure out the proper way to implement the delay here  
-    t = np.arange(-1*delta,t_max,int(1/Fs))
+    sampling_interval = 1/float(Fs)
+    t = np.arange(0,t_max,sampling_interval)
 
     t_tau = t/tau
 
     h = (t_tau**(n-1) * np.exp(-1*(t_tau)) /
          (tau * factorial(n-1) ) )
 
-    return h
+    return a*np.hstack([np.zeros((delta*sampling_interval)),h])
     
     
 #-----------------------------------------------------------------------------
