@@ -24,7 +24,7 @@ from scipy import stats
 from matplotlib import mlab
 from scipy import linalg
 import utils as ut
-
+from scipy.misc import factorial
 #-----------------------------------------------------------------------------
 #  Coherency 
 #-----------------------------------------------------------------------------
@@ -1445,6 +1445,55 @@ def event_related_zscored(tseries,events,Tbefore, Tafter, Fs=1):
              - meanSurr)
              / stdSurr )
 
+
+def gamma_hrf(tau,n,delta,t_max,Fs):
+
+    """A gamma function hrf model, with two parameters, based on [Boynton1996]_
+
+
+    Parameters
+    ----------
+
+    tau: float The time constant of the gamma function 
+
+    n: int, the phase delay of the gamma function
+
+    delta: a pure delay, allowing for an additional delay from the onset of the
+    time-series to the beginning of the gamma hrf
+    
+    Returns
+    -------
+
+    h: the gamma function
+    
+    Notes
+    -----
+    XXX For some reason the equation comes out all f'd up in ipython
+    
+    This is based on equation 3 in [Boynton1996]_:
+
+    .. math::
+
+        h(t) = \frac{(\frac{t-\delta}{\tau})^{(n-1)}e^{-(\frac{t-\delta}{\tau})}}{\tau(n-1)!}
+        
+    
+    .. [Boynton1996] Geoffrey M. Boynton, Stephen A. Engel, Gary H. Glover and
+       David J. Heeger. Linear Systems Analysis of Functional Magnetic
+       Resonance Imaging in Human V1. J Neurosci 16: 4207-4221 
+    
+    """
+
+    #XXX need to figure out the proper way to implement the delay here  
+    t = np.arange(-1*delta,t_max,int(1/Fs))
+
+    t_tau = t/tau
+
+    h = (t_tau**(n-1) * np.exp(-1*(t_tau)) /
+         (tau * factorial(n-1) ) )
+
+    return h
+    
+    
 #-----------------------------------------------------------------------------
 # Spectral estimation
 #-----------------------------------------------------------------------------
