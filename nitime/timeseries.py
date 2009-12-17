@@ -55,25 +55,23 @@ reload(tsu)
 # and easy to read error message.
 
 time_unit_conversion = {
-                        #'ps': 1, #picosecond - see comment below
-                        'ns':1,  # nanosecond
-                        'us':10**3,  # microsecond
-                        'ms':10**6,  # millisecond
-                        's':10**9,   # second
-                        None:10**9, #The default is seconds (when constructor
+                        'ps':1, #picosecond 
+                        'ns':10**3,  # nanosecond
+                        'us':10**6,  # microsecond
+                        'ms':10**9,  # millisecond
+                        's':10**12,   # second
+                        None:10**12, #The default is seconds (when constructor
                                      #doesn't get any input, it defaults to
                                      #None)
-                        'm':60*10**9,   # minute
-                        'h':3600*10**9,   # hour
-                        'D':24*3600*10**9,   # day
-                        'W':7*24*3600*10**9,   # week #This is not an SI unit
+                        'm':60*10**12,   # minute
+                        'h':3600*10**12,   # hour
+                        'D':24*3600*10**12,   # day
+                        'W':7*24*3600*10**12,   # week #This is not an SI unit
                         }
 
 #The basic resolution: 
-base_unit = 'ns'
+base_unit = 'ps'
 
-#With picoseconds as the base_unit, we can still represent times up to 292
-#years - should we move to picoseconds? 
 
 #-----------------------------------------------------------------------------
 # Class declarations
@@ -128,59 +126,84 @@ class EventArray(np.ndarray,TimeInterface):
         #with the conversion factor:            
         time = np.asarray(time).view(cls)
 
+        if time_unit is None and isinstance(data, EventArray):
+            time_unit = data.time_unit
+
         if time_unit is None:
-            if isinstance(data, EventArray):
-                time_unit = data.time_unit
-            else:
-                time_unit = 's'
+            time_unit = 's'
 
         time.time_unit = time_unit
-
         time._conversion_factor = conv_fac
-        
         return time
+    
+    def __array_wrap__(self, out_arr, context=None):
+        if out_arr.dtype==bool:
+            return np.asarray(out_arr)
+        else:
+            return np.ndarray.__array_wrap__(self, out_arr, context)
 
     def __array_finalize__(self,obj):
         """XXX """
+        #Make sure that the EventArray has the time units set (and not equal to
+        #None: 
+        if not hasattr(self, 'time_unit') or self.time_unit is None:
+            if hasattr(obj, 'time_unit'): # looks like view cast
+                self.time_unit = obj.time_unit
+            else:
+                self.time_unit = 's'
 
-        if obj is None: # own constructor, we're done
-            return
-        if not hasattr(obj, 'time_unit'): # looks like view cast
-            self.time_unit = 's'
-            return 
-
-        self.time_unit = obj.time_unit
+        #Make sure that the conversion factor is set properly: 
+        if not hasattr(self,'_conversion_factor'):
+            if hasattr(obj,'_conversion_factor'):
+                self._conversion_factor = obj._conversion_factor
+            else:
+                self._conversion_factor=time_unit_conversion[self.time_unit]
 
     def __repr__(self):
-        """Pass it through the conversion factor"""
-        
-        return np.ndarray.__repr__(self/float(
-            time_unit_conversion[self.time_unit])
+       """Pass it through the conversion factor"""
+
+       #If the input is a single int/float (with no shape) return a 'scalar'
+       #time-point: 
+       if self.shape == ():
+           return "%r %s"%(int(self)/float(self._conversion_factor),
+                           self.time_unit)
+       
+       #Otherwise, return the EventArray representation:
+       else:
+           return np.ndarray.__repr__(self/float(self._conversion_factor)
             )[:-1] + ", time_unit='%s')" % self.time_unit
 
-#    def __setitem__(self,key,val):
-#        
-# XXX Need to implement - in particular, we want to look at the units -
-#        converting the values to what they need to be (in the base_unit) and
-#        then delegating to the ndarray.__setitem__
-#
-#    val = val *
+    def __getitem__(self,key):
+        # return scalar EventArray in case key is integer
+        if isinstance(key,int):
+            return self[[key]].reshape(())
+        elif isinstance(key,float):
+            return self.at(key)
+        else:
+            return np.ndarray.__getitem__(self,key)
 
+    def __setitem__(self,key,val):
+        
+    #look at the units - convert the values to what they need to be (in the
+    #base_unit) and then delegate to the ndarray.__setitem__
+    
+       val = val * self._conversion_factor
+       return np.ndarray.__setitem__(self,key,val)
+    
     def index_at(self,t,tol=None):
         """ Find the integer indices that corresponds to the time t"""
-        
         t_e = EventArray(t,time_unit=self.time_unit)
-        d = np.abs(np.array(self)-np.asarray(t_e))
-        
+        d = np.abs(self-t_e)
         if tol is None:
-            idx=np.where(np.asarray(d)==0)
+            idx=np.where(d==np.min(d))
         else:
-            idx=np.where(np.asarray(d)<tol)            
-        
+            idx=np.where(d<=tol)            
+
+        return idx
 
     def at(self,t,tol=None):
-        """ Returns the values of the items at the "
-        return self.data[self.index_at(t,tol=tol)]
+        """ Returns the values of the items at the """
+        return self[self.index_at(t,tol=tol)]
 
 #class UniformTime(TimeBase):
 #    """A representation of uniform times """
