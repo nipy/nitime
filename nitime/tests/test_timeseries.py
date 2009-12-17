@@ -88,14 +88,35 @@ def test_EventArray_new():
             yield npt.assert_equal(time4,time5)
 
 @decotest.parametric
+def test_EventArray_bool():
+    time1 = ts.EventArray([1,2,3],time_unit='s')
+    time2 = ts.EventArray([1000,2000,3000],time_unit='ms')
+    bool_arr = np.ones(time1.shape,dtype=bool)
+    yield npt.assert_equal(time1,time2)
+    yield npt.assert_equal(bool_arr,time1==time2)
+    yield nt.assert_not_equal(type(time1==time2),ts.EventArray)
+    
+@decotest.parametric
 def test_EventArray_index_at():
 
+    #Is this really the behavior we want?
     time1 = ts.EventArray(range(10),time_unit='ms')
     for i in xrange(10):
-        idx = time1.index_at(i)
-        yield npt.assert_equal(idx,i)
-    
-    
+        idx = time1.index_at([i])
+        yield npt.assert_equal(idx,np.array(i))
+
+#XXX Need to write these tests:
+
+#Test the unit conversion:
+#@decotest.parametric
+#def test_EventArray_unit_conversion():
+
+#Test the overloaded __getitem__ and __setitem: 
+#@decotest.parametric
+#def test_EventArray_getset():
+
+
+
 def test_CorrelationAnalyzer():
 
     Fs = np.pi
