@@ -33,12 +33,8 @@ def getROIcoords(ROI_file):
 
     ROI_mat_file = sio.loadmat(ROI_file,squeeze_me=True)
     
-    ROIcoords = ROI_mat_file['ROI'].coords
-
-    ROI_out = np.copy(ROIcoords)
+    return ROI_mat_file['ROI'].coords
     
-    return ROI_out
-
 
 ##---- getTseries: -----------------------------------------------
 def get_time_series_inplane(coords,time_series_file,
