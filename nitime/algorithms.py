@@ -1935,11 +1935,13 @@ def multi_taper_psd(s, BW=None, Fs=2*np.pi, sides='onesided'):
     tapers = s[sig_sl] * v
     # don't normalize the periodograms by 1/N as normal.. since the taper
     # windows are orthonormal, they effectively scale the signal by 1/N
-    tapers_sdf = periodogram(tapers, sides=sides, normalize=False)
+    f,tapers_sdf = periodogram(tapers, sides=sides, normalize=False)
+
     if sides=='onesided':
-        freqs = np.linspace(0, np.pi, N/2+1)
+        freqs = np.linspace(0, Fs/2, N/2+1)
     else:
-        freqs = np.linspace(0, 2*np.pi, N, endpoint=False)
+        freqs = np.linspace(0, Fs, N, endpoint=False)
+        
     psd_est = tapers_sdf.mean(axis=-2)
     return freqs, psd_est
 
