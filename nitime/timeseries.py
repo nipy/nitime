@@ -644,8 +644,7 @@ def time_series_from_analyze(analyze_file,coords,normalize=False,detrend=False,
     data_out = list([0]) * len(coords)
 
     for c in xrange(len(coords)): 
-        data_out[c] = data[:,coords[c][0],coords[c][1],coords[c][2]].T
-        #Take the transpose in order to make time the last dimension
+        data_out[c] = data[coords[c][0],coords[c][1],coords[c][2],:]
         
         if normalize:
             data_out[c] = tsu.percent_change(data_out[c])
@@ -760,6 +759,15 @@ class SpectralAnalyzer(desc.ResetMixin):
         
         if self.method is None:
             self.method = {}
+
+    @desc.setattr_on_read
+    def spectrum_fourier(self):
+        """ Simply the Fourier transform for a real signal"""
+
+        fft = np.fft.fft
+        f = tsu.get_freqs(self.sampling_rate,self.data.shape[-1])
+        spectrum_fourier = fft(self.data)[:,:f.shape[0]]
+        return f,spectrum_fourier 
         
     @desc.setattr_on_read
     def spectrum_mlab(self):
@@ -770,7 +778,7 @@ class SpectralAnalyzer(desc.ResetMixin):
         self.mlab_method['Fs'] = self.sampling_rate
         f,spectrum_mlab = tsa.get_spectra(self.data,method=self.mlab_method)
 
-        return spectrum_mlab
+        return f,spectrum_mlab
     
     @desc.setattr_on_read
     def spectrum_multi_taper(self):
@@ -781,19 +789,9 @@ class SpectralAnalyzer(desc.ResetMixin):
         self.multi_taper_method['Fs'] = self.sampling_rate
         f,spectrum_multi_taper = tsa.get_spectra(self.data,
                                                method=self.multi_taper_method)
-        return spectrum_multi_taper
-
-    @desc.setattr_on_read
-    def frequencies(self):
-        """The spectrum and cross-spectra, computed using mlab csd """
-
-        self.mlab_method = self.method
-        self.mlab_method['this_method'] = 'mlab'
-        self.mlab_method['Fs'] = self.sampling_rate
-        f,spectrum_mlab = tsa.get_spectra(self.data,method=self.mlab_method)
-
-        return f
-
+        return f,spectrum_multi_taper
+    
+    
 ##Bivariate methods:  
 class CoherenceAnalyzer(desc.ResetMixin):
     """ Analyzer object for coherence/y analysis"""
