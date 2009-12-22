@@ -762,7 +762,7 @@ class SpectralAnalyzer(desc.ResetMixin):
 
     @desc.setattr_on_read
     def spectrum_fourier(self):
-        """ Simply the Fourier transform for a real signal"""
+        """ Simply the non-normalized Fourier transform for a real signal"""
 
         fft = np.fft.fft
         f = tsu.get_freqs(self.sampling_rate,self.data.shape[-1])
