@@ -766,7 +766,7 @@ class SpectralAnalyzer(desc.ResetMixin):
 
         fft = np.fft.fft
         f = tsu.get_freqs(self.sampling_rate,self.data.shape[-1])
-        spectrum_fourier = fft(self.data)[:,:f.shape[0]]
+        spectrum_fourier = fft(self.data)[...,:f.shape[0]]
         return f,spectrum_fourier 
         
     @desc.setattr_on_read
