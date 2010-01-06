@@ -24,7 +24,6 @@ EventArray([ 1100.,  2000.,  3000.], time_unit='ms')
 >>> t[0]
 1100.0 ms
 
-
     """
 
 @decotest.parametric
@@ -62,6 +61,7 @@ def test_EventArray_bool():
     yield npt.assert_equal(time1,time2)
     yield npt.assert_equal(bool_arr,time1==time2)
     yield nt.assert_not_equal(type(time1==time2),ts.EventArray)
+
     
 @decotest.parametric
 def test_EventArray_index_at():
@@ -82,8 +82,36 @@ def test_EventArray_index_at():
 #@decotest.parametric
 #def test_EventArray_getset():
 
+@decotest.parametric
+def test_UniformTime():
+    for unit in ['ns','ms','s',None]:
+        duration=10
+        t1 = ts.UniformTime(duration,sampling_rate=1,time_unit=unit)
+        t2 = ts.UniformTime(duration,sampling_rate=10,time_unit=unit)
+
+        #The difference between the first and last item is the duration:
+        yield npt.assert_equal(t1[-1]-t1[0],
+                               ts.EventArray(duration,time_unit=unit))
+        #Duration doesn't depend on the sampling rate:
+        yield npt.assert_equal(t1[-1]-t2[0],
+                               ts.EventArray(duration,time_unit=unit))
+
+## @decotest.ipdoctest    
+## def test_UniformTime_repr():
+##     """
+##     >>> t = ts.UniformTime(10,1)
+##     >>> t
+##     UniformTime([  0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10.], time_unit='s')
+##     >>> t[1]
+##     1.0 s
+##     >>> t[4] = 10
+##     >>> t
+##     UniformTime([  0.,   1.,   2.,   3.,  10.,   5.,   6.,   7.,   8.,   9.,  10.], time_unit='s')
 
 
+##     """
+
+    
 def test_CorrelationAnalyzer():
 
     Fs = np.pi
