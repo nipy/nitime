@@ -1248,8 +1248,7 @@ class HilbertAnalyzer(desc.ResetMixin):
         of the Fourier domain 
 
         """
-
-        
+    
         data_in = time_series.data 
 
         self.sampling_rate = time_series.sampling_rate
