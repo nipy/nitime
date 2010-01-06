@@ -34,7 +34,8 @@ __all__ = ['time_unit_conversion',
 
 import warnings
 import numpy as np
-    
+import scipy.signal as signal
+
 # Our own
 from nitime import descriptors as desc
 from nitime import utils as tsu
@@ -1230,3 +1231,25 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         return UniformTimeSeries(data=h,
                                  sampling_rate=self.sampling_rate,
                                  t0 = -1*self.len_hrf*self.sampling_interval)
+
+
+class HilbertAnalyzer(desc.ResetMixin):
+
+    """Analyzer class for extracting the Hilbert transform""" 
+
+
+    def __init__(self,time_series):
+        self.data = time_series.data 
+        
+    @desc.setattr_on_read
+    def _analytic(self):
+        return signal.hilbert(self.data)
+        
+    @desc.setattr_on_read
+    def magnitude(self):
+        return np.abs(self._analytic)
+        
+    @desc.setattr_on_read
+    def phase(self):
+        return np.angle(self._analytic)
+        
