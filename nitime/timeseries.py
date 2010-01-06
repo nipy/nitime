@@ -1235,11 +1235,37 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
 class HilbertAnalyzer(desc.ResetMixin):
 
-    """Analyzer class for extracting the Hilbert transform""" 
+    """Analyzer class for extracting the Hilbert transform """ 
 
+    def __init__(self,time_series,lb=0,ub=None):
+        """Constructor function for the Hilbert analyzer class.
 
-    def __init__(self,time_series):
-        self.data = time_series.data 
+        Parameters
+        ----------
+        
+        lb,ub: the upper and lower bounds of the frequency range for which the
+        transform is done, where filtering is done using a simple curtailment
+        of the Fourier domain 
+
+        """
+
+        
+        data_in = time_series.data 
+
+        self.sampling_rate = time_series.sampling_rate
+        freqs = tsu.get_freqs(self.sampling_rate,data_in.shape[-1])
+
+        if ub is None:
+            ub = freqs[-1]
+        
+        power = np.fft.fft(data_in)
+        idx_0 = np.intersect1d(np.where(freqs>lb)[0],np.where(freqs<ub)[0])
+        power[idx_0] = 0
+        data_out = np.fft.ifft(power)
+
+        self.data = data_out
+
+        
         
     @desc.setattr_on_read
     def _analytic(self):
@@ -1253,3 +1279,5 @@ class HilbertAnalyzer(desc.ResetMixin):
     def phase(self):
         return np.angle(self._analytic)
         
+
+
