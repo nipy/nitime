@@ -96,20 +96,10 @@ def test_UniformTime():
         yield npt.assert_equal(t1[-1]-t2[0],
                                ts.EventArray(duration,time_unit=unit))
 
-## @decotest.ipdoctest    
-## def test_UniformTime_repr():
-##     """
-##     >>> t = ts.UniformTime(10,1)
-##     >>> t
-##     UniformTime([  0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10.], time_unit='s')
-##     >>> t[1]
-##     1.0 s
-##     >>> t[4] = 10
-##     >>> t
-##     UniformTime([  0.,   1.,   2.,   3.,  10.,   5.,   6.,   7.,   8.,   9.,  10.], time_unit='s')
-
-
-##     """
+@decotest.ipdoctest    
+def test_UniformTime_repr():
+    """
+    """
 
     
 def test_CorrelationAnalyzer():
