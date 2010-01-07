@@ -226,7 +226,8 @@ class UniformTime(np.ndarray,TimeInterface):
 
     sampling_interval: float, the inverse of the sampling_interval 
     
-    
+
+    XXX continue writing this
     """
 
     def __new__(cls, length=None,duration=None,sampling_rate=None,t0=0,
@@ -257,7 +258,10 @@ class UniformTime(np.ndarray,TimeInterface):
             
         #Calculate the sampling_interval or sampling_rate:
         if sampling_interval is None:
-            sampling_interval = 1.0/sampling_rate
+            if isinstance(sampling_rate,Frequency):
+                sampling_interval=sampling_rate.to_period()
+            else:
+                sampling_interval = 1.0/sampling_rate
         else:
             sampling_rate = 1.0/sampling_interval
 
@@ -287,7 +291,7 @@ class UniformTime(np.ndarray,TimeInterface):
         time.time_unit=time_unit
         time._conversion_factor=conv_fac
         time.duration = duration
-        time.sampling_rate=sampling_rate
+        time.sampling_rate=Frequency(sampling_rate,time_unit=time_unit)
         time.sampling_interval=sampling_interval
         
         return time
@@ -348,6 +352,41 @@ class UniformTime(np.ndarray,TimeInterface):
        val = val * self._conversion_factor
        return np.ndarray.__setitem__(self,key,val)
 
+
+##Frequency:
+
+class Frequency(float):
+    """A class for representation of the frequency (in Hz) """
+
+    def __new__(cls,f,time_unit='s'):
+        """Initialize a frequency object """
+
+        tuc = time_unit_conversion
+        scale_factor = (float(tuc['s'])/tuc[time_unit])
+        #If the input is a Frequency object, it is already in Hz: 
+        if isinstance(f,Frequency)==False:
+            #But otherwise convert to Hz:
+            f = f*scale_factor
+
+        freq = super(Frequency,cls).__new__(cls,f)
+        freq._time_unit = time_unit
+
+        return freq
+
+    def __repr__(self):
+        
+        return str(self) + ' Hz'
+
+    def to_period(self,time_unit=base_unit):
+        """Convert the value of a frequency to the corresponding period
+        (defaulting to a representation in the base_unit)
+
+        """
+        tuc = time_unit_conversion
+        scale_factor = (float(tuc['s'])/tuc[time_unit])
+        
+        return np.int64((1/self)*scale_factor)
+        
 
 ##Time-series: 
 class TimeSeriesInterface(object):
