@@ -1300,7 +1300,9 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         dimensions as the data in the EventRelatedAnalyzer object. In each
         sample in the time-series, there is an integer, which denotes the kind
         of event which occured at that time. In time-bins in which
-        no event occured, a 0 should be entered
+        no event occured, a 0 should be entered. The data in this time series
+        object needs to have the same dimensionality as the data in the data
+        time-series 
 
         len_hrf: int
 
@@ -1436,25 +1438,28 @@ class HilbertAnalyzer(desc.ResetMixin):
             ub = freqs[-1]
         
         power = np.fft.fft(data_in)
-        idx_0 = np.intersect1d(np.where(freqs>lb)[0],np.where(freqs<ub)[0])
-        power[idx_0] = 0
+        idx_0 = np.hstack([np.where(freqs<lb)[0],np.where(freqs>ub)[0]])
+        power[...,idx_0] = 0
+        power[...,-1*idx_0] = 0 #Take care of the negative frequencies
         data_out = np.fft.ifft(power)
 
-        self.data = data_out
-
-        
-        
+        self.data = np.real(data_out) #In order to make sure that you are not
+                                      #left with float-precision residual
+                                      #complex parts
+                                      
     @desc.setattr_on_read
     def _analytic(self):
         return signal.hilbert(self.data)
         
     @desc.setattr_on_read
     def magnitude(self):
-        return np.abs(self._analytic)
-        
+        return UniformTimeSeries(data=np.abs(self._analytic),
+                                 sampling_rate=self.sampling_rate)
+                                 
     @desc.setattr_on_read
     def phase(self):
-        return np.angle(self._analytic)
+        return UniformTimeSeries(data=np.angle(self._analytic),
+                                 sampling_rate=self.sampling_rate)
         
 
 
