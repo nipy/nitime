@@ -6,44 +6,44 @@ import nose.tools as nt
 import decotest
 
 @decotest.parametric
-def test_EventArray():
+def test_TimeArray():
 
-    time1 = ts.EventArray(range(100),time_unit='ms')
+    time1 = ts.TimeArray(range(100),time_unit='ms')
     time2 = time1+time1
     yield npt.assert_equal(time2.time_unit,'ms')
 
 @decotest.ipdoctest    
-def test_EventArray_repr():
+def test_TimeArray_repr():
     """
->>> a = ts.EventArray([1.1,2,3])
+>>> a = ts.TimeArray([1.1,2,3])
 >>> a
-EventArray([ 1.1,  2. ,  3. ], time_unit='s')
->>> t = ts.EventArray(a,time_unit='ms')
+TimeArray([ 1.1,  2. ,  3. ], time_unit='s')
+>>> t = ts.TimeArray(a,time_unit='ms')
 >>> t
-EventArray([ 1100.,  2000.,  3000.], time_unit='ms')
+TimeArray([ 1100.,  2000.,  3000.], time_unit='ms')
 >>> t[0]
 1100.0 ms
 
     """
 
 @decotest.parametric
-def test_EventArray_new():
+def test_TimeArray_new():
     for unit in ['ns','ms','s',None]:
         for flag,assertion in [(True,nt.assert_not_equal),
                 (False, nt.assert_equal)]:
             #default parameters (timeunits, copy flag, etc)
             #list
-            time1 = ts.EventArray(range(5),time_unit=unit, copy=flag)
+            time1 = ts.TimeArray(range(5),time_unit=unit, copy=flag)
             #numpy array (int)
-            time2 = ts.EventArray(np.arange(5), time_unit=unit, copy=flag)
+            time2 = ts.TimeArray(np.arange(5), time_unit=unit, copy=flag)
             #numpy array (float)
-            time2f = ts.EventArray(np.arange(5.), time_unit=unit, copy=flag)
-            #EventArray
-            time3 = ts.EventArray(time1, time_unit=unit, copy=flag)
+            time2f = ts.TimeArray(np.arange(5.), time_unit=unit, copy=flag)
+            #TimeArray
+            time3 = ts.TimeArray(time1, time_unit=unit, copy=flag)
             #integer
-            time4 = ts.EventArray(5,time_unit=unit,copy=flag)
+            time4 = ts.TimeArray(5,time_unit=unit,copy=flag)
             #float
-            time5 = ts.EventArray(5.0,time_unit=unit,copy=flag)
+            time5 = ts.TimeArray(5.0,time_unit=unit,copy=flag)
 
             yield npt.assert_equal(time1,time2)
             yield npt.assert_equal(time2,time2f)
@@ -54,20 +54,20 @@ def test_EventArray_new():
             yield npt.assert_equal(time4,time5)
 
 @decotest.parametric
-def test_EventArray_bool():
-    time1 = ts.EventArray([1,2,3],time_unit='s')
-    time2 = ts.EventArray([1000,2000,3000],time_unit='ms')
+def test_TimeArray_bool():
+    time1 = ts.TimeArray([1,2,3],time_unit='s')
+    time2 = ts.TimeArray([1000,2000,3000],time_unit='ms')
     bool_arr = np.ones(time1.shape,dtype=bool)
     yield npt.assert_equal(time1,time2)
     yield npt.assert_equal(bool_arr,time1==time2)
-    yield nt.assert_not_equal(type(time1==time2),ts.EventArray)
+    yield nt.assert_not_equal(type(time1==time2),ts.TimeArray)
 
     
 @decotest.parametric
-def test_EventArray_index_at():
+def test_TimeArray_index_at():
 
     #Is this really the behavior we want?
-    time1 = ts.EventArray(range(10),time_unit='ms')
+    time1 = ts.TimeArray(range(10),time_unit='ms')
     for i in xrange(10):
         idx = time1.index_at([i])
         yield npt.assert_equal(idx,np.array(i))
@@ -76,11 +76,11 @@ def test_EventArray_index_at():
 
 #Test the unit conversion:
 #@decotest.parametric
-#def test_EventArray_unit_conversion():
+#def test_TimeArray_unit_conversion():
 
 #Test the overloaded __getitem__ and __setitem: 
 #@decotest.parametric
-#def test_EventArray_getset():
+#def test_TimeArray_getset():
 
 @decotest.parametric
 def test_UniformTime():
@@ -91,10 +91,10 @@ def test_UniformTime():
 
         #The difference between the first and last item is the duration:
         yield npt.assert_equal(t1[-1]-t1[0],
-                               ts.EventArray(duration,time_unit=unit))
+                               ts.TimeArray(duration,time_unit=unit))
         #Duration doesn't depend on the sampling rate:
         yield npt.assert_equal(t1[-1]-t2[0],
-                               ts.EventArray(duration,time_unit=unit))
+                               ts.TimeArray(duration,time_unit=unit))
 
 @decotest.ipdoctest    
 def test_UniformTime_repr():
