@@ -86,8 +86,8 @@ def test_TimeArray_index_at():
 def test_UniformTime():
     for unit in ['ns','ms','s',None]:
         duration=10
-        t1 = ts.UniformTime(duration,sampling_rate=1,time_unit=unit)
-        t2 = ts.UniformTime(duration,sampling_rate=10,time_unit=unit)
+        t1 = ts.UniformTime(duration=duration,sampling_rate=1,time_unit=unit)
+        t2 = ts.UniformTime(duration=duration,sampling_rate=10,time_unit=unit)
 
         #The difference between the first and last item is the duration:
         yield npt.assert_equal(t1[-1]-t1[0],
