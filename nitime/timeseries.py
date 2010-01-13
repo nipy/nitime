@@ -86,7 +86,7 @@ class TimeInterface(object):
 
     time_unit = None
     
-class EventArray(np.ndarray,TimeInterface):
+class TimeArray(np.ndarray,TimeInterface):
     """Base-class for time representations, implementing the TimeInterface"""  
     def __new__(cls, data, time_unit=None, copy=False):
         """XXX Write a doc-string - in particular, mention the the default
@@ -100,15 +100,15 @@ class EventArray(np.ndarray,TimeInterface):
         conv_fac = time_unit_conversion[time_unit]
 
         # We can only honor the copy flag in a very narrow set of cases
-        # if data is already an EventArray or if data is an ndarray with
+        # if data is already an TimeArray or if data is an ndarray with
         # dtype=int64
         if copy==False and getattr(data, 'dtype', None) == np.int64:
             time = np.asarray(data)
         else:
             # XXX: do we mean isinstance(data,TimeInterface) - it could also be
             # NonUniformTime or UniformTime, it doesn't have to be an
-            # EventArray
-            if isinstance(data, EventArray):
+            # TimeArray
+            if isinstance(data, TimeArray):
                 time = data.copy()
             else:
                 data_arr = np.asarray(data)
@@ -127,7 +127,7 @@ class EventArray(np.ndarray,TimeInterface):
         #with the conversion factor:            
         time = np.asarray(time).view(cls)
 
-        if time_unit is None and isinstance(data, EventArray):
+        if time_unit is None and isinstance(data, TimeArray):
             time_unit = data.time_unit
 
         if time_unit is None:
@@ -146,7 +146,7 @@ class EventArray(np.ndarray,TimeInterface):
 
     def __array_finalize__(self,obj):
         """XXX """
-        #Make sure that the EventArray has the time units set (and not equal to
+        #Make sure that the TimeArray has the time units set (and not equal to
         #None: 
         if not hasattr(self, 'time_unit') or self.time_unit is None:
             if hasattr(obj, 'time_unit'): # looks like view cast
@@ -170,13 +170,13 @@ class EventArray(np.ndarray,TimeInterface):
            return "%r %s"%(int(self)/float(self._conversion_factor),
                            self.time_unit)
        
-       #Otherwise, return the EventArray representation:
+       #Otherwise, return the TimeArray representation:
        else:
            return np.ndarray.__repr__(self/float(self._conversion_factor)
             )[:-1] + ", time_unit='%s')" % self.time_unit
 
     def __getitem__(self,key):
-        # return scalar EventArray in case key is integer
+        # return scalar TimeArray in case key is integer
         if isinstance(key,int):
             return self[[key]].reshape(())
         elif isinstance(key,float):
@@ -194,7 +194,7 @@ class EventArray(np.ndarray,TimeInterface):
     
     def index_at(self,t,tol=None):
         """ Find the integer indices that corresponds to the time t"""
-        t_e = EventArray(t,time_unit=self.time_unit)
+        t_e = TimeArray(t,time_unit=self.time_unit)
         d = np.abs(self-t_e)
         if tol is None:
             idx=np.where(d==np.min(d))
@@ -216,7 +216,7 @@ class UniformTime(np.ndarray,TimeInterface):
     length: int, the number of items in the time-array
 
     duration: float, the duration to be represented (given in the time-unit) of
-    the array. If this item is an EventArray, the units of the UniformTime
+    the array. If this item is an TimeArray, the units of the UniformTime
     array resulting will 'inherit' the units of the duration. Otherwise, the
     unit of the UniformTime will be set by that kwarg
 
@@ -272,15 +272,15 @@ class UniformTime(np.ndarray,TimeInterface):
         # Make sure you have a time unit:
         if time_unit is None:
             #If you gave us a duration with time_unit attached 
-            if isinstance(duration,EventArray):
+            if isinstance(duration,TimeArray):
                 time_unit = duration.time_unit
             else:
                 time_unit = 's'
 
-        # 'cast' the time inputs as EventArray
-        duration=EventArray(duration,time_unit=time_unit)
-        t0=EventArray(t0,time_unit=time_unit)
-        sampling_interval=EventArray(sampling_interval,time_unit=time_unit)
+        # 'cast' the time inputs as TimeArray
+        duration=TimeArray(duration,time_unit=time_unit)
+        t0=TimeArray(t0,time_unit=time_unit)
+        sampling_interval=TimeArray(sampling_interval,time_unit=time_unit)
 
         #in order for time[-1]-time[0]==duration to be true (which it should)
         #add the samling_interval to the stop value: 
@@ -336,7 +336,7 @@ class UniformTime(np.ndarray,TimeInterface):
             )[:-1] + ", time_unit='%s')" % self.time_unit
 
     def __getitem__(self,key):
-        # return scalar EventArray in case key is integer
+        # return scalar TimeArray in case key is integer
         if isinstance(key,int):
             return self[[key]].reshape(())
         elif isinstance(key,float):
