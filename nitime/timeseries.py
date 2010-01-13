@@ -221,39 +221,84 @@ class UniformTime(np.ndarray,TimeInterface):
     unit of the UniformTime will be set by that kwarg
 
     sampling_rate: float, the sampling rate (in 1/time-unit)
-    
+
+    sampling_interval: float, the inverse of the sampling_interval     
+
     t0: the value of the first time-point in the array (in time-unit)
 
-    sampling_interval: float, the inverse of the sampling_interval 
+    time_unit:
+
+    copy: whether to make a copy of not. Needs to be set to False 
+    
     
 
     XXX continue writing this
     """
 
-    def __new__(cls, length=None,duration=None,sampling_rate=None,t0=0,
-                sampling_interval=None,time_unit=None, copy=False):
+    def __new__(cls,data=None,length=None,duration=None,sampling_rate=None,
+                sampling_interval=None,t0=0,time_unit=None, copy=False):
         """Create a new UniformTime """
 
-        # Copy doesn't make sense for UniformTime:  
-        if copy==True:
-            raise ValueError('The copy flag cannot be set to True for' +
-                              'UniformTime, see docstring')
-        
-        # Sanity check, xor on sampling_rate and sampling_interval,
-        # define only one, not both:
-        if not ((sampling_rate is None) ^ (sampling_interval is None)):
-            raise ValueError('Invalid rate/interval specification,' + 
-                              'see docstring.')
-        
-        #Same is true for duration and length:
-        if not ((length is None) ^ (duration is None)):
-            raise ValueError('Invalid duration/length specification,' + 
-                              'see docstring.')
-        
+        #Sanity checks. There are different valid combinations of inputs
+        tspec = tuple(x is not None for x in
+                      [sampling_interval,sampling_rate,length,duration])
+
+        #The valid configurations 
+        valid_tspecs=[
+            #interval,length:
+            (True,False,True,False),
+            #interval,duration:
+            (True,False,False,True),
+            #rate,length:
+            (False,True,True,False),
+            #rate, duration:
+            (False,True,False,True),
+            #length,duration:
+            (False,False,True,True)
+            ]
+
+        if isinstance(data,UniformTime):
+            #Assuming data was given, some other tspecs become valid:
+            valid_w_data=[
+                #nothing:
+                (False,False,False,False),
+                #interval:
+                (True,False,False,False),
+                #rate
+                (False,True,False,False),
+                #length:
+                (False,False,True,False),
+                #duration:
+                (False,False,False,True)
+                ]        
+
+        if (tspec not in valid_tspecs and
+            not(isinstance(data,UniformTime) and tspec in valid_w_data)):
+                raise ValueError("Invalid time specification, see docstring.")
+
+        if isinstance(data,UniformTime):
+            #Get attributes from the UniformTime object and transfer those over:
+            if tspec==valid_w_data[0]:
+                sampling_interval=data.sampling_interval
+                duration = data.duration
+            elif tspec==valid_w_data[1]:
+                duration==data.duration
+            elif tspec==valid_w_data[2]:
+                if isinstance(sampling_rate,Frequency):
+                    sampling_interval=sampling_rate.to_period()
+                else:
+                    sampling_interval = 1.0/sampling_rate
+                duration=data.duration
+            elif tspec==valid_w_data[3]:
+                duration=length*data.sampling_interval
+            elif tspec==valid_w_data[4]:
+                sampling_interval=data.sampling_interval
+                            
         # Check that the time units provided are sensible: 
         if time_unit not in time_unit_conversion:
             raise ValueError('Invalid time unit %s, must be one of %s' %
-                             (time_unit,time_unit_conversion.keys()))         
+                         (time_unit,time_unit_conversion.keys()))         
+
         conv_fac = time_unit_conversion[time_unit]
             
         #Calculate the sampling_interval or sampling_rate:
@@ -279,6 +324,7 @@ class UniformTime(np.ndarray,TimeInterface):
 
         # 'cast' the time inputs as TimeArray
         duration=TimeArray(duration,time_unit=time_unit)
+        #XXX If data is given - the t0 should be taken from there:
         t0=TimeArray(t0,time_unit=time_unit)
         sampling_interval=TimeArray(sampling_interval,time_unit=time_unit)
 
