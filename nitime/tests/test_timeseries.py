@@ -96,6 +96,41 @@ def test_UniformTime():
         yield npt.assert_equal(t1[-1]-t2[0],
                                ts.TimeArray(duration,time_unit=unit))
 
+        a = ts.UniformTime(duration=10,sampling_rate=1)
+        b = ts.UniformTime(a,time_unit=unit)
+        yield npt.assert_equal(a.sampling_interval,b.sampling_interval)
+        yield npt.assert_equal(a.sampling_rate,b.sampling_rate)
+
+        b = ts.UniformTime(a,duration=2000000000000000,time_unit=unit)
+        yield npt.assert_equal(a.sampling_interval,b.sampling_interval)
+        yield npt.assert_equal(a.sampling_rate,b.sampling_rate)
+            
+        b = ts.UniformTime(a,length=100,time_unit=unit)
+        yield npt.assert_equal(a.sampling_interval,b.sampling_interval)
+        yield npt.assert_equal(a.sampling_rate,b.sampling_rate)
+
+        b = ts.UniformTime(a,length=100,time_unit=unit)
+        yield npt.assert_equal(a.sampling_interval,b.sampling_interval)
+        yield npt.assert_equal(a.sampling_rate,b.sampling_rate)
+        
+        b = ts.UniformTime(a,length=100,duration=10,time_unit=unit)
+        c = ts.UniformTime(length=100,duration=10,time_unit=unit)
+        yield npt.assert_equal(c,b)
+
+        b = ts.UniformTime(sampling_interval=1,duration=10,time_unit=unit)
+        c = ts.UniformTime(sampling_rate=1,duration=10,time_unit=unit)
+        yield npt.assert_equal(c,b)
+
+        b = ts.UniformTime(sampling_interval=0.1,duration=10,time_unit=unit)
+        c = ts.UniformTime(sampling_rate=10,length=100,time_unit=unit)
+        yield npt.assert_equal(c,b)
+
+        #This should raise a value error, because the duration is shorter than
+        #the sampling_interval:
+        npt.assert_raises(ValueError,
+                          ts.UniformTime,dict(sampling_interval=10,duration=1))
+        
+        
 @decotest.ipdoctest    
 def test_UniformTime_repr():
     """

@@ -275,11 +275,11 @@ class UniformTime(np.ndarray,TimeInterface):
         if (tspec not in valid_tspecs and
             not(isinstance(data,UniformTime) and tspec in valid_w_data)):
                 raise ValueError("Invalid time specification, see docstring.")
-
+            
         if isinstance(data,UniformTime):
             #Get attributes from the UniformTime object and transfer those over:
             if tspec==valid_w_data[0]:
-                sampling_interval=data.sampling_interval
+                sampling_rate=data.sampling_rate
                 duration = data.duration
             elif tspec==valid_w_data[1]:
                 duration==data.duration
@@ -291,20 +291,26 @@ class UniformTime(np.ndarray,TimeInterface):
                 duration=data.duration
             elif tspec==valid_w_data[3]:
                 duration=length*data.sampling_interval
+                sampling_rate=data.sampling_rate
             elif tspec==valid_w_data[4]:
-                sampling_interval=data.sampling_interval
+                sampling_rate=data.sampling_rate
                             
         # Check that the time units provided are sensible: 
         if time_unit not in time_unit_conversion:
             raise ValueError('Invalid time unit %s, must be one of %s' %
                          (time_unit,time_unit_conversion.keys()))         
 
+        
         conv_fac = time_unit_conversion[time_unit]
             
         #Calculate the sampling_interval or sampling_rate:
         if sampling_interval is None:
             if isinstance(sampling_rate,Frequency):
                 sampling_interval=sampling_rate.to_period()
+            elif sampling_rate is None:
+                sampling_interval = float(duration)/length
+                sampling_rate = 1.0/sampling_interval
+
             else:
                 sampling_interval = 1.0/sampling_rate
         else:
@@ -328,6 +334,11 @@ class UniformTime(np.ndarray,TimeInterface):
         t0=TimeArray(t0,time_unit=time_unit)
         sampling_interval=TimeArray(sampling_interval,time_unit=time_unit)
 
+        #Check that the inputs are consistent, before making the array
+        #itself:
+        if duration<sampling_interval:
+            raise ValueError('length/duration too short for the sampling_interval/sampling_rate')
+        
         #in order for time[-1]-time[0]==duration to be true (which it should)
         #add the samling_interval to the stop value: 
         time = np.arange(np.int64(t0),np.int64(t0+duration+sampling_interval),
