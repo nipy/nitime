@@ -181,7 +181,10 @@ def count_failures(runner):
 
     Code modeled after the summarize() method in doctest.
     """
-    from doctest import TestResults
+    try:
+        from doctest import TestResults
+    except:
+        from _doctest26 import TestResults
 
     return [TestResults(f, t) for f, t in runner._name2ft.values() if f > 0 ]
 
