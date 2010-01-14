@@ -68,12 +68,21 @@ def test_TimeArray_bool():
     
 @decotest.parametric
 def test_TimeArray_index_at():
-
-    #Is this really the behavior we want?
     time1 = ts.TimeArray(range(10),time_unit='ms')
     for i in xrange(10):
         idx = time1.index_at([i])
         yield npt.assert_equal(idx,np.array(i))
+        idx_secs=time1.index_at(ts.TimeArray(i/1000.))
+        yield npt.assert_equal(idx_secs,np.array(i))
+
+@decotest.parametric
+def test_TimeArray_at():
+    time1 = ts.TimeArray(range(10),time_unit='ms')
+    for i in xrange(10):
+        this = time1.at(i)
+        yield npt.assert_equal(this,ts.TimeArray(i,time_unit='ms'))
+        this_secs=time1.at(ts.TimeArray(i/1000.))
+        yield npt.assert_equal(this_secs,ts.TimeArray(i,time_unit='ms'))
 
 #XXX Need to write these tests:
 
