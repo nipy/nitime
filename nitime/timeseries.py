@@ -200,6 +200,9 @@ class TimeArray(np.ndarray,TimeInterface):
         if tol is None:
             idx=np.where(d==np.min(d))
         else:
+            #tolerance is converted into a time-array, so that it does the
+            #right thing:
+            tol = TimeArray(tol,time_unit=self.time_unit)
             idx=np.where(d<=tol)            
 
         return idx
@@ -208,6 +211,11 @@ class TimeArray(np.ndarray,TimeInterface):
         """ Returns the values of the items at the """
         return self[self.index_at(t,tol=tol)]
 
+    def convert_unit(self,time_unit):
+        """Convert from one time unit to another in place"""
+        #XXX Implement
+        pass
+     
 class UniformTime(np.ndarray,TimeInterface):
     """ A representation of time sampled uniformly
 
