@@ -116,7 +116,8 @@ class TimeArray(np.ndarray,TimeInterface):
                     #If this is an array of integers, cast to 64 bit integer
                     #and convert to the base_unit.
                     #XXX This will fail when even 64 bit is not large enough to
-                    #avoid wrap-around
+                    #avoid wrap-around (When you try to make more than 10**6
+                    #seconds). XXX this should be mentioned in the docstring
                     time = data_arr.astype(np.int64)*conv_fac
                 else:
                     #Otherwise: first convert, round and then cast to 64 
@@ -309,12 +310,14 @@ class UniformTime(np.ndarray,TimeInterface):
                 sampling_interval=sampling_rate.to_period()
             elif sampling_rate is None:
                 sampling_interval = float(duration)/length
-                sampling_rate = 1.0/sampling_interval
+                sampling_rate = Frequency(1.0/sampling_interval,
+                                             time_unit=time_unit)
 
             else:
-                sampling_interval = 1.0/sampling_rate
+                sampling_rate = Frequency(sampling_rate,time_unit='s')
+                sampling_interval = sampling_rate.to_period()
         else:
-            sampling_rate = 1.0/sampling_interval
+            sampling_rate = Frequency(1.0/sampling_interval)
 
         #Calculate the duration, if that is not defined:
         if duration is None:
@@ -348,7 +351,7 @@ class UniformTime(np.ndarray,TimeInterface):
         time.time_unit=time_unit
         time._conversion_factor=conv_fac
         time.duration = duration
-        time.sampling_rate=Frequency(sampling_rate,time_unit=time_unit)
+        time.sampling_rate=Frequency(sampling_rate)
         time.sampling_interval=sampling_interval
         
         return time

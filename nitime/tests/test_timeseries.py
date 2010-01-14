@@ -11,7 +11,10 @@ def test_TimeArray():
     time1 = ts.TimeArray(range(100),time_unit='ms')
     time2 = time1+time1
     yield npt.assert_equal(time2.time_unit,'ms')
+    time1 = ts.TimeArray(10**6)
+    yield npt.assert_equal(time1.__repr__(),'1000000.0 s')
 
+                                           
 @decotest.ipdoctest    
 def test_TimeArray_repr():
     """
@@ -84,10 +87,15 @@ def test_TimeArray_index_at():
 
 @decotest.parametric
 def test_UniformTime():
-    for unit in ['ns','ms','s',None]:
-        duration=10
-        t1 = ts.UniformTime(duration=duration,sampling_rate=1,time_unit=unit)
-        t2 = ts.UniformTime(duration=duration,sampling_rate=10,time_unit=unit)
+    tuc = ts.time_unit_conversion
+    
+    for unit,duration in zip(['ns','ms','s',None],
+                             [2*10**9,2*10**6,100,20]):
+        
+        t1 = ts.UniformTime(duration=duration,sampling_rate=1,
+                            time_unit=unit)
+        t2 = ts.UniformTime(duration=duration,sampling_rate=20,
+                            time_unit=unit)
 
         #The difference between the first and last item is the duration:
         yield npt.assert_equal(t1[-1]-t1[0],
@@ -101,7 +109,7 @@ def test_UniformTime():
         yield npt.assert_equal(a.sampling_interval,b.sampling_interval)
         yield npt.assert_equal(a.sampling_rate,b.sampling_rate)
 
-        b = ts.UniformTime(a,duration=2000000000000000,time_unit=unit)
+        b = ts.UniformTime(a,duration=2*duration,time_unit=unit)
         yield npt.assert_equal(a.sampling_interval,b.sampling_interval)
         yield npt.assert_equal(a.sampling_rate,b.sampling_rate)
             
@@ -113,16 +121,15 @@ def test_UniformTime():
         yield npt.assert_equal(a.sampling_interval,b.sampling_interval)
         yield npt.assert_equal(a.sampling_rate,b.sampling_rate)
         
-        b = ts.UniformTime(a,length=100,duration=10,time_unit=unit)
-        c = ts.UniformTime(length=100,duration=10,time_unit=unit)
+        b = ts.UniformTime(a,length=100,duration=duration,time_unit=unit)
+        c = ts.UniformTime(length=100,duration=duration,time_unit=unit)
         yield npt.assert_equal(c,b)
 
+        
         b = ts.UniformTime(sampling_interval=1,duration=10,time_unit=unit)
-        c = ts.UniformTime(sampling_rate=1,duration=10,time_unit=unit)
-        yield npt.assert_equal(c,b)
+        c = ts.UniformTime(sampling_rate=tuc['s']/tuc[unit],
+                           length=10,time_unit=unit)
 
-        b = ts.UniformTime(sampling_interval=0.1,duration=10,time_unit=unit)
-        c = ts.UniformTime(sampling_rate=10,length=100,time_unit=unit)
         yield npt.assert_equal(c,b)
 
         #This should raise a value error, because the duration is shorter than
@@ -130,11 +137,27 @@ def test_UniformTime():
         npt.assert_raises(ValueError,
                           ts.UniformTime,dict(sampling_interval=10,duration=1))
         
-        
+@decotest.parametric
+def test_Frequency():
+    """Test frequency representation object"""
+    tuc=ts.time_unit_conversion
+    for unit in ['ns','ms','s',None]:
+        f = ts.Frequency(1,time_unit=unit)
+        yield npt.assert_equal(f.to_period(),tuc[unit]) 
+
+        f = ts.Frequency(1000,time_unit=unit)
+        yield npt.assert_equal(f.to_period(),tuc[unit]/1000)       
+
+        f = ts.Frequency(0.001,time_unit=unit)
+        yield npt.assert_equal(f.to_period(),tuc[unit]*1000)       
+
+
+    
 @decotest.ipdoctest    
 def test_UniformTime_repr():
     """
     """
+
 
     
 def test_CorrelationAnalyzer():
