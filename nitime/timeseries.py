@@ -1332,7 +1332,7 @@ class CorrelationAnalyzer(desc.ResetMixin):
             for j in xrange(i,tseries_length):
                 xcorr[i,j] = tsu.xcorr(self.data[i],self.data[j])
                 xcorr[i,j] /= (xcorr[i,j,t_points])
-                xcorr[i,j] *= self.correlation[0,1]
+                xcorr[i,j] *= self.correlation[i,j]
 
         idx = tsu.tril_indices(tseries_length,-1)
         xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
