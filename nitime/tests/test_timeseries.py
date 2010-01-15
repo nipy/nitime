@@ -212,7 +212,7 @@ def test_CorrelationAnalyzer():
     npt.assert_equal(C.xcorr_norm.data[0,1,C.xcorr_norm.time==0]
                             ,C.correlation[0,1])
 
-def test_EventRelatedAnalyzer():
+def test_FIRAnalyzer():
 
     cycles = 10
     l = 1024
@@ -224,7 +224,7 @@ def test_EventRelatedAnalyzer():
     events[np.arange(l/cycles/2,l-(l/cycles),l/cycles)]=2
     T_signal = ts.UniformTimeSeries(signal,sampling_rate=1)
     T_events = ts.UniformTimeSeries(events,sampling_rate=1)
-    E = ts.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2))
+    FIR = ts.FIRAnalyzer(T_signal,T_events,l/(cycles*2))
 
 def test_CoherenceAnalyzer():
 
@@ -236,5 +236,39 @@ def test_CoherenceAnalyzer():
     T = ts.UniformTimeSeries(np.vstack([x,y]),sampling_rate=Fs)
 
     C = ts.CoherenceAnalyzer(T)
+
+def test_HilbertAnalyzer():
+    """Testing the HilbertAnalyzer (analytic signal)"""
+    pi = np.pi
+    Fs = np.pi
+    t = np.arange(0,2*pi,pi/256)
+
+    a0 = np.sin(t)
+    a1 = np.cos(t)
+    a2 = np.sin(2*t)
+    a3 = np.cos(2*t)
+
+    T = ts.UniformTimeSeries(data=np.vstack([a0,a1,a2,a3]),
+                             sampling_rate=Fs)
+
+    H = ts.HilbertAnalyzer(T)
+
+    h_abs = H.magnitude.data
+    h_angle = H.phase.data
+    h_real = np.real(H._analytic)
+    #The real part should be equal to the original signals:
+    npt.assert_almost_equal(h_real,H.data)
+    #The absolute value should be one everywhere, for this input:
+    npt.assert_almost_equal(h_abs,np.ones(T.data.shape))
+    #For the 'slow' sine - the phase should go from -pi/2 to pi/2 in the first
+    #256 bins: 
+    npt.assert_almost_equal(h_angle[0,:256],np.arange(-pi/2,pi/2,pi/256))
+    #For the 'slow' cosine - the phase should go from 0 to pi in the same
+    #interval: 
+    npt.assert_almost_equal(h_angle[1,:256],np.arange(0,pi,pi/256))
+    #The 'fast' sine should make this phase transition in half the time:
+    npt.assert_almost_equal(h_angle[2,:128],np.arange(-pi/2,pi/2,pi/128))
+    #Ditto for the 'fast' cosine:
+    npt.assert_almost_equal(h_angle[3,:128],np.arange(0,pi,pi/128))
 
     
