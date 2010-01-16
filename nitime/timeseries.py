@@ -1356,7 +1356,8 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
     """    
 
-    def __init__(self,time_series,events_time_series,len_hrf):
+    def __init__(self,time_series,events_time_series,len_hrf,zscore=False,
+                 correct_baseline=False):
         """
         Parameters
         ----------
@@ -1375,12 +1376,21 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         time-series 
 
         len_hrf: int
-
+        
         The expected length of the HRF (in the same time-units as
         the events are represented (presumably TR). The size of the block
         dedicated in the fir_matrix to each type of event
 
+        zscore: a flag to return the result in zscore (where relevant)
+
+        correct_baseline: a flag to correct the baseline according to the first
+        point in the event-triggered average (where possible)
+        
         """ 
+        #XXX enable the possibility that the event_time_series only has one
+        #dimension, corresponding to time and then all channels have the same
+        #series of events (and there is no need to loop over all channels?)
+        
         #If the events and the time_series have more than 1-d, the analysis can
         #traverse their first dimension
         if events_time_series.data.ndim-1>0:
@@ -1399,6 +1409,8 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         self.sampling_rate = time_series.sampling_rate
         self.sampling_interval = time_series.sampling_interval
         self.len_hrf=int(len_hrf)
+        self._zscore=zscore
+        self._correct_baseline=correct_baseline
         
     @desc.setattr_on_read
     def FIR(self):
@@ -1413,6 +1425,8 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         the different kinds of events used (ordered according to the sorted
         order of the unique components in the events time-series). shape[-1]
         corresponds to time, and has length = len_hrf
+
+        XXX code needs to be changed to use flattening (see 'eta' below)
         
         """
             
@@ -1440,7 +1454,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         raise NotImplementedError
     
     @desc.setattr_on_read
-    def xcorr_eta_zscored(self):
+    def xcorr_eta(self):
         """Compute the normalized cross-correlation estimate of the HRFs for
         different kinds of events
         
@@ -1453,7 +1467,9 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         order of the unique components in the events time-series). shape[-1]
         corresponds to time, and has length = len_hrf*2 (xcorr looks both back
         and forward for this length)
-        
+
+
+        XXX code needs to be changed to use flattening (see 'eta' below)
         """
         #Make a list to put the outputs in:
         h = [0] * self._len_h
@@ -1465,11 +1481,19 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             h[i] = np.empty((event_types.shape[0],self.len_hrf*2),dtype=complex)
             for e_idx in xrange(event_types.shape[0]):
                 this_e = (self.events[i]==event_types[e_idx]) * 1.0
-                this_h = tsa.event_related_zscored(data,
+                if self._zscore:
+                    this_h = tsa.event_related_zscored(data,
                                             this_e,
                                             self.len_hrf,
                                             self.len_hrf
                                             )
+                else:
+                    this_h = tsa.event_related(data,
+                                            this_e,
+                                            self.len_hrf,
+                                            self.len_hrf
+                                            )
+                    
                 h[i][e_idx] = this_h
                 
         h = np.array(h).squeeze()
@@ -1482,7 +1506,49 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                                  sampling_rate=self.sampling_rate,
                                  t0 = -1*self.len_hrf*self.sampling_interval)
 
+    @desc.setattr_on_read
+    def eta(self):
+        """The event-triggered average activity """
+        #Make a list fo the output 
+        h = [0] * self._len_h
 
+        for i in xrange(self._len_h):
+            data = self.data[i]
+            u = np.unique(self.events[i])
+            event_types = u[np.unique(self.events[i])!=0]
+            h[i] = np.empty((event_types.shape[0],self.len_hrf),dtype=complex)
+            for e_idx in xrange(event_types.shape[0]):
+                idx = np.where(self.events[i]==event_types[e_idx])
+                idx_w_len = np.array([idx[0]+count for count
+                                      in range(self.len_hrf)])
+                event_trig = data[idx_w_len]
+                #Correct baseline by removing the first point in the series for
+                #each channel:
+                if self._correct_baseline:
+                    event_trig -= event_trig[0]
+                    
+                h[i][e_idx] = np.mean(event_trig,-1)
+                
+        h = np.array(h).squeeze()
+
+#If the events were the same for all the channels, maybe you can take an
+#        alternative approach?
+
+#        d_flat = np.ravel(self.data)
+#        e_flat = np.ravel(self.events)
+#        u = np.unique(e_flat)
+#        event_types = u[np.unique(self.events[i])!=0]
+#        for e in event_types: 
+#            idx = np.where(e_flat==e)
+#            idx_new = np.array([idx[0]+i for i in range(self.len_hrf)])
+
+        return UniformTimeSeries(data=h,
+                                 sampling_rate=self.sampling_rate)
+    
+            
+
+        
+        
 class HilbertAnalyzer(desc.ResetMixin):
 
     """Analyzer class for extracting the Hilbert transform """ 
