@@ -224,7 +224,7 @@ def test_FIRAnalyzer():
     events[np.arange(l/cycles/2,l-(l/cycles),l/cycles)]=2
     T_signal = ts.UniformTimeSeries(signal,sampling_rate=1)
     T_events = ts.UniformTimeSeries(events,sampling_rate=1)
-    FIR = ts.FIRAnalyzer(T_signal,T_events,l/(cycles*2))
+    FIR = ts.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).FIR
 
 def test_CoherenceAnalyzer():
 
