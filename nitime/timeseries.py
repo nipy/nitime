@@ -1349,12 +1349,11 @@ class CorrelationAnalyzer(desc.ResetMixin):
                                  t0=-self.sampling_interval*t_points)
     
 ##Event-related analysis:
+class EventRelatedAnalyzer(desc.ResetMixin): 
+    """Analyzer object for reverse-correlation/event-related analysis.
 
-class FIRAnalyzer(desc.ResetMixin): 
-    """Analyzer object for event-related FIR analysis 
+    XXX Repeated use of the term the fmri specific term 'hrf' should be removed.
 
-    XXX There is mention of 'HRF', which is an fmri specific term at several
-    locations in here. Need to change that to something not as fmri specific
     """    
 
     def __init__(self,time_series,events_time_series,len_hrf):
@@ -1367,8 +1366,8 @@ class FIRAnalyzer(desc.ResetMixin):
         events_time_series: a time_series object
 
         The events which occured in tandem with the time-series in the
-        FIRAnalyzer. This object's data has to have the same
-        dimensions as the data in the FIRAnalyzer object. In each
+        EventRelatedAnalyzer. This object's data has to have the same
+        dimensions as the data in the EventRelatedAnalyzer object. In each
         sample in the time-series, there is an integer, which denotes the kind
         of event which occured at that time. In time-bins in which
         no event occured, a 0 should be entered. The data in this time series
@@ -1402,15 +1401,11 @@ class FIRAnalyzer(desc.ResetMixin):
         self.len_hrf=int(len_hrf)
         
     @desc.setattr_on_read
-    def hrf(self):
-        """
-        XXX The name of this function should be changed to something not as
-        neuroimaging specific - any ideas?
-    
-        Calculate the FIR event-related estimated of the HRFs for different
+    def FIR(self):
+        """Calculate the FIR event-related estimated of the HRFs for different
         kinds of events
 
-        Returns
+       Returns
         -------
 
         A time-series object, shape[:-2] are dimensions corresponding to the to
@@ -1440,59 +1435,14 @@ class FIRAnalyzer(desc.ResetMixin):
             
     
     @desc.setattr_on_read
-    def estimate(self):
+    def FIR_estimate(self):
         """Calculate back the LTI estimate of the time-series, from FIR"""
         raise NotImplementedError
-
-class XcorrEventRelated(desc.ResetMixin):
-    """Calculate the event-related activity, using cross-correlation """
-
-    def __init__(self,time_series,events_time_series,len_hrf):
-        """
-        Parameters
-        ----------
-        time_series: a time-series object
-        A time-series with data on which the event-related analysis proceeds
-    
-        events_time_series: a time_series object
-    
-        The events which occured in tandem with the time-series in the
-        XcorrEventRelated. This object's data has to have the same
-        dimensions as the data in the XcorrEventRelated object. In each
-        sample in the time-series, there is an integer, which denotes the kind
-        of event which occured at that time. In time-bins in which
-        no event occured, a 0 should be entered. The data in this time series
-        object needs to have the same dimensionality as the data in the data
-        time-series 
-    
-        len_hrf: int
-
-        The expected length of the event-related response.
-
-        """ 
-        #If the events and the time_series have more than 1-d, the analysis can
-        #traverse their first dimension
-        if events_time_series.data.ndim-1>0:
-            self._len_h = events_time_series.data.shape[0]
-            self.events = events_time_series.data
-            self.data = time_series.data
-            
-        #Otherwise, in order to extract the array from the first dimension, we
-        #wrap it in a list
-        
-        else:
-            self._len_h = 1
-            self.events = [events_time_series.data]
-            self.data = [time_series.data]
-            
-        self.sampling_rate = time_series.sampling_rate
-        self.sampling_interval = time_series.sampling_interval
-        self.len_hrf=int(len_hrf)
     
     @desc.setattr_on_read
-    def event_related_zscored(self):
-        """Compute the normalized cross-correlation estimate of the
-        event-related time-series for different kinds of events
+    def xcorr_eta_zscored(self):
+        """Compute the normalized cross-correlation estimate of the HRFs for
+        different kinds of events
         
         Returns
         -------
@@ -1532,11 +1482,6 @@ class XcorrEventRelated(desc.ResetMixin):
                                  sampling_rate=self.sampling_rate,
                                  t0 = -1*self.len_hrf*self.sampling_interval)
 
-
-#class EventTriggeredAnalyzer(desc.ResetMixin):
-#    """ """ 
-#    @desc.setattr_on_read
-#    def hrf(self):
 
 class HilbertAnalyzer(desc.ResetMixin):
 
