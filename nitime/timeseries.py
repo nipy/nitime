@@ -1357,7 +1357,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
     """    
 
     def __init__(self,time_series,events_time_series,len_hrf,zscore=False,
-                 correct_baseline=False):
+                 correct_baseline=False,offset=0):
         """
         Parameters
         ----------
@@ -1390,6 +1390,8 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         #XXX enable the possibility that the event_time_series only has one
         #dimension, corresponding to time and then all channels have the same
         #series of events (and there is no need to loop over all channels?)
+        #XXX Change so that the offset and length of the eta can be given in
+        #units of time 
         
         #If the events and the time_series have more than 1-d, the analysis can
         #traverse their first dimension
@@ -1411,6 +1413,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         self.len_hrf=int(len_hrf)
         self._zscore=zscore
         self._correct_baseline=correct_baseline
+        self._offset=offset
         
     @desc.setattr_on_read
     def FIR(self):
@@ -1519,7 +1522,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             h[i] = np.empty((event_types.shape[0],self.len_hrf),dtype=complex)
             for e_idx in xrange(event_types.shape[0]):
                 idx = np.where(self.events[i]==event_types[e_idx])
-                idx_w_len = np.array([idx[0]+count for count
+                idx_w_len = np.array([idx[0]+count+self._offset for count
                                       in range(self.len_hrf)])
                 event_trig = data[idx_w_len]
                 #Correct baseline by removing the first point in the series for
@@ -1543,11 +1546,9 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 #            idx_new = np.array([idx[0]+i for i in range(self.len_hrf)])
 
         return UniformTimeSeries(data=h,
-                                 sampling_rate=self.sampling_rate)
+                                 sampling_rate=self.sampling_rate,
+                                 t0=self._offset*self.sampling_interval)
     
-            
-
-        
         
 class HilbertAnalyzer(desc.ResetMixin):
 
@@ -1585,17 +1586,23 @@ class HilbertAnalyzer(desc.ResetMixin):
                                       
     @desc.setattr_on_read
     def _analytic(self):
-        return signal.hilbert(self.data)
+        return UniformTimeSeries(data=signal.hilbert(self.data),
+                                 sampling_rate=self.sampling_rate)
         
     @desc.setattr_on_read
     def magnitude(self):
-        return UniformTimeSeries(data=np.abs(self._analytic),
+        return UniformTimeSeries(data=np.abs(self._analytic.data),
                                  sampling_rate=self.sampling_rate)
                                  
     @desc.setattr_on_read
     def phase(self):
-        return UniformTimeSeries(data=np.angle(self._analytic),
+        return UniformTimeSeries(data=np.angle(self._analytic.data),
                                  sampling_rate=self.sampling_rate)
-        
+
+    @desc.setattr_on_read
+    def real(self):
+        return UniformTimeSeries(data=np.real(self._analytic.data),
+                                 sampling_rate=self.sampling_rate)
+    
 
 
