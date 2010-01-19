@@ -95,21 +95,21 @@ def get_time_series_inplane(coords,time_series_file,
     
     #Make a list the size of the coords-list, with place holder 0's: 
     newCoords = list([0]) * len(coords) 
-
-    for i in xrange(len(coords)):            
-        newCoords[i] = np.empty(coords[i].shape,dtype='int')
-        #Adjusted the coordinates according to the ratio between the sampling
-        #in the gray and the sampling in the inplane, move the slice dimension
-        #to be the first one and change the indexing from 1-based to 0-based:
-        newCoords[i][0,:] = coords[i][2,:] / up_sample_factor[2] - 1 #Slices 
-        newCoords[i][1,:] = coords[i][0,:] / up_sample_factor[0] - 1 #Inplane
-        newCoords[i][2,:] = coords[i][1,:] / up_sample_factor[1] - 1 #Inplane
     
     #Get the nifti image object
     print('Reading file: ' + time_series_file)
 
-    #Initialize the time_series object and perform processing:
-    time_series =  ts.time_series_from_nifti(time_series_file,
+    #Adjusted the coordinates according to the ratio between the
+    #sampling in the gray and the sampling in the inplane, move the
+    #slice dimension to be the first one and change the indexing from
+    #1-based to 0-based:
+        
+    for i in xrange(len(coords)):            
+        newCoords[i] = np.empty(coords[i].shape,dtype='int')
+        newCoords[i][0,:] = coords[i][0,:] / up_sample_factor[0] - 1 #Slices 
+        newCoords[i][1,:] = coords[i][1,:] / up_sample_factor[1] - 1 #Inplane
+        newCoords[i][2,:] = coords[i][2,:] / up_sample_factor[2] - 1 #Inplane
+        time_series =  ts.time_series_from_file(time_series_file,
                                              newCoords,
                                              normalize=normalize,
                                              detrend=detrend,
