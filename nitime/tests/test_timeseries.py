@@ -167,7 +167,6 @@ def test_UniformTime_repr():
     """
     """
 
-
     
 def test_CorrelationAnalyzer():
 
@@ -226,6 +225,28 @@ def test_FIRAnalyzer():
     T_events = ts.UniformTimeSeries(events,sampling_rate=1)
     FIR = ts.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).FIR
 
+def test_ETA():
+
+    cycles = 10
+    l = 1024
+    unit = 2*np.pi/l
+    t = np.arange(0,2*np.pi+unit,unit)
+    signal = np.sin(cycles*t)
+    events = np.zeros(t.shape)
+    #Zero crossings: 
+    idx = np.where(np.abs(signal)<0.03)[0]
+    #An event occurs at the beginning of every cycle:
+    events[idx[:-2:2]]=1
+    #and another kind of event at the end of each cycle:
+    events[idx[1:-1:2]]=2
+    T_signal = ts.UniformTimeSeries(signal,sampling_rate=1)
+    T_events = ts.UniformTimeSeries(events,sampling_rate=1)
+    ETA = ts.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)+1,offset=0).eta
+
+    #This looks good, but doesn't pass unless you consider 3 digits:
+    npt.assert_almost_equal(ETA.data[0],signal[:ETA.data.shape[-1]],3)
+    npt.assert_almost_equal(ETA.data[1],-1*signal[:ETA.data.shape[-1]],3)
+    
 def test_CoherenceAnalyzer():
 
     Fs = np.pi
@@ -255,7 +276,7 @@ def test_HilbertAnalyzer():
 
     h_abs = H.magnitude.data
     h_angle = H.phase.data
-    h_real = np.real(H._analytic)
+    h_real = H.real.data
     #The real part should be equal to the original signals:
     npt.assert_almost_equal(h_real,H.data)
     #The absolute value should be one everywhere, for this input:
