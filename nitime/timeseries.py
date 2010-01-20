@@ -775,8 +775,8 @@ def time_series_from_file(analyze_file,coords,normalize=False,detrend=False,
     data = np.asarray(im)
     #Per default read TR from file:
     if TR is None:
-        TR = im.get_zooms()[-1]/1000.0 #in msec - convert to seconds
-
+        TR = im.header.get_zooms()[-1]/1000.0 #in msec?
+        
     #If we got a list of coord arrays, we're happy. Otherwise, we want to force
     #our input to be a list:
     try:
