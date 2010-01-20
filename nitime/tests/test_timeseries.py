@@ -211,21 +211,7 @@ def test_CorrelationAnalyzer():
     npt.assert_equal(C.xcorr_norm.data[0,1,C.xcorr_norm.time==0]
                             ,C.correlation[0,1])
 
-def test_FIRAnalyzer():
-
-    cycles = 10
-    l = 1024
-    t = np.linspace(0.,2*np.pi,l)
-    signal = np.sin(cycles*t)
-    events = np.zeros(t.shape)
-    #An event occurs at the beginning of every cycle:
-    events[np.arange(0,l-(l/cycles),l/cycles)]=1
-    events[np.arange(l/cycles/2,l-(l/cycles),l/cycles)]=2
-    T_signal = ts.UniformTimeSeries(signal,sampling_rate=1)
-    T_events = ts.UniformTimeSeries(events,sampling_rate=1)
-    FIR = ts.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).FIR
-
-def test_ETA():
+def test_EventRelatedAnalyzer():
 
     cycles = 10
     l = 1024
@@ -239,14 +225,20 @@ def test_ETA():
     events[idx[:-2:2]]=1
     #and another kind of event at the end of each cycle:
     events[idx[1:-1:2]]=2
+
     T_signal = ts.UniformTimeSeries(signal,sampling_rate=1)
     T_events = ts.UniformTimeSeries(events,sampling_rate=1)
-    ETA = ts.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)+1,offset=0).eta
+    ETA = ts.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).eta
 
     #This looks good, but doesn't pass unless you consider 3 digits:
     npt.assert_almost_equal(ETA.data[0],signal[:ETA.data.shape[-1]],3)
     npt.assert_almost_equal(ETA.data[1],-1*signal[:ETA.data.shape[-1]],3)
-    
+
+    #Same should be true for the FIR analysis: 
+    FIR = ts.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).FIR
+    npt.assert_almost_equal(FIR.data[0],signal[:FIR.data.shape[-1]],3)
+    npt.assert_almost_equal(FIR.data[1],-1*signal[:FIR.data.shape[-1]],3)
+
 def test_CoherenceAnalyzer():
 
     Fs = np.pi
@@ -258,6 +250,7 @@ def test_CoherenceAnalyzer():
 
     C = ts.CoherenceAnalyzer(T)
 
+    
 def test_HilbertAnalyzer():
     """Testing the HilbertAnalyzer (analytic signal)"""
     pi = np.pi
