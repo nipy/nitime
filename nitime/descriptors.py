@@ -132,7 +132,6 @@ class OneTimeProperty(object):
            # Being called on the class, return the original function. This way,
            # introspection works on the class.
            #return func
-           print 'class access'
            return self.getter
 
        val = self.getter(obj)
