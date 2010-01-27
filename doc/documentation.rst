@@ -13,6 +13,7 @@ Contents:
    :maxdepth: 2
 
    users/index
+   examples/index
    devel/index
    api/index
 

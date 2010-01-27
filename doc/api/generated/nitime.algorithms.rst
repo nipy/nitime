@@ -112,6 +112,9 @@ Functions
 .. autofunction:: nitime.algorithms.fir
 
 
+.. autofunction:: nitime.algorithms.gamma_hrf
+
+
 .. autofunction:: nitime.algorithms.gauss_white_noise
 
 

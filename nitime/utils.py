@@ -891,7 +891,7 @@ def fir_design_matrix(events,len_hrf):
 
     event_types = np.unique(events)[np.unique(events)!=0]
     fir_matrix = np.zeros((events.shape[0],len_hrf*event_types.shape[0]))
-
+    
     for t in event_types:
         idx_h_a = np.where(event_types==t)[0] * len_hrf
         idx_h_b = idx_h_a + len_hrf
