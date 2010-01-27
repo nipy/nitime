@@ -50,6 +50,28 @@ Classes
 
   .. automethod:: __init__
 
+:class:`Frequency`
+~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Frequency
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`HilbertAnalyzer`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: HilbertAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
 :class:`NonUniformTimeSeries`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -83,6 +105,28 @@ Classes
 
   .. automethod:: __init__
 
+:class:`TimeArray`
+~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: TimeArray
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`TimeInterface`
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: TimeInterface
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
 :class:`TimeSeriesBase`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -99,6 +143,17 @@ Classes
 
 
 .. autoclass:: TimeSeriesInterface
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`UniformTime`
+~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: UniformTime
   :members:
   :undoc-members:
   :show-inheritance:
@@ -129,5 +184,5 @@ Functions
 .. autofunction:: nitime.timeseries.nifti_from_time_series
 
 
-.. autofunction:: nitime.timeseries.time_series_from_nifti
+.. autofunction:: nitime.timeseries.time_series_from_file
 

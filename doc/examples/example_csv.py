@@ -4,10 +4,9 @@ import numpy as np
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
-import nitime
-ts = nitime.timeseries
+import nitime.timeseries as ts
 
-data_rec = mlab.csv2rec('All_timeseries.csv')
+data_rec = mlab.csv2rec('data/fmri_timeseries.csv')
 
 roi_names= data_rec.dtype.names
 n_samples = 250

@@ -1,2 +1,0 @@
-"""XXX - write some examples!
-"""

@@ -352,7 +352,10 @@ class UniformTime(np.ndarray,TimeInterface):
         
         #in order for time[-1]-time[0]==duration to be true (which it should)
         #add the samling_interval to the stop value: 
-        time = np.arange(np.int64(t0),np.int64(t0+duration+sampling_interval),
+        ## time = np.arange(np.int64(t0),np.int64(t0+duration+sampling_interval),
+##                          np.int64(sampling_interval),dtype=np.int64)
+
+        time = np.arange(np.int64(t0),np.int64(t0+duration),
                          np.int64(sampling_interval),dtype=np.int64)
 
         time = np.asarray(time).view(cls)
@@ -361,6 +364,7 @@ class UniformTime(np.ndarray,TimeInterface):
         time.duration = duration
         time.sampling_rate=Frequency(sampling_rate)
         time.sampling_interval=sampling_interval
+        time.t0 = t0
         
         return time
 
@@ -571,14 +575,13 @@ class UniformTimeSeries(TimeSeriesBase):
 
     @desc.setattr_on_read
     def time(self):
-        """Construct time array.
-
-        This is only called if the time array wasn't given by the user."""
-
+        """Construct time array for the time-series object. This holds a
+    UniformTime object, with properties derived from the UniformTimeSeries
+    object"""
         npts = self.data.shape[-1]
-        t0 = self.t0
-        t1 = t0+(npts-1)*self.sampling_interval
-        return np.linspace(t0,t1,npts)
+        return UniformTime(length=npts,t0=self.t0,
+                           sampling_interval=self.sampling_interval,
+                           time_unit=self.time_unit)
 
     @desc.setattr_on_read
     def t0(self):
@@ -1314,6 +1317,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         self._zscore=zscore
         self._correct_baseline=correct_baseline
         self._offset=offset
+        self.time_unit = time_series.time_unit
         
     @desc.setattr_on_read
     def FIR(self):
@@ -1337,8 +1341,16 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         h = [0] * self._len_h
 
         for i in xrange(self._len_h):
-            #Get the design matrix:
-            design = tsu.fir_design_matrix(self.events[i],self.len_hrf)
+            #XXX Check that the offset makes sense (there can't be an event
+            #happening within one offset duration of the beginning of the
+            #time-series:
+
+            #Get the design matrix (roll by the offset, in order to get the
+            #right thing): 
+
+            roll_events = np.roll(self.events[i],self._offset)
+            design = tsu.fir_design_matrix(roll_events,self.len_hrf)
+            
             #Compute the fir estimate, in linear form: 
             this_h = tsa.fir(self.data[i],design)
             #Reshape the linear fir estimate into a event_types*hrf_len array
@@ -1348,7 +1360,8 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
         h = np.array(h).squeeze()
 
-        return UniformTimeSeries(data=h, sampling_rate=self.sampling_rate)
+        return UniformTimeSeries(data=h, sampling_rate=self.sampling_rate,
+                                 t0 = self._offset,time_unit=self.time_unit)
             
     
     @desc.setattr_on_read
@@ -1407,7 +1420,8 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
         return UniformTimeSeries(data=h,
                                  sampling_rate=self.sampling_rate,
-                                 t0 = -1*self.len_hrf*self.sampling_interval)
+                                 t0 = -1*self.len_hrf*self.sampling_interval,
+                                 time_unit=self.time_unit)
 
     @desc.setattr_on_read
     def eta(self):
@@ -1447,7 +1461,8 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
         return UniformTimeSeries(data=h,
                                  sampling_rate=self.sampling_rate,
-                                 t0=self._offset*self.sampling_interval)
+                                 t0=self._offset*self.sampling_interval,
+                                 time_unit=self.time_unit)
     
         
 class HilbertAnalyzer(desc.ResetMixin):
