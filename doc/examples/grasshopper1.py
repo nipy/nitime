@@ -5,7 +5,6 @@ import nitime.timeseries as ts
 #The viz library is used for visualization:
 import nitime.viz as viz
 
-
 #Load the stimulus from the data file:
 maxdB = 76.4286 #Taken from the spike file header
 stim = np.loadtxt('data/grasshopper_stimulus1.txt')
