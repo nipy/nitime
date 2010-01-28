@@ -352,9 +352,10 @@ class UniformTime(np.ndarray,TimeInterface):
         
         #in order for time[-1]-time[0]==duration to be true (which it should)
         #add the samling_interval to the stop value: 
-        ## time = np.arange(np.int64(t0),np.int64(t0+duration+sampling_interval),
-##                          np.int64(sampling_interval),dtype=np.int64)
+        #time = np.arange(np.int64(t0),np.int64(t0+duration+sampling_interval),
+        #                  np.int64(sampling_interval),dtype=np.int64)
 
+        #But it's unclear whether that's really the behavior we want?
         time = np.arange(np.int64(t0),np.int64(t0+duration),
                          np.int64(sampling_interval),dtype=np.int64)
 
@@ -1295,22 +1296,33 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         #series of events (and there is no need to loop over all channels?)
         #XXX Change so that the offset and length of the eta can be given in
         #units of time 
+
+        #Make sure that the offset and the len_hrf values can be used, by
+        #zero-padding before and after:
+        s = time_series.data.shape
+        
+        time_series_data = np.hstack([np.zeros((s[:-1]+ (abs(offset),))),
+                                      time_series.data,
+                                np.zeros((s[:-1]+(abs(len_hrf),)))])
+        events_data = np.hstack([np.zeros((s[:-1]+ (abs(offset),))),
+                                      events_time_series.data,
+                                np.zeros((s[:-1]+(abs(len_hrf),)))])
         
         #If the events and the time_series have more than 1-d, the analysis can
         #traverse their first dimension
         if events_time_series.data.ndim-1>0:
             self._len_h = events_time_series.data.shape[0]
-            self.events = events_time_series.data
-            self.data = time_series.data
+            self.events = events_data
             
         #Otherwise, in order to extract the array from the first dimension, we
         #wrap it in a list
         
         else:
             self._len_h = 1
-            self.events = [events_time_series.data]
-            self.data = [time_series.data]
-            
+            self.events = [events_data]
+            self.data = [time_series_data]
+
+
         self.sampling_rate = time_series.sampling_rate
         self.sampling_interval = time_series.sampling_interval
         self.len_hrf=int(len_hrf)
@@ -1349,20 +1361,22 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             #right thing): 
 
             roll_events = np.roll(self.events[i],self._offset)
-            design = tsu.fir_design_matrix(roll_events,self.len_hrf)
-            
+            design = tsu.fir_design_matrix(roll_events,self.len_hrf+
+                                           abs(self._offset))
             #Compute the fir estimate, in linear form: 
             this_h = tsa.fir(self.data[i],design)
             #Reshape the linear fir estimate into a event_types*hrf_len array
             u = np.unique(self.events[i])
             event_types = u[np.unique(self.events[i])!=0]
-            h[i] =np.reshape(this_h,(event_types.shape[0],self.len_hrf))
+            h[i] =np.reshape(this_h,(event_types.shape[0],self.len_hrf+
+                                     abs(self._offset)))
 
         h = np.array(h).squeeze()
 
-        return UniformTimeSeries(data=h, sampling_rate=self.sampling_rate,
-                                 t0 = self._offset,time_unit=self.time_unit)
-            
+        return UniformTimeSeries(data=h,sampling_rate=self.sampling_rate,
+                                 t0=-1*self.len_hrf*self.sampling_interval,
+                                 time_unit=self.time_unit)
+
     
     @desc.setattr_on_read
     def FIR_estimate(self):
