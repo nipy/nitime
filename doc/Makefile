@@ -71,11 +71,28 @@ doctest:
 # Sourceforge doesn't appear to have a way of copying the files
 # without specifying a username.  So we'll probably have one target
 # for each project admin
+#
+# Note: If several developers alternate commits, we may get permission errors
+# from rsync with the upload targets. If that happens, use the *_full targets
+# below which first wipe out the whole dir on SF and then re-upload.
+
 sf_fer_perez:
 	@echo "Copying html files to sourceforge..."
 	rsync -avH --delete -e ssh _build/html/ fer_perez,nipy@web.sourceforge.net:htdocs/nitime
 
-#Trying to make a target for arokem:
 sf_arokem:
 	@echo "Copying html files to sourceforge..."
 	rsync -avH --delete -e ssh _build/html/ arokem,nipy@web.sourceforge.net:htdocs/nitime
+
+# Targets that force a clean and re-upload
+sf_fer_perez_clean:
+	@echo "Cleaning up sourceforge site"
+	ssh fer_perez,nipy@shell.sf.net "rm -rf /home/groups/n/ni/nipy/htdocs/nitime/*"
+
+sf_fer_perez_full: sf_fer_perez_clean sf_fer_perez
+
+sf_arokem_clean:
+	@echo "Cleaning up sourceforge site"
+	ssh arokem,nipy@shell.sf.net "rm -rf /home/groups/n/ni/nipy/htdocs/nitime/*"
+
+sf_arokem_full: sf_arokem_clean sf_arokem
