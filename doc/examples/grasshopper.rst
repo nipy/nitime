@@ -3,8 +3,9 @@
 =====================================
 
 This data contains the times of action potentials ('spikes'), recorded
-intra-cellularly from primary auditory receptors in the grasshopper
-:emph:`Locusta Migratoria`. The stimulus played was a pure-tone in the cell's
+intra-cellularly from primary auditory receptors in the grasshopper *Locusta
+Migratoria*. This data is available on the `CRCNS data sharing web-site
+<http://crcns.org/>`_. The stimulus played was a pure-tone in the cell's
 preferred frequency modulated by Gaussian white-noise, up to a cut-off
 frequency (200 Hz in this case, for details on the experimental procedures and
 the stimulus see [Rokem2006]_).
