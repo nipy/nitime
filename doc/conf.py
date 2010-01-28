@@ -31,7 +31,8 @@ extensions = ['sphinx.ext.autodoc',
               'inheritance_diagram',
               'ipython_console_highlighting',
               'only_directives',
-              'math_dollar' #Support for $x$ math 
+              'math_dollar', #Support for $x$ math
+              'matplotlib.sphinxext.plot_directive',
               ]
 
 # Add any paths that contain templates here, relative to this directory.
