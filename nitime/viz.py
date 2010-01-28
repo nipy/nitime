@@ -7,9 +7,12 @@ Depends on matplotlib.pyplot
 
 from nitime import timeseries as ts
 from matplotlib import pyplot as plt
+import numpy as np
 
 def plot_tseries(time_series,fig=None,axis=0,
-                 xticks=None,xunits=None,yticks=None,yunits=None):
+                 xticks=None,xunits=None,yticks=None,yunits=None,xlabel=None,
+                 ylabel=None):
+
     """plot a timeseries object
 
     Arguments
@@ -25,6 +28,11 @@ def plot_tseries(time_series,fig=None,axis=0,
     xticks:
 
     yticks: 
+
+    xlabel:
+
+    ylabel:
+
     
     """  
 
@@ -35,15 +43,19 @@ def plot_tseries(time_series,fig=None,axis=0,
         ax = fig.add_subplot(1,1,1)
     else:
         ax = fig.get_axes()[axis]
-        
-    ax.plot(time_series.time,time_series.data.T)
-    
-##     ax.set_xticks([])        
-##     ax.set_xticklabels([])
-##     ax.xaxis.set_ticks_position('bottom')
-##     ax.yaxis.set_ticks_position('left')
-##     ax.set_xlim()
 
+    if xlabel is None:
+        #Make sure that time displays on the x axis with the units you want:
+        conv_fac = time_series.time._conversion_factor
+        time_label = time_series.time/float(conv_fac)
+        ax.plot(time_label,time_series.data.T)
+        ax.set_xlabel('Time (%s)' %time_series.time_unit) 
+    else:
+        ax.set_xlabel(xlabel)
+
+    if ylabel is not None:
+        ax.set_ylabel(ylabel)
+    
     return fig
 
 
