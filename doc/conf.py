@@ -12,14 +12,27 @@
 # serve to show the default.
 
 import sys, os
+import warnings
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.append(os.path.abspath('sphinxext'))
 
-# -- General configuration -----------------------------------------------------
+#-----------------------------------------------------------------------------
+# Error control in examples and plots
+#-----------------------------------------------------------------------------
+# We want by default our documentation to NOT build if any plot warnings are
+# generated, so we turn PlotWarning into an error.  For now this requires using
+# a patched version of the plot_directive, but we'll upstream this to matplotlib.
+import plot_directive
+# If you *really* want to disable these error checks to be able to finish a doc
+# build, comment out the next line.  But please do NOT leave it uncommented in
+# a committed file, so that the official build is always in the paranoid mode
+# (where the warnings become errors).
+warnings.simplefilter('error', plot_directive.PlotWarning)
 
+# -- General configuration -----------------------------------------------------
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc',
@@ -32,7 +45,11 @@ extensions = ['sphinx.ext.autodoc',
               'ipython_console_highlighting',
               'only_directives',
               'math_dollar', #Support for $x$ math
-              'matplotlib.sphinxext.plot_directive',
+
+              # For now, we use our own patched plot directive, we'll revert
+              # back to the official one once our changes are upstream.
+              #'matplotlib.sphinxext.plot_directive',
+              'plot_directive',
               ]
 
 # Add any paths that contain templates here, relative to this directory.
