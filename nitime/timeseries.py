@@ -1299,15 +1299,15 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         #units of time 
 
         #Make sure that the offset and the len_hrf values can be used, by
-        #zero-padding before and after:
+        #padding with zeros before and after:
+
         s = time_series.data.shape
-        
-        time_series_data = np.hstack([np.zeros((s[:-1]+ (abs(offset),))),
-                                      time_series.data,
-                                np.zeros((s[:-1]+(abs(len_hrf),)))])
-        events_data = np.hstack([np.zeros((s[:-1]+ (abs(offset),))),
-                                      events_time_series.data,
-                                np.zeros((s[:-1]+(abs(len_hrf),)))])
+        zeros_before = np.zeros((s[:-1]+ (abs(offset),)))
+        zeros_after = np.zeros((s[:-1]+(abs(len_hrf),)))
+        time_series_data = np.hstack([zeros_before,time_series.data,
+                                      zeros_after])
+        events_data = np.hstack([zeros_before,events_time_series.data,
+                                 zeros_after])
         
         #If the events and the time_series have more than 1-d, the analysis can
         #traverse their first dimension
