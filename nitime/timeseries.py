@@ -1313,7 +1313,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         if events_time_series.data.ndim-1>0:
             self._len_h = events_time_series.data.shape[0]
             self.events = events_data
-            self.data=time_series_data
+            self.data = time_series_data
         #Otherwise, in order to extract the array from the first dimension, we
         #wrap it in a list
         
