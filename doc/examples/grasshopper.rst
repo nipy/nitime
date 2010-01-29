@@ -6,10 +6,10 @@ Two data files are used in this example. The first contains the times of action
 potentials ('spikes'), recorded intra-cellularly from primary auditory
 receptors in the grasshopper *Locusta Migratoria*. The other data file contains
 the stimulus that was played during the recording. Briefly, the stimulus played
-was a pure-tone in the cell's preferred frequency modulated by Gaussian
-white-noise, up to a cut-off frequency (200 Hz in this case, for details on the
-experimental procedures and the stimulus see [Rokem2006]_). This data is
-available on the `CRCNS data sharing web-site <http://crcns.org/>`_.
+was a pure-tone in the cell's preferred frequency amplitude modulated by
+Gaussian white-noise, up to a cut-off frequency (200 Hz in this case, for
+details on the experimental procedures and the stimulus see [Rokem2006]_). This
+data is available on the `CRCNS data sharing web-site <http://crcns.org/>`_.
 
 In the following code-snippet, we demonstrate the calculation of the
 spike-triggered average (STA). This is the average of the stimulus wave-form
