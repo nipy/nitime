@@ -1558,7 +1558,7 @@ class FilterAnalyzer(desc.ResetMixin):
         out the frequency bands outside of the range [lb,ub] """
         
         if self.ub is None:
-            ub = self.freqs[-1]
+            self.ub = self.freqs[-1]
         
         power = np.fft.fft(self.data)
         idx_0 = np.hstack([np.where(self.freqs<self.lb)[0],
