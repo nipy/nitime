@@ -1545,10 +1545,10 @@ class FilterAnalyzer(desc.ResetMixin):
     def __init__(self,time_series,lb=0,ub=None):
         self.data = time_series.data 
         self.sampling_rate = time_series.sampling_rate
-        self.freqs = tsu.get_freqs(self.sampling_rate,data_in.shape[-1])
+        self.freqs = tsu.get_freqs(self.sampling_rate,self.data.shape[-1])
         self.ub=ub
         self.lb=lb
-        self.time_unit
+        self.time_unit=time_series.time_unit
 
         
     @desc.setattr_on_read
@@ -1561,8 +1561,8 @@ class FilterAnalyzer(desc.ResetMixin):
             ub = self.freqs[-1]
         
         power = np.fft.fft(self.data)
-        idx_0 = np.hstack([np.where(freqs<self.lb)[0],
-                           np.where(freqs>self.ub)[0]])
+        idx_0 = np.hstack([np.where(self.freqs<self.lb)[0],
+                           np.where(self.freqs>self.ub)[0]])
         
         power[...,idx_0] = 0
         power[...,-1*idx_0] = 0 #Take care of the negative frequencies
