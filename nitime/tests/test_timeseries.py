@@ -290,4 +290,22 @@ def test_HilbertAnalyzer():
     #Ditto for the 'fast' cosine:
     npt.assert_almost_equal(h_angle[3,:128],np.arange(0,pi,pi/128))
 
+def test_FilterAnalyzer():
+    """Testing the FilterAnalyzer """
+    t = np.arange(np.pi/100,10*np.pi,np.pi/100)
+    fast = np.sin(50*t)
+    slow = np.sin(10*t)
+    time_series = ts.UniformTimeSeries(data=fast+slow,sampling_rate=np.pi)
+
+    #0.4 is somewhere between the two frequencies 
+    f_slow = ts.FilterAnalyzer(time_series,ub=0.6)
+    npt.assert_equal(f_slow.filtered_fourier.data,slow)
+    #
+    f_fast = ts.FilterAnalyzer(time_series,lb=0.6)
+    npt.assert_equal(f_fast.filtered_fourier.data,fast)
+
     
+
+    
+
+
