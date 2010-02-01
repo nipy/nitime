@@ -1536,3 +1536,42 @@ class HilbertAnalyzer(desc.ResetMixin):
     
 
 
+class FilterAnalyzer(desc.ResetMixin):
+
+    """ A class for performing filtering operations on time-series and
+    producing the filtered versions of the time-series"""
+
+    
+    def __init__(self,time_series,lb=0,ub=None):
+        self.data = time_series.data 
+        self.sampling_rate = time_series.sampling_rate
+        self.freqs = tsu.get_freqs(self.sampling_rate,data_in.shape[-1])
+        self.ub=ub
+        self.lb=lb
+        self.time_unit
+
+        
+    @desc.setattr_on_read
+    def filtered_fourier(self):
+
+        """Filter the time-series by passing it to the Fourier domain and null
+        out the frequency bands outside of the range [lb,ub] """
+        
+        if self.ub is None:
+            ub = self.freqs[-1]
+        
+        power = np.fft.fft(self.data)
+        idx_0 = np.hstack([np.where(freqs<self.lb)[0],
+                           np.where(freqs>self.ub)[0]])
+        
+        power[...,idx_0] = 0
+        power[...,-1*idx_0] = 0 #Take care of the negative frequencies
+        data_out = np.fft.ifft(power)
+
+        data_out = np.real(data_out) #In order to make sure that you are not
+                                      #left with float-precision residual
+                                      #complex parts
+
+        return UniformTimeSeries(data=data_out,
+                                 sampling_rate=self.sampling_rate,
+                                 time_unit=self.time_unit)
