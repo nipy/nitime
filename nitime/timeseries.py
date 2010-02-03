@@ -594,27 +594,36 @@ class UniformTimeSeries(TimeSeriesBase):
                            sampling_interval=self.sampling_interval,
                            time_unit=self.time_unit)
 
-    @desc.setattr_on_read
-    def t0(self):
-        """Return intial time."""
-        return self.time[0]
+##     @desc.setattr_on_read
+##     def t0(self):
+##         """Return initial time."""
+##         return self.t0
     
-    @desc.setattr_on_read
-    def sampling_interval(self):
-        """Return sampling interval."""
-        # WARNING: we assume the data to be evenly sampled, no averaging is
-        # done, we just look at the first two elements of the time array.
-        return self.time[1]-self.time[0]
+##     @desc.setattr_on_read
+##     def sampling_interval(self):
+##         """Return sampling interval."""
+##         # WARNING: we assume the data to be evenly sampled, no averaging is
+##         # done, we just look at the first two elements of the time array.
+##         return self.sampling_interval
 
-    @desc.setattr_on_read
-    def sampling_rate(self):
-        """Return sampling rate."""
-        # WARNING: we assume the data to be evenly sampled, no averaging is
-        # done, we just look at the first two elements of the time array.
-        return 1.0/self.sampling_interval
+##     @desc.setattr_on_read
+##     def sampling_rate(self):
+##         """Return sampling rate."""
+##         # WARNING: we assume the data to be evenly sampled, no averaging is
+##         # done, we just look at the first two elements of the time array.
+##         return self.sampling_rate
 
+
+    #XXX This should call the constructor in an appropriate way, when provided
+    #with a UniformTime object and data, so that you don't need to deal with
+    #the constructor itself:  
+    @staticmethod
+    def from_time_and_data():
+        pass
+    
+    
     def __init__(self, data, t0=None, sampling_interval=None,
-                 sampling_rate=None, time=None, time_unit='s'):
+                 sampling_rate=None, time=None, time_unit='s', duration=None):
         """Create a new UniformTimeSeries.
 
         This class assumes that data is uniformly sampled, but you can specify
@@ -649,6 +658,27 @@ class UniformTimeSeries(TimeSeriesBase):
         time_unit :  string
           The unit of time.
         """
+
+
+        if isinstance(time,UniformTime):
+            c_fac = time._conversion_factor
+            if t0 is None:
+                t0=time.t0
+            if sampling_interval is None and sampling_rate is None:
+                sampling_interval = time.sampling_interval
+                sampling_rate = time.sampling_rate
+            if duration is None:
+                duration=time.duration
+                length = time.shape[-1]
+                if (length != len(data) and
+                    sampling_rate != float(len(data)*c_fac)/time.duration):
+                    e_s = "Length of the data (%s) " %str(len(data))  
+                    e_s += "specified sampling_rate (%s) " %str(sampling_rate)
+                    e_s +="do not match."
+                    
+                    raise ValueError(e_s)   
+                
+            
         # Sanity checks
         # There are only 3 valid ways of specifying the sampling.  Check which
         # parameters were given...
@@ -673,6 +703,7 @@ class UniformTimeSeries(TimeSeriesBase):
         if tspec not in valid_tspecs:
             raise ValueError("Invalid time specification, see docstring.")
 
+        
         # Call the common constructor to get the real object initialized
         TimeSeriesBase.__init__(self,data,time_unit)
         
