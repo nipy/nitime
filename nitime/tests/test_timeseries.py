@@ -156,7 +156,7 @@ def test_UniformTime():
 @decotest.ipdoctest    
 def test_UniformTime_repr():
     """
-    >>> time1 = UniformTime(sampling_rate=1000,time_unit='ms',length=3)
+    >>> time1 = ts.UniformTime(sampling_rate=1000,time_unit='ms',length=3)
     >>> time1.sampling_rate
     1000.0 Hz
     >>> time1
@@ -201,11 +201,19 @@ def test_Frequency():
 
 
     
-@decotest.ipdoctest    
-def test_UniformTime_repr():
-    """
-    """
+@decotest.parametric
+def test_UniformTimeSeries():
+    """Testing the initialization of the uniform time series object """ 
 
+    #tseries = ts.UniformTimeSeries([1,2,3,4],duration=10)
+    #downsampling:
+    t1 = ts.UniformTime(length=8,sampling_rate=2)
+    #duration is the same, but we're downsampling to 1Hz
+    #tseries1 = ts.UniformTimeSeries(data=[1,2,3,4],time=t1,sampling_rate=1)
+    #If you didn't explicitely provide the rate you want to downsample to, that
+    #is an error:
+    npt.assert_raises(ValueError,ts.UniformTimeSeries,dict(data=[1,2,3,4],
+                                                           time=t1)) 
     
 def test_CorrelationAnalyzer():
 
