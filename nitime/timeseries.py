@@ -320,9 +320,6 @@ class UniformTime(np.ndarray,TimeInterface):
             raise ValueError('Invalid time unit %s, must be one of %s' %
                          (time_unit,time_unit_conversion.keys()))         
 
-        
-        conv_fac = time_unit_conversion[time_unit]
-            
         #Calculate the sampling_interval or sampling_rate:
         if sampling_interval is None:
             if isinstance(sampling_rate,Frequency):
@@ -372,7 +369,7 @@ class UniformTime(np.ndarray,TimeInterface):
 
         time = np.asarray(time).view(cls)
         time.time_unit=time_unit
-        time._conversion_factor=conv_fac
+        time._conversion_factor=time_unit_conversion[time_unit]
         time.duration = duration
         time.sampling_rate=Frequency(sampling_rate)
         time.sampling_interval=sampling_interval
@@ -589,29 +586,15 @@ class UniformTimeSeries(TimeSeriesBase):
         """Construct time array for the time-series object. This holds a
     UniformTime object, with properties derived from the UniformTimeSeries
     object"""
-        npts = self.data.shape[-1]
-        return UniformTime(length=npts,t0=self.t0,
+        return UniformTime(length=self.__len__(),t0=self.t0,
                            sampling_interval=self.sampling_interval,
-                           time_unit=self.time_unit)
-
-##     @desc.setattr_on_read
-##     def t0(self):
-##         """Return initial time."""
-##         return self.t0
-    
-##     @desc.setattr_on_read
-##     def sampling_interval(self):
-##         """Return sampling interval."""
-##         # WARNING: we assume the data to be evenly sampled, no averaging is
-##         # done, we just look at the first two elements of the time array.
-##         return self.sampling_interval
-
-##     @desc.setattr_on_read
-##     def sampling_rate(self):
-##         """Return sampling rate."""
-##         # WARNING: we assume the data to be evenly sampled, no averaging is
-##         # done, we just look at the first two elements of the time array.
-##         return self.sampling_rate
+                           time_unit=self.time_unit)[:self.__len__()] #If the
+                                        #time-array ends up being too long
+                                        #(because the sampling rate and the
+                                        #duration are just right, in order to
+                                        #put in one more item in the
+                                        #time-series, truncate so that they
+                                        #have the same length  
 
 
     #XXX This should call the constructor in an appropriate way, when provided
@@ -623,7 +606,7 @@ class UniformTimeSeries(TimeSeriesBase):
     
     
     def __init__(self, data, t0=None, sampling_interval=None,
-                 sampling_rate=None, time=None, time_unit='s', duration=None):
+                 sampling_rate=None, duration=None, time=None, time_unit='s'):
         """Create a new UniformTimeSeries.
 
         This class assumes that data is uniformly sampled, but you can specify
@@ -635,10 +618,8 @@ class UniformTimeSeries(TimeSeriesBase):
         - sampling_rate [, t0]: data sampled starting at t0, equal intervals of
           width 1/sampling_rate.
 
-        - time: data sampled at these explicit points, assumed to be
-          equispaced (this is not manually verified, so if you feed the code an
-          array of unequally spaced points, weird things can happen later).
-
+        - time: a UniformTime object, in which case the UniformTimeSeries can
+          'inherit' the properties of this object.  
         
         Parameters
         ----------
@@ -652,77 +633,101 @@ class UniformTimeSeries(TimeSeriesBase):
           If you provide a sampling rate, you can optionally also provide a
           starting time.
         time
-          Instead of sampling rate, you can explicitly provide an array of time
-          values.  Note that this class assumes that your times are uniformly
-          sampled.
+          Instead of sampling rate, you can explicitly provide an object of
+        class UniformTime. Note that you can still also provide a different
+        sampling_rate/sampling_interval/duration to take the place of the one
+        in this object, but only as long as the changes are consistent with the
+        length of the data. 
+        
         time_unit :  string
           The unit of time.
         """
 
-
+        #If a UniformTime object was provided as input: 
         if isinstance(time,UniformTime):
             c_fac = time._conversion_factor
+            #If the user did not provide an alternative t0, get that from the
+            #input: 
             if t0 is None:
                 t0=time.t0
+            #If the user did not provide an alternative sampling interval/rate:
             if sampling_interval is None and sampling_rate is None:
                 sampling_interval = time.sampling_interval
                 sampling_rate = time.sampling_rate
+            #The duration can be read either from the length of the data, or
+            #from the duration specified by the time-series: 
             if duration is None:
                 duration=time.duration
                 length = time.shape[-1]
+                #If changing the duration requires a change to the
+                #sampling_rate, make sure that this was explicitely required by
+                #the user - if the user did not explicitely set the
+                #sampling_rate, or it is inconsistent, throw an error: 
                 if (length != len(data) and
                     sampling_rate != float(len(data)*c_fac)/time.duration):
                     e_s = "Length of the data (%s) " %str(len(data))  
                     e_s += "specified sampling_rate (%s) " %str(sampling_rate)
                     e_s +="do not match."
-                    
-                    raise ValueError(e_s)   
-                
-            
-        # Sanity checks
-        # There are only 3 valid ways of specifying the sampling.  Check which
-        # parameters were given...
-        tspec = tuple(x is not None for x in
-                      [t0, sampling_interval, sampling_rate, time ] )
+                    raise ValueError(e_s)
+            #If user does not provide a     
+            if time_unit is None:
+                time_unit = time.time_unit
 
-        # These are the valid configurations, in the form of a truth table so
-        # we can easily check if the input was valid.  The fields are:
-        #                      t0, interval, rate, time
-        # The comments explain each valid spec:
-        valid_tspecs = set([ # t0, interval, not given, not given
-                             (True, True, False, False),
-                             # t0, interval, not given, not given
-                             (False, True, False, False),
-                             # t0, not given, rate, not given
-                             (True, False, True, False),
-                             # t0, not given, rate, not given
-                             (False, False, True, False),
-                             # not given, not given, not given, time
-                             (False, False, False, True) ] )
-        
-        if tspec not in valid_tspecs:
-            raise ValueError("Invalid time specification, see docstring.")
+        #If the input was not 
+        else:    
+            #Sanity checks. There are different valid combinations of inputs
+            tspec = tuple(x is not None for x in
+                      [sampling_interval,sampling_rate,duration])
+
+            #The valid configurations 
+            valid_tspecs=[
+                      #interval,length:
+                      (True,False,False),
+                      #interval,duration:
+                      (True,False,True),
+                      #rate,length:
+                      (False,True,False),
+                      #rate, duration:
+                      (False,True,True),
+                      #length,duration:
+                      (False,False,True)
+                      ]
+
+            if tspec not in valid_tspecs:
+                raise ValueError("Invalid time specification, see docstring.")
 
         
         # Call the common constructor to get the real object initialized
         TimeSeriesBase.__init__(self,data,time_unit)
         
-        # If sampling rate is given, time is a one-time property.  Otherwise,
-        # it's a normal attribute
-        
-        if sampling_interval is not None:
-            if t0 is None: t0=0.0
-            self.sampling_interval = sampling_interval
-            self.t0 = t0
-            self.sampling_rate = 1.0/sampling_interval
-        elif sampling_rate is not None:
-            if t0 is None: t0=0.0
-            self.sampling_rate = sampling_rate
-            self.t0 = t0
-            self.sampling_interval = 1.0/sampling_rate
-        else:
-            self.time = np.asarray(time)
+        #Calculate the sampling_interval or sampling_rate from each other and
+        #assign t0, if it is not already assigned:
+        if sampling_interval is None:
+            if isinstance(sampling_rate,Frequency):
+                sampling_interval=sampling_rate.to_period()
+            elif sampling_rate is None:
+                sampling_interval = float(duration)/self.__len__()
+                sampling_rate = Frequency(1.0/sampling_interval,
+                                             time_unit=time_unit)
 
+            else:
+                sampling_rate = Frequency(sampling_rate,time_unit='s')
+                sampling_interval = sampling_rate.to_period()
+        else:
+           sampling_rate = Frequency(1.0/sampling_interval)
+
+        #Calculate the duration, if that is not defined:
+        if duration is None:
+            duration=self.__len__()*sampling_interval
+
+        if t0 is None:
+           t0=0   
+    
+        self.time_unit = time_unit
+        self.sampling_interval = sampling_interval
+        self.t0 = TimeArray(t0,time_unit=self.time_unit)
+        self.sampling_rate = sampling_rate
+        self.duration = TimeArray(duration,time_unit=time_unit)
 
 class NonUniformTimeSeries(TimeSeriesBase):
     """Represent data collected at arbitrary time points.
