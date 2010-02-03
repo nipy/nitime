@@ -209,11 +209,37 @@ def test_UniformTimeSeries():
     #downsampling:
     t1 = ts.UniformTime(length=8,sampling_rate=2)
     #duration is the same, but we're downsampling to 1Hz
-    #tseries1 = ts.UniformTimeSeries(data=[1,2,3,4],time=t1,sampling_rate=1)
+    tseries1 = ts.UniformTimeSeries(data=[1,2,3,4],time=t1,sampling_rate=1)
     #If you didn't explicitely provide the rate you want to downsample to, that
     #is an error:
     npt.assert_raises(ValueError,ts.UniformTimeSeries,dict(data=[1,2,3,4],
                                                            time=t1)) 
+
+    tseries2 = ts.UniformTimeSeries(data=[1,2,3,4],sampling_rate=1)
+    tseries3 = ts.UniformTimeSeries(data=[1,2,3,4],sampling_rate=1000,
+                                    time_unit='ms')
+    #you can specify the sampling_rate or the sampling_interval, to the same
+    #effect, where specificying the sampling_interval is in the units of that
+    #time-series: 
+    tseries4 = ts.UniformTimeSeries(data=[1,2,3,4],sampling_interval=1,
+                                        time_unit='ms')
+    npt.assert_equal(tseries4.time,tseries3.time)
+
+    #The units you use shouldn't matter - time is time:
+    tseries6 = ts.UniformTimeSeries(data=[1,2,3,4],
+                                    sampling_interval=0.001,
+                                    time_unit='s')
+    npt.assert_equal(tseries6.time,tseries3.time)
+
+    #And this too - perverse, but should be possible: 
+    tseries5 = ts.UniformTimeSeries(data=[1,2,3,4],
+                                    sampling_interval=ts.TimeArray(0.001,
+                                                         time_unit='s'),
+                                    time_unit='ms')
+
+    npt.assert_equal(tseries5.time,tseries3.time)
+    
+        
     
 def test_CorrelationAnalyzer():
 
