@@ -239,6 +239,7 @@ class UniformTime(np.ndarray,TimeInterface):
     time_unit:
 
     copy: whether to make a copy of not. Needs to be set to False 
+
     
     
 
@@ -284,8 +285,14 @@ class UniformTime(np.ndarray,TimeInterface):
 
         if (tspec not in valid_tspecs and
             not(isinstance(data,UniformTime) and tspec in valid_w_data)):
-                raise ValueError("Invalid time specification, see docstring.")
-            
+            l = ['sampling_interval','sampling_rate','length','duration']
+            args = [arg for t,arg in zip(tspec,l) if t]
+            raise ValueError("Invalid time specification," +
+            "You provided: %s see docstring." %(" ".join(args)))
+            #XXX Needs more engineering in here in order to tell the user not
+            #only what they provided, but also what more they should provide in
+            #order for this to be valid 
+
         if isinstance(data,UniformTime):
             #Get attributes from the UniformTime object and transfer those over:
             if tspec==valid_w_data[0]:
@@ -304,7 +311,10 @@ class UniformTime(np.ndarray,TimeInterface):
                 sampling_rate=data.sampling_rate
             elif tspec==valid_w_data[4]:
                 sampling_rate=data.sampling_rate
-                            
+            if time_unit is None:
+                #If the user didn't ask to change the time-unit, use the
+                #time-unit from the object you got:
+                time_unit = data.time_unit      
         # Check that the time units provided are sensible: 
         if time_unit not in time_unit_conversion:
             raise ValueError('Invalid time unit %s, must be one of %s' %
@@ -461,7 +471,6 @@ class Frequency(float):
         
         return np.int64((1/self)*scale_factor)
         
-
 ##Time-series: 
 class TimeSeriesInterface(object):
     """The minimally agreed upon interface for all time series.
@@ -1565,7 +1574,7 @@ class FilterAnalyzer(desc.ResetMixin):
                            np.where(self.freqs>self.ub)[0]])
         
         power[...,idx_0] = 0
-        power[...,-1*idx_0] = 0 #Take care of the negative frequencies
+        #power[...,-1*idx_0] = 0 #Take care of the negative frequencies
         data_out = np.fft.ifft(power)
 
         data_out = np.real(data_out) #In order to make sure that you are not
