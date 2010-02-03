@@ -588,14 +588,7 @@ class UniformTimeSeries(TimeSeriesBase):
     object"""
         return UniformTime(length=self.__len__(),t0=self.t0,
                            sampling_interval=self.sampling_interval,
-                           time_unit=self.time_unit)[:self.__len__()] #If the
-                                        #time-array ends up being too long
-                                        #(because the sampling rate and the
-                                        #duration are just right, in order to
-                                        #put in one more item in the
-                                        #time-series, truncate so that they
-                                        #have the same length  
-
+                           time_unit=self.time_unit)
 
     #XXX This should call the constructor in an appropriate way, when provided
     #with a UniformTime object and data, so that you don't need to deal with
@@ -724,10 +717,11 @@ class UniformTimeSeries(TimeSeriesBase):
            t0=0   
     
         self.time_unit = time_unit
-        self.sampling_interval = sampling_interval
+        self.sampling_interval = TimeArray(sampling_interval,
+                                           time_unit=self.time_unit) 
         self.t0 = TimeArray(t0,time_unit=self.time_unit)
         self.sampling_rate = sampling_rate
-        self.duration = TimeArray(duration,time_unit=time_unit)
+        self.duration = TimeArray(duration,time_unit=self.time_unit)
 
 class NonUniformTimeSeries(TimeSeriesBase):
     """Represent data collected at arbitrary time points.
