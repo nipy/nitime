@@ -526,59 +526,48 @@ class UniformTimeSeries(TimeSeriesBase):
 
     >>> ts = UniformTimeSeries([1,2,3],sampling_interval=0.25)
     >>> ts.time
-    array([ 0.  ,  0.25,  0.5 ])
+    UniformTime([ 0.  ,  0.25,  0.5 ], time_unit='s')
     >>> ts.t0
-    0.0
+    0.0 s
     >>> ts.sampling_rate
-    4.0
+    4.0 Hz
 
     Or data and sampling rate:
     >>> ts = UniformTimeSeries([1,2,3],sampling_rate=2)
     >>> ts.time
-    array([ 0. ,  0.5,  1. ])
+    UniformTime([ 0. ,  0.5,  1. ], time_unit='s')
     >>> ts.t0
-    0.0
+    0.0 s
     >>> ts.sampling_interval
-    0.5
+    0.5 s
 
     A time series where we specify the start time and sampling interval:
     >>> ts = UniformTimeSeries([1,2,3],t0=4.25,sampling_interval=0.5)
     >>> ts.data
     array([1, 2, 3])
     >>> ts.time
-    array([ 4.25,  4.75,  5.25])
+    UniformTime([ 4.25,  4.75,  5.25], time_unit='s')
     >>> ts.t0
-    4.25
+    4.25 s
     >>> ts.sampling_interval
-    0.5
+    0.5 s
     >>> ts.sampling_rate
-    2.0
+    2.0 Hz
 
-    A time series where we specify the start time and sampling rate:
     >>> ts = UniformTimeSeries([1,2,3],t0=4.25,sampling_rate=2.0)
     >>> ts.data
     array([1, 2, 3])
     >>> ts.time
-    array([ 4.25,  4.75,  5.25])
+    UniformTime([ 4.25,  4.75,  5.25], time_unit='s')
     >>> ts.t0
-    4.25
+    4.25 s
+    >>> ts.sampl
+    ts.sampling_interval  ts.sampling_rate      
     >>> ts.sampling_interval
-    0.5
+    0.5 s
     >>> ts.sampling_rate
-    2.0
+    2.0 Hz
 
-    One where we instead provide the actual sampling times:
-    >>> ts = UniformTimeSeries([4,3,2],time=[0.5,1,1.5])
-    >>> ts.data
-    array([4, 3, 2])
-    >>> ts.time
-    array([ 0.5,  1. ,  1.5])
-    >>> ts.t0
-    0.5
-    >>> ts.sampling_interval
-    0.5
-    >>> ts.sampling_rate
-    2.0
     """
 
     @desc.setattr_on_read
@@ -666,9 +655,12 @@ class UniformTimeSeries(TimeSeriesBase):
             if time_unit is None:
                 time_unit = time.time_unit
 
-        #If the input was not 
         else:    
-            #Sanity checks. There are different valid combinations of inputs
+            ##If the input was not a UniformTime, we need to check that there
+            ##is enough information in the input to generate the UniformTime
+            ##array.
+
+            #There are different valid combinations of inputs
             tspec = tuple(x is not None for x in
                       [sampling_interval,sampling_rate,duration])
 
@@ -706,8 +698,8 @@ class UniformTimeSeries(TimeSeriesBase):
             else:
                 sampling_rate = Frequency(sampling_rate,time_unit='s')
                 sampling_interval = sampling_rate.to_period()
-        else:
-           sampling_rate = Frequency(1.0/sampling_interval)
+        elif sampling_rate is None:
+           sampling_rate = Frequency(1.0/sampling_interval,time_unit=time_unit)
 
         #Calculate the duration, if that is not defined:
         if duration is None:
