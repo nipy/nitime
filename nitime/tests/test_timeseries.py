@@ -238,8 +238,27 @@ def test_UniformTimeSeries():
                                     time_unit='ms')
 
     npt.assert_equal(tseries5.time,tseries3.time)
-    
-        
+
+@decotest.ipdoctest    
+def test_UniformTimeSeries_repr():
+
+    """
+    >>> t=ts.UniformTime(length=3,sampling_rate=3)
+    >>> tseries1 = ts.UniformTimeSeries(data=[3,5,8],time=t)
+    >>> t.sampling_rate
+    3.0 Hz
+    >>> tseries1.sampling_rate
+    3.0 Hz
+    >>> tseries1 = ts.UniformTimeSeries(data=[3,5,8],sampling_rate=3)
+    >>> tseries1.time
+    UniformTime([ 0.        ,  0.33333333,  0.66666667], time_unit='s')
+    >>> tseries1.sampling_rate
+    3.0 Hz
+    >>> tseries1.sampling_interval
+    0.33333333333300003 s
+
+
+    """ 
     
 def test_CorrelationAnalyzer():
 
