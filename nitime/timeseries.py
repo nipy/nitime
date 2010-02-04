@@ -28,6 +28,9 @@ Authors
 __all__ = ['time_unit_conversion',
            'TimeSeriesInterface',
            'UniformTimeSeries',
+           'TimeInterface',
+           'UniformTime',
+           'TimeArray',
            ]
 #-----------------------------------------------------------------------------
 # Imports
@@ -267,7 +270,7 @@ class UniformTime(np.ndarray,TimeInterface):
             #length,duration:
             (False,False,True,True)
             ]
-
+        
         if isinstance(data,UniformTime):
             #Assuming data was given, some other tspecs become valid:
             valid_w_data=[
@@ -292,7 +295,7 @@ class UniformTime(np.ndarray,TimeInterface):
             #XXX Needs more engineering in here in order to tell the user not
             #only what they provided, but also what more they should provide in
             #order for this to be valid 
-
+            
         if isinstance(data,UniformTime):
             #Get attributes from the UniformTime object and transfer those over:
             if tspec==valid_w_data[0]:
@@ -314,7 +317,8 @@ class UniformTime(np.ndarray,TimeInterface):
             if time_unit is None:
                 #If the user didn't ask to change the time-unit, use the
                 #time-unit from the object you got:
-                time_unit = data.time_unit      
+                time_unit = data.time_unit
+        
         # Check that the time units provided are sensible: 
         if time_unit not in time_unit_conversion:
             raise ValueError('Invalid time unit %s, must be one of %s' %
@@ -328,12 +332,17 @@ class UniformTime(np.ndarray,TimeInterface):
                 sampling_interval = float(duration)/length
                 sampling_rate = Frequency(1.0/sampling_interval,
                                              time_unit=time_unit)
-
             else:
                 sampling_rate = Frequency(sampling_rate,time_unit='s')
                 sampling_interval = sampling_rate.to_period()
         else:
-            sampling_rate = Frequency(1.0/sampling_interval)
+            if isinstance(sampling_interval,TimeInterface):
+                c_f = time_unit_conversion[sampling_interval.time_unit]
+                sampling_rate = Frequency(1.0/(sampling_interval/c_f),
+                                          time_unit=sampling_interval.time_unit)
+            else:
+                sampling_rate = Frequency(1.0/sampling_interval,
+                                          time_unit=time_unit)
 
         #Calculate the duration, if that is not defined:
         if duration is None:
@@ -342,8 +351,12 @@ class UniformTime(np.ndarray,TimeInterface):
         # Make sure you have a time unit:
         if time_unit is None:
             #If you gave us a duration with time_unit attached 
-            if isinstance(duration,TimeArray):
+            if isinstance(duration,TimeInterface):
                 time_unit = duration.time_unit
+            #Otherwise, you might have given us a sampling_interval with a
+            #time_unit attached:
+            elif isinstance(sampling_interval,TimeInterface):
+                time_unit = sampling_interval.time_unit
             else:
                 time_unit = 's'
 
@@ -453,7 +466,7 @@ class Frequency(float):
         freq._time_unit = time_unit
 
         return freq
-
+    
     def __repr__(self):
         
         return str(self) + ' Hz'
@@ -681,7 +694,6 @@ class UniformTimeSeries(TimeSeriesBase):
             if tspec not in valid_tspecs:
                 raise ValueError("Invalid time specification, see docstring.")
 
-        
         # Call the common constructor to get the real object initialized
         TimeSeriesBase.__init__(self,data,time_unit)
         
@@ -694,7 +706,6 @@ class UniformTimeSeries(TimeSeriesBase):
                 sampling_interval = float(duration)/self.__len__()
                 sampling_rate = Frequency(1.0/sampling_interval,
                                              time_unit=time_unit)
-
             else:
                 sampling_rate = Frequency(sampling_rate,time_unit='s')
                 sampling_interval = sampling_rate.to_period()
@@ -1506,7 +1517,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 #            idx_new = np.array([idx[0]+i for i in range(self.len_hrf)])
 
         return UniformTimeSeries(data=h,
-                                 sampling_rate=self.sampling_rate,
+                                 sampling_interval=self.sampling_interval,
                                  t0=self._offset*self.sampling_interval,
                                  time_unit=self.time_unit)
     
