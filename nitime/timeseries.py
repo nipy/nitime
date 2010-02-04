@@ -693,9 +693,6 @@ class UniformTimeSeries(TimeSeriesBase):
 
             if tspec not in valid_tspecs:
                 raise ValueError("Invalid time specification, see docstring.")
-
-        # Call the common constructor to get the real object initialized
-        TimeSeriesBase.__init__(self,data,time_unit)
         
         #Calculate the sampling_interval or sampling_rate from each other and
         #assign t0, if it is not already assigned:
@@ -709,15 +706,35 @@ class UniformTimeSeries(TimeSeriesBase):
             else:
                 sampling_rate = Frequency(sampling_rate,time_unit='s')
                 sampling_interval = sampling_rate.to_period()
-        elif sampling_rate is None:
-           sampling_rate = Frequency(1.0/sampling_interval,time_unit=time_unit)
+        else:
+            if isinstance(sampling_interval,TimeInterface):
+                c_f = time_unit_conversion[sampling_interval.time_unit]
+                sampling_rate = Frequency(1.0/(sampling_interval/c_f),
+                                          time_unit=sampling_interval.time_unit)
+            else:
+                sampling_rate = Frequency(1.0/sampling_interval,
+                                          time_unit=time_unit)
 
         #Calculate the duration, if that is not defined:
         if duration is None:
             duration=self.__len__()*sampling_interval
 
         if t0 is None:
-           t0=0   
+           t0=0
+           
+        # Make sure to grab the time unit from the inputs, if it is provided: 
+        if time_unit is None:
+            #If you gave us a duration with time_unit attached 
+            if isinstance(duration,TimeInterface):
+                time_unit = duration.time_unit
+            #Otherwise, you might have given us a sampling_interval with a
+            #time_unit attached:
+            elif isinstance(sampling_interval,TimeInterface):
+                time_unit = sampling_interval.time_unit
+
+        #Otherwise, you can still call the common constructor to get the real
+        #object initialized, with time_unit set to None and you will have  
+        #TimeSeriesBase.__init__(self,data,time_unit)
     
         self.time_unit = time_unit
         self.sampling_interval = TimeArray(sampling_interval,
