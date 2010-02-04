@@ -202,6 +202,13 @@ def test_UniformTime_repr():
     In [90]: b
     Out[90]: UniformTime([ 0.,  1.,  2.,  3.,  4.], time_unit='s')
 
+    In [445]: a = ts.UniformTime(length=1,sampling_rate=2)
+
+    In [446]: b = ts.UniformTime(length=10,sampling_interval=a.sampling_interval)
+
+    In [447]: b.sampling_rate
+    Out[447]: 2.0 Hz
+
     """
 
 @decotest.parametric
@@ -275,6 +282,21 @@ def test_UniformTimeSeries_repr():
     3.0 Hz
     >>> tseries1.sampling_interval
     0.33333333333300003 s
+    In [435]: a = ts.UniformTime(length=1,sampling_rate=2)
+
+    In [436]: b = ts.UniformTimeSeries(data=[1,2,3],sampling_interval=a.sampling_interval)
+
+    In [437]: b.sampling_rate
+    Out[437]: 2.0 Hz
+
+
+    In [361]: a = ts.UniformTime(length=1,sampling_rate=1)
+
+    In [362]: b = ts.UniformTimeSeries(data=[1,2,3],sampling_interval=a.sampling_interval)
+
+    In [363]: b.sampling_rate
+    Out[363]: 1.0 Hz
+
     """ 
     
 def test_CorrelationAnalyzer():

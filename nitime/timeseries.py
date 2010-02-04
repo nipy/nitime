@@ -338,7 +338,7 @@ class UniformTime(np.ndarray,TimeInterface):
         else:
             if isinstance(sampling_interval,TimeInterface):
                 c_f = time_unit_conversion[sampling_interval.time_unit]
-                sampling_rate = Frequency(1.0/(sampling_interval/c_f),
+                sampling_rate = Frequency(1.0/(float(sampling_interval)/c_f),
                                           time_unit=sampling_interval.time_unit)
             else:
                 sampling_rate = Frequency(1.0/sampling_interval,
@@ -707,17 +707,21 @@ class UniformTimeSeries(TimeSeriesBase):
                 sampling_rate = Frequency(sampling_rate,time_unit='s')
                 sampling_interval = sampling_rate.to_period()
         else:
-            if isinstance(sampling_interval,TimeInterface):
-                c_f = time_unit_conversion[sampling_interval.time_unit]
-                sampling_rate = Frequency(1.0/(sampling_interval/c_f),
+            if sampling_rate is None: #Only if you didn't already 'inherit'
+                                      #this property from another time object
+                                      #above:
+                if isinstance(sampling_interval,TimeInterface):
+                   c_f = time_unit_conversion[sampling_interval.time_unit]
+                   sampling_rate = Frequency(1.0/(float(sampling_interval)/c_f),
                                           time_unit=sampling_interval.time_unit)
-            else:
-                sampling_rate = Frequency(1.0/sampling_interval,
+                else:
+                   sampling_rate = Frequency(1.0/sampling_interval,
                                           time_unit=time_unit)
 
+            
         #Calculate the duration, if that is not defined:
         if duration is None:
-            duration=self.__len__()*sampling_interval
+            duration=np.asarray(data).shape[-1]*sampling_interval
 
         if t0 is None:
            t0=0
@@ -733,8 +737,9 @@ class UniformTimeSeries(TimeSeriesBase):
                 time_unit = sampling_interval.time_unit
 
         #Otherwise, you can still call the common constructor to get the real
-        #object initialized, with time_unit set to None and you will have  
-        #TimeSeriesBase.__init__(self,data,time_unit)
+        #object initialized, with time_unit set to None and that will generate
+        #the object with time_unit set to 's':  
+        TimeSeriesBase.__init__(self,data,time_unit)
     
         self.time_unit = time_unit
         self.sampling_interval = TimeArray(sampling_interval,
