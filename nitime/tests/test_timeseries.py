@@ -151,7 +151,26 @@ def test_UniformTime():
         npt.assert_raises(ValueError,
                           ts.UniformTime,dict(sampling_interval=10,duration=1))
 
+    #Time objects can be initialized with other time objects setting the
+    #duration, sampling_interval and sampling_rate:
+    
+    a = ts.UniformTime(length=1,sampling_rate=1)
+    b = ts.UniformTime(duration=2*a.sampling_interval,
+                       sampling_rate=2*a.sampling_rate)
 
+    npt.assert_equal(ts.Frequency(b.sampling_rate),
+                     ts.Frequency (2*a.sampling_rate))
+    npt.assert_equal(b.sampling_interval,ts.TimeArray(0.5*a.sampling_rate))
+
+    b = ts.UniformTime(duration=10,
+                       sampling_interval=a.sampling_interval)
+
+    npt.assert_equal(b.sampling_rate,a.sampling_rate)
+
+    b = ts.UniformTime(duration=10,
+                       sampling_rate=a.sampling_rate)
+
+    npt.assert_equal(b.sampling_interval,a.sampling_interval)
 
 @decotest.ipdoctest    
 def test_UniformTime_repr():
@@ -256,8 +275,6 @@ def test_UniformTimeSeries_repr():
     3.0 Hz
     >>> tseries1.sampling_interval
     0.33333333333300003 s
-
-
     """ 
     
 def test_CorrelationAnalyzer():
