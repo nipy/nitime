@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.testing import *
+import numpy.testing as npt
 from scipy.signal import signaltools
 from nitime import algorithms as tsa
 from nitime import utils as ut
@@ -24,7 +24,7 @@ def test_scipy_resample():
     dn_samp_ana = np.array([np.sin(2*np.pi*f*np.linspace(0,1,48,endpoint=False))
                             for f in freq_list]).sum(axis=0)
     t_dn2 = signaltools.resample(tst, 48)
-    np.testing.assert_array_almost_equal(t_dn2, dn_samp_ana)
+    npt.assert_array_almost_equal(t_dn2, dn_samp_ana)
 
 def test_coherency_mlab():
     """Tests that the coherency algorithm runs smoothly, using the mlab csd
@@ -41,10 +41,10 @@ def test_coherency_mlab():
 
     f,c = tsa.coherency(np.vstack([x,y]),csd_method=method)
 
-    np.testing.assert_array_almost_equal(c[0,1],c[1,0].conjugate())
-    np.testing.assert_array_almost_equal(c[0,0],np.ones(f.shape))
+    npt.assert_array_almost_equal(c[0,1],c[1,0].conjugate())
+    npt.assert_array_almost_equal(c[0,0],np.ones(f.shape))
     f_theoretical = ut.get_freqs(method['Fs'],method['NFFT'])
-    np.testing.assert_array_almost_equal(f,f_theoretical)
+    npt.assert_array_almost_equal(f,f_theoretical)
 
 def test_coherency_multi_taper():
     """Tests that the coherency algorithm runs smoothly, using the multi_taper
@@ -59,8 +59,8 @@ def test_coherency_multi_taper():
 
     f,c = tsa.coherency(np.vstack([x,y]),csd_method=method)
 
-    np.testing.assert_array_almost_equal(c[0,1],c[1,0].conjugate())
-    np.testing.assert_array_almost_equal(c[0,0],np.ones(f.shape))
+    npt.assert_array_almost_equal(c[0,1],c[1,0].conjugate())
+    npt.assert_array_almost_equal(c[0,0],np.ones(f.shape))
 
 def test_coherence_mlab():
     """Tests that the code runs and that the resulting matrix is symmetric """  
@@ -77,7 +77,7 @@ def test_coherence_mlab():
     np.testing.assert_array_almost_equal(c[0,1],c[1,0])
 
     f_theoretical = ut.get_freqs(method['Fs'],method['NFFT'])
-    np.testing.assert_array_almost_equal(f,f_theoretical)
+    npt.assert_array_almost_equal(f,f_theoretical)
 
 def test_coherence_multi_taper():
     """Tests that the code runs and that the resulting matrix is symmetric """  
@@ -90,7 +90,7 @@ def test_coherence_multi_taper():
               "Fs":2*np.pi}
      
     f,c = tsa.coherence(np.vstack([x,y]),csd_method=method)
-    np.testing.assert_array_almost_equal(c[0,1],c[1,0])
+    npt.assert_array_almost_equal(c[0,1],c[1,0])
 
 def test_coherence_partial():
     """ Test partial coherence"""
@@ -106,8 +106,8 @@ def test_coherence_partial():
     f,c = tsa.coherence_partial(np.vstack([x,y]),z,csd_method=method)
 
     f_theoretical = ut.get_freqs(method['Fs'],method['NFFT'])
-    np.testing.assert_array_almost_equal(f,f_theoretical)
-    np.testing.assert_array_almost_equal(c[0,1],c[1,0])
+    npt.assert_array_almost_equal(f,f_theoretical)
+    npt.assert_array_almost_equal(c[0,1],c[1,0])
 
     
 def test_coherency_cached():
@@ -125,9 +125,10 @@ def test_coherency_cached():
 
     c2 = tsa.cache_to_coherency(cache,ij)
 
-    np.testing.assert_array_almost_equal(c1[1,0],c2[1,0])
-    np.testing.assert_array_almost_equal(c1[0,1],c2[0,1])
+    npt.assert_array_almost_equal(c1[1,0],c2[1,0])
+    npt.assert_array_almost_equal(c1[0,1],c2[0,1])
 
+@npt.dec.knownfailureif(True) 
 def test_coherence_linear_dependence():
     """
     Tests that the coherence between two linearly dependent time-series
@@ -162,32 +163,32 @@ def test_coherence_linear_dependence():
     f,c = tsa.coherence(np.vstack([x,y]))
     c_t = np.abs(signaltools.resample(c_t,c.shape[-1]))
 
-    np.testing.assert_array_almost_equal(c[0,1],c_t,2)
+    npt.assert_array_almost_equal(c[0,1],c_t,2)
     
-@dec.skipif(True)
+@npt.dec.skipif(True)
 def test_coherence_phase_spectrum ():
     assert False, "Test Not Implemented"
 
-@dec.skipif(True)
+@npt.dec.skipif(True)
 def test_coherency_bavg():
     assert False, "Test Not Implemented"
 
-@dec.skipif(True)
+@npt.dec.skipif(True)
 def test_coherence_partial():
     assert False, "Test Not Implemented"
 
-@dec.skipif(True)
+@npt.dec.skipif(True)
 def test_coherence_partial_bavg():
     assert False, "Test Not Implemented"
 
 #XXX def test_coherency_phase ()
 #XXX def test_coherence_partial_phase()
 
-@dec.skipif(True)
+@npt.dec.skipif(True)
 def test_fir():
     assert False, "Test Not Implemented"
 
-@dec.skipif(True)
+@npt.dec.skipif(True)
 def test_percent_change():
     assert False, "Test Not Implemented"
                 
@@ -199,7 +200,7 @@ def test_yule_walker_AR():
     # for the following integral
     dw = 1./1024
     avg_pwr_est = np.trapz(psd, dx=dw)
-    assert_almost_equal(avg_pwr, avg_pwr_est, decimal=2)
+    npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=2)
 
 def test_LD_AR():
     arsig,_,_ = ut.ar_generator(N=512)
@@ -209,7 +210,7 @@ def test_LD_AR():
     # for the following integral
     dw = 1./1024
     avg_pwr_est = np.trapz(psd, dx=dw)
-    assert_almost_equal(avg_pwr, avg_pwr_est, decimal=2)
+    npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=2)
     
 def test_periodogram():
     arsig,_,_ = ut.ar_generator(N=512)
@@ -219,7 +220,7 @@ def test_periodogram():
     # for the following integral
     dw = 1./2048
     avg_pwr_est = np.trapz(psd, dx=dw)
-    assert_almost_equal(avg_pwr, avg_pwr_est, decimal=1)
+    npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=1)
     
 def permutation_system(N):
     p = np.zeros((N,N))
@@ -230,3 +231,4 @@ def permutation_system(N):
         p[i,j] = 1
     return p
                                    
+
