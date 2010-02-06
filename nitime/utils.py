@@ -193,7 +193,7 @@ def get_freqs(Fs,n):
     """Returns the center frequencies of the frequency decomposotion of a time
     series of length n, sampled at Fs Hz"""
 
-    return np.linspace(0,Fs/2,n/2+1)
+    return np.linspace(0,float(Fs)/2,float(n)/2+1)
 
 def circle_to_hz(omega, Fsamp):
     """For a frequency grid spaced on the unit circle of an imaginary plane,
