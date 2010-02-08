@@ -4,6 +4,8 @@ from scipy.signal import signaltools
 from nitime import algorithms as tsa
 from nitime import utils as ut
 
+reload(tsa)
+
 def test_scipy_resample():
     """ Tests scipy signal's resample function
     """
@@ -230,5 +232,22 @@ def permutation_system(N):
         j = targets.pop(popper)
         p[i,j] = 1
     return p
-                                   
+
+def test_boxcar_filter():
+    a = np.random.rand(100)
+    b = tsa.boxcar_filter(a)
+    npt.assert_equal(a,b)
+
+    #Should also work for odd number of elements:
+    a = np.random.rand(99)
+    b = tsa.boxcar_filter(a)
+    npt.assert_equal(a,b)
+
+    b = tsa.boxcar_filter(a,ub=0.25)
+    npt.assert_equal(a.shape,b.shape)
+
+    b = tsa.boxcar_filter(a,lb=0.25)
+    npt.assert_equal(a.shape,b.shape)
+
+    
 

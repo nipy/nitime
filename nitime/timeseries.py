@@ -1638,4 +1638,4 @@ class FilterAnalyzer(desc.ResetMixin):
 
         return UniformTimeSeries(data=data_out,
                                  sampling_rate=self.sampling_rate,
-                                 time_unit=self.time_unit)
+                                 time_unit=self.time_unit) 
