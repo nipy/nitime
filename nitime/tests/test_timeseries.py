@@ -271,6 +271,12 @@ def test_UniformTime_at():
         this_secs=time1.at(ts.TimeArray((i+.5)/1000.))
         yield npt.assert_equal(this_secs,ts.TimeArray(i,time_unit='ms'))
 
+        t = ts.TimeArray(range(10),time_unit='ms')
+        ta = time1.at(t)
+        yield npt.assert_equal(time1,ta)
+        
+        ta = time1.at(time1)
+        yield npt.assert_equal(time1,ta)
 
 @decotest.parametric
 def test_UniformTime_to_TimeArray():
@@ -377,6 +383,28 @@ def test_UniformTimeseries_at():
         yield npt.assert_equal(val,val2)
         val2 = tseries2d.at(ti)[1]
         yield npt.assert_equal(val,val2)
+
+        t = ts.TimeArray(range(5),time_unit='ms')
+        ta1 = tseries1.at(t)
+        ta2 = tseries2d.at(t)
+        yield npt.assert_equal(tseries1.data,ta1)
+        yield npt.assert_equal(tseries2d.data,ta2)
+
+
+@decotest.parametric
+def test_Time_min_max():
+    time1 = ts.TimeArray(range(100),time_unit='ms')
+    time2 = ts.UniformTime(length=100,sampling_rate=1000,time_unit='ms')
+    t = ts.TimeArray(.099,time_unit='s')
+    tmin = time1.min()
+    tmax = time1.max()
+    yield npt.assert_equal(tmin,0)
+    yield npt.assert_equal(tmax,t)
+    tmin = time2.min()
+    tmax = time2.max()
+    yield npt.assert_equal(tmin,0)
+    yield npt.assert_equal(tmax,t)
+
 
 
 def test_CorrelationAnalyzer():
