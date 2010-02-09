@@ -212,7 +212,7 @@ class TimeArray(np.ndarray,TimeInterface):
         return idx
 
     def at(self,t,tol=None):
-        """ Returns the values of the items at the """
+        """ Returns the values of the TimeArray object at time t"""
         return self[self.index_at(t,tol=tol)]
 
     def convert_unit(self,time_unit):
@@ -459,7 +459,7 @@ class UniformTime(np.ndarray,TimeInterface):
 
 
     def at(self,t,tol=None):
-        """ Returns the values of the items at the """
+        """ Returns the values of the UniformTime object at time t"""
         return TimeArray(self[self.index_at(t)],time_unit=self.time_unit)
 
 
@@ -763,6 +763,10 @@ class UniformTimeSeries(TimeSeriesBase):
         self.t0 = TimeArray(t0,time_unit=self.time_unit)
         self.sampling_rate = sampling_rate
         self.duration = TimeArray(duration,time_unit=self.time_unit)
+
+    def at(self,t,tol=None):
+        """ Returns the values of the TimeArray object at time t"""
+        return self.data[...,self.time.index_at(t)]
 
 class NonUniformTimeSeries(TimeSeriesBase):
     """Represent data collected at arbitrary time points.

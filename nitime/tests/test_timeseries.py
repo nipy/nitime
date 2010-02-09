@@ -318,6 +318,12 @@ def test_UniformTimeSeries():
 
     npt.assert_equal(tseries5.time,tseries3.time)
 
+    # and now try two-dimensional data
+    tseries2d = ts.UniformTimeSeries(data=np.random.rand(3,4),
+                                     sampling_rate=1000,
+                                     time_unit='ms')
+    npt.assert_equal(tseries2d.time,tseries3.time)
+
 @decotest.ipdoctest    
 def test_UniformTimeSeries_repr():
 
@@ -351,7 +357,28 @@ def test_UniformTimeSeries_repr():
     Out[363]: 1.0 Hz
 
     """ 
-    
+
+
+@decotest.parametric
+def test_UniformTimeseries_at():
+    tseries1 = ts.UniformTimeSeries(data=np.arange(5,10),
+                                    sampling_rate=1000,
+                                    time_unit='ms')
+    tseries2d = ts.UniformTimeSeries(data=np.arange(15).reshape(3,5),
+                                     sampling_rate=1000,
+                                     time_unit='ms')
+    for i in xrange(5):
+        ti = ts.TimeArray(i/1000.)
+        val = tseries1.at(i)
+        yield npt.assert_equal(val,5+i)
+        val = tseries1.at(ti)
+        yield npt.assert_equal(val,5+i)
+        val2 = tseries2d.at(i)[1]
+        yield npt.assert_equal(val,val2)
+        val2 = tseries2d.at(ti)[1]
+        yield npt.assert_equal(val,val2)
+
+
 def test_CorrelationAnalyzer():
 
     Fs = np.pi
