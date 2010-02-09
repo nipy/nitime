@@ -191,10 +191,10 @@ class TimeArray(np.ndarray,TimeInterface):
 
     def __setitem__(self,key,val):
         
-    #look at the units - convert the values to what they need to be (in the
-    #base_unit) and then delegate to the ndarray.__setitem__
-    
-       val = val * self._conversion_factor
+       # look at the units - convert the values to what they need to be (in the
+       # base_unit) and then delegate to the ndarray.__setitem__
+       if not hasattr(val,'_conversion_factor'):
+           val *= self._conversion_factor
        return np.ndarray.__setitem__(self,key,val)
     
     def index_at(self,t,tol=None):
@@ -432,7 +432,7 @@ class UniformTime(np.ndarray,TimeInterface):
     def __getitem__(self,key):
         # return scalar TimeArray in case key is integer
         if isinstance(key,int):
-            return self[[key]].reshape(())
+            return self[[key]].reshape(()).view(TimeArray)
         elif isinstance(key,float):
             return self.at(key)
         else:
@@ -440,11 +440,27 @@ class UniformTime(np.ndarray,TimeInterface):
 
     def __setitem__(self,key,val):
         
-    #look at the units - convert the values to what they need to be (in the
-    #base_unit) and then delegate to the ndarray.__setitem__
-    
-       val = val * self._conversion_factor
+       # look at the units - convert the values to what they need to be (in the
+       # base_unit) and then delegate to the ndarray.__setitem__    
+       if not hasattr(val,'_conversion_factor'):
+           val *= self._conversion_factor
        return np.ndarray.__setitem__(self,key,val)
+
+    def index_at(self,t,tol=None):
+        """ Find the index that corresponds to the time bin containing t"""
+
+        t_e = TimeArray(t,time_unit=self.time_unit)
+
+        # check that index is within range
+        if t_e < self.t0 or t_e >= self.t0 + self.duration:
+            raise ValueError, 'index out of range'
+
+        return int(t_e)//int(self.sampling_interval)
+
+
+    def at(self,t,tol=None):
+        """ Returns the values of the items at the """
+        return TimeArray(self[self.index_at(t)],time_unit=self.time_unit)
 
 
 ##Frequency:
