@@ -271,12 +271,26 @@ def test_UniformTime_at():
         this_secs=time1.at(ts.TimeArray((i+.5)/1000.))
         yield npt.assert_equal(this_secs,ts.TimeArray(i,time_unit='ms'))
 
-        t = ts.TimeArray(range(10),time_unit='ms')
-        ta = time1.at(t)
-        yield npt.assert_equal(time1,ta)
+        ti = time1.at(i)
+        t_idx = time1.index_at(i)
+        yield npt.assert_equal(ti,time1[t_idx])
+        t_idx_bool = time1.index_at(i,boolean=True)
+        yield npt.assert_equal(ti,time1[t_idx_bool])
         
-        ta = time1.at(time1)
-        yield npt.assert_equal(time1,ta)
+    t = ts.TimeArray(range(10),time_unit='ms')
+    ta = time1.at(t)
+    yield npt.assert_equal(time1,ta)
+
+    ta = time1.at(time1)
+    yield npt.assert_equal(time1,ta)
+
+    t = ts.TimeArray([2,4,6],time_unit='ms')
+    t_idx = time1.index_at(t)
+    t_idx_bool = time1.index_at(t,boolean=True)
+    ta = time1.at(t)
+    yield npt.assert_equal(ta,time1[t_idx])
+    yield npt.assert_equal(ta,time1[t_idx_bool])
+    
 
 @decotest.parametric
 def test_UniformTime_to_TimeArray():

@@ -473,8 +473,11 @@ class UniformTime(np.ndarray,TimeInterface):
            val *= self._conversion_factor
        return np.ndarray.__setitem__(self,key,val)
 
-    def index_at(self,t):
-        """ Find the index that corresponds to the time bin containing t"""
+    def index_at(self,t,boolean=False):
+        """Find the index that corresponds to the time bin containing t
+
+           Returns boolean indices if boolean=True and integer indeces otherwise.
+        """
 
         # cast t into time
         ta = TimeArray(t,time_unit=self.time_unit)
@@ -484,7 +487,11 @@ class UniformTime(np.ndarray,TimeInterface):
             raise ValueError, 'index out of range'
         
         idx = ta.view(np.ndarray)//int(self.sampling_interval)
-        if ta.ndim == 0:
+        if boolean:
+            bool_idx = np.zeros(len(self),dtype=bool)
+            bool_idx[idx] = True
+            return bool_idx
+        elif ta.ndim == 0:
             return idx[()]
         else:
             return idx
