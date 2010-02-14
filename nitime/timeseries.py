@@ -39,6 +39,7 @@ __all__ = ['time_unit_conversion',
 import warnings
 import numpy as np
 import scipy.signal as signal
+import scipy.stats as stats
 
 # Our own
 from nitime import descriptors as desc
@@ -1542,8 +1543,39 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                                  sampling_interval=self.sampling_interval,
                                  t0=self._offset*self.sampling_interval,
                                  time_unit=self.time_unit)
-    
-        
+
+
+    @desc.setattr_on_read
+    def ets(self):
+        """The event-triggered standard error of the mean """
+        #Make a list fo the output 
+        h = [0] * self._len_h
+
+        for i in xrange(self._len_h):
+            data = self.data[i]
+            u = np.unique(self.events[i])
+            event_types = u[np.unique(self.events[i])!=0]
+            h[i] = np.empty((event_types.shape[0],self.len_hrf),dtype=complex)
+            for e_idx in xrange(event_types.shape[0]):
+                idx = np.where(self.events[i]==event_types[e_idx])
+                idx_w_len = np.array([idx[0]+count+self._offset for count
+                                      in range(self.len_hrf)])
+                event_trig = data[idx_w_len]
+                #Correct baseline by removing the first point in the series for
+                #each channel:
+                if self._correct_baseline:
+                    event_trig -= event_trig[0]
+                    
+                h[i][e_idx] = stats.sem(event_trig,axis=-1)
+                
+        h = np.array(h).squeeze()
+
+        return UniformTimeSeries(data=h,
+                                 sampling_interval=self.sampling_interval,
+                                 t0=self._offset*self.sampling_interval,
+                                 time_unit=self.time_unit)
+
+            
 class HilbertAnalyzer(desc.ResetMixin):
 
     """Analyzer class for extracting the Hilbert transform """ 
@@ -1661,3 +1693,5 @@ class FilterAnalyzer(desc.ResetMixin):
         return UniformTimeSeries(data=data_out,
                                  sampling_rate=self.sampling_rate,
                                  time_unit=self.time_unit) 
+
+    

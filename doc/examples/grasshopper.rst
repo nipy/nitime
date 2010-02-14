@@ -38,6 +38,7 @@ simply adds another line in another color for this second channel.
 
    
 .. [Rokem2006] Ariel Rokem, Sebastian Watzl, Tim Gollisch, Martin Stemmler,
-   Andreas V M Herz and Ines Samengo (2006). Spike-timing precision underlies the
-   coding efficiency of auditory receptor neurons. J Neurophysiol, 95: 2541--52
+   Andreas V M Herz and Ines Samengo (2006). Spike-timing precision underlies
+   the coding efficiency of auditory receptor neurons. J Neurophysiol, 95:
+   2541--52
 
