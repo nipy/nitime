@@ -38,16 +38,10 @@ __all__ = ['time_unit_conversion',
 
 import warnings
 import numpy as np
-import scipy.signal as signal
-import scipy.stats as stats
 
 # Our own
 from nitime import descriptors as desc
-from nitime import utils as tsu
-from nitime import algorithms as tsa
 
-reload(tsa)
-reload(tsu)
 #-----------------------------------------------------------------------------
 # Module globals
 #-----------------------------------------------------------------------------
