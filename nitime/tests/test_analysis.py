@@ -88,8 +88,6 @@ def test_CoherenceAnalyzer():
 
     C = nta.CoherenceAnalyzer(T)
 
-#TODO: fix this
-@npt.dec.knownfailureif(True) 
 def test_HilbertAnalyzer():
     """Testing the HilbertAnalyzer (analytic signal)"""
     pi = np.pi

@@ -646,24 +646,10 @@ class HilbertAnalyzer(desc.ResetMixin):
 
         """
     
-        data_in = time_series.data 
-
         self.sampling_rate = time_series.sampling_rate
-        freqs = tsu.get_freqs(self.sampling_rate,data_in.shape[-1])
-
-        if ub is None:
-            ub = freqs[-1]
+        F = FilterAnalyzer(time_series,lb=lb,ub=ub)
+        self.data = F.filtered_boxcar.data
         
-        power = np.fft.fft(data_in)
-        idx_0 = np.hstack([np.where(freqs<lb)[0],np.where(freqs>ub)[0]])
-        power[...,idx_0] = 0
-        power[...,-1*idx_0] = 0 #Take care of the negative frequencies
-        data_out = np.fft.ifft(power)
-
-        self.data = np.real(data_out) #In order to make sure that you are not
-                                      #left with float-precision residual
-                                      #complex parts
-                                      
     @desc.setattr_on_read
     def _analytic(self):
         return ts.UniformTimeSeries(data=signal.hilbert(self.data),
