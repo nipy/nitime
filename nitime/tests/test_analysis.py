@@ -2,6 +2,7 @@ import numpy as np
 import numpy.testing as npt
 from nitime import utils as ut
 import nitime.timeseries as ts
+import nitime.analysis as nta
 import nose.tools as nt
 import decotest
 
@@ -14,7 +15,7 @@ def test_CorrelationAnalyzer():
 
     T = ts.UniformTimeSeries(np.vstack([x,y]),sampling_rate=Fs)
 
-    C = ts.CorrelationAnalyzer(T)
+    C = nta.CorrelationAnalyzer(T)
 
     #Test the symmetry: correlation(x,y)==correlation(y,x) 
     npt.assert_equal(C.correlation[0,1],C.correlation[1,0])
@@ -42,7 +43,7 @@ def test_CorrelationAnalyzer():
 
     T = ts.UniformTimeSeries(np.vstack([x,y]),sampling_rate=Fs)
 
-    C = ts.CorrelationAnalyzer(T)
+    C = nta.CorrelationAnalyzer(T)
 
     
     npt.assert_equal(C.xcorr_norm.data[0,1,C.xcorr_norm.time==0]
@@ -65,14 +66,14 @@ def test_EventRelatedAnalyzer():
 
     T_signal = ts.UniformTimeSeries(signal,sampling_rate=1)
     T_events = ts.UniformTimeSeries(events,sampling_rate=1)
-    ETA = ts.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).eta
+    ETA = nta.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).eta
 
     #This looks good, but doesn't pass unless you consider 3 digits:
     npt.assert_almost_equal(ETA.data[0],signal[:ETA.data.shape[-1]],3)
     npt.assert_almost_equal(ETA.data[1],-1*signal[:ETA.data.shape[-1]],3)
 
     #Same should be true for the FIR analysis: 
-    FIR = ts.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).FIR
+    FIR = nta.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).FIR
     npt.assert_almost_equal(FIR.data[0],signal[:FIR.data.shape[-1]],3)
     npt.assert_almost_equal(FIR.data[1],-1*signal[:FIR.data.shape[-1]],3)
 
@@ -85,7 +86,7 @@ def test_CoherenceAnalyzer():
 
     T = ts.UniformTimeSeries(np.vstack([x,y]),sampling_rate=Fs)
 
-    C = ts.CoherenceAnalyzer(T)
+    C = nta.CoherenceAnalyzer(T)
 
 #TODO: fix this
 @npt.dec.knownfailureif(True) 
@@ -103,7 +104,7 @@ def test_HilbertAnalyzer():
     T = ts.UniformTimeSeries(data=np.vstack([a0,a1,a2,a3]),
                              sampling_rate=Fs)
 
-    H = ts.HilbertAnalyzer(T)
+    H = nta.HilbertAnalyzer(T)
 
     h_abs = H.magnitude.data
     h_angle = H.phase.data
@@ -134,8 +135,8 @@ def test_FilterAnalyzer():
     time_series = ts.UniformTimeSeries(data=fast+slow,sampling_rate=np.pi)
 
     #0.6 is somewhere between the two frequencies 
-    f_slow = ts.FilterAnalyzer(time_series,ub=0.6)
+    f_slow = nta.FilterAnalyzer(time_series,ub=0.6)
     npt.assert_equal(f_slow.filtered_fourier.data,slow)
     #
-    f_fast = ts.FilterAnalyzer(time_series,lb=0.6)
+    f_fast = nta.FilterAnalyzer(time_series,lb=0.6)
     npt.assert_equal(f_fast.filtered_fourier.data,fast)

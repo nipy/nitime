@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Analyzer classes
+# Nitime analysis 
 #-----------------------------------------------------------------------------
 
 """These classes are used in order to bridge between the time series objects
@@ -9,6 +9,14 @@ quantities related to this particular family. In general, the objects
 initialize on a time series object and analytical results are then derived from
 the combination of that time-series and the algorithms  """
 
+#Imports:
+import numpy as np
+import scipy.signal as signal
+import scipy.stats as stats
+from nitime import descriptors as desc
+from nitime import utils as tsu
+from nitime import algorithms as tsa
+from nitime.timeseries import UniformTimeSeries
 
 ##Spectral estimation: 
 class SpectralAnalyzer(desc.ResetMixin):
@@ -182,7 +190,6 @@ class CoherenceAnalyzer(desc.ResetMixin):
                         self.spectrum[j][k],
                         self.spectrum[k][k])  
 
-        
         return p_coherence        
         
 class SparseCoherenceAnalyzer(desc.ResetMixin):
