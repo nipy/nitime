@@ -367,7 +367,7 @@ def coherency_regularized(time_series,epsilon,alpha,csd_method=None):
 
     .. math::
         Coh_{xy}^R = \frac{(\alpha f_{xx} + \epsilon) ^2}
-		{\alpha^{2}(f_{xx}+\epsilon)(f_{yy}+\epsilon)}
+        {\alpha^{2}(f_{xx}+\epsilon)(f_{yy}+\epsilon)}
 
     See also
     --------
@@ -428,7 +428,7 @@ def coherency_reqularized_calculate(fxy, fxx, fyy, epsilon, alpha):
 
     .. math::
         Coh_{xy}^R = \frac{(\alpha f_{xx} + \epsilon) ^2}
-		{\alpha^{2}(f_{xx}+\epsilon)(f_{yy}+\epsilon)}
+        {\alpha^{2}(f_{xx}+\epsilon)(f_{yy}+\epsilon)}
     """
     
     return ( ( (alpha*fxy + epsilon) ) /
@@ -452,7 +452,7 @@ def coherence_regularized(time_series,epsilon,alpha,csd_method=None):
     large regularization parameter
 
     csd_method: dict, optional
-time_series: n*t float array
+    time_series: n*t float array
        an array of n different time series of length t each
 
     csd_method: dict, optional

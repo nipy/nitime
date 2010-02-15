@@ -39,7 +39,10 @@ __all__ = ['time_unit_conversion',
 import warnings
 import numpy as np
 import scipy.signal as signal
+<<<<<<< HEAD:nitime/timeseries.py
 import scipy.stats as stats
+=======
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
 
 # Our own
 from nitime import descriptors as desc
@@ -65,17 +68,28 @@ time_unit_conversion = {
                         'ns':10**3,  # nanosecond
                         'us':10**6,  # microsecond
                         'ms':10**9,  # millisecond
+<<<<<<< HEAD:nitime/timeseries.py
                         's':10**12,   # second
                         None:10**12, #The default is seconds (when constructor
                                      #doesn't get any input, it defaults to
                                      #None)
+=======
+                        's':10**12,  # second
+                        None:10**12, # The default is seconds (when constructor
+                                     # doesn't get any input, it defaults to
+                                     # None)
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
                         'm':60*10**12,   # minute
                         'h':3600*10**12,   # hour
                         'D':24*3600*10**12,   # day
                         'W':7*24*3600*10**12,   # week #This is not an SI unit
                         }
 
+<<<<<<< HEAD:nitime/timeseries.py
 #The basic resolution: 
+=======
+# The basic resolution: 
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
 base_unit = 'ps'
 
 
@@ -97,7 +111,11 @@ class TimeArray(np.ndarray,TimeInterface):
         """XXX Write a doc-string - in particular, mention the the default
         time-units to be used are seconds (which is why it is set to None) """ 
 
+<<<<<<< HEAD:nitime/timeseries.py
         #Check that the time units provided are sensible: 
+=======
+        # Check that the time units provided are sensible: 
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         if time_unit not in time_unit_conversion:
              raise ValueError('Invalid time unit %s, must be one of %s' %
                              (time_unit,time_unit_conversion.keys()))         
@@ -118,6 +136,7 @@ class TimeArray(np.ndarray,TimeInterface):
             else:
                 data_arr = np.asarray(data)
                 if issubclass(data_arr.dtype.type,np.integer):
+<<<<<<< HEAD:nitime/timeseries.py
                     #If this is an array of integers, cast to 64 bit integer
                     #and convert to the base_unit.
                     #XXX This will fail when even 64 bit is not large enough to
@@ -131,6 +150,21 @@ class TimeArray(np.ndarray,TimeInterface):
         #Make sure you have an array on your hands (for example, if you input
         #an integer, you might have reverted to an integer when multiplying
         #with the conversion factor:            
+=======
+                    # If this is an array of integers, cast to 64 bit integer
+                    # and convert to the base_unit.
+                    #XXX This will fail when even 64 bit is not large enough to
+                    # avoid wrap-around (When you try to make more than 10**6
+                    # seconds). XXX this should be mentioned in the docstring
+                    time = data_arr.astype(np.int64)*conv_fac
+                else:
+                    # Otherwise: first convert, round and then cast to 64 
+                    time=(data_arr*conv_fac).round().astype(np.int64)
+
+        # Make sure you have an array on your hands (for example, if you input
+        # an integer, you might have reverted to an integer when multiplying
+        # with the conversion factor:            
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         time = np.asarray(time).view(cls)
 
         if time_unit is None and isinstance(data, TimeArray):
@@ -144,7 +178,12 @@ class TimeArray(np.ndarray,TimeInterface):
         return time
     
     def __array_wrap__(self, out_arr, context=None):
+<<<<<<< HEAD:nitime/timeseries.py
         #When doing comparisons between TimeArrays, make sure that you 
+=======
+        # When doing comparisons between TimeArrays, make sure that you retun a
+        # boolean array, not a time array: 
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         if out_arr.dtype==bool:
             return np.asarray(out_arr)
         else:
@@ -152,15 +191,24 @@ class TimeArray(np.ndarray,TimeInterface):
 
     def __array_finalize__(self,obj):
         """XXX """
+<<<<<<< HEAD:nitime/timeseries.py
         #Make sure that the TimeArray has the time units set (and not equal to
         #None: 
+=======
+        # Make sure that the TimeArray has the time units set (and not equal to
+        # None: 
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         if not hasattr(self, 'time_unit') or self.time_unit is None:
             if hasattr(obj, 'time_unit'): # looks like view cast
                 self.time_unit = obj.time_unit
             else:
                 self.time_unit = 's'
 
+<<<<<<< HEAD:nitime/timeseries.py
         #Make sure that the conversion factor is set properly: 
+=======
+        # Make sure that the conversion factor is set properly: 
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         if not hasattr(self,'_conversion_factor'):
             if hasattr(obj,'_conversion_factor'):
                 self._conversion_factor = obj._conversion_factor
@@ -170,13 +218,22 @@ class TimeArray(np.ndarray,TimeInterface):
     def __repr__(self):
        """Pass it through the conversion factor"""
 
+<<<<<<< HEAD:nitime/timeseries.py
        #If the input is a single int/float (with no shape) return a 'scalar'
        #time-point: 
+=======
+       # If the input is a single int/float (with no shape) return a 'scalar'
+       # time-point: 
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
        if self.shape == ():
            return "%r %s"%(int(self)/float(self._conversion_factor),
                            self.time_unit)
        
+<<<<<<< HEAD:nitime/timeseries.py
        #Otherwise, return the TimeArray representation:
+=======
+       # Otherwise, return the TimeArray representation:
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
        else:
            return np.ndarray.__repr__(self/float(self._conversion_factor)
             )[:-1] + ", time_unit='%s')" % self.time_unit
@@ -192,10 +249,17 @@ class TimeArray(np.ndarray,TimeInterface):
 
     def __setitem__(self,key,val):
         
+<<<<<<< HEAD:nitime/timeseries.py
     #look at the units - convert the values to what they need to be (in the
     #base_unit) and then delegate to the ndarray.__setitem__
     
        val = val * self._conversion_factor
+=======
+       # look at the units - convert the values to what they need to be (in the
+       # base_unit) and then delegate to the ndarray.__setitem__
+       if not hasattr(val,'_conversion_factor'):
+           val *= self._conversion_factor
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
        return np.ndarray.__setitem__(self,key,val)
     
     def index_at(self,t,tol=None):
@@ -203,19 +267,58 @@ class TimeArray(np.ndarray,TimeInterface):
         t_e = TimeArray(t,time_unit=self.time_unit)
         d = np.abs(self-t_e)
         if tol is None:
+<<<<<<< HEAD:nitime/timeseries.py
             idx=np.where(d==np.min(d))
         else:
             #tolerance is converted into a time-array, so that it does the
             #right thing:
+=======
+            idx=np.where(d==d.min())
+        else:
+            # tolerance is converted into a time-array, so that it does the
+            # right thing:
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
             tol = TimeArray(tol,time_unit=self.time_unit)
             idx=np.where(d<=tol)            
 
         return idx
 
     def at(self,t,tol=None):
+<<<<<<< HEAD:nitime/timeseries.py
         """ Returns the values of the items at the """
         return self[self.index_at(t,tol=tol)]
 
+=======
+        """ Returns the values of the TimeArray object at time t"""
+        return self[self.index_at(t,tol=tol)]
+
+    def min(self,axis=None,out=None):
+        """Returns the minimal time"""
+        # this is a quick fix to return a time and will
+        # be obsolete once we use proper time dtypes
+        if axis is not None:
+            raise NotImplementedError, 'axis argument not implemented'
+        if out is not None:
+            raise NotImplementedError, 'out argument not implemented'
+        if self.ndim:
+            return self[self.argmin()]
+        else:
+            return self
+
+    def max(self,axis=None,out=None):
+        """Returns the maximal time"""
+        # this is a quick fix to return a time and will
+        # be obsolete once we use proper time dtypes
+        if axis is not None:
+            raise NotImplementedError, 'axis argument not implemented'
+        if out is not None:
+            raise NotImplementedError, 'out argument not implemented'
+        if self.ndim:
+            return self[self.argmax()]
+        else:
+            return self
+
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
     def convert_unit(self,time_unit):
         """Convert from one time unit to another in place"""
         #XXX Implement
@@ -254,6 +357,7 @@ class UniformTime(np.ndarray,TimeInterface):
                 sampling_interval=None,t0=0,time_unit=None, copy=False):
         """Create a new UniformTime """
 
+<<<<<<< HEAD:nitime/timeseries.py
         #Sanity checks. There are different valid combinations of inputs
         tspec = tuple(x is not None for x in
                       [sampling_interval,sampling_rate,length,duration])
@@ -269,10 +373,28 @@ class UniformTime(np.ndarray,TimeInterface):
             #rate, duration:
             (False,True,False,True),
             #length,duration:
+=======
+        # Sanity checks. There are different valid combinations of inputs
+        tspec = tuple(x is not None for x in
+                      [sampling_interval,sampling_rate,length,duration])
+
+        # The valid configurations 
+        valid_tspecs=[
+            # interval, length:
+            (True,False,True,False),
+            # interval, duration:
+            (True,False,False,True),
+            # rate, length:
+            (False,True,True,False),
+            # rate, duration:
+            (False,True,False,True),
+            # length, duration:
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
             (False,False,True,True)
             ]
         
         if isinstance(data,UniformTime):
+<<<<<<< HEAD:nitime/timeseries.py
             #Assuming data was given, some other tspecs become valid:
             valid_w_data=[
                 #nothing:
@@ -284,6 +406,19 @@ class UniformTime(np.ndarray,TimeInterface):
                 #length:
                 (False,False,True,False),
                 #duration:
+=======
+            # Assuming data was given, some other tspecs become valid:
+            valid_w_data=[
+                # nothing:
+                (False,False,False,False),
+                # interval:
+                (True,False,False,False),
+                # rate
+                (False,True,False,False),
+                # length:
+                (False,False,True,False),
+                # duration:
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
                 (False,False,False,True)
                 ]        
 
@@ -294,11 +429,19 @@ class UniformTime(np.ndarray,TimeInterface):
             raise ValueError("Invalid time specification," +
             "You provided: %s see docstring." %(" ".join(args)))
             #XXX Needs more engineering in here in order to tell the user not
+<<<<<<< HEAD:nitime/timeseries.py
             #only what they provided, but also what more they should provide in
             #order for this to be valid 
             
         if isinstance(data,UniformTime):
             #Get attributes from the UniformTime object and transfer those over:
+=======
+            # only what they provided, but also what more they should provide in
+            # order for this to be valid 
+            
+        if isinstance(data,UniformTime):
+            # Get attributes from the UniformTime object and transfer those over:
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
             if tspec==valid_w_data[0]:
                 sampling_rate=data.sampling_rate
                 duration = data.duration
@@ -316,8 +459,13 @@ class UniformTime(np.ndarray,TimeInterface):
             elif tspec==valid_w_data[4]:
                 sampling_rate=data.sampling_rate
             if time_unit is None:
+<<<<<<< HEAD:nitime/timeseries.py
                 #If the user didn't ask to change the time-unit, use the
                 #time-unit from the object you got:
+=======
+                # If the user didn't ask to change the time-unit, use the
+                # time-unit from the object you got:
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
                 time_unit = data.time_unit
         
         # Check that the time units provided are sensible: 
@@ -325,7 +473,11 @@ class UniformTime(np.ndarray,TimeInterface):
             raise ValueError('Invalid time unit %s, must be one of %s' %
                          (time_unit,time_unit_conversion.keys()))         
 
+<<<<<<< HEAD:nitime/timeseries.py
         #Calculate the sampling_interval or sampling_rate:
+=======
+        # Calculate the sampling_interval or sampling_rate:
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         if sampling_interval is None:
             if isinstance(sampling_rate,Frequency):
                 sampling_interval=sampling_rate.to_period()
@@ -345,7 +497,11 @@ class UniformTime(np.ndarray,TimeInterface):
                 sampling_rate = Frequency(1.0/sampling_interval,
                                           time_unit=time_unit)
 
+<<<<<<< HEAD:nitime/timeseries.py
         #Calculate the duration, if that is not defined:
+=======
+        # Calculate the duration, if that is not defined:
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         if duration is None:
             duration=length*sampling_interval
 
@@ -367,6 +523,7 @@ class UniformTime(np.ndarray,TimeInterface):
         t0=TimeArray(t0,time_unit=time_unit)
         sampling_interval=TimeArray(sampling_interval,time_unit=time_unit)
 
+<<<<<<< HEAD:nitime/timeseries.py
         #Check that the inputs are consistent, before making the array
         #itself:
         if duration<sampling_interval:
@@ -378,6 +535,19 @@ class UniformTime(np.ndarray,TimeInterface):
         #                  np.int64(sampling_interval),dtype=np.int64)
 
         #But it's unclear whether that's really the behavior we want?
+=======
+        # Check that the inputs are consistent, before making the array
+        # itself:
+        if duration<sampling_interval:
+            raise ValueError('length/duration too short for the sampling_interval/sampling_rate')
+        
+        # in order for time[-1]-time[0]==duration to be true (which it should)
+        # add the samling_interval to the stop value: 
+        # time = np.arange(np.int64(t0),np.int64(t0+duration+sampling_interval),
+        #                  np.int64(sampling_interval),dtype=np.int64)
+
+        # But it's unclear whether that's really the behavior we want?
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         time = np.arange(np.int64(t0),np.int64(t0+duration),
                          np.int64(sampling_interval),dtype=np.int64)
 
@@ -392,8 +562,13 @@ class UniformTime(np.ndarray,TimeInterface):
         return time
 
     def __array_wrap__(self, out_arr, context=None):
+<<<<<<< HEAD:nitime/timeseries.py
         #When doing comparisons between TimeArrays, make sure that you retun a
         #boolean array, not a time array: 
+=======
+        # When doing comparisons between UniformTime, make sure that you retun a
+        # boolean array, not a time array: 
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         if out_arr.dtype==bool:
             return np.asarray(out_arr)
         else:
@@ -401,15 +576,24 @@ class UniformTime(np.ndarray,TimeInterface):
 
     def __array_finalize__(self,obj):
         """XXX """
+<<<<<<< HEAD:nitime/timeseries.py
         #Make sure that the UniformTime has the time units set (and not equal to
         #None): 
+=======
+        # Make sure that the UniformTime has the time units set (and not equal to
+        # None): 
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         if not hasattr(self, 'time_unit') or self.time_unit is None:
             if hasattr(obj, 'time_unit'): # looks like view cast
                 self.time_unit = obj.time_unit
             else:
                 self.time_unit = 's'
 
+<<<<<<< HEAD:nitime/timeseries.py
         #Make sure that the conversion factor is set properly: 
+=======
+        # Make sure that the conversion factor is set properly: 
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         if not hasattr(self,'_conversion_factor'):
             if hasattr(obj,'_conversion_factor'):
                 self._conversion_factor = obj._conversion_factor
@@ -433,7 +617,11 @@ class UniformTime(np.ndarray,TimeInterface):
     def __getitem__(self,key):
         # return scalar TimeArray in case key is integer
         if isinstance(key,int):
+<<<<<<< HEAD:nitime/timeseries.py
             return self[[key]].reshape(())
+=======
+            return self[[key]].reshape(()).view(TimeArray)
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         elif isinstance(key,float):
             return self.at(key)
         else:
@@ -441,12 +629,73 @@ class UniformTime(np.ndarray,TimeInterface):
 
     def __setitem__(self,key,val):
         
+<<<<<<< HEAD:nitime/timeseries.py
     #look at the units - convert the values to what they need to be (in the
     #base_unit) and then delegate to the ndarray.__setitem__
     
        val = val * self._conversion_factor
        return np.ndarray.__setitem__(self,key,val)
 
+=======
+       # look at the units - convert the values to what they need to be (in the
+       # base_unit) and then delegate to the ndarray.__setitem__    
+       if not hasattr(val,'_conversion_factor'):
+           val *= self._conversion_factor
+       return np.ndarray.__setitem__(self,key,val)
+
+    def index_at(self,t,boolean=False):
+        """Find the index that corresponds to the time bin containing t
+
+           Returns boolean indices if boolean=True and integer indeces otherwise.
+        """
+
+        # cast t into time
+        ta = TimeArray(t,time_unit=self.time_unit)
+
+        # check that index is within range
+        if ta.min() < self.t0 or ta.max() >= self.t0 + self.duration:
+            raise ValueError, 'index out of range'
+        
+        idx = ta.view(np.ndarray)//int(self.sampling_interval)
+        if boolean:
+            bool_idx = np.zeros(len(self),dtype=bool)
+            bool_idx[idx] = True
+            return bool_idx
+        elif ta.ndim == 0:
+            return idx[()]
+        else:
+            return idx
+
+    def at(self,t,tol=None):
+        """ Returns the values of the UniformTime object at time t"""
+        return TimeArray(self[self.index_at(t)],time_unit=self.time_unit)
+
+    def min(self,axis=None,out=None):
+        """Returns the minimal time"""
+        # this is a quick fix to return a time and will
+        # be obsolete once we use proper time dtypes
+        if axis is not None:
+            raise NotImplementedError, 'axis argument not implemented'
+        if out is not None:
+            raise NotImplementedError, 'out argument not implemented'
+        if self.ndim:
+            return self[self.argmin()]
+        else:
+            return self
+
+    def max(self,axis=None,out=None):
+        """Returns the maximal time"""
+        # this is a quick fix to return a time and will
+        # be obsolete once we use proper time dtypes
+        if axis is not None:
+            raise NotImplementedError, 'axis argument not implemented'
+        if out is not None:
+            raise NotImplementedError, 'out argument not implemented'
+        if self.ndim:
+            return self[self.argmax()]
+        else:
+            return self
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
 
 ##Frequency:
 
@@ -718,6 +967,43 @@ class UniformTimeSeries(TimeSeriesBase):
                 else:
                    sampling_rate = Frequency(1.0/sampling_interval,
                                           time_unit=time_unit)
+<<<<<<< HEAD:nitime/timeseries.py
+=======
+
+            
+        #Calculate the duration, if that is not defined:
+        if duration is None:
+            duration=np.asarray(data).shape[-1]*sampling_interval
+
+        if t0 is None:
+           t0=0
+           
+        # Make sure to grab the time unit from the inputs, if it is provided: 
+        if time_unit is None:
+            #If you gave us a duration with time_unit attached 
+            if isinstance(duration,TimeInterface):
+                time_unit = duration.time_unit
+            #Otherwise, you might have given us a sampling_interval with a
+            #time_unit attached:
+            elif isinstance(sampling_interval,TimeInterface):
+                time_unit = sampling_interval.time_unit
+
+        #Otherwise, you can still call the common constructor to get the real
+        #object initialized, with time_unit set to None and that will generate
+        #the object with time_unit set to 's':  
+        TimeSeriesBase.__init__(self,data,time_unit)
+    
+        self.time_unit = time_unit
+        self.sampling_interval = TimeArray(sampling_interval,
+                                           time_unit=self.time_unit) 
+        self.t0 = TimeArray(t0,time_unit=self.time_unit)
+        self.sampling_rate = sampling_rate
+        self.duration = TimeArray(duration,time_unit=self.time_unit)
+
+    def at(self,t,tol=None):
+        """ Returns the values of the TimeArray object at time t"""
+        return self.data[...,self.time.index_at(t)]
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
 
             
         #Calculate the duration, if that is not defined:
@@ -1543,6 +1829,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                                  sampling_interval=self.sampling_interval,
                                  t0=self._offset*self.sampling_interval,
                                  time_unit=self.time_unit)
+<<<<<<< HEAD:nitime/timeseries.py
 
 
     @desc.setattr_on_read
@@ -1694,4 +1981,124 @@ class FilterAnalyzer(desc.ResetMixin):
                                  sampling_rate=self.sampling_rate,
                                  time_unit=self.time_unit) 
 
+=======
     
+        
+class HilbertAnalyzer(desc.ResetMixin):
+
+    """Analyzer class for extracting the Hilbert transform """ 
+
+    def __init__(self,time_series,lb=0,ub=None):
+        """Constructor function for the Hilbert analyzer class.
+
+        Parameters
+        ----------
+        
+        lb,ub: the upper and lower bounds of the frequency range for which the
+        transform is done, where filtering is done using a simple curtailment
+        of the Fourier domain 
+
+        """
+>>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
+    
+        data_in = time_series.data 
+
+        self.sampling_rate = time_series.sampling_rate
+        freqs = tsu.get_freqs(self.sampling_rate,data_in.shape[-1])
+
+        if ub is None:
+            ub = freqs[-1]
+        
+        power = np.fft.fft(data_in)
+        idx_0 = np.hstack([np.where(freqs<lb)[0],np.where(freqs>ub)[0]])
+        power[...,idx_0] = 0
+        power[...,-1*idx_0] = 0 #Take care of the negative frequencies
+        data_out = np.fft.ifft(power)
+
+        self.data = np.real(data_out) #In order to make sure that you are not
+                                      #left with float-precision residual
+                                      #complex parts
+                                      
+    @desc.setattr_on_read
+    def _analytic(self):
+        return UniformTimeSeries(data=signal.hilbert(self.data),
+                                 sampling_rate=self.sampling_rate)
+        
+    @desc.setattr_on_read
+    def magnitude(self):
+        return UniformTimeSeries(data=np.abs(self._analytic.data),
+                                 sampling_rate=self.sampling_rate)
+                                 
+    @desc.setattr_on_read
+    def phase(self):
+        return UniformTimeSeries(data=np.angle(self._analytic.data),
+                                 sampling_rate=self.sampling_rate)
+
+    @desc.setattr_on_read
+    def real(self):
+        return UniformTimeSeries(data=np.real(self._analytic.data),
+                                 sampling_rate=self.sampling_rate)
+    
+
+
+class FilterAnalyzer(desc.ResetMixin):
+
+    """ A class for performing filtering operations on time-series and
+    producing the filtered versions of the time-series"""
+
+    
+    def __init__(self,time_series,lb=0,ub=None,boxcar_iterations=2):
+        self.data = time_series.data 
+        self.sampling_rate = time_series.sampling_rate
+        self.freqs = tsu.get_freqs(self.sampling_rate,self.data.shape[-1])
+        self.ub=ub
+        self.lb=lb
+        self.time_unit=time_series.time_unit
+        self._boxcar_iterations=boxcar_iterations
+
+        
+    @desc.setattr_on_read
+    def filtered_fourier(self):
+
+        """Filter the time-series by passing it to the Fourier domain and null
+        out the frequency bands outside of the range [lb,ub] """
+        
+        if self.ub is None:
+            self.ub = self.freqs[-1]
+        
+        power = np.fft.fft(self.data)
+        idx_0 = np.hstack([np.where(self.freqs<self.lb)[0],
+                           np.where(self.freqs>self.ub)[0]])
+        
+        power[...,idx_0] = 0
+        #power[...,-1*idx_0] = 0 #Take care of the negative frequencies
+        data_out = np.fft.ifft(power)
+
+        data_out = np.real(data_out) #In order to make sure that you are not
+                                      #left with float-precision residual
+                                      #complex parts
+
+        return UniformTimeSeries(data=data_out,
+                                 sampling_rate=self.sampling_rate,
+                                 time_unit=self.time_unit) 
+
+    @desc.setattr_on_read
+    def filtered_boxcar(self):
+        """ Filte the time-series by a boxcar filter. The low pass filter is
+    implemented by convolving with a boxcar function of the right length and
+    amplitude and the high-pass filter is implemented by subtracting a low-pass
+    version (as above) from the signal"""
+
+        if self.ub is not None:
+            ub = self.ub/self.sampling_rate
+        else:
+            ub=1.0
+            
+        lb = self.lb/self.sampling_rate
+
+        data_out = tsa.boxcar_filter(self.data,lb=lb,ub=ub,
+                                     n_iterations=self._boxcar_iterations)
+
+        return UniformTimeSeries(data=data_out,
+                                 sampling_rate=self.sampling_rate,
+                                 time_unit=self.time_unit) 
