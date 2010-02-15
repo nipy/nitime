@@ -576,24 +576,15 @@ class UniformTime(np.ndarray,TimeInterface):
 
     def __array_finalize__(self,obj):
         """XXX """
-<<<<<<< HEAD:nitime/timeseries.py
-        #Make sure that the UniformTime has the time units set (and not equal to
-        #None): 
-=======
         # Make sure that the UniformTime has the time units set (and not equal to
         # None): 
->>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         if not hasattr(self, 'time_unit') or self.time_unit is None:
             if hasattr(obj, 'time_unit'): # looks like view cast
                 self.time_unit = obj.time_unit
             else:
                 self.time_unit = 's'
 
-<<<<<<< HEAD:nitime/timeseries.py
-        #Make sure that the conversion factor is set properly: 
-=======
         # Make sure that the conversion factor is set properly: 
->>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         if not hasattr(self,'_conversion_factor'):
             if hasattr(obj,'_conversion_factor'):
                 self._conversion_factor = obj._conversion_factor
@@ -617,26 +608,13 @@ class UniformTime(np.ndarray,TimeInterface):
     def __getitem__(self,key):
         # return scalar TimeArray in case key is integer
         if isinstance(key,int):
-<<<<<<< HEAD:nitime/timeseries.py
-            return self[[key]].reshape(())
-=======
             return self[[key]].reshape(()).view(TimeArray)
->>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
         elif isinstance(key,float):
             return self.at(key)
         else:
             return np.ndarray.__getitem__(self,key)
 
     def __setitem__(self,key,val):
-        
-<<<<<<< HEAD:nitime/timeseries.py
-    #look at the units - convert the values to what they need to be (in the
-    #base_unit) and then delegate to the ndarray.__setitem__
-    
-       val = val * self._conversion_factor
-       return np.ndarray.__setitem__(self,key,val)
-
-=======
        # look at the units - convert the values to what they need to be (in the
        # base_unit) and then delegate to the ndarray.__setitem__    
        if not hasattr(val,'_conversion_factor'):
@@ -695,7 +673,6 @@ class UniformTime(np.ndarray,TimeInterface):
             return self[self.argmax()]
         else:
             return self
->>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
 
 ##Frequency:
 
@@ -967,8 +944,6 @@ class UniformTimeSeries(TimeSeriesBase):
                 else:
                    sampling_rate = Frequency(1.0/sampling_interval,
                                           time_unit=time_unit)
-<<<<<<< HEAD:nitime/timeseries.py
-=======
 
             
         #Calculate the duration, if that is not defined:
@@ -1003,7 +978,6 @@ class UniformTimeSeries(TimeSeriesBase):
     def at(self,t,tol=None):
         """ Returns the values of the TimeArray object at time t"""
         return self.data[...,self.time.index_at(t)]
->>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
 
             
         #Calculate the duration, if that is not defined:
@@ -1829,8 +1803,6 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                                  sampling_interval=self.sampling_interval,
                                  t0=self._offset*self.sampling_interval,
                                  time_unit=self.time_unit)
-<<<<<<< HEAD:nitime/timeseries.py
-
 
     @desc.setattr_on_read
     def ets(self):
@@ -1981,124 +1953,3 @@ class FilterAnalyzer(desc.ResetMixin):
                                  sampling_rate=self.sampling_rate,
                                  time_unit=self.time_unit) 
 
-=======
-    
-        
-class HilbertAnalyzer(desc.ResetMixin):
-
-    """Analyzer class for extracting the Hilbert transform """ 
-
-    def __init__(self,time_series,lb=0,ub=None):
-        """Constructor function for the Hilbert analyzer class.
-
-        Parameters
-        ----------
-        
-        lb,ub: the upper and lower bounds of the frequency range for which the
-        transform is done, where filtering is done using a simple curtailment
-        of the Fourier domain 
-
-        """
->>>>>>> 514dfd4a896d0fbcb6b061a5b67bd5b1144d7fb4:nitime/timeseries.py
-    
-        data_in = time_series.data 
-
-        self.sampling_rate = time_series.sampling_rate
-        freqs = tsu.get_freqs(self.sampling_rate,data_in.shape[-1])
-
-        if ub is None:
-            ub = freqs[-1]
-        
-        power = np.fft.fft(data_in)
-        idx_0 = np.hstack([np.where(freqs<lb)[0],np.where(freqs>ub)[0]])
-        power[...,idx_0] = 0
-        power[...,-1*idx_0] = 0 #Take care of the negative frequencies
-        data_out = np.fft.ifft(power)
-
-        self.data = np.real(data_out) #In order to make sure that you are not
-                                      #left with float-precision residual
-                                      #complex parts
-                                      
-    @desc.setattr_on_read
-    def _analytic(self):
-        return UniformTimeSeries(data=signal.hilbert(self.data),
-                                 sampling_rate=self.sampling_rate)
-        
-    @desc.setattr_on_read
-    def magnitude(self):
-        return UniformTimeSeries(data=np.abs(self._analytic.data),
-                                 sampling_rate=self.sampling_rate)
-                                 
-    @desc.setattr_on_read
-    def phase(self):
-        return UniformTimeSeries(data=np.angle(self._analytic.data),
-                                 sampling_rate=self.sampling_rate)
-
-    @desc.setattr_on_read
-    def real(self):
-        return UniformTimeSeries(data=np.real(self._analytic.data),
-                                 sampling_rate=self.sampling_rate)
-    
-
-
-class FilterAnalyzer(desc.ResetMixin):
-
-    """ A class for performing filtering operations on time-series and
-    producing the filtered versions of the time-series"""
-
-    
-    def __init__(self,time_series,lb=0,ub=None,boxcar_iterations=2):
-        self.data = time_series.data 
-        self.sampling_rate = time_series.sampling_rate
-        self.freqs = tsu.get_freqs(self.sampling_rate,self.data.shape[-1])
-        self.ub=ub
-        self.lb=lb
-        self.time_unit=time_series.time_unit
-        self._boxcar_iterations=boxcar_iterations
-
-        
-    @desc.setattr_on_read
-    def filtered_fourier(self):
-
-        """Filter the time-series by passing it to the Fourier domain and null
-        out the frequency bands outside of the range [lb,ub] """
-        
-        if self.ub is None:
-            self.ub = self.freqs[-1]
-        
-        power = np.fft.fft(self.data)
-        idx_0 = np.hstack([np.where(self.freqs<self.lb)[0],
-                           np.where(self.freqs>self.ub)[0]])
-        
-        power[...,idx_0] = 0
-        #power[...,-1*idx_0] = 0 #Take care of the negative frequencies
-        data_out = np.fft.ifft(power)
-
-        data_out = np.real(data_out) #In order to make sure that you are not
-                                      #left with float-precision residual
-                                      #complex parts
-
-        return UniformTimeSeries(data=data_out,
-                                 sampling_rate=self.sampling_rate,
-                                 time_unit=self.time_unit) 
-
-    @desc.setattr_on_read
-    def filtered_boxcar(self):
-        """ Filte the time-series by a boxcar filter. The low pass filter is
-    implemented by convolving with a boxcar function of the right length and
-    amplitude and the high-pass filter is implemented by subtracting a low-pass
-    version (as above) from the signal"""
-
-        if self.ub is not None:
-            ub = self.ub/self.sampling_rate
-        else:
-            ub=1.0
-            
-        lb = self.lb/self.sampling_rate
-
-        data_out = tsa.boxcar_filter(self.data,lb=lb,ub=ub,
-                                     n_iterations=self._boxcar_iterations)
-
-        return UniformTimeSeries(data=data_out,
-                                 sampling_rate=self.sampling_rate,
-                                 time_unit=self.time_unit) 
