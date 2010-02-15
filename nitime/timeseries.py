@@ -1058,4 +1058,3 @@ def concatenate_time_series(time_series_list):
     # (concatenate_uniform_time_series)
     raise NotImplementedError
 
-

@@ -16,7 +16,7 @@ import scipy.stats as stats
 from nitime import descriptors as desc
 from nitime import utils as tsu
 from nitime import algorithms as tsa
-from nitime.timeseries import UniformTimeSeries
+from nitime import timeseries as ts
 
 ##Spectral estimation: 
 class SpectralAnalyzer(desc.ResetMixin):
@@ -338,8 +338,10 @@ class CorrelationAnalyzer(desc.ResetMixin):
         idx = tsu.tril_indices(tseries_length,-1)
         xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
 
-        return UniformTimeSeries(xcorr,sampling_interval=self.sampling_interval,
-                                 t0=-self.sampling_interval*t_points+1)
+        return ts.UniformTimeSeries(xcorr,
+                                    sampling_interval=self.sampling_interval,
+                                    t0=-self.sampling_interval*t_points+1)
+    
     @desc.setattr_on_read
     def xcorr_norm(self):
         """The cross-correlation between every pairwise combination time-series
@@ -367,8 +369,9 @@ class CorrelationAnalyzer(desc.ResetMixin):
         idx = tsu.tril_indices(tseries_length,-1)
         xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
 
-        return UniformTimeSeries(xcorr,sampling_interval=self.sampling_interval,
-                                 t0=-self.sampling_interval*t_points)
+        return ts.UniformTimeSeries(xcorr,
+                                    sampling_interval=self.sampling_interval,
+                                    t0=-self.sampling_interval*t_points)
     
 ##Event-related analysis:
 class EventRelatedAnalyzer(desc.ResetMixin): 
@@ -491,7 +494,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
         h = np.array(h).squeeze()
 
-        return UniformTimeSeries(data=h,sampling_rate=self.sampling_rate,
+        return ts.UniformTimeSeries(data=h,sampling_rate=self.sampling_rate,
                                  t0=-1*self.len_hrf*self.sampling_interval,
                                  time_unit=self.time_unit)
 
@@ -550,7 +553,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         ## first time point, because the functions 'look' back and forth for
         ## len_hrf bins
 
-        return UniformTimeSeries(data=h,
+        return ts.UniformTimeSeries(data=h,
                                  sampling_rate=self.sampling_rate,
                                  t0 = -1*self.len_hrf*self.sampling_interval,
                                  time_unit=self.time_unit)
@@ -591,7 +594,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 #            idx = np.where(e_flat==e)
 #            idx_new = np.array([idx[0]+i for i in range(self.len_hrf)])
 
-        return UniformTimeSeries(data=h,
+        return ts.UniformTimeSeries(data=h,
                                  sampling_interval=self.sampling_interval,
                                  t0=self._offset*self.sampling_interval,
                                  time_unit=self.time_unit)
@@ -621,7 +624,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                 
         h = np.array(h).squeeze()
 
-        return UniformTimeSeries(data=h,
+        return ts.UniformTimeSeries(data=h,
                                  sampling_interval=self.sampling_interval,
                                  t0=self._offset*self.sampling_interval,
                                  time_unit=self.time_unit)
@@ -663,22 +666,22 @@ class HilbertAnalyzer(desc.ResetMixin):
                                       
     @desc.setattr_on_read
     def _analytic(self):
-        return UniformTimeSeries(data=signal.hilbert(self.data),
+        return ts.UniformTimeSeries(data=signal.hilbert(self.data),
                                  sampling_rate=self.sampling_rate)
         
     @desc.setattr_on_read
     def magnitude(self):
-        return UniformTimeSeries(data=np.abs(self._analytic.data),
+        return ts.UniformTimeSeries(data=np.abs(self._analytic.data),
                                  sampling_rate=self.sampling_rate)
                                  
     @desc.setattr_on_read
     def phase(self):
-        return UniformTimeSeries(data=np.angle(self._analytic.data),
+        return ts.UniformTimeSeries(data=np.angle(self._analytic.data),
                                  sampling_rate=self.sampling_rate)
 
     @desc.setattr_on_read
     def real(self):
-        return UniformTimeSeries(data=np.real(self._analytic.data),
+        return ts.UniformTimeSeries(data=np.real(self._analytic.data),
                                  sampling_rate=self.sampling_rate)
     
 
@@ -720,7 +723,7 @@ class FilterAnalyzer(desc.ResetMixin):
                                       #left with float-precision residual
                                       #complex parts
 
-        return UniformTimeSeries(data=data_out,
+        return ts.UniformTimeSeries(data=data_out,
                                  sampling_rate=self.sampling_rate,
                                  time_unit=self.time_unit) 
 
@@ -741,7 +744,7 @@ class FilterAnalyzer(desc.ResetMixin):
         data_out = tsa.boxcar_filter(self.data,lb=lb,ub=ub,
                                      n_iterations=self._boxcar_iterations)
 
-        return UniformTimeSeries(data=data_out,
+        return ts.UniformTimeSeries(data=data_out,
                                  sampling_rate=self.sampling_rate,
                                  time_unit=self.time_unit) 
 
