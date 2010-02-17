@@ -18,6 +18,65 @@ from nitime import utils as tsu
 from nitime import algorithms as tsa
 from nitime import timeseries as ts
 
+class BaseAnalyzer(desc.ResetMixin):
+    """Analyzer that implements the default data flow.
+
+       All analyzers inherit from this class at least have to
+       * implement a __init__ function
+       * define a set of parameters
+       * define the 'output' property
+
+       >>> A = BaseAnalyzer()
+       >>> A
+       BaseAnalyzer(sample_parameter='default value')
+       >>> A('data')
+       'data'
+       >>> A('new data')
+       'new data'
+       >>> A[2]
+       'w'
+    """
+
+    @desc.setattr_on_read
+    def parameters(self):
+        from inspect import getargspec
+        params = getargspec(self.__init__).args
+        params.remove('self')
+        params.remove('input')
+        return params
+
+    def __init__(self,input=None,sample_parameter='default value'):
+        self.input = input
+        self.sample_parameter = sample_parameter
+
+    @desc.setattr_on_read
+    def output(self):
+        """This function currently does nothing and
+            is meant to be overwritten by the specific
+            analyzer sub-class.
+        """
+        return self.input
+
+    def __call__(self,input):
+        """This fuction runs the analysis on new input
+           data and returns the output data.
+        """
+        self.reset()
+        self.input = input
+        return self.output
+
+    def __getitem__(self,key):
+        try:
+            return self.output[key]
+        except TypeError:
+            raise NotImplementedError, 'This analyzer does not support getitem'
+
+    def __repr__(self):
+        params = ', '.join(['%s=%r'%(p,getattr(self,p,'MISSING')) for p in self.parameters])
+        return '%s(%s)'%(self.__class__.__name__,params)
+    
+
+
 ##Spectral estimation: 
 class SpectralAnalyzer(desc.ResetMixin):
 
@@ -457,7 +516,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         """Calculate the FIR event-related estimated of the HRFs for different
         kinds of events
 
-       Returns
+        Returns
         -------
 
         A time-series object, shape[:-2] are dimensions corresponding to the to
@@ -749,104 +808,12 @@ class FilterAnalyzer(desc.ResetMixin):
                                  time_unit=self.time_unit) 
 
 #TODO:
-# * Write tests for various morlet wavelets
-# * Possibly write 'full morlet wavelet' function
 # * Write test for MorletWaveletAnalyzer
-def wfmorlet_fft(f0,sd,samplingrate,ns=5,nt=None):
-    """
-    returns a complex morlet wavelet in the frequency domain
-
-    :Parameters:
-        f0 : center frequency
-        sd : standard deviation of center frequency
-        sampling_rate : samplingrate
-        ns : window length in number of stanard deviations
-        nt : window length in number of sample points
-    """
-    if nt==None:
-        st = 1./(2.*np.pi*sd)
-        nt = 2*int(ns*st*sampling_rate)+1
-    f = np.fft.fftfreq(nt,1./sampling_rate)
-    wf = 2*np.exp(-(f-f0)**2/(2*sd**2))*np.sqrt(sampling_rate/(np.sqrt(np.pi)*sd))
-    wf[f<0] = 0
-    wf[f==0] /= 2
-    return wf
-
-def wmorlet(f0,sd,sampling_rate,ns=5,normed='area'):
-    """
-    returns a complex morlet wavelet in the time domain
-
-    :Parameters:
-        f0 : center frequency
-        sd : standard deviation of frequency
-        sampling_rate : samplingrate
-        ns : window length in number of stanard deviations
-    """
-    st = 1./(2.*np.pi*sd)
-    w_sz = float(int(ns*st*sampling_rate)) # half time window size
-    t = np.arange(-w_sz,w_sz+1,dtype=float)/sampling_rate
-    if normed == 'area':
-        w = np.exp(-t**2/(2.*st**2))*np.exp(
-            2j*np.pi*f0*t)/np.sqrt(np.sqrt(np.pi)*st*sampling_rate)
-    elif normed == 'max':
-        w = np.exp(-t**2/(2.*st**2))*np.exp(
-            2j*np.pi*f0*t)*2*sd*np.sqrt(2*np.pi)/sampling_rate
-    else:
-        assert 0, 'unknown norm %s'%normed
-    return w
-
-def wlogmorlet_fft(f0,sd,sampling_rate,ns=5,nt=None):
-    """
-    returns a complex log morlet wavelet in the frequency domain
-
-    :Parameters:
-        f0 : center frequency
-        sd : standard deviation
-        sampling_rate : samplingrate
-        ns : window length in number of stanard deviations
-        nt : window length in number of sample points
-    """
-    if nt==None:
-        st = 1./(2.*np.pi*sd)
-        nt = 2*int(ns*st*sampling_rate)+1
-    f = np.fft.fftfreq(nt,1./sampling_rate)
-
-    sfl = np.log(1+1.*sd/f0)
-    wf = 2*np.exp(-(np.log(f)-np.log(f0))**2/(2*sfl**2))*np.sqrt(sampling_rate/(np.sqrt(np.pi)*sd))
-    wf[f<0] = 0
-    wf[f==0] /= 2
-    return wf
-
-def wlogmorlet(f0,sd,sampling_rate,ns=5,normed='area'):
-    """
-    returns a complex log morlet wavelet in the time domain
-
-    :Parameters:
-        f0 : center frequency
-        sd : standard deviation of frequency
-        sampling_rate : samplingrate
-        ns : window length in number of stanard deviations
-    """
-    st = 1./(2.*np.pi*sd)
-    w_sz = int(ns*st*sampling_rate) # half time window size
-    wf = wlogmorlet_fft(f0,sd,sampling_rate=sampling_rate,nt=2*w_sz+1)
-    w = np.fft.fftshift(np.fft.ifft(wf))
-    if normed == 'area':
-        w /= w.real.sum()
-    elif normed == 'max':
-        w /= w.real.max()
-    elif normed == 'energy':
-        w /= np.sqrt((w**2).sum())
-    else:
-        assert 0, 'unknown norm %s'%normed
-    return w
-
-
-class MorletWaveletAnalyzer(desc.ResetMixin):
+class MorletWaveletAnalyzer(BaseAnalyzer):
 
     """Analyzer class for extracting the (complex) Morlet wavelet transform """ 
 
-    def __init__(self,time_series,freqs=None,sd_rel=.2,sd=None,f_min=None,f_max=None,nfreqs=None,
+    def __init__(self,input=None,freqs=None,sd_rel=.2,sd=None,f_min=None,f_max=None,nfreqs=None,
                  log_spacing=False, log_morlet=False):
         """Constructor function for the Hilbert analyzer class.
 
@@ -880,14 +847,24 @@ class MorletWaveletAnalyzer(desc.ResetMixin):
           If True, a log-Morlet wavelet is used, if False, a regular Morlet
           wavelet is used. Default: False
         """
-    
-        self.data = time_series.data
-        self.sampling_rate = time_series.sampling_rate
+
+        self.freqs = freqs
+        self.sd_rel = sd_rel
+        self.sd = sd
+        self.f_min = f_min
+        self.f_max = f_max
+        self.nfreqs = nfreqs
+        self.log_spacing = log_spacing
+        self.log_morlet = log_morlet
+
+        if input is not None:
+            self.data = input.data
+            self.sampling_rate = input.sampling_rate
 
         if log_morlet:
-            self.wavelet = wlogmorlet
+            self.wavelet = tsa.wlogmorlet
         else:
-            self.wavelet = wmorlet
+            self.wavelet = tsa.wmorlet
 
         if freqs is not None:
             self.freqs = np.array(freqs)
@@ -900,11 +877,10 @@ class MorletWaveletAnalyzer(desc.ResetMixin):
             raise NotImplementedError
 
         if sd is None:
-            self.sd = self.freqs*sd_rel
-
+            self.sd = self.freqs*self.sd_rel
 
     @desc.setattr_on_read
-    def analytic(self):
+    def output(self):
         a_signal = ts.UniformTimeSeries(data=np.zeros(self.freqs.shape+self.data.shape,dtype='D'),
                                         sampling_rate=self.sampling_rate)
         if self.freqs.ndim == 0:
@@ -922,20 +898,20 @@ class MorletWaveletAnalyzer(desc.ResetMixin):
 
     @desc.setattr_on_read
     def amplitude(self):
-        return ts.UniformTimeSeries(data=np.abs(self.analytic.data),
+        return ts.UniformTimeSeries(data=np.abs(self.output.data),
                                     sampling_rate=self.sampling_rate)
                                  
     @desc.setattr_on_read
     def phase(self):
-        return ts.UniformTimeSeries(data=np.angle(self.analytic.data),
+        return ts.UniformTimeSeries(data=np.angle(self.output.data),
                                     sampling_rate=self.sampling_rate)
 
     @desc.setattr_on_read
     def real(self):
-        return ts.UniformTimeSeries(data=self.analytic.data.real,
+        return ts.UniformTimeSeries(data=self.output.data.real,
                                     sampling_rate=self.sampling_rate)
     
     @desc.setattr_on_read
     def imag(self):
-        return ts.UniformTimeSeries(data=self.analytic.data.imag,
+        return ts.UniformTimeSeries(data=self.output.data.imag,
                                     sampling_rate=self.sampling_rate)
