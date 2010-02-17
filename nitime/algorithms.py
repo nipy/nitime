@@ -1446,7 +1446,7 @@ def event_related_zscored(tseries,events,Tbefore, Tafter, Fs=1):
              / stdSurr )
 
 
-def gamma_hrf(tau,n,delta,t_max,Fs=1.0,a=1):
+def gamma_hrf(tau,n,delta,duration,Fs=1.0,A=1):
 
     r"""A gamma function hrf model, with two parameters, based on [Boynton1996]_
 
@@ -1461,9 +1461,11 @@ def gamma_hrf(tau,n,delta,t_max,Fs=1.0,a=1):
     delta: a pure delay, allowing for an additional delay from the onset of the
     time-series to the beginning of the gamma hrf
 
+    length: float, the length of the HRF (in units of sampling intervals)
+
     Fs: float, the sampling rate
 
-    a: float, a scaling factor
+    A: float, a scaling factor
 
     Returns
     -------
@@ -1471,9 +1473,7 @@ def gamma_hrf(tau,n,delta,t_max,Fs=1.0,a=1):
     h: the gamma function hrf, as a function of time
     
     Notes
-    -----
-    XXX For some reason the equation comes out all f'd up in ipython
-    
+    -----    
     This is based on equation 3 in [Boynton1996]_:
 
     .. math::
@@ -1482,21 +1482,61 @@ def gamma_hrf(tau,n,delta,t_max,Fs=1.0,a=1):
         
     
     .. [Boynton1996] Geoffrey M. Boynton, Stephen A. Engel, Gary H. Glover and
-       David J. Heeger. Linear Systems Analysis of Functional Magnetic
+       David J. Heeger (1996). Linear Systems Analysis of Functional Magnetic
        Resonance Imaging in Human V1. J Neurosci 16: 4207-4221 
     
     """
     sampling_interval = 1/float(Fs)
-    t = np.arange(0,t_max,sampling_interval)
+
+    #Prevent negative delta values:
+    if delta<0:
+        raise ValueError('in gamma_hrf, delta cannot be smaller than 0')
+
+    #Prevent cases in which the delta is larger than the entire hrf:
+    if delta>duration:
+     raise ValueError('in gamma_hrf, delta cannot be larger than the duration') 
+
+    t_max = duration - delta
+    
+    t = np.hstack([np.zeros((delta*Fs)),np.arange(0,t_max,sampling_interval)])
 
     t_tau = t/tau
 
     h = (t_tau**(n-1) * np.exp(-1*(t_tau)) /
          (tau * factorial(n-1) ) )
 
-    return a*np.hstack([np.zeros((delta*sampling_interval)),h])
+    return A*h
+
+def polonsky_hrf(A, tau1, f1, tau2, f2,t_max,Fs=1.0):
+    r""" HRF based on [Polonsky2000]_
+
+    .. math::
+
+       H(t) = exp(-t/\tau1) \cdot sin(2\pi \cdot f1 \cdot t) -a\cdot exp(-t/\tau2)*sin(2\pi\cdotf2\cdot t)
+
+       .. [Polonsky2000] Alex Polonsky, Randolph Blake, Jochen Braun and David
+       J. Heeger. Neuronal activity in human primary visual cortex correlates
+       with perception during binocular rivalry. Nature Neuroscience 3: 1153-1159
+
+    """
+
+    sampling_interval = 1/float(Fs)
+
+    #Prevent negative delta values:
+    if delta<0:
+        raise ValueError('in gamma_hrf, delta cannot be smaller than 0')
+
+    #Prevent cases in which the delta is larger than the entire hrf:
+    if (delta*sampling_interval)>t_max:
+        raise ValueError('in gamma_hrf, delta cannot be larger than t_max')
     
-    
+   
+    t = np.arange(0,t_max-(delta*sampling_interval),sampling_interval)
+
+    return (np.exp(-t/tau1) * np.sin( 2 * np.pi * f1 * t) -
+            A * np.exp(-t/tau2) * np.sin(2 * pi * f2 * t))
+
+
 #-----------------------------------------------------------------------------
 # Spectral estimation
 #-----------------------------------------------------------------------------
