@@ -652,8 +652,18 @@ class HilbertAnalyzer(desc.ResetMixin):
         
     @desc.setattr_on_read
     def _analytic(self):
-        return ts.UniformTimeSeries(data=signal.hilbert(self.data),
-                                 sampling_rate=self.sampling_rate)
+        a_signal = ts.UniformTimeSeries(data=np.zeros(self.data.shape,dtype='D'),
+                                        sampling_rate=self.sampling_rate)
+
+        if self.data.ndim == 1:
+            a_signal.data[:] = signal.hilbert(self.data)
+        elif self.data.ndim == 2:
+            for i,dat in enumerate(self.data):
+                a_signal.data[i,:] = signal.hilbert(dat)
+        else:
+            raise NotImplementedError, 'signal has to be 1d or 2d'
+
+        return a_signal
         
     @desc.setattr_on_read
     def amplitude(self):

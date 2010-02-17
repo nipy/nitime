@@ -104,11 +104,11 @@ def test_HilbertAnalyzer():
 
     H = nta.HilbertAnalyzer(T)
 
-    h_abs = H.magnitude.data
+    h_abs = H.amplitude.data
     h_angle = H.phase.data
     h_real = H.real.data
     #The real part should be equal to the original signals:
-    npt.assert_almost_equal(h_real,H.data)
+    npt.assert_almost_equal(h_real,T.data)
     #The absolute value should be one everywhere, for this input:
     npt.assert_almost_equal(h_abs,np.ones(T.data.shape))
     #For the 'slow' sine - the phase should go from -pi/2 to pi/2 in the first
