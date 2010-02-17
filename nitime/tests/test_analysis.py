@@ -104,11 +104,11 @@ def test_HilbertAnalyzer():
 
     H = nta.HilbertAnalyzer(T)
 
-    h_abs = H.magnitude.data
+    h_abs = H.amplitude.data
     h_angle = H.phase.data
     h_real = H.real.data
     #The real part should be equal to the original signals:
-    npt.assert_almost_equal(h_real,H.data)
+    npt.assert_almost_equal(h_real,T.data)
     #The absolute value should be one everywhere, for this input:
     npt.assert_almost_equal(h_abs,np.ones(T.data.shape))
     #For the 'slow' sine - the phase should go from -pi/2 to pi/2 in the first
@@ -138,3 +138,16 @@ def test_FilterAnalyzer():
     #
     f_fast = nta.FilterAnalyzer(time_series,lb=0.6)
     npt.assert_equal(f_fast.filtered_fourier.data,fast)
+
+def test_MorletWaveletAnalyzer():
+    """Testing the MorletWaveletAnalyzer """
+    time_series = ts.UniformTimeSeries(data=np.random.rand(100),sampling_rate=100)
+
+
+    W = nta.MorletWaveletAnalyzer(time_series,freqs=20)
+    WL = nta.MorletWaveletAnalyzer(time_series,freqs=20,log_morlet=True)
+    H = nta.HilbertAnalyzer(W.real)
+    HL = nta.HilbertAnalyzer(WL.real)
+
+    npt.assert_almost_equal(np.sin(H.phase.data[10:-10]),np.sin(W.phase.data[10:-10]),decimal=0)
+    npt.assert_almost_equal(np.sin(HL.phase.data[10:-10]),np.sin(WL.phase.data[10:-10]),decimal=0)

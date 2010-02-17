@@ -855,6 +855,7 @@ class UniformTimeSeries(TimeSeriesBase):
         self.sampling_rate = sampling_rate
         self.duration = TimeArray(duration,time_unit=self.time_unit)
 
+
 class NonUniformTimeSeries(TimeSeriesBase):
     """Represent data collected at arbitrary time points.
 
