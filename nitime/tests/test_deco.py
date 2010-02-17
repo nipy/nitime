@@ -128,7 +128,7 @@ def test_par_standalone():
 
 def test_par_nose():
     yield (is_smaller,3, 4)
-    x, y = 2, 2
+    x, y = 2, 3
     yield (is_smaller,x, y)
 
 

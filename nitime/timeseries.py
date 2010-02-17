@@ -555,14 +555,13 @@ class Frequency(float):
         return np.int64((1/self)*scale_factor)
         
 ##Time-series: 
-class TimeSeriesInterface(object):
+class TimeSeriesInterface(TimeInterface):
     """The minimally agreed upon interface for all time series.
 
     This should be thought of as an abstract base class.
     """
     time = None
     data = None
-    time_unit = None
     metadata = None
     
 
@@ -600,6 +599,14 @@ class TimeSeriesBase(object):
         npoints = self.data.shape[-1]
         if npoints != len(self.time):
             raise ValueError("mismatch of time and data dimensions")
+
+
+    def __getitem__(self,key):
+        """use fancy time-indexing (at() method).""" 
+        if isinstance(key,TimeInterface):
+            return self.at(key)
+        else:
+            return self.data[key]
 
         
 class UniformTimeSeries(TimeSeriesBase):
