@@ -22,8 +22,7 @@ class BaseAnalyzer(desc.ResetMixin):
     """Analyzer that implements the default data flow.
 
        All analyzers inherit from this class at least have to
-       * implement a __init__ function
-       * define a set of parameters
+       * implement a __init__ function to set parameters
        * define the 'output' property
 
        >>> A = BaseAnalyzer()
