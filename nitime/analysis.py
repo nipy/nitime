@@ -680,6 +680,10 @@ class HilbertAnalyzer(desc.ResetMixin):
         return ts.UniformTimeSeries(data=self._analytic.data.real,
                                     sampling_rate=self.sampling_rate)
     
+    @desc.setattr_on_read
+    def imag(self):
+        return ts.UniformTimeSeries(data=self._analytic.data.imag,
+                                    sampling_rate=self.sampling_rate)
 
 
 class FilterAnalyzer(desc.ResetMixin):
@@ -784,7 +788,7 @@ def wmorlet(f0,sd,sampling_rate,ns=5,normed='area'):
     if normed == 'area':
         w = np.exp(-t**2/(2.*st**2))*np.exp(
             2j*np.pi*f0*t)/np.sqrt(np.sqrt(np.pi)*st*sampling_rate)
-    elif normed == 'gain':
+    elif normed == 'max':
         w = np.exp(-t**2/(2.*st**2))*np.exp(
             2j*np.pi*f0*t)*2*sd*np.sqrt(2*np.pi)/sampling_rate
     else:
@@ -843,7 +847,7 @@ class MorletWaveletAnalyzer(desc.ResetMixin):
     """Analyzer class for extracting the (complex) Morlet wavelet transform """ 
 
     def __init__(self,time_series,freqs=None,sd_rel=.2,sd=None,f_min=None,f_max=None,nfreqs=None,
-                 log_spacing=False, log_morlet=False, wavelet=None):
+                 log_spacing=False, log_morlet=False):
         """Constructor function for the Hilbert analyzer class.
 
         Parameters
@@ -928,6 +932,10 @@ class MorletWaveletAnalyzer(desc.ResetMixin):
 
     @desc.setattr_on_read
     def real(self):
-        return ts.UniformTimeSeries(data=np.real(self.analytic.data),
+        return ts.UniformTimeSeries(data=self.analytic.data.real,
                                     sampling_rate=self.sampling_rate)
     
+    @desc.setattr_on_read
+    def imag(self):
+        return ts.UniformTimeSeries(data=self.analytic.data.imag,
+                                    sampling_rate=self.sampling_rate)
