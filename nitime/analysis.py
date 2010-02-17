@@ -36,13 +36,13 @@ class BaseAnalyzer(desc.ResetMixin):
        'w'
     """
 
-    @desc.setattr_on_read
+    @property
     def parameters(self):
         from inspect import getargspec
         params = getargspec(self.__init__).args
         params.remove('self')
         params.remove('input')
-        return params
+        return dict([(p,getattr(self,p,'MISSING')) for p in params])
 
     def __init__(self,input=None,sample_parameter='default value'):
         self.input = input
@@ -71,7 +71,7 @@ class BaseAnalyzer(desc.ResetMixin):
             raise NotImplementedError, 'This analyzer does not support getitem'
 
     def __repr__(self):
-        params = ', '.join(['%s=%r'%(p,getattr(self,p,'MISSING')) for p in self.parameters])
+        params = ', '.join(['%s=%r'%(p,val) for p,val in self.parameters.items()])
         return '%s(%s)'%(self.__class__.__name__,params)
     
 
