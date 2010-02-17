@@ -656,7 +656,7 @@ class HilbertAnalyzer(desc.ResetMixin):
                                  sampling_rate=self.sampling_rate)
         
     @desc.setattr_on_read
-    def magnitude(self):
+    def amplitude(self):
         return ts.UniformTimeSeries(data=np.abs(self._analytic.data),
                                  sampling_rate=self.sampling_rate)
                                  
@@ -667,8 +667,8 @@ class HilbertAnalyzer(desc.ResetMixin):
 
     @desc.setattr_on_read
     def real(self):
-        return ts.UniformTimeSeries(data=np.real(self._analytic.data),
-                                 sampling_rate=self.sampling_rate)
+        return ts.UniformTimeSeries(data=self._analytic.data.real,
+                                    sampling_rate=self.sampling_rate)
     
 
 
@@ -734,3 +734,190 @@ class FilterAnalyzer(desc.ResetMixin):
                                  sampling_rate=self.sampling_rate,
                                  time_unit=self.time_unit) 
 
+#TODO:
+# * Write tests for various morlet wavelets
+# * Possibly write 'full morlet wavelet' function
+# * Write test for MorletWaveletAnalyzer
+def wfmorlet_fft(f0,sd,samplingrate,ns=5,nt=None):
+    """
+    returns a complex morlet wavelet in the frequency domain
+
+    :Parameters:
+        f0 : center frequency
+        sd : standard deviation of center frequency
+        sampling_rate : samplingrate
+        ns : window length in number of stanard deviations
+        nt : window length in number of sample points
+    """
+    if nt==None:
+        st = 1./(2.*np.pi*sd)
+        nt = 2*int(ns*st*sampling_rate)+1
+    f = np.fft.fftfreq(nt,1./sampling_rate)
+    wf = 2*np.exp(-(f-f0)**2/(2*sd**2))*np.sqrt(sampling_rate/(np.sqrt(np.pi)*sd))
+    wf[f<0] = 0
+    wf[f==0] /= 2
+    return wf
+
+def wmorlet(f0,sd,sampling_rate,ns=5,normed='area'):
+    """
+    returns a complex morlet wavelet in the time domain
+
+    :Parameters:
+        f0 : center frequency
+        sd : standard deviation of frequency
+        sampling_rate : samplingrate
+        ns : window length in number of stanard deviations
+    """
+    st = 1./(2.*np.pi*sd)
+    w_sz = float(int(ns*st*sampling_rate)) # half time window size
+    t = np.arange(-w_sz,w_sz+1,dtype=float)/sampling_rate
+    if normed == 'area':
+        w = np.exp(-t**2/(2.*st**2))*np.exp(
+            2j*np.pi*f0*t)/np.sqrt(np.sqrt(np.pi)*st*sampling_rate)
+    elif normed == 'gain':
+        w = np.exp(-t**2/(2.*st**2))*np.exp(
+            2j*np.pi*f0*t)*2*sd*np.sqrt(2*np.pi)/sampling_rate
+    else:
+        assert 0, 'unknown norm %s'%normed
+    return w
+
+def wlogmorlet_fft(f0,sd,sampling_rate,ns=5,nt=None):
+    """
+    returns a complex log morlet wavelet in the frequency domain
+
+    :Parameters:
+        f0 : center frequency
+        sd : standard deviation
+        sampling_rate : samplingrate
+        ns : window length in number of stanard deviations
+        nt : window length in number of sample points
+    """
+    if nt==None:
+        st = 1./(2.*np.pi*sd)
+        nt = 2*int(ns*st*sampling_rate)+1
+    f = np.fft.fftfreq(nt,1./sampling_rate)
+
+    sfl = np.log(1+1.*sd/f0)
+    wf = 2*np.exp(-(np.log(f)-np.log(f0))**2/(2*sfl**2))*np.sqrt(sampling_rate/(np.sqrt(np.pi)*sd))
+    wf[f<0] = 0
+    wf[f==0] /= 2
+    return wf
+
+def wlogmorlet(f0,sd,sampling_rate,ns=5,normed='area'):
+    """
+    returns a complex log morlet wavelet in the time domain
+
+    :Parameters:
+        f0 : center frequency
+        sd : standard deviation of frequency
+        sampling_rate : samplingrate
+        ns : window length in number of stanard deviations
+    """
+    st = 1./(2.*np.pi*sd)
+    w_sz = int(ns*st*sampling_rate) # half time window size
+    wf = wlogmorlet_fft(f0,sd,sampling_rate=sampling_rate,nt=2*w_sz+1)
+    w = np.fft.fftshift(np.fft.ifft(wf))
+    if normed == 'area':
+        w /= w.real.sum()
+    elif normed == 'max':
+        w /= w.real.max()
+    elif normed == 'energy':
+        w /= np.sqrt((w**2).sum())
+    else:
+        assert 0, 'unknown norm %s'%normed
+    return w
+
+
+class MorletWaveletAnalyzer(desc.ResetMixin):
+
+    """Analyzer class for extracting the (complex) Morlet wavelet transform """ 
+
+    def __init__(self,time_series,freqs=None,sd_rel=.2,sd=None,f_min=None,f_max=None,nfreqs=None,
+                 log_spacing=False, log_morlet=False, wavelet=None):
+        """Constructor function for the Hilbert analyzer class.
+
+        Parameters
+        ----------
+        
+        freqs: list or float
+          List of center frequencies for the wavelet transform, or a scalar
+          for a single band-passed signal.
+
+        sd: list or float
+          List of filter bandwidths, given as standard-deviation of center
+          frequencies. Alternatively sd_rel can be specified.
+
+        sd_rel: float
+          Filter bandwidth, given as a fraction of the center frequencies.
+
+        f_min: float
+          Minimal frequency.
+
+        f_max: float
+          Maximal frequency.
+
+        nfreqs: int
+          Number of frequencies.
+
+        log_spacing: bool
+          If true, frequencies will be evenly spaced on a log-scale. Default: False
+
+        log_morlet: bool
+          If True, a log-Morlet wavelet is used, if False, a regular Morlet
+          wavelet is used. Default: False
+        """
+    
+        self.data = time_series.data
+        self.sampling_rate = time_series.sampling_rate
+
+        if log_morlet:
+            self.wavelet = wlogmorlet
+        else:
+            self.wavelet = wmorlet
+
+        if freqs is not None:
+            self.freqs = np.array(freqs)
+        elif f_min is not None and f_max is not None and nfreqs is not None:
+            if log_spacing:
+                self.freqs = np.logspace(np.log10(f_min), np.log10(f_max), num=nfreqs, endpoint=True)
+            else:
+                self.freqs = np.linspace(f_min, f_max, num=nfreqs, endpoint=True)
+        else:
+            raise NotImplementedError
+
+        if sd is None:
+            self.sd = self.freqs*sd_rel
+
+
+    @desc.setattr_on_read
+    def analytic(self):
+        a_signal = ts.UniformTimeSeries(data=np.zeros(self.freqs.shape+self.data.shape,dtype='D'),
+                                        sampling_rate=self.sampling_rate)
+        if self.freqs.ndim == 0:
+            w = self.wavelet(self.freqs,self.sd,sampling_rate=self.sampling_rate,ns=5,normed='area')
+            nd = (w.shape[0]-1)/2
+            a_signal.data[...] = (np.convolve(self.data, np.real(w), mode='same') + 1j*
+                                  np.convolve(self.data, np.imag(w), mode='same'))
+        else:    
+            for i,(f,sd) in enumerate(zip(self.freqs,self.sd)):
+                w = self.wavelet(f,sd,sampling_rate=self.sampling_rate,ns=5,normed='area')
+                nd = (w.shape[0]-1)/2
+                a_signal.data[i,...] = (np.convolve(self.data, np.real(w), mode='same') + 1j*
+                                        np.convolve(self.data, np.imag(w), mode='same'))
+        return a_signal
+
+    @desc.setattr_on_read
+    def amplitude(self):
+        return ts.UniformTimeSeries(data=np.abs(self.analytic.data),
+                                    sampling_rate=self.sampling_rate)
+                                 
+    @desc.setattr_on_read
+    def phase(self):
+        return ts.UniformTimeSeries(data=np.angle(self.analytic.data),
+                                    sampling_rate=self.sampling_rate)
+
+    @desc.setattr_on_read
+    def real(self):
+        return ts.UniformTimeSeries(data=np.real(self.analytic.data),
+                                    sampling_rate=self.sampling_rate)
+    
