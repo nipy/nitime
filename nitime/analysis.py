@@ -812,8 +812,8 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
 
     """Analyzer class for extracting the (complex) Morlet wavelet transform """ 
 
-    def __init__(self,input=None,freqs=None,sd_rel=.2,sd=None,f_min=None,f_max=None,nfreqs=None,
-                 log_spacing=False, log_morlet=False):
+    def __init__(self,input=None,freqs=None,sd_rel=.2,sd=None,f_min=None,
+                 f_max=None,nfreqs=None,log_spacing=False, log_morlet=False):
         """Constructor function for the Hilbert analyzer class.
 
         Parameters
@@ -840,7 +840,8 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
           Number of frequencies.
 
         log_spacing: bool
-          If true, frequencies will be evenly spaced on a log-scale. Default: False
+          If true, frequencies will be evenly spaced on a log-scale.
+          Default: False
 
         log_morlet: bool
           If True, a log-Morlet wavelet is used, if False, a regular Morlet
@@ -869,7 +870,8 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
             self.freqs = np.array(freqs)
         elif f_min is not None and f_max is not None and nfreqs is not None:
             if log_spacing:
-                self.freqs = np.logspace(np.log10(f_min), np.log10(f_max), num=nfreqs, endpoint=True)
+                self.freqs = np.logspace(np.log10(f_min), np.log10(f_max),
+                                         num=nfreqs, endpoint=True)
             else:
                 self.freqs = np.linspace(f_min, f_max, num=nfreqs, endpoint=True)
         else:
@@ -880,19 +882,34 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
 
     @desc.setattr_on_read
     def output(self):
-        a_signal = ts.UniformTimeSeries(data=np.zeros(self.freqs.shape+self.data.shape,dtype='D'),
+        a_signal =\
+    ts.UniformTimeSeries(data=np.zeros(self.freqs.shape+self.data.shape,
+                                       dtype='D'),
                                         sampling_rate=self.sampling_rate)
         if self.freqs.ndim == 0:
-            w = self.wavelet(self.freqs,self.sd,sampling_rate=self.sampling_rate,ns=5,normed='area')
+            w = self.wavelet(self.freqs,self.sd,
+                             sampling_rate=self.sampling_rate,ns=5,normed='area')
+            
             nd = (w.shape[0]-1)/2
-            a_signal.data[...] = (np.convolve(self.data, np.real(w), mode='same') + 1j*
-                                  np.convolve(self.data, np.imag(w), mode='same'))
+            a_signal.data[...] = (np.convolve(self.data,
+                                              np.real(w),
+                                              mode='same') +
+                                  1j*np.convolve(self.data,
+                                              np.imag(w),
+                                              mode='same'))
         else:    
             for i,(f,sd) in enumerate(zip(self.freqs,self.sd)):
-                w = self.wavelet(f,sd,sampling_rate=self.sampling_rate,ns=5,normed='area')
+                w = self.wavelet(f,sd,sampling_rate=self.sampling_rate,
+                                 ns=5,normed='area')
+
                 nd = (w.shape[0]-1)/2
-                a_signal.data[i,...] = (np.convolve(self.data, np.real(w), mode='same') + 1j*
-                                        np.convolve(self.data, np.imag(w), mode='same'))
+                a_signal.data[i,...] = (np.convolve(self.data,
+                                                    np.real(w),
+                                                    mode='same') +
+                                        1j*np.convolve(self.data,
+                                                       np.imag(w),
+                                                       mode='same'))
+                
         return a_signal
 
     @desc.setattr_on_read
