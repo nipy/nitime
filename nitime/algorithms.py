@@ -1446,26 +1446,28 @@ def event_related_zscored(tseries,events,Tbefore, Tafter, Fs=1):
              / stdSurr )
 
 
-def gamma_hrf(A,tau,n,delta,duration,Fs=1.0):
+def gamma_hrf(duration,A=1.,tau=1.08,n=3,delta=2.05,Fs=1.0):
 
     r"""A gamma function hrf model, with two parameters, based on [Boynton1996]_
 
 
     Parameters
     ----------
+    
+    duration: float, the length of the HRF (in the inverse units of the sampling
+    rate)
 
-    tau: float The time constant of the gamma function 
+    A: float, a scaling factor, sets the max of the function, defaults to 1
 
-    n: int, the phase delay of the gamma function
+    tau: float The time constant of the gamma function, defaults to 1.08 
+
+    n: int, the phase delay of the gamma function, defaults to 3
 
     delta: a pure delay, allowing for an additional delay from the onset of the
-    time-series to the beginning of the gamma hrf
-
-    length: float, the length of the HRF (in units of sampling intervals)
-
-    Fs: float, the sampling rate
-
-    A: float, a scaling factor, sets the max of the function
+    time-series to the beginning of the gamma hrf, defaults to 2.05
+    
+    Fs: float, the sampling rate, defaults to 1.0
+   
 
     Returns
     -------
@@ -1486,6 +1488,12 @@ def gamma_hrf(A,tau,n,delta,duration,Fs=1.0):
        Resonance Imaging in Human V1. J Neurosci 16: 4207-4221 
     
     """
+    if type(n) is not int:
+        print ('gamma_hrf received unusual input, converting n from %s to %i'
+               %(str(n),int(n)))
+
+        n=int(n)
+               
     sampling_interval = 1/float(Fs)
 
     #Prevent negative delta values:
