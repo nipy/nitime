@@ -1446,7 +1446,7 @@ def event_related_zscored(tseries,events,Tbefore, Tafter, Fs=1):
              / stdSurr )
 
 
-def gamma_hrf(tau,n,delta,duration,Fs=1.0,A=1):
+def gamma_hrf(A,tau,n,delta,duration,Fs=1.0):
 
     r"""A gamma function hrf model, with two parameters, based on [Boynton1996]_
 
@@ -1465,7 +1465,7 @@ def gamma_hrf(tau,n,delta,duration,Fs=1.0,A=1):
 
     Fs: float, the sampling rate
 
-    A: float, a scaling factor
+    A: float, a scaling factor, sets the max of the function
 
     Returns
     -------
@@ -1505,9 +1505,9 @@ def gamma_hrf(tau,n,delta,duration,Fs=1.0,A=1):
     h = (t_tau**(n-1) * np.exp(-1*(t_tau)) /
          (tau * factorial(n-1) ) )
 
-    return A*h
+    return A*h/max(h)
 
-def polonsky_hrf(A, tau1, f1, tau2, f2,t_max,Fs=1.0):
+def polonsky_hrf(A, B, tau1, f1, tau2, f2,t_max,Fs=1.0):
     r""" HRF based on [Polonsky2000]_
 
     .. math::
@@ -1519,24 +1519,14 @@ def polonsky_hrf(A, tau1, f1, tau2, f2,t_max,Fs=1.0):
        with perception during binocular rivalry. Nature Neuroscience 3: 1153-1159
 
     """
-
     sampling_interval = 1/float(Fs)
 
-    #Prevent negative delta values:
-    if delta<0:
-        raise ValueError('in gamma_hrf, delta cannot be smaller than 0')
+    t = np.arange(0,t_max,sampling_interval)
 
-    #Prevent cases in which the delta is larger than the entire hrf:
-    if (delta*sampling_interval)>t_max:
-        raise ValueError('in gamma_hrf, delta cannot be larger than t_max')
-    
-   
-    t = np.arange(0,t_max-(delta*sampling_interval),sampling_interval)
+    h = (np.exp(-t/tau1) * np.sin(2*np.pi * f1 * t) -
+            (B * np.exp(-t/tau2) * np.sin(2 * np.pi * f2 * t)))
 
-    return (np.exp(-t/tau1) * np.sin( 2 * np.pi * f1 * t) -
-            A * np.exp(-t/tau2) * np.sin(2 * pi * f2 * t))
-
-
+    return A*h/max(h) 
 #-----------------------------------------------------------------------------
 # Spectral estimation
 #-----------------------------------------------------------------------------
