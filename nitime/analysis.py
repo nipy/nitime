@@ -11,6 +11,7 @@ the combination of that time-series and the algorithms  """
 
 #Imports:
 import numpy as np
+import scipy
 import scipy.signal as signal
 import scipy.stats as stats
 from nitime import descriptors as desc
@@ -703,29 +704,37 @@ class HilbertAnalyzer(desc.ResetMixin):
         ----------
         
         lb,ub: the upper and lower bounds of the frequency range for which the
-        transform is done, where filtering is done using a simple curtailment
-        of the Fourier domain 
+        transform is done, where filtering is done using the FilterAnalyzer,
+        with the boxcar filter method
+        
 
         """
     
         self.sampling_rate = time_series.sampling_rate
         F = FilterAnalyzer(time_series,lb=lb,ub=ub)
         self.data = F.filtered_boxcar.data
-        
+
+    
     @desc.setattr_on_read
     def _analytic(self):
-        a_signal = ts.UniformTimeSeries(data=np.zeros(self.data.shape,dtype='D'),
+        #If you have scipy with the fixed scipy.signal.hilbert (r6205 and later)
+        if float(scipy.__version__[:3]>=0.8):
+            return ts.UniformTimeSeries(data=signal.hilbert(self.data),
+                                        sampling_rate=self.sampling_rate)
+        else: 
+            a_signal = ts.UniformTimeSeries(data=np.zeros(self.data.shape,
+                                                          dtype='D'),
                                         sampling_rate=self.sampling_rate)
 
-        if self.data.ndim == 1:
-            a_signal.data[:] = signal.hilbert(self.data)
-        elif self.data.ndim == 2:
-            for i,dat in enumerate(self.data):
-                a_signal.data[i,:] = signal.hilbert(dat)
-        else:
-            raise NotImplementedError, 'signal has to be 1d or 2d'
+            if self.data.ndim == 1:
+                a_signal.data[:] = signal.hilbert(self.data)
+            elif self.data.ndim == 2:
+                for i,dat in enumerate(self.data):
+                    a_signal.data[i,:] = signal.hilbert(dat)
+            else:
+                raise NotImplementedError, 'signal has to be 1d or 2d'
 
-        return a_signal
+            return a_signal
         
     @desc.setattr_on_read
     def amplitude(self):
