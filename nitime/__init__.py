@@ -1,14 +1,19 @@
 """
-Timeseries Package: XXX: put some short description here
+Nitime: Time-series analysis for neuroscience 
 
 The module has several sub-modules: 
 
-- ``timeseries``: contains the constructors for the two kinds of time-series
+- ``timeseries``: contains the constructors for time and time-series objects
 
-- ``algorithms``: contains algorithms
+- ``algorithms``: Algorithms. This sub-module depends only on scipy,numpy and
+  matplotlib. Contains various algorithms. 
 
-- ``utils``: I am not so sure what this will contain, but I am pretty sure that a
-   need for this might arise along the way.
+- ``utils``: Utility functions. 
+
+- ``analysis``: Contains *Analyzer* objects, which implement particular
+  analysis methods on the time-series objects
+
+- ``viz``: Vizualization
 
 All of the sub-modules will be imported as part of ``__init__``, so that users
 have all of these things at their fingertips.
@@ -22,8 +27,8 @@ __url__     = 'http://neuroimaging.scipy.org'
 
 #The order of the following is important - make sure to import according to the
 #order of dependency (for example, timeseries depends on descriptors, so
-#descriptors needs to be imported first): 
-import utils, algorithms, descriptors, timeseries, vista_utils, viz
+#descriptors needs to be imported before timeseries): 
+import utils, algorithms, descriptors, timeseries, vista_utils, viz, analysis
 
 from timeseries import *
 
