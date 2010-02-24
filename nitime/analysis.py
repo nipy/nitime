@@ -266,7 +266,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
 
         return p_coherence        
         
-class SparseCoherenceAnalyzer(desc.ResetMixin):
+class SparseCoherenceAnalyzer(BaseAnalyzer):
     """This analyzer is intended for analysis of large sets of data, in which
     possibly only a subset of combinations of time-series needs to be compared.
     The constructor for this class receives as input not only a time-series
@@ -274,9 +274,8 @@ class SparseCoherenceAnalyzer(desc.ResetMixin):
     combinations. Importantly, this class implements only the mlab csd function
     and cannot use other methods of spectral estimation""" 
 
-    def __init__(self,time_series,ij,method=None,lb=0,ub=None,
-                 prefer_speed_over_memory=False,
-                 scale_by_freq=True):
+    def __init__(self,time_series=None,ij=(0,0),method=None,lb=0,ub=None,
+                 prefer_speed_over_memory=False,scale_by_freq=True):
         """The constructor for the SparseCoherenceAnalyzer
 
         Parameters
@@ -301,12 +300,13 @@ class SparseCoherenceAnalyzer(desc.ResetMixin):
 
          The method for spectral estimation (see `func`:algorithms.get_spectra:)
 
-        """ 
+        """
+        BaseAnalyzer.__init__(self,time_series)
         #Initialize variables from the time series
-        self.data = time_series.data
-        self.sampling_rate = time_series.sampling_rate
         self.ij = ij
-        #Set the variables for spectral estimation (can also be entered by user):
+
+        #Set the variables for spectral estimation (can also be entered by
+        #user): 
         if method is None:
             self.method = {'this_method':'mlab'}
 
@@ -314,40 +314,43 @@ class SparseCoherenceAnalyzer(desc.ResetMixin):
             self.method = method
 
         if self.method['this_method']!='mlab':
-            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation"
-            "method must be mlab")
+            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be mlab")
             
-        self.method['Fs'] = self.method.get('Fs',self.sampling_rate)
 
         #Additional parameters for the coherency estimation: 
         self.lb = lb
         self.ub = ub
         self.prefer_speed_over_memory = prefer_speed_over_memory
         self.scale_by_freq = scale_by_freq
-        
+
+    @desc.setattr_on_read
+    def output(self):
+        """ The default behavior is to calculate the cache, extract it and then
+        output the coherency""" 
+        coherency = tsa.cache_to_coherency(self.cache,self.ij)
+
+        return coherency
+
     @desc.setattr_on_read
     def cache(self):
         """Caches the fft windows required by the other methods of the
         SparseCoherenceAnalyzer. Calculate only once and reuse
         """
-        f,cache = tsa.cache_fft(self.data,self.ij,
-                          lb=self.lb,ub=self.ub,
-                          method=self.method,
-                          prefer_speed_over_memory=self.prefer_speed_over_memory,
-                          scale_by_freq=self.scale_by_freq)
+        data = self.input.data 
+        f,cache = tsa.cache_fft(data,self.ij,
+                        lb=self.lb,ub=self.ub,
+                        method=self.method,
+                        prefer_speed_over_memory=self.prefer_speed_over_memory,
+                        scale_by_freq=self.scale_by_freq)
 
         return cache
     
-    @desc.setattr_on_read
-    def coherency(self):
-        coherency = tsa.cache_to_coherency(self.cache,self.ij)
-
-        return coherency
     
     @desc.setattr_on_read
     def spectrum(self):
         """get the spectrum for the collection of time-series in this analyzer
-        """ 
+        """
+        self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
         spectrum = tsa.cache_to_psd(self.cache,self.ij)
 
         return spectrum
@@ -366,6 +369,7 @@ class SparseCoherenceAnalyzer(desc.ResetMixin):
         """Get the central frequencies for the frequency bands, given the
            method of estimating the spectrum """
 
+        self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
         NFFT = self.method.get('NFFT',64)
         Fs = self.method.get('Fs')
         freqs = tsu.get_freqs(Fs,NFFT)
@@ -373,21 +377,18 @@ class SparseCoherenceAnalyzer(desc.ResetMixin):
         
         return freqs[lb_idx:ub_idx]
         
-class CorrelationAnalyzer(desc.ResetMixin):
+class CorrelationAnalyzer(BaseAnalyzer):
     """Analyzer object for correlation analysis. Has the same API as the
     CoherenceAnalyzer"""
 
     def __init__(self,time_series):
-        #Initialize data from the time series
-        self.data = time_series.data
-        self.sampling_interval=time_series.sampling_interval
+        BaseAnalyzer.__init__(self,time_series)
 
     @desc.setattr_on_read
-    def correlation(self):
+    def output(self):
         """The correlation coefficient between every pairwise combination of
         time-series contained in the object""" 
-
-        return np.corrcoef(self.data)  
+        return np.corrcoef(self.input.data)  
 
     @desc.setattr_on_read
     def xcorr(self):
@@ -399,22 +400,22 @@ class CorrelationAnalyzer(desc.ResetMixin):
 
         UniformTimeSeries: the time-dependent cross-correlation, with zero-lag
         at time=0"""
-        tseries_length = self.data.shape[0]
-        t_points = self.data.shape[-1]
+        tseries_length = self.input.data.shape[0]
+        t_points = self.input.data.shape[-1]
         xcorr = np.zeros((tseries_length,
                           tseries_length,
                           t_points*2-1))
          
         for i in xrange(tseries_length): 
             for j in xrange(i,tseries_length):
-                xcorr[i][j] = tsu.xcorr(self.data[i],self.data[j])
+                xcorr[i][j] = tsu.xcorr(self.input.data[i],self.input.data[j])
 
         idx = tsu.tril_indices(tseries_length,-1)
         xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
 
         return ts.UniformTimeSeries(xcorr,
-                                    sampling_interval=self.sampling_interval,
-                                    t0=-self.sampling_interval*t_points+1)
+                                sampling_interval=self.input.sampling_interval,
+                                t0=-self.input.sampling_interval*t_points+1)
     
     @desc.setattr_on_read
     def xcorr_norm(self):
@@ -428,24 +429,24 @@ class CorrelationAnalyzer(desc.ResetMixin):
         UniformTimeSeries: the time-dependent cross-correlation, with zero-lag
         at time=0"""
 
-        tseries_length = self.data.shape[0]
-        t_points = self.data.shape[-1]
+        tseries_length = self.input.data.shape[0]
+        t_points = self.input.data.shape[-1]
         xcorr = np.zeros((tseries_length,
                           tseries_length,
                           t_points*2-1))
          
         for i in xrange(tseries_length): 
             for j in xrange(i,tseries_length):
-                xcorr[i,j] = tsu.xcorr(self.data[i],self.data[j])
+                xcorr[i,j] = tsu.xcorr(self.input.data[i],self.input.data[j])
                 xcorr[i,j] /= (xcorr[i,j,t_points])
-                xcorr[i,j] *= self.correlation[i,j]
+                xcorr[i,j] *= self.output[i,j]
 
         idx = tsu.tril_indices(tseries_length,-1)
         xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
 
         return ts.UniformTimeSeries(xcorr,
-                                    sampling_interval=self.sampling_interval,
-                                    t0=-self.sampling_interval*t_points)
+                                sampling_interval=self.input.sampling_interval,
+                                t0=-self.input.sampling_interval*t_points)
     
 ##Event-related analysis:
 class EventRelatedAnalyzer(desc.ResetMixin): 
