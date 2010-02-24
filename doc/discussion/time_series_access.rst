@@ -7,19 +7,17 @@
 Since one dimension of time-series data is associated with time, there is a
 natural way to index into time-series data using time objects as indices. For
 the data classes (:ref:`time_series_classes`) an indexing operation performed
-with a single time-point (a single-element array of dtype
-:class:`timedelta64`. Wondering why :class:`timedelta64` and not
-:class:`datetime64`? See discussion in :ref:`time_classes` and
-:ref:`comment_timedelta64`) should result in returning the data at that
-time-point - that is, removal of the time-dimension from the data.
+with a single time-point (a single-element :class:`TimeArray` or a
+:class:`TimeArray` with more than one element) should result in returning the
+data at that time-point - that is, removal of the time-dimension from the data.
 
 The base-classes representing time (:ref:`time_classes`) serve as natural
 intermediaries in this process, by providing the integer index of a particular
 time-point (or returning an array of integers, as the case may be, see
 below). Therefore, these classes should include a method which performs this
-conversion, :func:`index_at`. This function should accept as parameter an array
-of dtype :class:`timedelta64` and return integers corresponding to the
-location of that time-point in the different types of time classes.
+conversion, :func:`index_at`. This function should accept as parameter a
+:class:`TimeArray` and return integers corresponding to the location of that
+time-point in the different types of time classes.
 
 Access into Time classes
 ------------------------

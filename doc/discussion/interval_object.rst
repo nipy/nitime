@@ -76,20 +76,20 @@ Initialization
 
 There are various different ways to initialize a :class:`TimeInterval`:
 
-* With two time points t_start and t_stop, both of dtype :class:`deltatime64`:
+* With two time points t_start and t_stop, both of :class:`TimeArray`:
 
 .. code-block:: python
 
        TimeInterval(t_start=t1,t_stop=t2)
 
-* With a time point :attr:`t_start` (dtype :class:`deltatime64`) and a duration
-  (dtype :class:`timedelta64`):
+* With a time point :attr:`t_start` (a :class:`TimeArray`) and a duration (a
+  :class:`TimeArray`):
 
 .. code-block:: python
 
        TimeInterval(t_start=t1,duration=t_duration) 
  
-* With an optional third argument :attr:`t_step` (dtype :class:`timedelta64`)
+* With an optional third argument :attr:`t_step`  (a :class:`TimeArray`)
   indicating a time offset of a time point $t_0=t_{start}-t_{step}$ relative to
   which the time inside the interval should be interpreted. The relevance of
   this third argument will become clearer when the time interval is used to
@@ -114,9 +114,8 @@ which will be interpreted as time points :attr:`t_start` and
 initialization of the object will know what the units are. In order to make
 this possible, the interval (similar to the current implementation of the
 time-series object will have an attribute :attr:`t_unit`, which would default
-to 's'. The initialization will then cast the values provided into values with
-dtype :class:`deltatime64`.
- 
+to 's'. The initialization will then cast the values provided into the
+appropriate :class:`TimeArray` objects.
 
 .. _interval_from_slice:
 Implementation using a slice object
@@ -169,14 +168,3 @@ In addition to scalar :class:`TimeInterval` objects, it also makes sense to
 define arrays of :class:`TimeInterval` objects. These arrays can be implemented
 as :class:`np.ndarray`, with an :class:`object` dtype. 
 
-.. _comment_timedelta64:
-
-Comment: :class:`timedelta64`
------------------------------
-
-The name of the dtype :class:`timedelta64` sounds like this would be a
-representation of time intervals. However, this name is somewhat confusing in
-this context, as this dtype does not cover this kind of functionality. In
-particular, :class:`timedelta64`, is simply a representation of relative time
-and is likely to be the kind of time we would want in order to represent time
-(see :ref:`time_classes`).

@@ -13,39 +13,61 @@ data containers, used to represent different kinds of time-series data, see
 
 Time
 ====
+Experimental data is usually represented with regard to *relative* time. That
+is, the time relative to the beginning of the measurement. This is in contrast
+to many other kinds of data, which are represented with regard to *absolute*
+time, (one example of this kind of time is calendaric time, which includes a
+reference to some common point, such as 0 CE, or Jan. 1st 1970). An example of
+data which benefits from representation with absolute time is the
+representation of financial time-series, which can be compared against each
+other, using the common reference and for which the concept of the work-week
+applies. 
 
-The first set of base classes is a set of representations of time. All these
-classes inherit from :class:`np.array` with the dtype limited to be
-:class:`timedelta64`. The reason we want to use :class:`timedelta64` and not
-:class:`datetime64` is that while the latter represents *absolute* time (that
-is, time including the date and time), the former represents *relative* time,
-which is the more useful representation, when it comes to experimental
-data. This is because most often the absolute calender time of the occurence of
-events in an experiment is of no importance. Rather, the comparison of the time
-progression of different experiments conducted in different calendar times
-(different days, different times in the same day) is more common. 
+However, because most often the absolute calender time of the occurence of
+events in an experiment is of no importance, we can disregard it. Rather, the
+comparison of the time progression of data in different experiments conducted
+in different calendar times (different days, different times in the same day)
+is more common.
 
-These representation will all serve as the underlying machinery to index into
-the :class:`TimeSeries` objects with arrays of time-points.  The additional
-functionality common to all of these is described in detail in
+The underlying representation of time in :module:`nitime` is in arrays of dtype
+:class:`int64`. This allows the representation to be immune to rounding errors
+arising from representation of time with floating point numbers (see
+[Goldberg1991]_). However, it restricts the smallest time-interval that can be
+represented. In :module:`nitime`, the smallest discrete time-points are of size
+:attribute:`base_unit`, and this unit is *picoseconds*. Thus, all underlying
+representations of time are made in this unit. Since for most practical uses,
+this representation is far too small, this might have resulted, in most cases
+in representations of time too long to be useful. In order to make the
+time-objects more manageable, time objects in :module:`nitime` carry a
+:attribute:`time_unit` and a :attribute:`_conversion_factor`, which can be used
+as a convenience, in order to convert between the representation of time in the
+base unit and the appearance of time in the relevant time-unit.  
+
+The first set of base classes is a set of representations of time itself. All
+these classes inherit from :class:`np.array`. As mentioned above, the dtype of
+these classes is :class:`int64` and the underlying representation is always at
+the base unit. These representations will all serve as the underlying machinery
+to index into the :class:`TimeSeries` objects with arrays of time-points.  The
+additional functionality common to all of these is described in detail in
 :ref:`time_series_access`. Briefly, they will all have an :func:`at` method,
-which allows indexing with arrays of :class:`timedelta64`. The result of this
+which allows indexing with time-objects of various kind. The result of this
 indexing will be to return the time-point in the the respective
 :class:`TimeSeries` which is most appropriate (see :ref:`time_series_access`
 for details). They will also all have an :func:`index_at` method, which returns
 the integer index of this time in the underlying array. Finally, they will all
 have a :func:`during` method, which will allow indexing into these objects with
-an :ref:`interval_class`. This will return the appropriate times corresponding to an
-:ref:`interval_class` and :func:`index_during`, which will return the array of
-integers corresponding to the indices of these time-points in the array.
+an :ref:`interval_class`. This will return the appropriate times corresponding
+to an :ref:`interval_class` and :func:`index_during`, which will return the
+array of integers corresponding to the indices of these time-points in the
+array.
 
-There are three types of Time base classes: :ref:`EventArray`
+There are three types of Time base classes: :ref:`TimeArray`
 :ref:`NonUniformTime`, and :ref:`UniformTime`. :ref:`time_table` captures
 the essential differences between them.
 
-.. _EventArray:
+.. _TimeArray:
 
-:class:`EventArray`
+:class:`TimeArray`
 -------------------
 
 This class has the least restrictions on it: it will be a 1d array, which
@@ -58,7 +80,10 @@ sampled in order of channel and not in order of time. As in the case of the
 reshaping operation to occur, which would change the dimensions of the
 underlying array. In this case, this should allow a ragged/jagged array
 structure to emerge (see http://en.wikipedia.org/wiki/Array_data_structure for
-details).
+details). This representation of time carries, in addition to the array itself
+an attribute :attr:`time_unit`, which is the unit in which we would like to
+present the time-points (recall that the underlying representation is always in
+the base-unit). 
 
 .. _NonUniformTime:
 
@@ -70,7 +95,7 @@ or also represent events which occur at different times in an ordered
 series. Thus, the time-points in this representation are ordered (and
 unique?). This will be used as the time representation used in the
 :ref:`NonUniformTimeSeries` class. As in the case of the
-:class:`EventArray`, slicing into a :class:`NonUniformTime` array should
+:class:`TimeArray`, slicing into a :class:`NonUniformTime` array should
 result in a ragged/jagged array.
 
 .. _UniformTime:
@@ -102,9 +127,15 @@ the following:
   the series.
 
 Obviously, :attr:`UT.sampling_rate` and :attr:`UT.sampling_interval`
-are redundant, but can both be useful. Therefore, these would be implemented
-in the object with a :func:`setattr_on_read` decoration and the object should
-inherit :class:`ResetMixin`.
+are redundant, but can both be useful.
+
+
+:class:`Frequency`
+------------------
+
+The :attr:`UT.sampling_rate` of :class:`UniformTime` is an object of this
+class. This is a representation of the frequency in Hz. It is derived from a
+combination of the :attr:`sampling_interval` and the :attr:`time_unit`.
 
 
 .. _time_table:
@@ -211,3 +242,7 @@ time here is :ref:`UniformTime`.
 .. | 	    |----------------------+----------------+-----------------+ 
 .. |        | UniformTimeSeri      | UniformTime    | BOLD            |
 .. +--------+----------------------+----------------+-----------------+
+
+
+.. [Goldberg1991] Goldberg D (1991). What every computer scientist should know
+   about floating-point arithmetic. ACM computing surveys 23: 5-48
