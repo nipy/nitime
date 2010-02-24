@@ -381,8 +381,8 @@ class CorrelationAnalyzer(BaseAnalyzer):
     """Analyzer object for correlation analysis. Has the same API as the
     CoherenceAnalyzer"""
 
-    def __init__(self,time_series):
-        BaseAnalyzer.__init__(self,time_series)
+    def __init__(self,input=None):
+        BaseAnalyzer.__init__(self,input)
 
     @desc.setattr_on_read
     def output(self):
@@ -452,11 +452,8 @@ class CorrelationAnalyzer(BaseAnalyzer):
 class EventRelatedAnalyzer(desc.ResetMixin): 
     """Analyzer object for reverse-correlation/event-related analysis.
 
-    XXX Repeated use of the term the fmri specific term 'hrf' should be removed.
-
     """    
-
-    def __init__(self,time_series,events_time_series,len_hrf,zscore=False,
+    def __init__(self,time_series,events_time_series,len_et,zscore=False,
                  correct_baseline=False,offset=0):
         """
         Parameters
@@ -475,11 +472,12 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         object needs to have the same dimensionality as the data in the data
         time-series 
 
-        len_hrf: int
+        len_et: int
         
-        The expected length of the HRF (in the same time-units as
-        the events are represented (presumably TR). The size of the block
-        dedicated in the fir_matrix to each type of event
+        The expected length of the event-triggered quantity (in the same
+        time-units as the events are represented (presumably number of TRs, for
+        fMRI data). For example, the size of the block dedicated in the
+        fir_matrix to each type of event
 
         zscore: a flag to return the result in zscore (where relevant)
 
@@ -493,12 +491,12 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         #XXX Change so that the offset and length of the eta can be given in
         #units of time 
 
-        #Make sure that the offset and the len_hrf values can be used, by
+        #Make sure that the offset and the len_et values can be used, by
         #padding with zeros before and after:
 
         s = time_series.data.shape
         zeros_before = np.zeros((s[:-1]+ (abs(offset),)))
-        zeros_after = np.zeros((s[:-1]+(abs(len_hrf),)))
+        zeros_after = np.zeros((s[:-1]+(abs(len_et),)))
         time_series_data = np.hstack([zeros_before,time_series.data,
                                       zeros_after])
         events_data = np.hstack([zeros_before,events_time_series.data,
@@ -521,7 +519,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
         self.sampling_rate = time_series.sampling_rate
         self.sampling_interval = time_series.sampling_interval
-        self.len_hrf=int(len_hrf)
+        self.len_et=int(len_et)
         self._zscore=zscore
         self._correct_baseline=correct_baseline
         self._offset=offset
@@ -534,12 +532,11 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
         Returns
         -------
-
         A time-series object, shape[:-2] are dimensions corresponding to the to
         shape[:-2] of the EventRelatedAnalyzer data, shape[-2] corresponds to
         the different kinds of events used (ordered according to the sorted
         order of the unique components in the events time-series). shape[-1]
-        corresponds to time, and has length = len_hrf
+        corresponds to time, and has length = len_et
 
         XXX code needs to be changed to use flattening (see 'eta' below)
         
@@ -557,20 +554,20 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             #right thing): 
 
             roll_events = np.roll(self.events[i],self._offset)
-            design = tsu.fir_design_matrix(roll_events,self.len_hrf+
+            design = tsu.fir_design_matrix(roll_events,self.len_et+
                                            abs(self._offset))
             #Compute the fir estimate, in linear form: 
             this_h = tsa.fir(self.data[i],design)
             #Reshape the linear fir estimate into a event_types*hrf_len array
             u = np.unique(self.events[i])
             event_types = u[np.unique(self.events[i])!=0]
-            h[i] =np.reshape(this_h,(event_types.shape[0],self.len_hrf+
+            h[i] =np.reshape(this_h,(event_types.shape[0],self.len_et+
                                      abs(self._offset)))
 
         h = np.array(h).squeeze()
 
         return ts.UniformTimeSeries(data=h,sampling_rate=self.sampling_rate,
-                                 t0=-1*self.len_hrf*self.sampling_interval,
+                                 t0=-1*self.len_et*self.sampling_interval,
                                  time_unit=self.time_unit)
 
     
@@ -591,7 +588,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         shape[:-2] of the EventRelatedAnalyzer data, shape[-2] corresponds to
         the different kinds of events used (ordered according to the sorted
         order of the unique components in the events time-series). shape[-1]
-        corresponds to time, and has length = len_hrf*2 (xcorr looks both back
+        corresponds to time, and has length = len_et*2 (xcorr looks both back
         and forward for this length)
 
 
@@ -604,20 +601,20 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             data = self.data[i]
             u = np.unique(self.events[i])
             event_types = u[np.unique(self.events[i])!=0]
-            h[i] = np.empty((event_types.shape[0],self.len_hrf*2),dtype=complex)
+            h[i] = np.empty((event_types.shape[0],self.len_et*2),dtype=complex)
             for e_idx in xrange(event_types.shape[0]):
                 this_e = (self.events[i]==event_types[e_idx]) * 1.0
                 if self._zscore:
                     this_h = tsa.event_related_zscored(data,
                                             this_e,
-                                            self.len_hrf,
-                                            self.len_hrf
+                                            self.len_et,
+                                            self.len_et
                                             )
                 else:
                     this_h = tsa.event_related(data,
                                             this_e,
-                                            self.len_hrf,
-                                            self.len_hrf
+                                            self.len_et,
+                                            self.len_et
                                             )
                     
                 h[i][e_idx] = this_h
@@ -626,11 +623,11 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
         ## t0 for the object returned here needs to be the central time, not the
         ## first time point, because the functions 'look' back and forth for
-        ## len_hrf bins
+        ## len_et bins
 
         return ts.UniformTimeSeries(data=h,
                                  sampling_rate=self.sampling_rate,
-                                 t0 = -1*self.len_hrf*self.sampling_interval,
+                                 t0 = -1*self.len_et*self.sampling_interval,
                                  time_unit=self.time_unit)
 
     @desc.setattr_on_read
@@ -643,11 +640,11 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             data = self.data[i]
             u = np.unique(self.events[i])
             event_types = u[np.unique(self.events[i])!=0]
-            h[i] = np.empty((event_types.shape[0],self.len_hrf),dtype=complex)
+            h[i] = np.empty((event_types.shape[0],self.len_et),dtype=complex)
             for e_idx in xrange(event_types.shape[0]):
                 idx = np.where(self.events[i]==event_types[e_idx])
                 idx_w_len = np.array([idx[0]+count+self._offset for count
-                                      in range(self.len_hrf)])
+                                      in range(self.len_et)])
                 event_trig = data[idx_w_len]
                 #Correct baseline by removing the first point in the series for
                 #each channel:
@@ -667,7 +664,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 #        event_types = u[np.unique(self.events[i])!=0]
 #        for e in event_types: 
 #            idx = np.where(e_flat==e)
-#            idx_new = np.array([idx[0]+i for i in range(self.len_hrf)])
+#            idx_new = np.array([idx[0]+i for i in range(self.len_et)])
 
         return ts.UniformTimeSeries(data=h,
                                  sampling_interval=self.sampling_interval,
@@ -684,11 +681,11 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             data = self.data[i]
             u = np.unique(self.events[i])
             event_types = u[np.unique(self.events[i])!=0]
-            h[i] = np.empty((event_types.shape[0],self.len_hrf),dtype=complex)
+            h[i] = np.empty((event_types.shape[0],self.len_et),dtype=complex)
             for e_idx in xrange(event_types.shape[0]):
                 idx = np.where(self.events[i]==event_types[e_idx])
                 idx_w_len = np.array([idx[0]+count+self._offset for count
-                                      in range(self.len_hrf)])
+                                      in range(self.len_et)])
                 event_trig = data[idx_w_len]
                 #Correct baseline by removing the first point in the series for
                 #each channel:
