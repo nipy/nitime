@@ -33,6 +33,27 @@ def test_SpectralAnalyzer():
     npt.assert_equal(f.shape,(t.shape[0]/2+1,))
     npt.assert_equal(c.shape,(2,2,t.shape[0]/2+1))
 
+def test_CoherenceAnalyzer():
+
+    Fs = np.pi
+    t = np.arange(1024)
+    x = np.sin(10*t) + np.random.rand(t.shape[-1])
+    y = np.sin(10*t) + np.random.rand(t.shape[-1])
+    T = ts.UniformTimeSeries(np.vstack([x,y]),sampling_rate=Fs)
+    C = nta.CoherenceAnalyzer(T)
+
+    npt.assert_equal(C().shape,(2,2,33)) #Default mlab_method
+    #Coherence symmetry:
+    npt.assert_equal(C.coherence[0,1],C.coherence[1,0])
+    #Phase/delay asymmetry:
+    npt.assert_equal(C.phase[0,1],-1*C.phase[1,0])
+    npt.assert_equal(C.delay[0,1],-1*C.delay[1,0])
+
+    #Calculation of the spectrum is the same as in the default spectral analyzer:
+    S = nta.SpectralAnalyzer(T)
+    npt.assert_equal(S(),(C.frequencies,C.spectrum))
+    
+
 def test_CorrelationAnalyzer():
 
     Fs = np.pi
@@ -103,17 +124,6 @@ def test_EventRelatedAnalyzer():
     FIR = nta.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).FIR
     npt.assert_almost_equal(FIR.data[0],signal[:FIR.data.shape[-1]],3)
     npt.assert_almost_equal(FIR.data[1],-1*signal[:FIR.data.shape[-1]],3)
-
-def test_CoherenceAnalyzer():
-
-    Fs = np.pi
-    t = np.arange(1024)
-    x = np.sin(10*t) + np.random.rand(t.shape[-1])
-    y = np.sin(10*t) + np.random.rand(t.shape[-1])
-
-    T = ts.UniformTimeSeries(np.vstack([x,y]),sampling_rate=Fs)
-
-    C = nta.CoherenceAnalyzer(T)
 
 def test_HilbertAnalyzer():
     """Testing the HilbertAnalyzer (analytic signal)"""
