@@ -1520,7 +1520,7 @@ def polonsky_hrf(A, B, tau1, f1, tau2, f2,t_max,Fs=1.0):
 
     .. math::
 
-       H(t) = exp(-t/\tau1) \cdot sin(2\pi \cdot f1 \cdot t) -a\cdot exp(-t/\tau2)*sin(2\pi\cdotf2\cdot t)
+       H(t) = exp(\frac{-t}{\tau_1}) sin(2\cdot\pi f_1 \cdot t) -a\cdot exp(-\frac{t}{\tau_2})*sin(2\pi f_2 t)
 
        .. [Polonsky2000] Alex Polonsky, Randolph Blake, Jochen Braun and David
        J. Heeger. Neuronal activity in human primary visual cortex correlates
