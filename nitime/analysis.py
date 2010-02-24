@@ -90,105 +90,74 @@ class BaseAnalyzer(desc.ResetMixin):
 
         return '%s(%s)'%(self.__class__.__name__,params)
     
-
-
 ##Spectral estimation: 
-class SpectralAnalyzer(desc.ResetMixin):
-
+class SpectralAnalyzer(BaseAnalyzer):
     """ Analyzer object for spectral analysis """
-    def __init__(self,time_series,method=None):
-        self.data = time_series.data
-        self.sampling_rate = time_series.sampling_rate
+    def __init__(self,input=None,method=None):
+        BaseAnalyzer.__init__(self,input)
+
         self.method=method
         
         if self.method is None:
             self.method = {}
 
     @desc.setattr_on_read
+    def output(self):
+        """The standard output for this analyzer is the spectrum and
+        cross-spectra, computed using mlab csd"""
+        data = self.input.data
+        sampling_rate = self.input.sampling_rate
+        
+        self.mlab_method = self.method
+        self.mlab_method['this_method'] = 'mlab'
+        self.mlab_method['Fs'] = sampling_rate
+        f,spectrum_mlab = tsa.get_spectra(data,method=self.mlab_method)
+
+        return f,spectrum_mlab
+
+    @desc.setattr_on_read
     def spectrum_fourier(self):
         """ Simply the non-normalized Fourier transform for a real signal"""
 
-        fft = np.fft.fft
-        f = tsu.get_freqs(self.sampling_rate,self.data.shape[-1])
-        spectrum_fourier = fft(self.data)[...,:f.shape[0]]
-        return f,spectrum_fourier 
+        data = self.input.data
+        sampling_rate = self.input.sampling_rate
         
-    @desc.setattr_on_read
-    def spectrum_mlab(self):
-        """The spectrum and cross-spectra, computed using mlab csd """
-
-        self.mlab_method = self.method
-        self.mlab_method['this_method'] = 'mlab'
-        self.mlab_method['Fs'] = self.sampling_rate
-        f,spectrum_mlab = tsa.get_spectra(self.data,method=self.mlab_method)
-
-        return f,spectrum_mlab
+        fft = np.fft.fft
+        f = tsu.get_freqs(sampling_rate,data.shape[-1])
+        spectrum_fourier = fft(data)[...,:f.shape[0]]
+        return f,spectrum_fourier 
     
     @desc.setattr_on_read
     def spectrum_multi_taper(self):
         """The spectrum and cross-spectra, computed using multi-tapered csd """
-
-        self.multi_taper_method = np.copy(self.method)
+        data = self.input.data
+        sampling_rate = self.input.sampling_rate
+        self.multi_taper_method = self.method
         self.multi_taper_method['this_method'] = 'multi_taper_csd'
-        self.multi_taper_method['Fs'] = self.sampling_rate
-        f,spectrum_multi_taper = tsa.get_spectra(self.data,
-                                               method=self.multi_taper_method)
+        self.multi_taper_method['Fs'] = sampling_rate
+        f,spectrum_multi_taper = tsa.get_spectra(data,
+                                                 method=self.multi_taper_method)
         return f,spectrum_multi_taper
     
-    
 ##Bivariate methods:  
-class CoherenceAnalyzer(desc.ResetMixin):
-    """ Analyzer object for coherence/y analysis"""
-    
-    def __init__(self,time_series,method=None):
-        #Initialize variables from the time series
-        self.data = time_series.data
-        self.sampling_rate = time_series.sampling_rate
-        self.time = time_series.time
+class CoherenceAnalyzer(BaseAnalyzer):
+    def __init__(self,input=None,method=None):
+
+        BaseAnalyzer.__init__(self,input)
         
         #Set the variables for spectral estimation (can also be entered by user):
         if method is None:
             self.method = {'this_method':'mlab'}
-
         else:
             self.method = method
             
-        self.method['Fs'] = self.method.get('Fs',self.sampling_rate)
+        self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
 
     @desc.setattr_on_read
-    def spectrum(self):
-        f,spectrum = tsa.get_spectra(self.data,method=self.method)
-        return spectrum
-
-    @desc.setattr_on_read
-    def frequencies(self):
-        f,spectrum = tsa.get_spectra(self.data,method=self.method)
-        return f
-    
-    @desc.setattr_on_read
-    def coherence(self):
-
-        tseries_length = self.data.shape[0]
-        spectrum_length = self.spectrum.shape[-1]
-        coherence=np.zeros((tseries_length,
-                            tseries_length,
-                            spectrum_length))
-    
-        for i in xrange(tseries_length): 
-            for j in xrange(i,tseries_length):
-                coherence[i][j] = tsa.coherence_calculate(self.spectrum[i][j],
-                                                      self.spectrum[i][i],
-                                                      self.spectrum[j][j])  
-
-        idx = tsu.tril_indices(tseries_length,-1)
-        coherence[idx[0],idx[1],...] = coherence[idx[1],idx[0],...].conj()
-        
-        return coherence
-
-    @desc.setattr_on_read
-    def coherency(self):
-
-        tseries_length = self.data.shape[0]
+    def output(self):
+        """The standard output for this kind of analyzer is the coherency """
+        data = self.input.data
+        tseries_length = data.shape[0]
         spectrum_length = self.spectrum.shape[-1]
 
         coherency=np.zeros((tseries_length,
@@ -205,12 +174,43 @@ class CoherenceAnalyzer(desc.ResetMixin):
         coherency[idx[0],idx[1],...] = coherency[idx[1],idx[0],...].conj()
         
         return coherency
+
+    @desc.setattr_on_read
+    def spectrum(self):
+        f,spectrum = tsa.get_spectra(self.input.data,method=self.method)
+        return spectrum
+
+    @desc.setattr_on_read
+    def frequencies(self):
+        f,spectrum = tsa.get_spectra(self.input.data,method=self.method)
+        return f
+    
+    @desc.setattr_on_read
+    def coherence(self):
+
+        tseries_length = self.input.data.shape[0]
+        spectrum_length = self.spectrum.shape[-1]
+        coherence=np.zeros((tseries_length,
+                            tseries_length,
+                            spectrum_length))
+    
+        for i in xrange(tseries_length): 
+            for j in xrange(i,tseries_length):
+                coherence[i][j] = tsa.coherence_calculate(self.spectrum[i][j],
+                                                      self.spectrum[i][i],
+                                                      self.spectrum[j][j])  
+
+        idx = tsu.tril_indices(tseries_length,-1)
+        coherence[idx[0],idx[1],...] = coherence[idx[1],idx[0],...].conj()
+        
+        return coherence
+
     
     @desc.setattr_on_read
     def phase(self):
         """ The frequency-dependent phase relationship between all the pairwise
         combinations of time-series in the data"""
-        tseries_length = self.data.shape[0]
+        tseries_length = self.input.data.shape[0]
         spectrum_length = self.spectrum.shape[-1]
 
         phase = np.zeros((tseries_length,
@@ -245,7 +245,7 @@ class CoherenceAnalyzer(desc.ResetMixin):
         """The partial coherence between data[i] and data[j], given data[k], as
         a function of frequency band"""
 
-        tseries_length = self.data.shape[0]
+        tseries_length = self.input.data.shape[0]
         spectrum_length = self.spectrum.shape[-1]
 
         p_coherence=np.zeros((tseries_length,
