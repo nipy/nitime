@@ -11,16 +11,6 @@ have to that library.
 Over time, it is OK to add increasingly functionally rich classes, but only
 after their design is well proven in real-world use.
 
-Authors
--------
-- Ariel Rokem <arokem@berkeley.edu>, 
-- Fernando Perez <Fernando.Perez@berkeley.edu>.
-- Mike Trumpis <mtrumpis@gmail.com>
-- Paul Ivanov <pivanov@berkeley.edu>
-- Kilian Koepsell <kilian@berkeley.edu>
-- Tim Blanche <tjb@berkeley.edu>
-- Drew Fegen <dfegen@gmail.com> 
-
 """
 #-----------------------------------------------------------------------------
 # Public interface
