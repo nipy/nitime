@@ -19,6 +19,10 @@ from nitime import utils as tsu
 from nitime import algorithms as tsa
 from nitime import timeseries as ts
 
+# XXX - this one is only used in BaseAnalyzer.parameterlist. Should it be
+# imported at module level? 
+from inspect import getargspec
+    
 class BaseAnalyzer(desc.ResetMixin):
     """Analyzer that implements the default data flow.
 
@@ -39,7 +43,6 @@ class BaseAnalyzer(desc.ResetMixin):
 
     @desc.setattr_on_read
     def parameterlist(self):
-        from inspect import getargspec
         plist = getargspec(self.__init__).args
         plist.remove('self')
         plist.remove('input')
@@ -49,10 +52,9 @@ class BaseAnalyzer(desc.ResetMixin):
     def parameters(self):
         return dict([(p,getattr(self,p,'MISSING')) for p in self.parameterlist])
 
-    def __init__(self,input=None,sample_parameter='default value'):
+    def __init__(self,input=None):
         self.input = input
-        self.sample_parameter = sample_parameter
-
+      
     @desc.setattr_on_read
     def output(self):
         """This function currently does nothing and
@@ -61,10 +63,17 @@ class BaseAnalyzer(desc.ResetMixin):
         """
         return self.input
 
-    def __call__(self,input):
+    def __call__(self,input=None):
         """This fuction runs the analysis on new input
            data and returns the output data.
         """
+        if input is None:
+            if self.input is None:
+                raise ValueError('There is no data to analyze')
+            else:
+                return self.output
+            
+        
         self.reset()
         self.input = input
         return self.output
@@ -76,7 +85,9 @@ class BaseAnalyzer(desc.ResetMixin):
             raise NotImplementedError, 'This analyzer does not support getitem'
 
     def __repr__(self):
-        params = ', '.join(['%s=%r'%(p,getattr(self,p,'MISSING')) for p in self.parameterlist])
+        params = ', '.join(['%s=%r'%(p,getattr(self,p,'MISSING'))
+                                    for p in self.parameterlist])
+
         return '%s(%s)'%(self.__class__.__name__,params)
     
 
@@ -693,41 +704,37 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                                  time_unit=self.time_unit)
 
             
-class HilbertAnalyzer(desc.ResetMixin):
+class HilbertAnalyzer(BaseAnalyzer):
 
     """Analyzer class for extracting the Hilbert transform """ 
 
-    def __init__(self,time_series,lb=0,ub=None):
+    def __init__(self,input=None):
         """Constructor function for the Hilbert analyzer class.
 
         Parameters
         ----------
         
-        lb,ub: the upper and lower bounds of the frequency range for which the
-        transform is done, where filtering is done using the FilterAnalyzer,
-        with the boxcar filter method
-        
+        input: UniformTimeSeries
 
         """
-    
-        self.sampling_rate = time_series.sampling_rate
-        F = FilterAnalyzer(time_series,lb=lb,ub=ub)
-        self.data = F.filtered_boxcar.data
-
-    
+        BaseAnalyzer.__init__(self,input)
+        
     @desc.setattr_on_read
-    def _analytic(self):
+    def output(self):
+        """The natural output for this analyzer is the analytic signal """ 
+        data = self.input.data
+        sampling_rate = self.input.sampling_rate
         #If you have scipy with the fixed scipy.signal.hilbert (r6205 and later)
         if float(scipy.__version__[:3]>=0.8):
-            return ts.UniformTimeSeries(data=signal.hilbert(self.data),
-                                        sampling_rate=self.sampling_rate)
+            return ts.UniformTimeSeries(data=signal.hilbert(data),
+                                        sampling_rate=sampling_rate)
         else: 
-            a_signal = ts.UniformTimeSeries(data=np.zeros(self.data.shape,
+            a_signal = ts.UniformTimeSeries(data=np.zeros(data.shape,
                                                           dtype='D'),
-                                        sampling_rate=self.sampling_rate)
+                                        sampling_rate=sampling_rate)
 
             if self.data.ndim == 1:
-                a_signal.data[:] = signal.hilbert(self.data)
+                a_signal.data[:] = signal.hilbert(data)
             elif self.data.ndim == 2:
                 for i,dat in enumerate(self.data):
                     a_signal.data[i,:] = signal.hilbert(dat)
@@ -738,23 +745,23 @@ class HilbertAnalyzer(desc.ResetMixin):
         
     @desc.setattr_on_read
     def amplitude(self):
-        return ts.UniformTimeSeries(data=np.abs(self._analytic.data),
-                                 sampling_rate=self.sampling_rate)
+        return ts.UniformTimeSeries(data=np.abs(self.output.data),
+                                 sampling_rate=self.output.sampling_rate)
                                  
     @desc.setattr_on_read
     def phase(self):
-        return ts.UniformTimeSeries(data=np.angle(self._analytic.data),
-                                 sampling_rate=self.sampling_rate)
+        return ts.UniformTimeSeries(data=np.angle(self.output.data),
+                                 sampling_rate=self.output.sampling_rate)
 
     @desc.setattr_on_read
     def real(self):
-        return ts.UniformTimeSeries(data=self._analytic.data.real,
-                                    sampling_rate=self.sampling_rate)
+        return ts.UniformTimeSeries(data=self.output.data.real,
+                                    sampling_rate=self.output.sampling_rate)
     
     @desc.setattr_on_read
     def imag(self):
-        return ts.UniformTimeSeries(data=self._analytic.data.imag,
-                                    sampling_rate=self.sampling_rate)
+        return ts.UniformTimeSeries(data=self.output.data.imag,
+                                    sampling_rate=self.output.sampling_rate)
 
 
 class FilterAnalyzer(desc.ResetMixin):
@@ -860,7 +867,7 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
           If True, a log-Morlet wavelet is used, if False, a regular Morlet
           wavelet is used. Default: False
         """
-
+        BaseAnalyzer.__init__(self,input)
         self.freqs = freqs
         self.sd_rel = sd_rel
         self.sd = sd
@@ -869,10 +876,6 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
         self.nfreqs = nfreqs
         self.log_spacing = log_spacing
         self.log_morlet = log_morlet
-
-        if input is not None:
-            self.data = input.data
-            self.sampling_rate = input.sampling_rate
 
         if log_morlet:
             self.wavelet = tsa.wlogmorlet
@@ -886,7 +889,7 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
                 self.freqs = np.logspace(np.log10(f_min), np.log10(f_max),
                                          num=nfreqs, endpoint=True)
             else:
-                self.freqs = np.linspace(f_min, f_max, num=nfreqs, endpoint=True)
+                self.freqs = np.linspace(f_min,f_max,num=nfreqs,endpoint=True)
         else:
             raise NotImplementedError
 
@@ -895,52 +898,47 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
 
     @desc.setattr_on_read
     def output(self):
+        """The natural output for this analyzer is the analytic signal"""
+        data = self.input.data
+        sampling_rate = self.input.sampling_rate
+        
         a_signal =\
-    ts.UniformTimeSeries(data=np.zeros(self.freqs.shape+self.data.shape,
-                                       dtype='D'),
-                                        sampling_rate=self.sampling_rate)
+    ts.UniformTimeSeries(data=np.zeros(self.freqs.shape+data.shape,
+                                        dtype='D'),sampling_rate=sampling_rate)
         if self.freqs.ndim == 0:
             w = self.wavelet(self.freqs,self.sd,
-                             sampling_rate=self.sampling_rate,ns=5,normed='area')
-            
+                             sampling_rate=sampling_rate,ns=5,
+                                                     normed='area')
+
             nd = (w.shape[0]-1)/2
-            a_signal.data[...] = (np.convolve(self.data,
-                                              np.real(w),
-                                              mode='same') +
-                                  1j*np.convolve(self.data,
-                                              np.imag(w),
-                                              mode='same'))
+            a_signal.data[...] = (np.convolve(data,np.real(w),mode='same') +
+                                  1j*np.convolve(data,np.imag(w),mode='same'))
         else:    
             for i,(f,sd) in enumerate(zip(self.freqs,self.sd)):
-                w = self.wavelet(f,sd,sampling_rate=self.sampling_rate,
+                w = self.wavelet(f,sd,sampling_rate=sampling_rate,
                                  ns=5,normed='area')
 
                 nd = (w.shape[0]-1)/2
-                a_signal.data[i,...] = (np.convolve(self.data,
-                                                    np.real(w),
-                                                    mode='same') +
-                                        1j*np.convolve(self.data,
-                                                       np.imag(w),
-                                                       mode='same'))
+                a_signal.data[i,...] = (np.convolve(data,np.real(w),mode='same')+1j*np.convolve(data,np.imag(w),mode='same'))
                 
         return a_signal
 
     @desc.setattr_on_read
     def amplitude(self):
         return ts.UniformTimeSeries(data=np.abs(self.output.data),
-                                    sampling_rate=self.sampling_rate)
+                                    sampling_rate=self.output.sampling_rate)
                                  
     @desc.setattr_on_read
     def phase(self):
         return ts.UniformTimeSeries(data=np.angle(self.output.data),
-                                    sampling_rate=self.sampling_rate)
+                                    sampling_rate=self.output.sampling_rate)
 
     @desc.setattr_on_read
     def real(self):
         return ts.UniformTimeSeries(data=self.output.data.real,
-                                    sampling_rate=self.sampling_rate)
+                                    sampling_rate=self.output.sampling_rate)
     
     @desc.setattr_on_read
     def imag(self):
         return ts.UniformTimeSeries(data=self.output.data.imag,
-                                    sampling_rate=self.sampling_rate)
+                                    sampling_rate=self.output.sampling_rate)
