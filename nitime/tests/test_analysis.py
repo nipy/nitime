@@ -6,6 +6,33 @@ import nitime.analysis as nta
 import nose.tools as nt
 import decotest
 
+def test_SpectralAnalyzer():
+
+    Fs = np.pi
+    t = np.arange(1024)
+    x = np.sin(10*t) + np.random.rand(t.shape[-1])
+    y = np.sin(10*t) + np.random.rand(t.shape[-1])
+
+    T = ts.UniformTimeSeries(np.vstack([x,y]),sampling_rate=Fs)
+
+    C = nta.SpectralAnalyzer(T)
+
+    f,c = C()
+
+    npt.assert_equal(f.shape,(33,)) #This is the setting for this analyzer
+                                    #(window-length of 64)
+    npt.assert_equal(c.shape,(2,2,33))
+
+    f,c = C.spectrum_fourier
+
+    npt.assert_equal(f.shape,(t.shape[0]/2+1,))
+    npt.assert_equal(c.shape,(2,t.shape[0]/2+1))
+
+    f,c = C.spectrum_multi_taper
+
+    npt.assert_equal(f.shape,(t.shape[0]/2+1,))
+    npt.assert_equal(c.shape,(2,2,t.shape[0]/2+1))
+
 def test_CorrelationAnalyzer():
 
     Fs = np.pi
@@ -142,7 +169,6 @@ def test_FilterAnalyzer():
 def test_MorletWaveletAnalyzer():
     """Testing the MorletWaveletAnalyzer """
     time_series = ts.UniformTimeSeries(data=np.random.rand(100),sampling_rate=100)
-
 
     W = nta.MorletWaveletAnalyzer(time_series,freqs=20)
     WL = nta.MorletWaveletAnalyzer(time_series,freqs=20,log_morlet=True)
