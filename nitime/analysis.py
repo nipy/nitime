@@ -61,7 +61,7 @@ class BaseAnalyzer(desc.ResetMixin):
             is meant to be overwritten by the specific
             analyzer sub-class.
         """
-        return self.input
+        return None
 
     def __call__(self,input=None):
         """This fuction runs the analysis on new input
