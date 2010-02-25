@@ -10,6 +10,7 @@
 .. toctree::
    :maxdepth: 2
 
+   overview
    install
    tutorial
 
