@@ -415,7 +415,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
 
         return ts.UniformTimeSeries(xcorr,
                                 sampling_interval=self.input.sampling_interval,
-                                t0=-self.input.sampling_interval*t_points+1)
+                                t0=-self.input.sampling_interval*t_points)
     
     @desc.setattr_on_read
     def xcorr_norm(self):
