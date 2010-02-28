@@ -92,11 +92,11 @@ def get_time_series_inplane(coords,scan_file,
     #Adjusted the coordinates according to the ratio between the
     #sampling in the gray and the sampling in the inplane, move the
     #slice dimension to be the first one and change the indexing from
-    #1-based to 0-based, also adjust the coords order, according to the mrVista
-    #weird conventions: 
-
-    this_data = data[np.round(coords[1]/up_sample_factor[1]).astype(int)-1,
-                         np.round(coords[0]/up_sample_factor[0]).astype(int)-1,
+    #1-based to 0-based. The coord order is as it is in the input, so need to
+    #make sure that it is correct on the input side. 
+    
+    this_data = data[np.round(coords[0]/up_sample_factor[0]).astype(int)-1,
+                         np.round(coords[1]/up_sample_factor[1]).astype(int)-1,
                          np.round(coords[2]/up_sample_factor[2]).astype(int)-1]
 
     if normalize:
