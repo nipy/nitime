@@ -1,5 +1,6 @@
 import numpy as np
 import nitime.timeseries as ts
+import nitime.analysis as tsa
 import nitime.viz as viz
 
 #As before the stimuli get read from files:  
@@ -32,8 +33,8 @@ spike_time_series.data[0][spike_times1] = 1
 spike_time_series.data[1][spike_times2] = 1
 
 #The analysis and plotting proceeds in exactly the same way as before
-event_related = ts.EventRelatedAnalyzer(stim_time_series,
-                                        spike_time_series,len_hrf=250,
+event_related = tsa.EventRelatedAnalyzer(stim_time_series,
+                                        spike_time_series,len_et=250,
                                         offset=-200)
 
 fig = viz.plot_tseries(event_related.eta,ylabel='Amplitude (dB SPL)')
