@@ -8,3 +8,4 @@ Here are a couple of examples:
    :maxdepth: 2
 
    grasshopper
+   fmri
