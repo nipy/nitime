@@ -1,7 +1,9 @@
 #Imports:
 import numpy as np
-#Import nitime.timeseriese for analysis and representation objects:
+#Import nitime.timeseries for representation objects:
 import nitime.timeseries as ts
+#Import nitime.analysis for analysis object:
+import nitime.analysis as tsa
 #The viz library is used for visualization:
 import nitime.viz as viz
 
@@ -29,8 +31,8 @@ spike_time_series = ts.UniformTimeSeries(t0=0,sampling_interval=0.05,
 spike_time_series.data[spike_times] = 1
 
 #Initialize the event-related analyzer
-event_related = ts.EventRelatedAnalyzer(stim_time_series,
-                                        spike_time_series,len_hrf=250,
+event_related = tsa.EventRelatedAnalyzer(stim_time_series,
+                                        spike_time_series,len_et=250,
                                         offset=-200)
 
 #The actual STA gets calculated in this line (the call to 'event_related.eta')
