@@ -59,6 +59,46 @@ def plot_tseries(time_series,fig=None,axis=0,
     return fig
 
 
+def matshow_roi(m,roi_names=None,fig=None,x_tick_rot=90,size=None,
+                cmap=plt.cm.PuBuGn):
+    """This is the typical format to show a bivariate quantity (such as
+    correlation or coherency between two different ROIs""" 
+    N = len(roi_names)
+    ind = np.arange(N)  # the evenly spaced plot indices
+    
+    def roi_formatter(x,pos=None):
+        thisind = np.clip(int(x), 0, N-1)
+        return roi_names[thisind]
+
+    if fig is None:
+        fig=plt.figure()
+
+    if size is not None:
+        fig.set_figwidth(size[0])
+        fig.set_figheight(size[1])
+
+    #The call to matshow produces the matrix plot:
+    plt.matshow(m,fignum=fig.number,cmap=cmap)
+    
+    #Formatting:
+    ax = fig.axes[0]
+    ax.set_xticks(np.arange(len(roi_names)))
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(roi_formatter))
+    fig.autofmt_xdate(rotation=x_tick_rot)
+    ax.set_yticks(np.arange(len(roi_names)))
+    ax.set_yticklabels(roi_names)
+    ax.set_ybound([-0.5,len(roi_names)-0.5])
+
+    #Make the tick-marks invisible:
+    for line in ax.xaxis.get_ticklines():
+        line.set_markeredgewidth(0)
+
+    for line in ax.yaxis.get_ticklines():
+      line.set_markeredgewidth(0)
+
+    plt.colorbar()
+
+    return fig
 
 
 
