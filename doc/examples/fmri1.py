@@ -11,6 +11,8 @@ from nitime.timeseries import UniformTimeSeries
 from nitime.analysis import CorrelationAnalyzer
 #Import utility functions:
 from nitime.utils import percent_change
+import nitime.viz
+reload(nitime.viz)
 from nitime.viz import matshow_roi
 
 #This information (the sampling rate) has to be known in advance:
@@ -27,8 +29,8 @@ n_samples = data_rec.shape[0]
 #Make an empty container for the data
 data = np.zeros((len(roi_names),n_samples))
 
-for n_idx in range(len(roi_names)):
-   data[n_idx] = data_rec[roi_names[n_idx]]
+for n_idx, roi in enumerate(roi_names):
+   data[n_idx] = data_rec[roi]
 
 #Normalize the data:
 data = percent_change(data)

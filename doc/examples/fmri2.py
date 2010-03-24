@@ -18,8 +18,8 @@ roi_names= np.array(data_rec.dtype.names)
 n_samples = data_rec.shape[0]
 data = np.zeros((len(roi_names),n_samples))
 
-for n_idx in range(len(roi_names)):
-   data[n_idx] = data_rec[roi_names[n_idx]]
+for n_idx, roi in enumerate(roi_names):
+   data[n_idx] = data_rec[roi]
 
 data = percent_change(data)
 T = UniformTimeSeries(data,sampling_interval=TR)

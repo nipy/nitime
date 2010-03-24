@@ -46,13 +46,71 @@ cross-correlation.
 .. plot:: examples/fmri2.py
    :include-source:
 
-Note that the correlation is normalized to the zero-lag point (time = 0 sec)
-and that there are larger correlations occuring at other time-points preceding
-and following the . This could arise because of a more complex interplay of
-activity between two areas, which is not captured by the correlation and can
-also arise because of differences in the characteristics of the HRF in the two
-ROIs. One method of analysis which can mitigate these issues is analysis of
-coherency [Sun2004]_.
+Note that the correlation is normalized, so that the the value of the
+cross-correation functions at the zero-lag point (time = 0 sec) is equal to the
+pearson correlation between the two time-series.  We observe that there are
+correlations larger than the zero-lag correlation occuring at other time-points
+preceding and following the zero-lag. This could arise because of a more complex
+interplay of activity between two areas, which is not captured by the
+correlation and can also arise because of differences in the characteristics of
+the HRF in the two ROIs. One method of analysis which can mitigate these issues
+is analysis of coherency between time-series [Sun2005]_. This analysis computes
+an equivalent of the correlation in the frequency domain: 
 
-Next we compute the coherency between all the areas
+.. math::
+
+        R_{xy} (\lambda) = \frac{f_{xy}(\lambda)}
+        {\sqrt{f_{xx} (\lambda) \cdot f_{yy}(\lambda)}}
+
+Because this is a complex number, this computation results in two
+quantities. First, the magnitude of this number, also referred to as
+"coherence":  
+
+.. math::
+
+   Coh_{xy}(\lambda) = |{R_{xy}(\lambda)}|^2 =
+        \frac{|{f_{xy}(\lambda)}|^2}{f_{xx}(\lambda) \cdot f_{yy}(\lambda)}
+
+This is a measure of the parwise coupling between the two time-series. It can
+vary between 0 and 1, with 0 being complete independence and 1 being complete
+coupling. A time-series would have a coherence of 1 with itself, but not only:
+since this measure is independent of the relative phase of the two time-series,
+the coherence between a time-series and any phase-shifted version of itself
+will also be equal to 1.
+
+However, the relative phase is another quantitiy which can be derived from this
+computation:
+
+.. math::
+
+   \phi(\lambda) = arg [R_{xy} (\lambda)] = arg [f_{xy} (\lambda)]
+
+	
+This value can be used in order to infer which area is leading and which area
+is lagging (according to the sign of the relative phase) and, can be used to
+compute the temporal delay between activity in one ROI and the other.
+
+First, let's look at the pair-wise coherence between all our ROIs. This can be
+done by creating a :class:`CoherenceAnalyzer` object. Once this object is
+initialized with the :class:`UniformTimeSeries` object, the mid-frequency of
+the frequency bands represented in the spectral decomposition of the
+time-series can be accessed in the :attr:`C.frequencies` attribute of the
+object. The spectral resolution of this representation is the same one used in
+the computation of the coherence. The :attr:`C.coherence` attribute is an
+:class:`ndarray` of dimensions $n_{ROI}$ by $n_{ROI}$ by
+$n_{frequencies}$. Since the fMRI BOLD data contains data in frequencies which
+are not physilogically relevant (presumably due to machine noise and
+fluctuations in physilogical measures unrelated to neural activity), we focus
+our analysis on a band of frequencies between 0.02 and 0.15 Hz. This is easily
+achieved by determining the values of the indices in :attr:`C.frequencies` and
+using those indices in accessing the data in :attr:`C.coherence`. The coherence
+is then averaged across all these frequency bands: 
+
+.. plot:: examples/fmri3.py
+   :include-source:
+
+   
+.. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
+           temporal dynamics of functional networks using phase spectrum of
+           fMRI data. Neuroimage, 28: 227-37.
 

@@ -6,6 +6,8 @@ from matplotlib.pyplot import figure,legend
 from matplotlib.mlab import csv2rec
 from nitime.timeseries import UniformTimeSeries
 from nitime.utils import percent_change
+import nitime.viz
+reload(nitime.viz)
 from nitime.viz import matshow_roi
 
 #This time Import the coherence analyzer 
@@ -18,8 +20,8 @@ roi_names= np.array(data_rec.dtype.names)
 n_samples = data_rec.shape[0]
 data = np.zeros((len(roi_names),n_samples))
 
-for n_idx in range(len(roi_names)):
-   data[n_idx] = data_rec[roi_names[n_idx]]
+for n_idx, roi in enumerate(roi_names):
+   data[n_idx] = data_rec[roi]
 
 data = percent_change(data)
 T = UniformTimeSeries(data,sampling_interval=TR)
@@ -32,5 +34,5 @@ freq_idx = np.where((C.frequencies>0.02) * (C.frequencies<0.15))[0]
 
 #Extract the coherence and average across these frequency bands: 
 coh = np.mean(C.coherence[:,:,freq_idx],2) #Averaging on the last dimension 
-matshow_roi(coh,roi_names,size=[10.,10.])
+f = matshow_roi(coh,roi_names,size=[10.,10.])
 

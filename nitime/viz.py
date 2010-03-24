@@ -62,7 +62,8 @@ def plot_tseries(time_series,fig=None,axis=0,
     return fig
 
 
-def matshow_roi(m,roi_names=None,fig=None,x_tick_rot=90,size=None):
+def matshow_roi(m,roi_names=None,fig=None,x_tick_rot=90,size=None,
+                cmap=plt.cm.PuBuGn):
     """This is the typical format to show a bivariate quantity (such as
     correlation or coherency between two different ROIs""" 
     N = len(roi_names)
@@ -74,16 +75,29 @@ def matshow_roi(m,roi_names=None,fig=None,x_tick_rot=90,size=None):
 
     if fig is None:
         fig=plt.figure()
-
+    
     if size is not None:
         fig.set_figwidth(size[0])
         fig.set_figheight(size[1])
 
+    #Null the upper triangle, so that you don't get the redundant and the
+    #diagonal values:  
+    idx_null = np.triu_indices(m.shape[0])
+    m[idx_null]=np.nan
+    
     #The call to matshow produces the matrix plot:
-    plt.matshow(m,fignum=fig.number)
-
+    plt.matshow(m,fignum=fig.number,cmap=cmap)
     #Formatting:
     ax = fig.axes[0]
+
+    #Label each of the cells with the row and the column:
+    for i in xrange(0,m.shape[0]):
+        if i<(m.shape[0]-1):
+            ax.text(i-0.3,i,roi_names[i],rotation=x_tick_rot)
+        if i>0:
+            ax.text(-1,i+0.3,roi_names[i],horizontalalignment='right')
+            
+    ax.set_axis_off()
     ax.set_xticks(np.arange(len(roi_names)))
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(roi_formatter))
     fig.autofmt_xdate(rotation=x_tick_rot)
@@ -97,10 +111,13 @@ def matshow_roi(m,roi_names=None,fig=None,x_tick_rot=90,size=None):
 
     for line in ax.yaxis.get_ticklines():
       line.set_markeredgewidth(0)
- 
+
+    ax.set_axis_off()
+    plt.colorbar(orientation='horizontal')
     return fig
 
-def plot_xcorr(xc,ij,fig=None,line_labels=None,xticks=None,yticks=None,xlabel=None,ylabel=None):
+def plot_xcorr(xc,ij,fig=None,line_labels=None,xticks=None,yticks=None,
+               xlabel=None,ylabel=None):
 
     """ Visualize the cross-correlation function"""
    
