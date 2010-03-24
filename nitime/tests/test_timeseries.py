@@ -148,29 +148,31 @@ def test_UniformTime():
 
         #This should raise a value error, because the duration is shorter than
         #the sampling_interval:
-        npt.assert_raises(ValueError,
+        yield npt.assert_raises(ValueError,
                           ts.UniformTime,dict(sampling_interval=10,duration=1))
 
     #Time objects can be initialized with other time objects setting the
     #duration, sampling_interval and sampling_rate:
     
     a = ts.UniformTime(length=1,sampling_rate=1)
+    yield npt.assert_raises(ValueError, ts.UniformTime, dict(data=a,
+        sampling_rate=10, sampling_interval=.1))
     b = ts.UniformTime(duration=2*a.sampling_interval,
                        sampling_rate=2*a.sampling_rate)
 
-    npt.assert_equal(ts.Frequency(b.sampling_rate),
+    yield npt.assert_equal(ts.Frequency(b.sampling_rate),
                      ts.Frequency (2*a.sampling_rate))
-    npt.assert_equal(b.sampling_interval,ts.TimeArray(0.5*a.sampling_rate))
+    yield npt.assert_equal(b.sampling_interval,ts.TimeArray(0.5*a.sampling_rate))
 
     b = ts.UniformTime(duration=10,
                        sampling_interval=a.sampling_interval)
 
-    npt.assert_equal(b.sampling_rate,a.sampling_rate)
+    yield npt.assert_equal(b.sampling_rate,a.sampling_rate)
 
     b = ts.UniformTime(duration=10,
                        sampling_rate=a.sampling_rate)
 
-    npt.assert_equal(b.sampling_interval,a.sampling_interval)
+    yield npt.assert_equal(b.sampling_interval,a.sampling_interval)
 
 @decotest.ipdoctest    
 def test_UniformTime_repr():

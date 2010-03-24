@@ -49,7 +49,7 @@ from doctest import DocTestFinder, DocTestRunner
 #-----------------------------------------------------------------------------
 # nose monkeypatch, remove later
 #-----------------------------------------------------------------------------
-if 0:
+if 1:
 
     def getTestCaseNames(self, testCaseClass):
         """Override to select with selector, unless
