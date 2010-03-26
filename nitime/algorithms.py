@@ -992,8 +992,8 @@ def coherence_partial_calculate(fxy,fxx,fyy,fxr,fry,frr):
     Rry = coh(fry,fyy,frr)
     Rxy = coh(fxy,fxx,fyy)
 
-    return (( Rxy - (Rxr*Rry) ) /
-            np.sqrt( (1-Rxr*Rxr.conjugate()) * (1-Rry*Rry.conjugate()) ) )
+    return (( (np.abs(Rxy-Rxr*Rry))**2 ) /
+           ( (1-((np.abs(Rxr))**2)) * (1-((np.abs(Rry))**2)) ) )
 
 def coherence_partial_bavg(x,y,r,csd_method=None,lb=0,ub=None):
     r""" Band-averaged partial coherence
