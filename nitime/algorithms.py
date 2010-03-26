@@ -935,7 +935,7 @@ def coherence_partial(time_series,r,csd_method=None):
         for j in xrange(i,time_series.shape[0]):
             f,fxx,frr,frx = get_spectra_bi(time_series[i],r,csd_method)
             f,fyy,frr,fry = get_spectra_bi(time_series[j],r,csd_method)
-            coherence_partial_calculate(fxy[i][j],fxy[i][i],fxy[j][j],
+            c[i,j] = coherence_partial_calculate(fxy[i][j],fxy[i][i],fxy[j][j],
                                         frx,fry,frr)
 
     idx = ut.tril_indices(time_series.shape[0],-1)
