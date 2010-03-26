@@ -776,6 +776,187 @@ def antisymm_rand_arr(size,sample_func=np.random.random):
       """
     return structured_rand_arr(size,sample_func,ltfac=-1.0,fill_diag=0)
 
+#--------brainx utils------------------------------------------------------
+"""These utils were copied over from brainx - needed for viz"""
+
+def threshold_arr(cmat,threshold=0.0,threshold2=None):
+    """Threshold values from the input matrix.
+
+    Parameters
+    ----------
+    cmat : array
+    
+    threshold : float, optional.
+      First threshold.
+      
+    threshold2 : float, optional.
+      Second threshold.
+
+    Returns
+    -------
+    indices, values: a tuple with ndim+1
+    
+    Examples
+    --------
+    >>> a = np.linspace(0,0.8,7)
+    >>> a
+    array([ 0.    ,  0.1333,  0.2667,  0.4   ,  0.5333,  0.6667,  0.8   ])
+    >>> threshold_arr(a,0.3)
+    (array([3, 4, 5, 6]), array([ 0.4   ,  0.5333,  0.6667,  0.8   ]))
+
+    With two thresholds:
+    >>> threshold_arr(a,0.3,0.6)
+    (array([0, 1, 2, 5, 6]), array([ 0.    ,  0.1333,  0.2667,  0.6667,  0.8   ]))
+
+    """
+    # Select thresholds
+    if threshold2 is None:
+        th_low = -np.inf
+        th_hi  = threshold
+    else:
+        th_low = threshold
+        th_hi  = threshold2
+
+    # Mask out the values we are actually going to use
+    idx = np.where( (cmat < th_low) | (cmat > th_hi) )
+    vals = cmat[idx]
+    
+    return idx + (vals,)
+
+
+def thresholded_arr(arr,threshold=0.0,threshold2=None,fill_val=np.nan):
+    """Threshold values from the input matrix and return a new matrix.
+
+    Parameters
+    ----------
+    arr : array
+    
+    threshold : float
+      First threshold.
+      
+    threshold2 : float, optional.
+      Second threshold.
+
+    Returns
+    -------
+    An array shaped like the input, with the values outside the threshold
+    replaced with fill_val.
+    
+    Examples
+    --------
+    """
+    a2 = np.empty_like(arr)
+    a2.fill(fill_val)
+    mth = threshold_arr(arr,threshold,threshold2)
+    idx,vals = mth[:-1], mth[-1]
+    a2[idx] = vals
+    
+    return a2
+
+def rescale_arr(arr,amin,amax):
+    """Rescale an array to a new range.
+
+    Return a new array whose range of values is (amin,amax).
+
+    Parameters
+    ----------
+    arr : array-like
+
+    amin : float
+      new minimum value
+
+    amax : float
+      new maximum value
+
+    Examples
+    --------
+    >>> a = np.arange(5)
+
+    >>> rescale_arr(a,3,6)
+    array([ 3.  ,  3.75,  4.5 ,  5.25,  6.  ])
+    """
+    
+    # old bounds
+    m = arr.min()
+    M = arr.max()
+    # scale/offset
+    s = float(amax-amin)/(M-m)
+    d = amin - s*m
+    
+    # Apply clip before returning to cut off possible overflows outside the
+    # intended range due to roundoff error, so that we can absolutely guarantee
+    # that on output, there are no values > amax or < amin.
+    return np.clip(s*arr+d,amin,amax)
+
+def minmax_norm(arr,mode='direct',folding_edges=None):
+    """Minmax_norm an array to [0,1] range.
+
+    By default, this simply rescales the input array to [0,1].  But it has a
+    special 'folding' mode that allows for the normalization of an array with
+    negative and positive values by mapping the negative values to their
+    flipped sign
+
+    Parameters
+    ----------
+    arr : 1d array
+    
+    mode : string, one of ['direct','folding']
+
+    folding_edges : (float,float)
+      Only needed for folding mode, ignored in 'direct' mode.
+
+    Examples
+    --------
+    >>> np.set_printoptions(precision=4)  # for doctesting
+    >>> a = np.linspace(0.3,0.8,7)
+    >>> minmax_norm(a)
+    array([ 0.    ,  0.1667,  0.3333,  0.5   ,  0.6667,  0.8333,  1.    ])
+    >>> 
+    >>> b = np.concatenate([np.linspace(-0.7,-0.3,4),
+    ...                     np.linspace(0.3,0.8,4)] )
+    >>> b
+    array([-0.7   , -0.5667, -0.4333, -0.3   ,  0.3   ,  0.4667,  0.6333,  0.8   ])
+    >>> minmax_norm(b,'folding',[-0.3,0.3])
+    array([ 0.8   ,  0.5333,  0.2667,  0.    ,  0.    ,  0.3333,  0.6667,  1.    ])
+    >>> 
+    >>> 
+    >>> c = np.concatenate([np.linspace(-0.8,-0.3,4),
+    ...                     np.linspace(0.3,0.7,4)] )
+    >>> c
+    array([-0.8   , -0.6333, -0.4667, -0.3   ,  0.3   ,  0.4333,  0.5667,  0.7   ])
+    >>> minmax_norm(c,'folding',[-0.3,0.3])
+    array([ 1.    ,  0.6667,  0.3333,  0.    ,  0.    ,  0.2667,  0.5333,  0.8   ])
+    """
+    if mode == 'direct':
+        return rescale_arr(arr,0,1)
+    else:
+        fa, fb = folding_edges
+        amin, amax = arr.min(), arr.max()
+        ra,rb = float(fa-amin),float(amax-fb) # in case inputs are ints
+        if ra<0 or rb<0:
+            raise ValueError("folding edges must be within array range")
+        greater = arr>= fb
+        upper_idx = greater.nonzero()
+        lower_idx = (~greater).nonzero()
+        # Two folding scenarios, we map the thresholds to zero but the upper
+        # ranges must retain comparability.
+        if ra > rb:
+            lower = 1.0 - rescale_arr(arr[lower_idx],0,1.0)
+            upper = rescale_arr(arr[upper_idx],0,float(rb)/ra)
+        else:
+            upper = rescale_arr(arr[upper_idx],0,1)
+            # The lower range is trickier: we need to rescale it and then flip
+            # it, so the edge goes to 0.
+            resc_a = float(ra)/rb
+            lower = rescale_arr(arr[lower_idx],0,resc_a)
+            lower = resc_a - lower
+        # Now, make output array
+        out = np.empty_like(arr)
+        out[lower_idx] = lower
+        out[upper_idx] = upper
+        return out
+
+
 
 #---------- intersect coords ----------------------------------------------------
 

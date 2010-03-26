@@ -8,7 +8,7 @@ from nitime.timeseries import UniformTimeSeries
 from nitime.utils import percent_change
 import nitime.viz
 reload(nitime.viz)
-from nitime.viz import matshow_roi
+from nitime.viz import drawgraph_roi,matshow_roi
 
 #This time Import the coherence analyzer 
 from nitime.analysis import CoherenceAnalyzer
@@ -32,7 +32,18 @@ C = CoherenceAnalyzer(T)
 #relevant band, see http://imaging.mrc-cbu.cam.ac.uk/imaging/DesignEfficiency:
 freq_idx = np.where((C.frequencies>0.02) * (C.frequencies<0.15))[0]
 
-#Extract the coherence and average across these frequency bands: 
-coh = np.mean(C.coherence[:,:,freq_idx],2) #Averaging on the last dimension 
-matshow_roi(coh,roi_names,size=[10.,10.])
+idx_lcau = np.where(roi_names=='lcau')[0]
+idx_rcau = np.where(roi_names=='rcau')[0]
+idx_lput = np.where(roi_names=='lput')[0]
+idx_rput = np.where(roi_names=='rput')[0]
 
+idx = np.hstack([idx_lcau,idx_rcau,idx_lput,idx_rput])
+idx1 = np.vstack([[idx[i]]*4 for i in range(4)]).ravel()
+idx2 = np.hstack(4*[idx])
+
+#Extract the coherence and average across these frequency bands: 
+coh = C.coherence[idx1,idx2].reshape(4,4,C.frequencies.shape[0])
+coh = np.mean(coh[:,:,freq_idx],2) #Averaging on the last dimension
+
+drawgraph_roi(coh,roi_names[idx])
+matshow_roi(coh,roi_names[idx])

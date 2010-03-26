@@ -104,13 +104,40 @@ fluctuations in physilogical measures unrelated to neural activity), we focus
 our analysis on a band of frequencies between 0.02 and 0.15 Hz. This is easily
 achieved by determining the values of the indices in :attr:`C.frequencies` and
 using those indices in accessing the data in :attr:`C.coherence`. The coherence
-is then averaged across all these frequency bands: 
+is then averaged across all these frequency bands.  
 
 .. plot:: examples/fmri3.py
    :include-source:
+
+We can also focus in on the ROIs we were interested in. This requires a little
+bit of manipulation of the indices into the coherence matrix: 
+
+.. plot:: examples/fmri4.py
+   :include-source:
+
+This shows us that there is a stronger connectivity between left putamen and
+the left caudate than between the homologous regions in the other
+hemisphere. In particular, in contrast to the relatively high correlation
+between the right caudate and the left caudate, there is a rather low coherence
+between the time-series in these two regions, in this frequency range.
+
+Note that the connectivity described by coherency (and other measures of
+functional connectivity could arise because of neural connectivity between the
+two regions, but also due to a common blood supply, or common fluctuations in
+other physiological measures which affect the BOLD signal measured in both
+regions. In order to be able to differentiate these two options, we would have to
+conduct a comparison between two different behavioral states that affects (for
+adiscussion of these issues, see [Silver2010]_). In this case, we will simply
+assume that 
 
    
 .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
            temporal dynamics of functional networks using phase spectrum of
            fMRI data. Neuroimage, 28: 227-37.
+
+.. [Silver2010] M.A Silver, AN Landau, TZ Lauritzen, W Prinzmetal, LC
+   Robertson(2010) Isolating human brain functional connectivity associated
+   with a specific cognitive process, in Human Vision and Electronic Imaging
+   XV, edited by B.E. Rogowitz and T.N. Pappas, Proceedings of SPIE, Volume
+   7527, pp. 75270B-1 to 75270B-9
 

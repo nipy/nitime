@@ -34,5 +34,5 @@ freq_idx = np.where((C.frequencies>0.02) * (C.frequencies<0.15))[0]
 
 #Extract the coherence and average across these frequency bands: 
 coh = np.mean(C.coherence[:,:,freq_idx],2) #Averaging on the last dimension 
-f = matshow_roi(coh,roi_names,size=[10.,10.])
+matshow_roi(coh,roi_names,size=[10.,10.])
 
