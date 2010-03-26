@@ -110,7 +110,8 @@ is then averaged across all these frequency bands.
    :include-source:
 
 We can also focus in on the ROIs we were interested in. This requires a little
-bit of manipulation of the indices into the coherence matrix: 
+bit of manipulation of the indices into the coherence matrix. We visualize this
+by creating a network graph of these ROIs (this is done by using the function :func:`viz.drawgraph_roi` which relies on `networkx <http://networkx.lanl.gov>`_):  
 
 .. plot:: examples/fmri4.py
    :include-source:
@@ -125,10 +126,35 @@ Note that the connectivity described by coherency (and other measures of
 functional connectivity could arise because of neural connectivity between the
 two regions, but also due to a common blood supply, or common fluctuations in
 other physiological measures which affect the BOLD signal measured in both
-regions. In order to be able to differentiate these two options, we would have to
-conduct a comparison between two different behavioral states that affects (for
-adiscussion of these issues, see [Silver2010]_). In this case, we will simply
-assume that 
+regions. In order to be able to differentiate these two options, we would have
+to conduct a comparison between two different behavioral states that affect the
+neural activity in the two regions, without affecting these common
+physiological factors, such as common blood supply (for an in-depth discussion
+of these issues, see [Silver2010]_). In this case, we will simply assume that
+the connectivity matrix presented represents the actual neural connectivity
+between these two brain regions.
+
+We notice that there is indeed a stronger coherence betwen left putamen and the
+left caudate than between the left caudate and the right caudate. Next, we
+might ask whether the moderate coherence between the left putamen and the right
+caudate can be accounted for by the coherence these two time-series share with
+the time-series derived from the left caudate. This kind of question can be
+answered using an analysis of partial coherency. For the time series $x$ and
+$y$, the partial coherence, given a third time-series $r$, is defined as:
+
+
+.. math::
+
+        Coh_{xy|r} = \frac{|{R_{xy}(\lambda) - R_{xr}(\lambda)
+        R_{ry}(\lambda)}|^2}{(1-|{R_{xr}}|^2)(1-|{R_{ry}}|^2)}
+
+
+In this case, we extract the partial coherence between the three regions,
+excluding common effects of the left caudate:
+
+
+.. plot:: examples/fmri5.py
+   :include-source:
 
    
 .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
