@@ -27,9 +27,6 @@ data = percent_change(data)
 T = UniformTimeSeries(data,sampling_interval=TR)
 T.metadata['roi'] = roi_names 
 C = CoherenceAnalyzer(T)
-
-#We look only at frequencies between 0.02 and 0.15 (the physiologically
-#relevant band, see http://imaging.mrc-cbu.cam.ac.uk/imaging/DesignEfficiency:
 freq_idx = np.where((C.frequencies>0.02) * (C.frequencies<0.15))[0]
 
 idx_lcau = np.where(roi_names=='lcau')[0]
