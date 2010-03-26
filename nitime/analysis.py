@@ -251,18 +251,24 @@ class CoherenceAnalyzer(BaseAnalyzer):
         p_coherence=np.zeros((tseries_length,
                               tseries_length,
                               tseries_length,
-                              spectrum_length),dtype=complex)
+                              spectrum_length))
     
         for i in xrange(tseries_length): 
             for j in xrange(tseries_length):
-                for k in xrange(t_series_length):
-                    p_coherence[i][j][k]=tsa.coherence_partial_calculate(
-                        self.spectrum[i][j],
-                        self.spectrum[i][i],
-                        self.spectrum[j][j],
-                        self.spectrum[i][k],
-                        self.spectrum[j][k],
-                        self.spectrum[k][k])  
+                for k in xrange(tseries_length):
+                    if j==k or i==k:
+                        pass
+                    else: 
+                        p_coherence[i][j][k]=tsa.coherence_partial_calculate(
+                            self.spectrum[i][j],
+                            self.spectrum[i][i],
+                            self.spectrum[j][j],
+                            self.spectrum[i][k],
+                            self.spectrum[j][k],
+                            self.spectrum[k][k])
+                        
+        idx = tsu.tril_indices(tseries_length,-1)
+        p_coherence[idx[0],idx[1],...] = p_coherence[idx[1],idx[0],...].conj()
 
         return p_coherence        
         
