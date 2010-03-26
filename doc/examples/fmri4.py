@@ -46,4 +46,3 @@ coh = C.coherence[idx1,idx2].reshape(4,4,C.frequencies.shape[0])
 coh = np.mean(coh[:,:,freq_idx],2) #Averaging on the last dimension
 
 drawgraph_roi(coh,roi_names[idx])
-matshow_roi(coh,roi_names[idx])
