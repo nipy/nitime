@@ -32,7 +32,6 @@ anddisplays the correlation matrix with the ROIs labeled.
 .. plot:: examples/fmri1.py
    :include-source:
 
-
 We notice that the left caudate nucleus (labeled 'lcau') has an interesting
 pattern of correlations. It has a high correlation with both the left putamen
 ('lput', which is located nearby) and also with the right caudate nucleus
@@ -40,12 +39,28 @@ pattern of correlations. It has a high correlation with both the left putamen
 two correlation values related to each other? The right caudate and left
 putamen seem to have a moderately low correlation value. One way to examine
 this question is by looking at the temporal structure of the cross-correlation
-functions. In the following script, we plot the normalized
-cross-correlation.
+functions. In order to do that, from the :class:`CorrelationAnalyzer` object,
+we extract the normalized cross-correlation function. This results in another
+:class:`UniformTimeSeries` object, which contains the full time-series of the
+cross-correlation between any combination of time-series from the different
+channels in the time-series object. We can pass the resulting object, together
+with a list of indices to the :func:`viz.plot_xcorr` function, which visualizes
+the chosen combinations of series:  
+
+.. code-block:: python
+
+    xc = C.xcorr_norm
+
+    idx_lcau = np.where(roi_names=='lcau')[0]
+    idx_rcau = np.where(roi_names=='rcau')[0]
+    idx_lput = np.where(roi_names=='lput')[0]
+
+    plot_xcorr(xc,((idx_lcau,idx_rcau),(idx_lcau,idx_lput)),
+			           line_labels = ['rcau','lput'])
 
 .. plot:: examples/fmri2.py
-   :include-source:
 
+   
 Note that the correlation is normalized, so that the the value of the
 cross-correation functions at the zero-lag point (time = 0 sec) is equal to the
 pearson correlation between the two time-series.  We observe that there are
@@ -106,17 +121,70 @@ achieved by determining the values of the indices in :attr:`C.frequencies` and
 using those indices in accessing the data in :attr:`C.coherence`. The coherence
 is then averaged across all these frequency bands.  
 
+In order to do that, we first import the :class:`CoherenceAnalyzer` object and
+generate a an object of this class:
+
+.. code-block:: python
+
+   from nitime.analysis import CoherenceAnalyzer
+   C = CoherenceAnalyzer(T)
+
+In this case, we will examine the coherence at frequencies between 0.02 and
+0.15 Hz, which are considered to be the physiologically relevant band in the
+fMRI BOLD time series (see `here <http://imaging.mrc-cbu.cam.ac.uk/imaging/DesignEfficiency>`_):
+
+We extract the indices of these frequencies from the
+:attr:`CoherenceAnalyzer.frequencies` attribute:
+
+.. code-block:: python
+
+   freq_idx = np.where((C.frequencies>0.02) * (C.frequencies<0.15))[0]
+
+Then, we extract the coherence in these frequency bands and average on the last
+dimension, which is the frequency dimension: 
+
+.. code-block:: python
+
+   coh = np.mean(C.coherence[:,:,freq_idx],-1) 
+
+Finally, we use the :func:`viz.matshow_roi` function to display the coherence
+matrix:
+
+.. code-block:: python
+
+   matshow_roi(coh,roi_names,size=[10.,10.])
+
 .. plot:: examples/fmri3.py
-   :include-source:
 
 We can also focus in on the ROIs we were interested in. This requires a little
-bit of manipulation of the indices into the coherence matrix. We visualize this
-by creating a network graph of these ROIs (this is done by using the function :func:`viz.drawgraph_roi` which relies on `networkx <http://networkx.lanl.gov>`_):  
+bit more manipulation of the indices into the coherence matrix:
+
+.. code-block:: python
+
+   idx = np.hstack([idx_lcau,idx_rcau,idx_lput,idx_rput])
+   idx1 = np.vstack([[idx[i]]*4 for i in range(4)]).ravel()
+   idx2 = np.hstack(4*[idx])
+
+   coh = C.coherence[idx1,idx2].reshape(4,4,C.frequencies.shape[0])
+
+Extract the coherence and average across the same frequency bands as before: 
+
+.. code-block:: python
+
+  coh = np.mean(coh[:,:,freq_idx],2) #Averaging on the last dimension
+
+Finally, in this case, we visualize the adjacency matrix, by creating a network
+graph of these ROIs (this is done by using the function
+:func:`viz.drawgraph_roi` which relies on `networkx
+<http://networkx.lanl.gov>`_):
+
+.. code-block:: python
+
+   drawgraph_roi(coh,roi_names[idx])
 
 .. plot:: examples/fmri4.py
-   :include-source:
 
-This shows us that there is a stronger connectivity between left putamen and
+This shows us that there is a stronger connectivity between the left putamen and
 the left caudate than between the homologous regions in the other
 hemisphere. In particular, in contrast to the relatively high correlation
 between the right caudate and the left caudate, there is a rather low coherence
@@ -142,7 +210,6 @@ the time-series derived from the left caudate. This kind of question can be
 answered using an analysis of partial coherency. For the time series $x$ and
 $y$, the partial coherence, given a third time-series $r$, is defined as:
 
-
 .. math::
 
         Coh_{xy|r} = \frac{|{R_{xy}(\lambda) - R_{xr}(\lambda)
@@ -150,13 +217,23 @@ $y$, the partial coherence, given a third time-series $r$, is defined as:
 
 
 In this case, we extract the partial coherence between the three regions,
-excluding common effects of the left caudate:
+excluding common effects of the left caudate. In order to do that, we generate
+the partial-coherence attribute of the :class:`CoherenceAnalyzer` object, while
+indexing on the additional dimension which this object had (the coherence
+between time-series $x$ and time-series $y$, :emph:`given` time series $r$):
 
+
+.. code-block:: python
+
+   idx3 = np.hstack(16*[idx_lcau])
+   coh = C.coherence_partial[idx1,idx2,idx3].reshape(4,4,C.frequencies.shape[0])
+   coh = np.mean(coh[:,:,freq_idx],-1)
+
+Again, we visualize the result, using both the :func:`viz.drawgraph_roi` and
+the :func:`matshow_roi` functions:
 
 .. plot:: examples/fmri5.py
-   :include-source:
 
-   
 .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
            temporal dynamics of functional networks using phase spectrum of
            fMRI data. Neuroimage, 28: 227-37.

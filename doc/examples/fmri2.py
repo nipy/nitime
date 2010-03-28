@@ -29,9 +29,9 @@ C = CorrelationAnalyzer(T)
 #Extract the cross-correlation:
 xc = C.xcorr_norm
 
-idx_lcau = np.where(roi_names=='lcau')
-idx_rcau = np.where(roi_names=='rcau')
-idx_lput = np.where(roi_names=='lput')
+idx_lcau = np.where(roi_names=='lcau')[0]
+idx_rcau = np.where(roi_names=='rcau')[0]
+idx_lput = np.where(roi_names=='lput')[0]
 
 plot_xcorr(xc,((idx_lcau,idx_rcau),(idx_lcau,idx_lput)),
                line_labels = ['rcau','lput'])
