@@ -84,8 +84,8 @@ def plot_tseries(time_series,fig=None,axis=0,
     
     return fig
 
-## Helper functions for matshow_roi and for drawgraph_roi:
-
+## Helper functions for matshow_roi and for drawgraph_roi, in order to get the
+## right cmap for the colorbar:
 def rgb_to_dict(value, cmap):
    return dict(zip(('red','green','blue','alpha'), cmap(value)))
 
@@ -169,7 +169,9 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
 
     #Extract the minimum and maximum values for scaling of the colormap/colorbar:
     max_val = np.max(m[np.where(m<1)])
-    min_val = np.min(m)    
+    min_val = np.min(m)
+    ax_min = np.min([min_val,-max_val])
+
     #Null the upper triangle, so that you don't get the redundant and the
     #diagonal values:  
     idx_null = np.triu_indices(m.shape[0])
@@ -179,9 +181,8 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
     #to the central value of the colormap
     kw = {'origin': 'upper',
           'interpolation': 'nearest',
-          #'aspect': 'equal',
           'cmap':cmap,
-          'vmin':-max_val,
+          'vmin':ax_min,
           'vmax':max_val}
     
     #The call to imshow produces the matrix plot:
@@ -215,12 +216,25 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
       line.set_markeredgewidth(0)
 
     ax.set_axis_off()
-    
-    if colorbar:
-        cb = plt.colorbar(im, cax=ax_cb,orientation='horizontal')
-        cb.set_ticks([-max_val,0,max_val])
-        cb.set_ticklabels(['%.2f'%-max_val,'0','%.2f'%max_val])
 
+    #The following produces the colorbar and sets the ticks
+    if colorbar:
+        delta = max_val-ax_min #The size of the entire interval 
+        cnorm = mpl.colors.Normalize(vmin=ax_min, vmax=max_val)
+        subcmap = subcolormap((min_val-ax_min)/delta, 1, cmap)
+        cb = mpl.colorbar.ColorbarBase(ax_cb, cmap=subcmap,
+                                       orientation='horizontal',norm=cnorm)
+
+        #Set the ticks - if 0 is in the interval of values, set that, as well
+        #as the maximal and minimal values:
+        if min_val<0:
+            cb.set_ticks([min_val,0,max_val])
+            cb.set_ticklabels(['%.2f'%min_val,'0','%.2f'%max_val])
+        #Otherwise - only set the minimal and maximal value:
+        else:
+            cb.set_ticks([ax_min,max_val])
+            cb.set_ticklabels(['%.2f'%min_val,'%.2f'%max_val])
+        
     return fig
 
 def drawgraph_roi(in_m,roi_names=None,cmap=plt.cm.RdYlBu_r,
@@ -229,7 +243,6 @@ def drawgraph_roi(in_m,roi_names=None,cmap=plt.cm.RdYlBu_r,
     """Draw a graph based on the matrix specified in in_m. Wrapper to
     draw_graph.
 
-    
     Parameters
     ----------
     in_m: nxn array with values of relationships between two sets of rois or
