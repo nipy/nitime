@@ -21,7 +21,7 @@ except ImportError:
 
 def plot_tseries(time_series,fig=None,axis=0,
                  xticks=None,xunits=None,yticks=None,yunits=None,xlabel=None,
-                 ylabel=None):
+                 ylabel=None,yerror=None):
 
     """plot a timeseries object
 
@@ -43,9 +43,12 @@ def plot_tseries(time_series,fig=None,axis=0,
 
     xlabel: optional, list, specificies what labels to put on xticks 
 
-    ylabel:
+    ylabel: optional, list, specificies what labels to put on yticks 
 
-    
+    yerror: optional, UniformTimeSeries with the same sampling_rate and number
+    of samples and channels as time_series, the error will be displayed as a
+    shading above and below the plotted time-series
+ 
     """  
 
     if fig is None:
@@ -65,10 +68,16 @@ def plot_tseries(time_series,fig=None,axis=0,
         ax.set_xlabel('Time (%s)' %time_series.time_unit) 
     else:
         ax.set_xlabel(xlabel)
-
     
     if ylabel is not None:
         ax.set_ylabel(ylabel)
+
+    if yerror is not None:
+        delta = yerror.data/2.
+        e_u = time_series.data + delta
+        e_d = time_series.data - delta
+        for i in xrange(e_u.shape[0]):
+            ax.fill_between(this_time,e_d[i],e_u[i],alpha=0.1) 
     
     return fig
 
