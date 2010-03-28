@@ -35,11 +35,13 @@ def plot_tseries(time_series,fig=None,axis=0,
     subplot: an axis number (if there are several in the figure to be opened),
         defaults to 0.
         
-    xticks:
+    xticks: optional, list, specificies what values to put xticks on. Defaults
+    to the matlplotlib-generated. 
 
-    yticks: 
+    yticks: optional, list, specificies what values to put xticks on. Defaults
+    to the matlplotlib-generated. 
 
-    xlabel:
+    xlabel: optional, list, specificies what labels to put on xticks 
 
     ylabel:
 
@@ -70,12 +72,33 @@ def plot_tseries(time_series,fig=None,axis=0,
     
     return fig
 
-
 def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
-                cmap=plt.cm.PuBuGn):
-    """This is the typical format to show a bivariate quantity (such as
-    correlation or coherency between two different ROIs""" 
-    N = len(roi_names)
+                cmap=plt.cm.RdYlBu_r):
+    """Creates a lower-triangle of the matrix of an nxn set of values. This is
+    the typical format to show a symmetrical bivariate quantity (such as
+    correlation or coherence between two different ROIs).
+
+    Parameters
+    ----------
+
+    in_m: nxn array with values of relationships between two sets of rois or
+    channels
+
+    roi_names (optional): list of strings with the labels to be applied to the
+    channels in the input. Defaults to '0','1','2', etc.
+
+    fig (optional): a matplotlib figure
+
+    cmap (optional): a matplotlib colormap to be used for displaying the values
+    of the connections on the graph
+
+    Returns
+    -------
+
+    fig: a figure object
+
+    """ 
+    N = in_m.shape[0]
     ind = np.arange(N)  # the evenly spaced plot indices
     
     def roi_formatter(x,pos=None):
@@ -91,31 +114,47 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
 
     #Make a copy, so that you don't make changes to the original data provided
     m = in_m.copy()
-    
+
+    max_val = np.max(m[np.where(m<1)])
     #Null the upper triangle, so that you don't get the redundant and the
     #diagonal values:  
     idx_null = np.triu_indices(m.shape[0])
     m[idx_null]=np.nan
     
-    #The call to matshow produces the matrix plot:
-    plt.matshow(m,fignum=fig.number,cmap=cmap)
+
+    #Keyword args to imshow, vmin and vmax are set so that 0 is always mapped
+    #to the central value of the colormap
+
+    extent = [-0.5, N-0.5, N-0.5, -0.5]
+    kw = {'extent': extent,
+          'origin': 'upper',
+          'interpolation': 'nearest',
+          'aspect': 'equal',
+          'cmap':cmap,
+          'vmax':max_val,
+          'vmin':-max_val}
+    
+    #The call to imshow produces the matrix plot:
+    plt.imshow(m,**kw)
+    
     #Formatting:
     ax = fig.axes[0]
 
     #Label each of the cells with the row and the column:
-    for i in xrange(0,m.shape[0]):
-        if i<(m.shape[0]-1):
-            ax.text(i-0.3,i,roi_names[i],rotation=x_tick_rot)
-        if i>0:
-            ax.text(-1,i+0.3,roi_names[i],horizontalalignment='right')
+    if roi_names is not None:
+        for i in xrange(0,m.shape[0]):
+            if i<(m.shape[0]-1):
+                ax.text(i-0.3,i,roi_names[i],rotation=x_tick_rot)
+            if i>0:
+                ax.text(-1,i+0.3,roi_names[i],horizontalalignment='right')
             
-    ax.set_axis_off()
-    ax.set_xticks(np.arange(len(roi_names)))
-    ax.xaxis.set_major_formatter(ticker.FuncFormatter(roi_formatter))
-    fig.autofmt_xdate(rotation=x_tick_rot)
-    ax.set_yticks(np.arange(len(roi_names)))
-    ax.set_yticklabels(roi_names)
-    ax.set_ybound([-0.5,len(roi_names)-0.5])
+        ax.set_axis_off()
+        ax.set_xticks(np.arange(N))
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(roi_formatter))
+        fig.autofmt_xdate(rotation=x_tick_rot)
+        ax.set_yticks(np.arange(N))
+        ax.set_yticklabels(roi_names)
+        ax.set_ybound([-0.5,N-0.5])
 
     #Make the tick-marks invisible:
     for line in ax.xaxis.get_ticklines():
@@ -129,18 +168,41 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
     plt.draw()
     return fig
 
-def drawgraph_roi(in_m,roi_names=None,th=None,fig=None,cmap=plt.cm.PuBuGn,
+def drawgraph_roi(in_m,roi_names=None,cmap=plt.cm.RdYlBu_r,
                   node_labels=None,node_shapes=None,node_colors=None,title=None):
 
     """Draw a graph based on the matrix specified in in_m. Wrapper to
-    draw_graph"""
+    draw_graph.
+
+    
+    Parameters
+    ----------
+    in_m: nxn array with values of relationships between two sets of rois or
+    channels
+
+    roi_names (optional): list of strings with the labels to be applied to the
+    channels in the input. Defaults to '0','1','2', etc.
+
+    cmap (optional): a matplotlib colormap to be used for displaying the values
+    of the connections on the graph
+
+    Returns
+    -------
+    fig: a figure object
+    
+    Notes
+    -----
+
+    The layout of the graph is done using functions from networkx
+    (http://networkx.lanl.gov), which is a dependency of this function
+    
+    """
     
     nnodes = in_m.shape[0]
-    if node_labels is None:
-        if roi_names is None:
-            node_labels = [None]*nnodes
-        else:
-            node_labels = list(roi_names)
+    if roi_names is None:
+        node_labels = None #[None]*nnodes
+    else:
+        node_labels = list(roi_names)
 
     if node_shapes is None:   
         node_shapes = ['o'] * nnodes
@@ -154,7 +216,7 @@ def drawgraph_roi(in_m,roi_names=None,th=None,fig=None,cmap=plt.cm.PuBuGn,
     #Set the diagonal values to the minimal value of the matrix, so that the
     #vrange doesn't always get stretched to 1:  
     m[np.arange(nnodes),np.arange(nnodes)]=np.min(m)
-    vrange = [np.min(m),np.max(m)]
+    vrange = [-np.max(m),np.max(m)]
     
     G = mkgraph(m)
     fig = draw_graph(G,

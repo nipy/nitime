@@ -14,7 +14,6 @@ from nitime.utils import percent_change
 import nitime.viz
 reload(nitime.viz)
 from nitime.viz import matshow_roi
-
 #This information (the sampling rate) has to be known in advance:
 TR=1.89
 
@@ -44,5 +43,4 @@ C = CorrelationAnalyzer(T)
 
 #Display the correlation matrix
 matshow_roi(C(),roi_names,size=[10.,10.])
-
 
