@@ -2,14 +2,16 @@
 
 Depends on matplotlib. Some functions depend also on networkx
 
-
 """
+import numpy as np
 
-from nitime import timeseries as ts
+
 from matplotlib import pyplot as plt, mpl
 import matplotlib.ticker as ticker
 import matplotlib.colors as colors
-import numpy as np
+from mpl_toolkits.axes_grid import make_axes_locatable
+
+from nitime import timeseries as ts
 from nitime.utils import threshold_arr,minmax_norm,rescale_arr
 
 #Some visualization functions require networkx. Import that if possible:
@@ -150,29 +152,16 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
         fig.set_figwidth(size[0])
         fig.set_figheight(size[1])
 
-
     w = fig.get_figwidth()
     h = fig.get_figheight()
-        
+
+    ax_im = fig.add_subplot(1,1,1)
+    
     #If you want to draw the colorbar:
     if colorbar:
-        #For the colorbar:
-        margin = 0.2
-        left_c = 0.01+margin
-        bottom_c = 0.1
-        width_c = 0.45
-        height_c = 0.07
-        sep = 0.03
-        #For the imshow:
-        left_i=0.01
-        bottom_i = bottom_c + height_c + sep
-        width_i = 1
-        height_i = 1 - bottom_i
-
-        ax_cbar = fig.add_axes([left_c,bottom_c, width_c, height_c])
-        ax_im = fig.add_axes([left_i,bottom_i, width_i, height_i])
-        # Set the current axes to be the im axes, to draw into
-        fig.sca(ax_im)
+        divider = make_axes_locatable(ax_im)
+        ax_cb = divider.new_vertical(size="20%", pad=0.2, pack_start=True)
+        fig.add_axes(ax_cb)
 
     #Make a copy of the input, so that you don't make changes to the original
     #data provided
@@ -196,7 +185,7 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
           'vmax':max_val}
     
     #The call to imshow produces the matrix plot:
-    plt.imshow(m,**kw)
+    im=ax_im.imshow(m,**kw)
 
     #Formatting:
     ax = ax_im
@@ -208,7 +197,7 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
                 ax.text(i-0.3,i,roi_names[i],rotation=x_tick_rot)
             if i>0:
                 ax.text(-1,i+0.3,roi_names[i],horizontalalignment='right')
-            
+
         ax.set_axis_off()
         ax.set_xticks(np.arange(N))
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(roi_formatter))
@@ -216,6 +205,7 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
         ax.set_yticks(np.arange(N))
         ax.set_yticklabels(roi_names)
         ax.set_ybound([-0.5,N-0.5])
+        ax.set_xbound([-0.5,N-1.5])
 
     #Make the tick-marks invisible:
     for line in ax.xaxis.get_ticklines():
@@ -227,15 +217,10 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
     ax.set_axis_off()
     
     if colorbar:
-        cnorm = mpl.colors.Normalize(vmin=-max_val, vmax=max_val)
-        sub_cmap = subcolormap(min_val,max_val,cmap)
-        cb1 = mpl.colorbar.ColorbarBase(ax_cbar, cmap=cmap,
-                                        orientation='horizontal',
-                                        norm=cnorm)
+        cb = plt.colorbar(im, cax=ax_cb,orientation='horizontal')
+        cb.set_ticks([-max_val,0,max_val])
+        cb.set_ticklabels(['%.2f'%-max_val,'0','%.2f'%max_val])
 
-        cb1.set_ticks([-max_val,0,max_val])
-        cb1.set_ticklabels(['%.2f'%-max_val,'0','%.2f'%max_val])
-        
     return fig
 
 def drawgraph_roi(in_m,roi_names=None,cmap=plt.cm.RdYlBu_r,
