@@ -8,6 +8,7 @@ Depends on matplotlib. Some functions depend also on networkx
 from nitime import timeseries as ts
 from matplotlib import pyplot as plt, mpl
 import matplotlib.ticker as ticker
+import matplotlib.colors as colors
 import numpy as np
 from nitime.utils import threshold_arr,minmax_norm,rescale_arr
 
@@ -81,8 +82,35 @@ def plot_tseries(time_series,fig=None,axis=0,
     
     return fig
 
+## Helper functions for matshow_roi and for drawgraph_roi:
+
+def rgb_to_dict(value, cmap):
+   return dict(zip(('red','green','blue','alpha'), cmap(value)))
+
+def subcolormap(xmin, xmax, cmap):
+   '''Returns the part of cmap between xmin, xmax, scaled to 0,1.'''
+   assert xmin < xmax
+   assert xmax <=1
+   cd =  cmap._segmentdata.copy()
+   colornames = ('red','green','blue')
+   rgbmin, rgbmax = rgb_to_dict(xmin, cmap), rgb_to_dict(xmax, cmap)
+   for k in cd:
+       tmp = [x for x in cd[k] if x[0] >= xmin and x[0] <= xmax]
+       if tmp == [] or tmp[0][0] > xmin:
+           tmp = [(xmin, rgbmin[k], rgbmin[k])] + tmp
+       if tmp == [] or tmp[-1][0] < xmax:
+           tmp = tmp + [ (xmax,rgbmax[k], rgbmax[k])]
+       #now scale all this to (0,1)
+       square = zip(*tmp)
+       xbreaks = [(x - xmin)/(xmax-xmin) for x in square[0]]
+       square[0] = xbreaks
+       tmp = zip(*square)
+       cd[k] = tmp
+   return colors.LinearSegmentedColormap('local', cd, N=256)
+
+
 def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
-                cmap=plt.cm.RdYlBu_r):
+                cmap=plt.cm.RdYlBu_r,colorbar=True):
     """Creates a lower-triangle of the matrix of an nxn set of values. This is
     the typical format to show a symmetrical bivariate quantity (such as
     correlation or coherence between two different ROIs).
@@ -113,42 +141,66 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
     def roi_formatter(x,pos=None):
         thisind = np.clip(int(x), 0, N-1)
         return roi_names[thisind]
-
+    
     if fig is None:
         fig=plt.figure()
-    
+
     if size is not None:
+
         fig.set_figwidth(size[0])
         fig.set_figheight(size[1])
 
-    #Make a copy, so that you don't make changes to the original data provided
+
+    w = fig.get_figwidth()
+    h = fig.get_figheight()
+        
+    #If you want to draw the colorbar:
+    if colorbar:
+        #For the colorbar:
+        margin = 0.2
+        left_c = 0.01+margin
+        bottom_c = 0.1
+        width_c = 0.45
+        height_c = 0.07
+        sep = 0.03
+        #For the imshow:
+        left_i=0.01
+        bottom_i = bottom_c + height_c + sep
+        width_i = 1
+        height_i = 1 - bottom_i
+
+        ax_cbar = fig.add_axes([left_c,bottom_c, width_c, height_c])
+        ax_im = fig.add_axes([left_i,bottom_i, width_i, height_i])
+        # Set the current axes to be the im axes, to draw into
+        fig.sca(ax_im)
+
+    #Make a copy of the input, so that you don't make changes to the original
+    #data provided
     m = in_m.copy()
 
+    #Extract the minimum and maximum values for scaling of the colormap/colorbar:
     max_val = np.max(m[np.where(m<1)])
+    min_val = np.min(m)    
     #Null the upper triangle, so that you don't get the redundant and the
     #diagonal values:  
     idx_null = np.triu_indices(m.shape[0])
     m[idx_null]=np.nan
     
-
     #Keyword args to imshow, vmin and vmax are set so that 0 is always mapped
     #to the central value of the colormap
-
-    extent = [-0.5, N-0.5, N-0.5, -0.5]
-    kw = {'extent': extent,
-          'origin': 'upper',
+    kw = {'origin': 'upper',
           'interpolation': 'nearest',
-          'aspect': 'equal',
+          #'aspect': 'equal',
           'cmap':cmap,
-          'vmax':max_val,
-          'vmin':-max_val}
+          'vmin':-max_val,
+          'vmax':max_val}
     
     #The call to imshow produces the matrix plot:
     plt.imshow(m,**kw)
-    
-    #Formatting:
-    ax = fig.axes[0]
 
+    #Formatting:
+    ax = ax_im
+    ax.grid(True)
     #Label each of the cells with the row and the column:
     if roi_names is not None:
         for i in xrange(0,m.shape[0]):
@@ -173,8 +225,17 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
       line.set_markeredgewidth(0)
 
     ax.set_axis_off()
-    plt.colorbar(orientation='horizontal')
-    plt.draw()
+    
+    if colorbar:
+        cnorm = mpl.colors.Normalize(vmin=-max_val, vmax=max_val)
+        sub_cmap = subcolormap(min_val,max_val,cmap)
+        cb1 = mpl.colorbar.ColorbarBase(ax_cbar, cmap=cmap,
+                                        orientation='horizontal',
+                                        norm=cnorm)
+
+        cb1.set_ticks([-max_val,0,max_val])
+        cb1.set_ticklabels(['%.2f'%-max_val,'0','%.2f'%max_val])
+        
     return fig
 
 def drawgraph_roi(in_m,roi_names=None,cmap=plt.cm.RdYlBu_r,
@@ -617,91 +678,8 @@ def draw_graph(G,
     return fig
 
 
-def pick_lesion_colors(lesions,subnets):
-    ss = {}
-    for col,net in subnets.items():
-        ss[col] = set(net)
-
-    les_colors = {}
-    for lesion in lesions:
-        for col,net in ss.items():
-            if lesion in net:
-                les_colors[lesion] = col
-                break
-        else:
-            raise ValueError("lesion %s not in given subnets" % lesion)
-    return les_colors
-
-
 def lab2node(labels,labels_dict):
     return [labels_dict[ll] for ll in labels]
-
-
-def draw_lesion_graph(G,bl,labels=None,subnets=None,lesion_nodes=None):
-    """
-    Parameters
-
-    subnets : dict
-     A colors,label list dict of subnetworks that covers the graph
-    """
-    if labels is None:
-        labels = G.nodes()
-
-    if subnets is None:
-        subnets = dict(b=G.nodes())
-
-    all_nodes = set(labels)
-
-    lab_idx = range(len(labels))
-    labels_dict = dict(zip(labels,lab_idx))
-    idx2lab_dict = dict(zip(lab_idx,labels))
-
-    # Check that all subnets cover the whole graph
-    subnet_nodes = []
-    for ss in subnets.values():
-        subnet_nodes.extend(ss)
-    subnet_nodes = set(subnet_nodes)
-    assert subnet_nodes == all_nodes
-
-    # Check that the optional lesion list is contained in all the nodes
-    if lesion_nodes is None:
-        lesion_nodes = set()
-    else:
-        lesion_nodes = set(lesion_nodes)
-
-    assert lesion_nodes.issubset(all_nodes),\
-          "lesion nodes:%s not a subset of nodes" % lesion_nodes
-
-    # Make a table that maps lesion nodes to colors
-    lesion_colors = pick_lesion_colors(lesion_nodes,subnets)
-
-    # Compute positions for all nodes - nx has several algorithms
-    pos = nx.circular_layout(G)
-
-    # Create the actual plot where the graph will be displayed
-    #fig = plt.figure()
-
-    #plt.subplot(1,12,bl+1)
-    
-    good_nodes = all_nodes - lesion_nodes
-    # Draw nodes
-    for node_color,nodes in subnets.items():
-        nodelabels = set(nodes) - lesion_nodes
-        nodelist = lab2node(nodelabels,labels_dict)
-        nx.draw_networkx_nodes(G,pos,nodelist=nodelist,
-                              node_color=node_color,node_size=700,
-                              node_shape='o')
-
-    for nod in lesion_nodes:
-        nx.draw_networkx_nodes(G,pos,nodelist=[labels_dict[nod]],
-                              node_color=lesion_colors[nod],node_size=700,
-                              node_shape='s')
-
-    # Draw edges
-    draw_networkx_edges(G,pos)
-
-    # Draw labels
-    nx.draw_networkx_labels(G,pos,idx2lab_dict)
 
 
 ### Patched version for networx draw_networkx_edges, sent to Aric.
