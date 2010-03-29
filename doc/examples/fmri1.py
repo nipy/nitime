@@ -13,7 +13,8 @@ from nitime.analysis import CorrelationAnalyzer
 from nitime.utils import percent_change
 import nitime.viz
 reload(nitime.viz)
-from nitime.viz import matshow_roi
+from nitime.viz import matshow_roi,drawgraph_roi
+
 #This information (the sampling rate) has to be known in advance:
 TR=1.89
 

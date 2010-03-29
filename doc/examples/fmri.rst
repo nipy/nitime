@@ -234,6 +234,11 @@ the :func:`matshow_roi` functions:
 
 .. plot:: examples/fmri5.py
 
+As can be seen, the resulting partial coherence between left putamen and right
+caudate, given the activity in the left caudate is smaller than the coherence
+between these two areas, suggesting that part of this coherence can be
+explained by their common connection to the left caudate.
+
 .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
            temporal dynamics of functional networks using phase spectrum of
            fMRI data. Neuroimage, 28: 227-37.
