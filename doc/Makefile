@@ -28,7 +28,7 @@ help:
 
 clean:
 	-rm -rf _build/* *~ api/generated
-
+	-rm -rf build/* 
 htmlonly:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
 	@echo
