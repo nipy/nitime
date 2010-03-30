@@ -170,7 +170,14 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
     #Extract the minimum and maximum values for scaling of the colormap/colorbar:
     max_val = np.max(m[np.where(m<1)])
     min_val = np.min(m)
-    ax_min = np.min([min_val,-max_val])
+
+    #This makes sure that 0 is always the center of the colormap:
+    if min_val<-max_val:
+        ax_max = -min_val
+        ax_min = min_val
+    else:
+        ax_max = max_val
+        ax_min = -max_val
 
     #Null the upper triangle, so that you don't get the redundant and the
     #diagonal values:  
@@ -183,7 +190,7 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
           'interpolation': 'nearest',
           'cmap':cmap,
           'vmin':ax_min,
-          'vmax':max_val}
+          'vmax':ax_max}
     
     #The call to imshow produces the matrix plot:
     im=ax_im.imshow(m,**kw)
@@ -219,9 +226,11 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
 
     #The following produces the colorbar and sets the ticks
     if colorbar:
-        delta = max_val-ax_min #The size of the entire interval 
-        cnorm = mpl.colors.Normalize(vmin=ax_min, vmax=max_val)
-        subcmap = subcolormap((min_val-ax_min)/delta, 1, cmap)
+        delta = ax_max-ax_min #The size of the entire interval of data 
+        min_p = (min_val-ax_min)/delta
+        max_p = (max_val-ax_min)/delta
+        cnorm = mpl.colors.Normalize(vmin=min_val,vmax=max_val)
+        subcmap = subcolormap(min_p,max_p,cmap)
         cb = mpl.colorbar.ColorbarBase(ax_cb, cmap=subcmap,
                                        orientation='horizontal',norm=cnorm)
 
@@ -232,7 +241,7 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
             cb.set_ticklabels(['%.2f'%min_val,'0','%.2f'%max_val])
         #Otherwise - only set the minimal and maximal value:
         else:
-            cb.set_ticks([ax_min,max_val])
+            cb.set_ticks([min_val,max_val])
             cb.set_ticklabels(['%.2f'%min_val,'%.2f'%max_val])
         
     return fig
