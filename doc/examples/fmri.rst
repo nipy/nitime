@@ -220,7 +220,7 @@ In this case, we extract the partial coherence between the three regions,
 excluding common effects of the left caudate. In order to do that, we generate
 the partial-coherence attribute of the :class:`CoherenceAnalyzer` object, while
 indexing on the additional dimension which this object had (the coherence
-between time-series $x$ and time-series $y$, :emph:`given` time series $r$):
+between time-series $x$ and time-series $y$, *given* time series $r$):
 
 
 .. code-block:: python
