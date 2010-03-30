@@ -86,6 +86,8 @@ def plot_tseries(time_series,fig=None,axis=0,
 
 ## Helper functions for matshow_roi and for drawgraph_roi, in order to get the
 ## right cmap for the colorbar:
+
+##Currently not used at all - should they be removed? 
 def rgb_to_dict(value, cmap):
    return dict(zip(('red','green','blue','alpha'), cmap(value)))
 
@@ -167,34 +169,22 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
     #data provided
     m = in_m.copy()
 
-    #Extract the minimum and maximum values for scaling of the colormap/colorbar:
-    max_val = np.max(m[np.where(m<1)])
-    min_val = np.min(m)
-
-    #This makes sure that 0 is always the center of the colormap:
-    if min_val<-max_val:
-        ax_max = -min_val
-        ax_min = min_val
-    else:
-        ax_max = max_val
-        ax_min = -max_val
-
     #Null the upper triangle, so that you don't get the redundant and the
     #diagonal values:  
     idx_null = np.triu_indices(m.shape[0])
     m[idx_null]=np.nan
-    
-    #Keyword args to imshow, vmin and vmax are set so that 0 is always mapped
-    #to the central value of the colormap
-    kw = {'origin': 'upper',
-          'interpolation': 'nearest',
-          'cmap':cmap,
-          'vmin':ax_min,
-          'vmax':ax_max}
+
+    #Extract the minimum and maximum values for scaling of the colormap/colorbar:
+    max_val = np.nanmax(m)
+    min_val = np.nanmin(m)
+
+    #The colormap max/min is set to the one further from 0:
+    bound = max(np.abs(max_val), np.abs(min_val))
     
     #The call to imshow produces the matrix plot:
-    im=ax_im.imshow(m,**kw)
-
+    im = ax_im.imshow(m, origin = 'upper', interpolation = 'nearest',
+       vmin = -bound, vmax = bound, cmap=cmap)
+    
     #Formatting:
     ax = ax_im
     ax.grid(True)
@@ -226,24 +216,23 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
 
     #The following produces the colorbar and sets the ticks
     if colorbar:
-        delta = ax_max-ax_min #The size of the entire interval of data 
-        min_p = (min_val-ax_min)/delta
-        max_p = (max_val-ax_min)/delta
-        cnorm = mpl.colors.Normalize(vmin=min_val,vmax=max_val)
-        subcmap = subcolormap(min_p,max_p,cmap)
-        cb = mpl.colorbar.ColorbarBase(ax_cb, cmap=subcmap,
-                                       orientation='horizontal',norm=cnorm)
-
         #Set the ticks - if 0 is in the interval of values, set that, as well
         #as the maximal and minimal values:
         if min_val<0:
-            cb.set_ticks([min_val,0,max_val])
-            cb.set_ticklabels(['%.2f'%min_val,'0','%.2f'%max_val])
+            ticks = [min_val, 0, max_val]
         #Otherwise - only set the minimal and maximal value:
         else:
-            cb.set_ticks([min_val,max_val])
-            cb.set_ticklabels(['%.2f'%min_val,'%.2f'%max_val])
-        
+            ticks = [min_val, max_val]
+
+        #This makes the colorbar:
+        cb = fig.colorbar(im, cax = ax_cb, orientation = 'horizontal',
+                          cmap=cmap,
+                          norm = im.norm, 
+                          boundaries = np.linspace(min_val, max_val, 256),
+                          ticks = ticks,
+                          format = '%.2f')
+
+
     return fig
 
 def drawgraph_roi(in_m,roi_names=None,cmap=plt.cm.RdYlBu_r,
