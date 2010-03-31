@@ -114,7 +114,7 @@ def subcolormap(xmin, xmax, cmap):
 
 
 def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
-                cmap=plt.cm.RdYlBu_r,colorbar=True):
+                cmap=plt.cm.RdBu_r,colorbar=True):
     """Creates a lower-triangle of the matrix of an nxn set of values. This is
     the typical format to show a symmetrical bivariate quantity (such as
     correlation or coherence between two different ROIs).
@@ -235,7 +235,7 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
 
     return fig
 
-def drawgraph_roi(in_m,roi_names=None,cmap=plt.cm.RdYlBu_r,
+def drawgraph_roi(in_m,roi_names=None,cmap=plt.cm.RdBu_r,
                   node_labels=None,node_shapes=None,node_colors=None,title=None):
 
     """Draw a graph based on the matrix specified in in_m. Wrapper to
