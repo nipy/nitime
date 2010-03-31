@@ -17,10 +17,10 @@ from nitime.utils import threshold_arr,minmax_norm,rescale_arr
 #Some visualization functions require networkx. Import that if possible:
 try:
     import networkx as nx
-#If not, throw an error and get on with business:
+    #If not, throw an error and get on with business:
 except ImportError:
-    print "Networkx is not available. Some visualization tools might not work"
-    "\n To download networkx: http://networkx.lanl.gov/"
+    print("Networkx is not available. Some visualization tools might not work"
+            "\n To download networkx: http://networkx.lanl.gov/")
 
 def plot_tseries(time_series,fig=None,axis=0,
                  xticks=None,xunits=None,yticks=None,yunits=None,xlabel=None,
@@ -418,7 +418,7 @@ def draw_graph(G,
                edge_cmap=None,
                colorbar=False,
                vrange=None,
-               layout=nx.circular_layout,
+               layout=None,
                title=None,
                font_family='sans-serif',
                font_size=9,
@@ -589,7 +589,8 @@ def draw_graph(G,
         ax_cbar = fig.add_axes([left,bottom, width, height])
         # Set the current axes to be the graph ones for nx to draw into
         fig.sca(ax_graph)
-    
+    if layout is None:
+        layout = nx.circular_layout
     # Compute positions for all nodes - nx has several algorithms
     if callable(layout):
         pos = layout(G)

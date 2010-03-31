@@ -83,6 +83,36 @@ def test_TimeArray_at():
         yield npt.assert_equal(this,ts.TimeArray(i,time_unit='ms'))
         this_secs=time1.at(ts.TimeArray(i/1000.))
         yield npt.assert_equal(this_secs,ts.TimeArray(i,time_unit='ms'))
+        seconds_array = ts.TimeArray(time1,time_unit='s')
+        this_secs=seconds_array.at(i/1000.)
+        yield npt.assert_equal(this_secs,ts.TimeArray(i,time_unit='ms'))
+        all=time1.at(ts.TimeArray(i/1000.), tol=10)
+        yield npt.assert_equal(all,time1)
+        if i>0 and i<9:
+            this_secs=time1.at(ts.TimeArray(i/1000.), tol=1)
+            yield npt.assert_equal(this_secs,ts.TimeArray([i-1,i,i+1],time_unit='ms'))
+
+@decotest.parametric
+def test_UniformTime_index_at():
+    time1 = ts.UniformTime(t0=1000,length=10, sampling_rate=1000, time_unit='ms')
+    mask = [False]*10
+    for i in xrange(10):
+        idx = time1.index_at(ts.TimeArray(1000+i,time_unit='ms'))
+        yield npt.assert_equal(idx,np.array(i))
+        mask[i]=True
+        mask_idx = time1.index_at(ts.TimeArray(1000+i,time_unit='ms'),boolean=True)
+        yield npt.assert_equal(mask_idx,mask)
+        if i>0 and i<9:
+            mask[i-1]=True
+            mask[i+1]=True
+
+            mask_idx = time1.index_at( ts.TimeArray([999+i,1000+i, 1001+i],
+                time_unit='ms'),boolean=True)
+            yield npt.assert_equal(mask_idx,mask)
+        
+            mask[i-1]=False
+            mask[i+1]=False
+        mask[i]=False
 
 #XXX Need to write these tests:
 

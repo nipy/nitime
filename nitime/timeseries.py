@@ -444,7 +444,7 @@ class UniformTime(np.ndarray,TimeInterface):
         # return scalar TimeArray in case key is integer
         if isinstance(key,int):
             return self[[key]].reshape(()).view(TimeArray)
-        elif isinstance(key,float):
+        elif isinstance(key,float) or isinstance(key, TimeInterface):
             return self.at(key)
         else:
             return np.ndarray.__getitem__(self,key)
@@ -459,7 +459,7 @@ class UniformTime(np.ndarray,TimeInterface):
     def index_at(self,t,boolean=False):
         """Find the index that corresponds to the time bin containing t
 
-           Returns boolean indices if boolean=True and integer indeces otherwise.
+           Returns boolean mask if boolean=True and integer indeces otherwise.
         """
 
         # cast t into time
@@ -469,7 +469,8 @@ class UniformTime(np.ndarray,TimeInterface):
         if ta.min() < self.t0 or ta.max() >= self.t0 + self.duration:
             raise ValueError, 'index out of range'
         
-        idx = ta.view(np.ndarray)//int(self.sampling_interval)
+        idx = ta.view(np.ndarray)//int(self.sampling_interval) 
+        idx -= self.t0/self._conversion_factor
         if boolean:
             bool_idx = np.zeros(len(self),dtype=bool)
             bool_idx[idx] = True
@@ -479,7 +480,7 @@ class UniformTime(np.ndarray,TimeInterface):
         else:
             return idx
 
-    def at(self,t,tol=None):
+    def at(self,t):
         """ Returns the values of the UniformTime object at time t"""
         return TimeArray(self[self.index_at(t)],time_unit=self.time_unit)
 
