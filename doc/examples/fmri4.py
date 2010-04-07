@@ -8,7 +8,7 @@ from nitime.timeseries import UniformTimeSeries
 from nitime.utils import percent_change
 import nitime.viz
 reload(nitime.viz)
-from nitime.viz import drawgraph_roi,matshow_roi
+from nitime.viz import drawgraph_channels,drawmatrix_channels
 
 #This time Import the coherence analyzer 
 from nitime.analysis import CoherenceAnalyzer
@@ -42,4 +42,4 @@ idx2 = np.hstack(4*[idx])
 coh = C.coherence[idx1,idx2].reshape(4,4,C.frequencies.shape[0])
 coh = np.mean(coh[:,:,freq_idx],2) #Averaging on the last dimension
 
-drawgraph_roi(coh,roi_names[idx])
+drawgraph_channels(coh,roi_names[idx])

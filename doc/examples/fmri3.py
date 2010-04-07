@@ -8,7 +8,7 @@ from nitime.timeseries import UniformTimeSeries
 from nitime.utils import percent_change
 import nitime.viz
 reload(nitime.viz)
-from nitime.viz import matshow_roi
+from nitime.viz import drawmatrix_channels
 
 #This time Import the coherence analyzer 
 from nitime.analysis import CoherenceAnalyzer
@@ -34,5 +34,5 @@ freq_idx = np.where((C.frequencies>0.02) * (C.frequencies<0.15))[0]
 
 #Extract the coherence and average across these frequency bands: 
 coh = np.mean(C.coherence[:,:,freq_idx],-1) #Averaging on the last dimension 
-matshow_roi(coh,roi_names,size=[10.,10.])
+drawmatrix_channels(coh,roi_names,size=[10.,10.],color_anchor=0)
 
