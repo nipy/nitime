@@ -113,6 +113,9 @@ def subcolormap(xmin, xmax, cmap):
    return colors.LinearSegmentedColormap('local', cd, N=256)
 
 
+# XXX Add input of color_anchor, which would be, per default None, if it is set
+# to a single value, that anchors the center of the cmap. If it is a tuple,
+# with two values, that anchors the min and max of the cmap: 
 def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
                 cmap=plt.cm.RdBu_r,colorbar=True):
     """Creates a lower-triangle of the matrix of an nxn set of values. This is
@@ -178,8 +181,9 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
     max_val = np.nanmax(m)
     min_val = np.nanmin(m)
 
+    # XXX - set so that the anchor value can be 0, or other values: 
     #The colormap max/min is set to the one further from 0:
-    bound = max(np.abs(max_val), np.abs(min_val))
+    bound = max(abs(max_val), abs(min_val))
     
     #The call to imshow produces the matrix plot:
     im = ax_im.imshow(m, origin = 'upper', interpolation = 'nearest',
@@ -508,8 +512,9 @@ def draw_graph(G,
     fig
       The matplotlib figure object with the plot.
     """
-    # A few hardcoded constants, though their effect can always be controlled
-    # via user-settable parameters.
+    # XXX A few hardcoded constants, though their effect can always be controlled
+    # via user-settable parameters - needs to be changed into something
+    # automatic! 
     figsize = [6,6]
     # For the size of the node symbols
     node_size_base = 1000
@@ -520,6 +525,7 @@ def draw_graph(G,
     default_edge_color = 'k'
     # Max edge width
     max_width = 13
+    min_width = 2
     font_family = 'sans-serif'
 
     # We'll use the nodes a lot, let's make a numpy array of them
@@ -578,7 +584,8 @@ def draw_graph(G,
     figsize *= stretch_factor
     
     fig = plt.figure(figsize=figsize)
-    
+
+    # XXX Replace all this with make_axes_locatable (see above in matshow_roi)
     # If a colorbar is required, make a set of axes for both the main graph and
     # the colorbar, otherwise let nx do its thing
     if colorbar:
@@ -625,9 +632,8 @@ def draw_graph(G,
 
             edge_color = [ tuple(edge_cmap(ecol,fade)) ]
 
-                
             draw_networkx_edges(G, pos, edgelist=[(u,v)],
-                                width=alpha*max_width,
+                                width=min_width + alpha*max_width,
                                 edge_color=edge_color,
                                 style=edge_style)
     else:
