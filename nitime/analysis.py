@@ -654,7 +654,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             for e_idx in xrange(event_types.shape[0]):
                 idx = np.where(self.events[i]==event_types[e_idx])
                 h[i] = np.empty((event_types.shape[0],
-                                 idx self.len_et),dtype=complex)
+                                 self.len_et),dtype=complex)
             
                 idx_w_len = np.array([idx[0]+count+self._offset for count
                                       in range(self.len_et)])
