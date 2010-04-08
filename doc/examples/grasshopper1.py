@@ -4,6 +4,7 @@ import numpy as np
 import nitime.timeseries as ts
 #Import nitime.analysis for analysis object:
 import nitime.analysis as tsa
+reload(tsa)
 #The viz library is used for visualization:
 import nitime.viz as viz
 
