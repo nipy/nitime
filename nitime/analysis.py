@@ -573,7 +573,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         h = np.array(h).squeeze()
 
         return ts.UniformTimeSeries(data=h,sampling_rate=self.sampling_rate,
-                                 t0=-1*self.len_et*self.sampling_interval,
+                                 t0=self._offset*self.sampling_interval,
                                  time_unit=self.time_unit)
 
     
