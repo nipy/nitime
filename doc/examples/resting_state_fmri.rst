@@ -147,12 +147,12 @@ dimension, which is the frequency dimension:
 
    coh = np.mean(C.coherence[:,:,freq_idx],-1) 
 
-Finally, we use the :func:`viz.matshow_roi` function to display the coherence
+Finally, we use the :func:`viz.drawmatrix_channels` function to display the coherence
 matrix:
 
 .. code-block:: python
 
-   matshow_roi(coh,roi_names,size=[10.,10.])
+   drawmatrix_channels(coh,roi_names,size=[10.,10.])
 
 .. plot:: examples/fmri3.py
 
@@ -175,12 +175,12 @@ Extract the coherence and average across the same frequency bands as before:
 
 Finally, in this case, we visualize the adjacency matrix, by creating a network
 graph of these ROIs (this is done by using the function
-:func:`viz.drawgraph_roi` which relies on `networkx
+:func:`viz.drawgraph_channels` which relies on `networkx
 <http://networkx.lanl.gov>`_):
 
 .. code-block:: python
 
-   drawgraph_roi(coh,roi_names[idx])
+   drawgraph_channels(coh,roi_names[idx])
 
 .. plot:: examples/fmri4.py
 
@@ -222,15 +222,14 @@ the partial-coherence attribute of the :class:`CoherenceAnalyzer` object, while
 indexing on the additional dimension which this object had (the coherence
 between time-series $x$ and time-series $y$, *given* time series $r$):
 
-
 .. code-block:: python
 
    idx3 = np.hstack(16*[idx_lcau])
    coh = C.coherence_partial[idx1,idx2,idx3].reshape(4,4,C.frequencies.shape[0])
    coh = np.mean(coh[:,:,freq_idx],-1)
 
-Again, we visualize the result, using both the :func:`viz.drawgraph_roi` and
-the :func:`matshow_roi` functions:
+Again, we visualize the result, using both the :func:`viz.drawgraph_channels`
+and the :func:`drawmatrix_channels` functions:
 
 .. plot:: examples/fmri5.py
 
@@ -238,6 +237,11 @@ As can be seen, the resulting partial coherence between left putamen and right
 caudate, given the activity in the left caudate is smaller than the coherence
 between these two areas, suggesting that part of this coherence can be
 explained by their common connection to the left caudate.
+
+In addition to the strength of coupling between the time-series in the
+different ROIs, coherency analysis can be used in order to calculate the
+temporal delay between time-series.
+
 
 .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
            temporal dynamics of functional networks using phase spectrum of

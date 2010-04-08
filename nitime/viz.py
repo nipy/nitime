@@ -113,8 +113,8 @@ def subcolormap(xmin, xmax, cmap):
    return colors.LinearSegmentedColormap('local', cd, N=256)
 
 
-def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
-                cmap=plt.cm.RdYlBu_r,colorbar=True):
+def drawmatrix_channels(in_m,channel_names=None,fig=None,x_tick_rot=90,size=None,
+                cmap=plt.cm.RdBu_r,colorbar=True,color_anchor=None):
     """Creates a lower-triangle of the matrix of an nxn set of values. This is
     the typical format to show a symmetrical bivariate quantity (such as
     correlation or coherence between two different ROIs).
@@ -125,8 +125,8 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
     in_m: nxn array with values of relationships between two sets of rois or
     channels
 
-    roi_names (optional): list of strings with the labels to be applied to the
-    channels in the input. Defaults to '0','1','2', etc.
+    channel_names (optional): list of strings with the labels to be applied to
+    the channels in the input. Defaults to '0','1','2', etc.
 
     fig (optional): a matplotlib figure
 
@@ -142,9 +142,9 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
     N = in_m.shape[0]
     ind = np.arange(N)  # the evenly spaced plot indices
     
-    def roi_formatter(x,pos=None):
+    def channel_formatter(x,pos=None):
         thisind = np.clip(int(x), 0, N-1)
-        return roi_names[thisind]
+        return channel_names[thisind]
     
     if fig is None:
         fig=plt.figure()
@@ -178,30 +178,38 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
     max_val = np.nanmax(m)
     min_val = np.nanmin(m)
 
-    #The colormap max/min is set to the one further from 0:
-    bound = max(np.abs(max_val), np.abs(min_val))
+    if color_anchor is None:
+        color_min = min_val
+        color_max = max_val
+    elif color_anchor == 0:
+        bound = max(abs(max_val), abs(min_val))
+        color_min = -bound
+        color_max = bound
+    else:
+        color_min = color_anchor[0]
+        color_max = color_anchor[1]
     
     #The call to imshow produces the matrix plot:
     im = ax_im.imshow(m, origin = 'upper', interpolation = 'nearest',
-       vmin = -bound, vmax = bound, cmap=cmap)
+       vmin = color_min, vmax = color_max , cmap=cmap)
     
     #Formatting:
     ax = ax_im
     ax.grid(True)
     #Label each of the cells with the row and the column:
-    if roi_names is not None:
+    if channel_names is not None:
         for i in xrange(0,m.shape[0]):
             if i<(m.shape[0]-1):
-                ax.text(i-0.3,i,roi_names[i],rotation=x_tick_rot)
+                ax.text(i-0.3,i,channel_names[i],rotation=x_tick_rot)
             if i>0:
-                ax.text(-1,i+0.3,roi_names[i],horizontalalignment='right')
+                ax.text(-1,i+0.3,channel_names[i],horizontalalignment='right')
 
         ax.set_axis_off()
         ax.set_xticks(np.arange(N))
-        ax.xaxis.set_major_formatter(ticker.FuncFormatter(roi_formatter))
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(channel_formatter))
         fig.autofmt_xdate(rotation=x_tick_rot)
         ax.set_yticks(np.arange(N))
-        ax.set_yticklabels(roi_names)
+        ax.set_yticklabels(channel_names)
         ax.set_ybound([-0.5,N-0.5])
         ax.set_xbound([-0.5,N-1.5])
 
@@ -232,10 +240,9 @@ def matshow_roi(in_m,roi_names=None,fig=None,x_tick_rot=90,size=None,
                           ticks = ticks,
                           format = '%.2f')
 
-
     return fig
 
-def drawgraph_roi(in_m,roi_names=None,cmap=plt.cm.RdYlBu_r,
+def drawgraph_channels(in_m,channel_names=None,cmap=plt.cm.RdBu_r,
                   node_labels=None,node_shapes=None,node_colors=None,title=None):
 
     """Draw a graph based on the matrix specified in in_m. Wrapper to
@@ -243,10 +250,10 @@ def drawgraph_roi(in_m,roi_names=None,cmap=plt.cm.RdYlBu_r,
 
     Parameters
     ----------
-    in_m: nxn array with values of relationships between two sets of rois or
+    in_m: nxn array with values of relationships between two sets of channels or
     channels
 
-    roi_names (optional): list of strings with the labels to be applied to the
+    channel_names (optional): list of strings with the labels to be applied to the
     channels in the input. Defaults to '0','1','2', etc.
 
     cmap (optional): a matplotlib colormap to be used for displaying the values
@@ -265,10 +272,10 @@ def drawgraph_roi(in_m,roi_names=None,cmap=plt.cm.RdYlBu_r,
     """
     
     nnodes = in_m.shape[0]
-    if roi_names is None:
+    if channel_names is None:
         node_labels = None #[None]*nnodes
     else:
-        node_labels = list(roi_names)
+        node_labels = list(channel_names)
 
     if node_shapes is None:   
         node_shapes = ['o'] * nnodes
@@ -423,7 +430,8 @@ def draw_graph(G,
                font_family='sans-serif',
                font_size=9,
                stretch_factor=1.0,
-               edge_alpha=True):
+               edge_alpha=True,
+               fig_size=None):
     """Draw a weighted graph with options to visualize link weights.
 
     The resulting diagram uses the rank of each node as its size, and the
@@ -503,23 +511,28 @@ def draw_graph(G,
       Whether to weight the transparency of each edge by a factor equivalent to
       its relative weight
 
+    fig_size: list of height by widht, the size of the figure (in
+    inches). Defaults to [6,6]
+    
     Returns
     -------
     fig
       The matplotlib figure object with the plot.
     """
-    # A few hardcoded constants, though their effect can always be controlled
-    # via user-settable parameters.
-    figsize = [6,6]
+    if fig_size is None: 
+        figsize = [6,6]
+
+    scaler = figsize[0]/6.
     # For the size of the node symbols
-    node_size_base = 1000
-    node_min_size = 200
+    node_size_base = 1000 * scaler
+    node_min_size = 200 * scaler
     default_node_shape = 'o'
     # Default colors if none given
     default_node_color = 'r'
     default_edge_color = 'k'
     # Max edge width
-    max_width = 13
+    max_width = 13 * scaler
+    min_width = 2 * scaler
     font_family = 'sans-serif'
 
     # We'll use the nodes a lot, let's make a numpy array of them
@@ -578,17 +591,9 @@ def draw_graph(G,
     figsize *= stretch_factor
     
     fig = plt.figure(figsize=figsize)
-    
-    # If a colorbar is required, make a set of axes for both the main graph and
-    # the colorbar, otherwise let nx do its thing
-    if colorbar:
-        # Make axes for both the graph and the colorbar
-        left0, width0, sep = 0.01, 0.73, 0.03
-        left, bottom, width, height = left0+width0+sep, 0.05, 0.03, 0.9
-        ax_graph = fig.add_axes([left0,bottom, width0, height])
-        ax_cbar = fig.add_axes([left,bottom, width, height])
-        # Set the current axes to be the graph ones for nx to draw into
-        fig.sca(ax_graph)
+    ax_graph = fig.add_subplot(1,1,1)
+    fig.sca(ax_graph)
+
     if layout is None:
         layout = nx.circular_layout
     # Compute positions for all nodes - nx has several algorithms
@@ -625,11 +630,10 @@ def draw_graph(G,
 
             edge_color = [ tuple(edge_cmap(ecol,fade)) ]
 
-                
             draw_networkx_edges(G, pos, edgelist=[(u,v)],
-                                width=alpha*max_width,
-                                edge_color=edge_color,
-                                style=edge_style)
+                                            width=min_width + alpha*max_width,
+                                            edge_color=edge_color,
+                                            style=edge_style)
     else:
         # Directed graph, use arrows.
         # XXX - this is currently broken.
@@ -663,14 +667,18 @@ def draw_graph(G,
 
     # Add a colorbar if requested
     if colorbar:
-        cb1 = mpl.colorbar.ColorbarBase(ax_cbar, cmap=edge_cmap, norm=cnorm)
-    else:
-        # With no colorbar, at least adjust the margins so there's less dead
-        # border around the graph (the colorbar code automatically sets those
-        # for us above)
-        e = 0.08
-        plt.subplots_adjust(e,e,1-e,1-e)
-        
+        divider = make_axes_locatable(ax_graph)
+        ax_cb = divider.new_vertical(size="20%", pad=0.2, pack_start=True)
+        fig.add_axes(ax_cb)
+        cb =mpl.colorbar.ColorbarBase(ax_cb,
+                                    cmap=edge_cmap,
+                                    norm=cnorm,
+                                    boundaries = np.linspace(min((gvmin,0)),
+                                                             max((gvmax,0)),
+                                                             256),
+                                    orientation='horizontal',
+                                    format = '%.2f')
+
     # Always return the MPL figure object so the user can further manipulate it
     return fig
 
@@ -864,7 +872,7 @@ def draw_networkx_edges(G, pos,
         arrow_collection.set_zorder(1) # edges go behind nodes            
         ax.add_collection(arrow_collection)
         
-    return edge_collection
+    return ax
 
 def mkgraph(cmat,threshold=0.0,threshold2=None):
     """Make a weighted graph object out of an adjacency matrix.

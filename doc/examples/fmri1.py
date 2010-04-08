@@ -13,7 +13,7 @@ from nitime.analysis import CorrelationAnalyzer
 from nitime.utils import percent_change
 import nitime.viz
 reload(nitime.viz)
-from nitime.viz import matshow_roi,drawgraph_roi
+from nitime.viz import drawmatrix_channels,drawgraph_channels
 
 #This information (the sampling rate) has to be known in advance:
 TR=1.89
@@ -43,5 +43,5 @@ T.metadata['roi'] = roi_names
 C = CorrelationAnalyzer(T)
 
 #Display the correlation matrix
-matshow_roi(C(),roi_names,size=[10.,10.])
+drawmatrix_channels(C(),roi_names,size=[10.,10.],color_anchor=0)
 
