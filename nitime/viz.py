@@ -113,9 +113,6 @@ def subcolormap(xmin, xmax, cmap):
    return colors.LinearSegmentedColormap('local', cd, N=256)
 
 
-# XXX Add input of color_anchor, which would be, per default None, if it is set
-# to a single value, that anchors the center of the cmap. If it is a tuple,
-# with two values, that anchors the min and max of the cmap: 
 def drawmatrix_channels(in_m,channel_names=None,fig=None,x_tick_rot=90,size=None,
                 cmap=plt.cm.RdBu_r,colorbar=True,color_anchor=None):
     """Creates a lower-triangle of the matrix of an nxn set of values. This is
@@ -634,9 +631,9 @@ def draw_graph(G,
             edge_color = [ tuple(edge_cmap(ecol,fade)) ]
 
             draw_networkx_edges(G, pos, edgelist=[(u,v)],
-                                width=min_width + alpha*max_width,
-                                edge_color=edge_color,
-                                style=edge_style)
+                                            width=min_width + alpha*max_width,
+                                            edge_color=edge_color,
+                                            style=edge_style)
     else:
         # Directed graph, use arrows.
         # XXX - this is currently broken.
@@ -668,15 +665,20 @@ def draw_graph(G,
     plt.xticks([])
     plt.yticks([])
 
-
     # Add a colorbar if requested
     if colorbar:
         divider = make_axes_locatable(ax_graph)
         ax_cb = divider.new_vertical(size="20%", pad=0.2, pack_start=True)
         fig.add_axes(ax_cb)
-        cb1 = mpl.colorbar.ColorbarBase(ax_cb, cmap=edge_cmap, norm=cnorm,
-                                        orientation='horizontal')
-        
+        cb =mpl.colorbar.ColorbarBase(ax_cb,
+                                    cmap=edge_cmap,
+                                    norm=cnorm,
+                                    boundaries = np.linspace(min((gvmin,0)),
+                                                             max((gvmax,0)),
+                                                             256),
+                                    orientation='horizontal',
+                                    format = '%.2f')
+
     # Always return the MPL figure object so the user can further manipulate it
     return fig
 
@@ -870,7 +872,7 @@ def draw_networkx_edges(G, pos,
         arrow_collection.set_zorder(1) # edges go behind nodes            
         ax.add_collection(arrow_collection)
         
-    return edge_collection
+    return ax
 
 def mkgraph(cmat,threshold=0.0,threshold2=None):
     """Make a weighted graph object out of an adjacency matrix.
