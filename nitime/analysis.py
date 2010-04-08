@@ -637,13 +637,24 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                                  time_unit=self.time_unit)
 
 
-    # XXX Make this thing - get inidividual events. This should return a list
-    # of time-series, such that it can deal with situations where each channel
-    # has different events and different events have different # of occurences
-    # (so a numpy array might not work out...)
     @desc.setattr_on_read
     def et_data(self):
-        """The event-triggered data (all occurences)"""
+
+        """The event-triggered data (all occurences).
+
+        This gets the time-series corresponding to the inidividual event
+        occurences. Returns a list of lists of time-series. The first dimension
+        is the different channels in the original time-series data and the
+        second dimension is each type of event in the event time series
+
+        The time-series itself has the first diemnsion of the data being the
+        specific occurence, with time 0 locked to the that occurence
+        of the event and the last dimension is time.e
+
+        This complicated structure is so that it can deal with situations where
+        each channel has different events and different events have different #
+        of occurences
+        """
         #Make a list for the output 
         h = [0] * self._len_h
 
@@ -651,17 +662,23 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             data = self.data[i]
             u = np.unique(self.events[i])
             event_types = u[np.unique(self.events[i])!=0]
+            #Make a list in here as well:
+            this_list = [0] * event_types.shape[0]
+            print(event_types) #dbg
             for e_idx in xrange(event_types.shape[0]):
                 idx = np.where(self.events[i]==event_types[e_idx])
-                h[i] = np.empty((event_types.shape[0],
-                                 self.len_et),dtype=complex)
-            
+                
                 idx_w_len = np.array([idx[0]+count+self._offset for count
                                       in range(self.len_et)])
-                event_trig = data[idx_w_len]
-            
-                
+                event_trig = data[idx_w_len].T
+                this_list[e_idx] = ts.UniformTimeSeries(data=event_trig,
+                                 sampling_interval=self.sampling_interval,
+                                 t0=self._offset*self.sampling_interval,
+                                 time_unit=self.time_unit)
 
+            h[i] = this_list
+
+        return h
 
     @desc.setattr_on_read
     def eta(self):
