@@ -1,6 +1,7 @@
 import numpy as np
 import nitime.timeseries as ts
 import nitime.analysis as tsa
+reload(tsa)
 import nitime.viz as viz
 
 #As before the stimuli get read from files:  
