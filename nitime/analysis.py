@@ -560,15 +560,13 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             #right thing): 
 
             roll_events = np.roll(self.events[i],self._offset)
-            design = tsu.fir_design_matrix(roll_events,self.len_et+
-                                           abs(self._offset))
+            design = tsu.fir_design_matrix(roll_events,self.len_et)
             #Compute the fir estimate, in linear form: 
             this_h = tsa.fir(self.data[i],design)
             #Reshape the linear fir estimate into a event_types*hrf_len array
             u = np.unique(self.events[i])
             event_types = u[np.unique(self.events[i])!=0]
-            h[i] =np.reshape(this_h,(event_types.shape[0],self.len_et+
-                                     abs(self._offset)))
+            h[i] =np.reshape(this_h,(event_types.shape[0],self.len_et))
 
         h = np.array(h).squeeze()
 
