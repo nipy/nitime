@@ -1506,7 +1506,7 @@ def gamma_hrf(duration,A=1.,tau=1.08,n=3,delta=2.05,Fs=1.0):
 
     t_max = duration - delta
     
-    t = np.hstack([np.zeros((delta*Fs)),np.arange(0,t_max,sampling_interval)])
+    t = np.hstack([np.zeros((delta*Fs)),np.linspace(0,t_max,t_max*Fs)])
 
     t_tau = t/tau
 
