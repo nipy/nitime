@@ -1488,6 +1488,9 @@ def gamma_hrf(duration,A=1.,tau=1.08,n=3,delta=2.05,Fs=1.0):
        Resonance Imaging in Human V1. J Neurosci 16: 4207-4221 
     
     """
+    # XXX Maybe change to take out the time (Fs, duration, etc) from this and
+    # instead implement this in units of sampling interval (pushing the time
+    # aspect to the higher level)? 
     if type(n) is not int:
         print ('gamma_hrf received unusual input, converting n from %s to %i'
                %(str(n),int(n)))
