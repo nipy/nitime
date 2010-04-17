@@ -662,7 +662,6 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             event_types = u[np.unique(self.events[i])!=0]
             #Make a list in here as well:
             this_list = [0] * event_types.shape[0]
-            print(event_types) #dbg
             for e_idx in xrange(event_types.shape[0]):
                 idx = np.where(self.events[i]==event_types[e_idx])
                 
