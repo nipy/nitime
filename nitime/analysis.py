@@ -343,7 +343,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         coherence ={} 
         for i,j in self.ij:
             #dbg:
-            print i,j
+            #print i,j
             coherence[i,j] = np.abs(self.output[i,j])
        
         return coherence
