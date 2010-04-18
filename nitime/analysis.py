@@ -307,6 +307,13 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
          The method for spectral estimation (see `func`:algorithms.get_spectra:)
 
         """
+        try:
+            os.environ['C_INCLUDE_PATH']=np.get_include()
+            import pyximport; pyximport.install()
+            from coherencyx import cache_fft,cache_to_psd,cache_to_coherency,cache_to_phase
+        except:
+            from algorithms import cache_fft,cache_to_psd,cache_to_coherency,cache_to_phase
+        
         BaseAnalyzer.__init__(self,time_series)
         #Initialize variables from the time series
         self.ij = ij
@@ -333,7 +340,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     def output(self):
         """ The default behavior is to calculate the cache, extract it and then
         output the coherency""" 
-        coherency = tsa.cache_to_coherency(self.cache,self.ij)
+        coherency = cache_to_coherency(self.cache,self.ij)
 
         return coherency
 
@@ -354,7 +361,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         SparseCoherenceAnalyzer. Calculate only once and reuse
         """
         data = self.input.data 
-        f,cache = tsa.cache_fft(data,self.ij,
+        f,cache = cache_fft(data,self.ij,
                         lb=self.lb,ub=self.ub,
                         method=self.method,
                         prefer_speed_over_memory=self.prefer_speed_over_memory,
@@ -368,7 +375,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         """get the spectrum for the collection of time-series in this analyzer
         """
         self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
-        spectrum = tsa.cache_to_psd(self.cache,self.ij)
+        spectrum = cache_to_psd(self.cache,self.ij)
 
         return spectrum
     
@@ -377,7 +384,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         """The frequency-band dependent phases of the spectra of the
            time-series i,j in the analyzer"""
         
-        phase= tsa.cache_to_phase(self.cache,self.ij)
+        phase= cache_to_phase(self.cache,self.ij)
 
         return phase
 
