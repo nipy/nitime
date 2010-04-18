@@ -2416,6 +2416,8 @@ def cache_fft(time_series,ij,lb=0,ub=None,
     Pxx = {}
     
     for i_channel in all_channels:
+        #dbg:
+        #print i_channel
         Slices = np.zeros( (n_slices,n_freqs), dtype=np.complex)
         for iSlice in xrange(n_slices):
             thisSlice = time_series[i_channel,
@@ -2455,7 +2457,8 @@ def cache_to_psd(cache,ij):
     n_channels = len(all_channels)
 
     for i in all_channels:
-
+        #dbg:
+        #print i
         #If we made the conjugate slices:
         if FFT_conj_slices:
             Pxx[i] = FFT_slices[i] * FFT_conj_slices[i]
@@ -2515,7 +2518,8 @@ def cache_to_coherency(cache,ij):
     Cxy = {}
     Phase = {}
     for i,j in ij:
-
+        #dbg:
+        #print i,j
         #If we made the conjugate slices:
         if FFT_conj_slices:
             Pxy = FFT_slices[i] * FFT_conj_slices[j]

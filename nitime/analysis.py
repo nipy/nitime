@@ -281,7 +281,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     and cannot use other methods of spectral estimation""" 
 
     def __init__(self,time_series=None,ij=(0,0),method=None,lb=0,ub=None,
-                 prefer_speed_over_memory=False,scale_by_freq=True):
+                 prefer_speed_over_memory=True,scale_by_freq=True):
         """The constructor for the SparseCoherenceAnalyzer
 
         Parameters
@@ -336,6 +336,17 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         coherency = tsa.cache_to_coherency(self.cache,self.ij)
 
         return coherency
+
+    @desc.setattr_on_read
+    def coherence(self):
+        """ The coherence values for the output"""
+        coherence ={} 
+        for i,j in self.ij:
+            #dbg:
+            print i,j
+            coherence[i,j] = np.abs(self.output[i,j])
+       
+        return coherence
 
     @desc.setattr_on_read
     def cache(self):
