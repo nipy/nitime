@@ -243,7 +243,8 @@ def drawmatrix_channels(in_m,channel_names=None,fig=None,x_tick_rot=90,size=None
     return fig
 
 def drawgraph_channels(in_m,channel_names=None,cmap=plt.cm.RdBu_r,
-                  node_labels=None,node_shapes=None,node_colors=None,title=None):
+                       node_labels=None,node_shapes=None,node_colors=None,
+                       title=None,layout=None):
 
     """Draw a graph based on the matrix specified in in_m. Wrapper to
     draw_graph.
@@ -259,6 +260,15 @@ def drawgraph_channels(in_m,channel_names=None,cmap=plt.cm.RdBu_r,
     cmap (optional): a matplotlib colormap to be used for displaying the values
     of the connections on the graph
 
+    node_labels:
+
+    node_shapes: defaults to circle
+
+    node_colors: defaults to white,
+
+    title:
+
+    layout, defaults to nx.circular_layout
     Returns
     -------
     fig: a figure object
@@ -288,8 +298,8 @@ def drawgraph_channels(in_m,channel_names=None,cmap=plt.cm.RdBu_r,
 
     #Set the diagonal values to the minimal value of the matrix, so that the
     #vrange doesn't always get stretched to 1:  
-    m[np.arange(nnodes),np.arange(nnodes)]=np.min(m)
-    vrange = [-np.max(m),np.max(m)]
+    m[np.arange(nnodes),np.arange(nnodes)]=np.nanmin(m)
+    vrange = [-np.nanmax(m),np.nanmax(m)]
     
     G = mkgraph(m)
     fig = draw_graph(G,
@@ -302,7 +312,8 @@ def drawgraph_channels(in_m,channel_names=None,cmap=plt.cm.RdBu_r,
                      vrange=vrange,
                      title=title,
                      stretch_factor=1,
-                     edge_alpha=False
+                     edge_alpha=False,
+                     layout=layout
                      )
     return fig
 
@@ -511,7 +522,7 @@ def draw_graph(G,
       Whether to weight the transparency of each edge by a factor equivalent to
       its relative weight
 
-    fig_size: list of height by widht, the size of the figure (in
+    fig_size: list of height by width, the size of the figure (in
     inches). Defaults to [6,6]
     
     Returns
