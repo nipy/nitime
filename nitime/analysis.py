@@ -22,6 +22,20 @@ from nitime import timeseries as ts
 # XXX - this one is only used in BaseAnalyzer.parameterlist. Should it be
 # imported at module level? 
 from inspect import getargspec
+
+
+#XXX This bit is only pertinent for the SparseCoherenceAnalyzer. Is there any
+#way to not make it run at this level? 
+try:
+    os.environ['C_INCLUDE_PATH']=np.get_include()
+    import pyximport; pyximport.install()
+    from coherencyx import cache_fft,cache_to_psd,cache_to_coherency,cache_to_phase
+    #print 'using cython?'
+    
+except:
+    from algorithms import cache_fft,cache_to_psd,cache_to_coherency,cache_to_phase
+    #print 'definitely not using cython!'
+
     
 class BaseAnalyzer(desc.ResetMixin):
     """Analyzer that implements the default data flow.
@@ -307,12 +321,6 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
          The method for spectral estimation (see `func`:algorithms.get_spectra:)
 
         """
-        try:
-            os.environ['C_INCLUDE_PATH']=np.get_include()
-            import pyximport; pyximport.install()
-            from coherencyx import cache_fft,cache_to_psd,cache_to_coherency,cache_to_phase
-        except:
-            from algorithms import cache_fft,cache_to_psd,cache_to_coherency,cache_to_phase
         
         BaseAnalyzer.__init__(self,time_series)
         #Initialize variables from the time series
@@ -347,11 +355,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def coherence(self):
         """ The coherence values for the output"""
-        coherence ={} 
-        for i,j in self.ij:
-            #dbg:
-            #print i,j
-            coherence[i,j] = np.abs(self.output[i,j])
+        coherence = np.abs(self.output)
        
         return coherence
 
@@ -368,7 +372,6 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
                         scale_by_freq=self.scale_by_freq)
 
         return cache
-    
     
     @desc.setattr_on_read
     def spectrum(self):

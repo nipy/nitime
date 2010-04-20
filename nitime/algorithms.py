@@ -2514,26 +2514,47 @@ def cache_to_coherency(cache,ij):
     norm_val=cache['norm_val']
 
     Pxx = cache_to_psd(cache,ij)
+    k = Pxx.keys()[0]
+    freqs = Pxx[k].shape[-1]
     
-    Cxy = {}
-    Phase = {}
-    for i,j in ij:
-        #dbg:
-        #print i,j
-        #If we made the conjugate slices:
+    ij_array = np.array(ij)
+
+    channels_i = max(1,max(ij_array[:,0])+1)
+    channels_j = max(1,max(ij_array[:,1])+1)
+    Cxy = np.zeros((channels_i,channels_j,freqs))
+
+    #print Cxy.shape
+    #These checks take time, so do them up front, not in every iteration:
+    if FFT_slices.items()[0][1].shape[0]>1:
         if FFT_conj_slices:
-            Pxy = FFT_slices[i] * FFT_conj_slices[j]
+            for i,j in ij:
+                #dbg:
+                #print i,j
+                Pxy = FFT_slices[i] * FFT_conj_slices[j]
+                Pxy = np.mean(Pxy,0)
+                Pxy /= norm_val
+                Cxy[i,j] = Pxy / np.sqrt(Pxx[i]*Pxx[j])
+                
         else:
-            Pxy = FFT_slices[i] * np.conjugate(FFT_slices[j])
+            for i,j in ij:
+                Pxy = FFT_slices[i] * np.conjugate(FFT_slices[j])
+                Pxy = np.mean(Pxy,0)
+                Pxy /= norm_val
+                Cxy[i,j] =  Pxy / np.sqrt(Pxx[i]*Pxx[j])
+    else:
+        if FFT_conj_slices:
+            for i,j in ij:
+                Pxy = FFT_slices[i] * FFT_conj_slices[j]
+                Pxy /= norm_val
+                Cxy[i,j] = Pxy / np.sqrt(Pxx[i]*Pxx[j])
+                
+        else:
+            for i,j in ij:
+                Pxy = FFT_slices[i] * np.conjugate(FFT_slices[j])
+                Pxy /= norm_val
+                Cxy[i,j] =  Pxy / np.sqrt(Pxx[i]*Pxx[j])
+        
 
-        #If there is more than one window
-        if FFT_slices.items()[0][1].shape[0]>1:
-            Pxy = np.mean(Pxy,0)
-
-        Pxy /= norm_val
-        Cxy[i,j] = coherency_calculate(Pxy,Pxx[i],Pxx[j])
-       
-       
     return Cxy
 
 

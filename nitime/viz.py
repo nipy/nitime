@@ -244,7 +244,7 @@ def drawmatrix_channels(in_m,channel_names=None,fig=None,x_tick_rot=90,size=None
 
 def drawgraph_channels(in_m,channel_names=None,cmap=plt.cm.RdBu_r,
                        node_labels=None,node_shapes=None,node_colors=None,
-                       title=None,layout=None):
+                       title=None,layout=None,threshold=None):
 
     """Draw a graph based on the matrix specified in in_m. Wrapper to
     draw_graph.
@@ -298,10 +298,15 @@ def drawgraph_channels(in_m,channel_names=None,cmap=plt.cm.RdBu_r,
 
     #Set the diagonal values to the minimal value of the matrix, so that the
     #vrange doesn't always get stretched to 1:  
-    m[np.arange(nnodes),np.arange(nnodes)]=np.nanmin(m)
-    vrange = [-np.nanmax(m),np.nanmax(m)]
-    
-    G = mkgraph(m)
+    m[np.arange(nnodes),np.arange(nnodes)]=min(np.nanmin(m),-np.nanmax(m))
+    range_setter = max(abs(np.nanmin(m)),abs(np.nanmax(m)))
+    vrange = [-range_setter,range_setter]
+
+    #m[np.where(np.isnan(m))] = 0
+    if threshold is None:
+        G = mkgraph(m,threshold=vrange[0],threshold2=None)
+    else:
+        G = mkgraph(m,threshold=threshold[0],threshold2=threshold[1])
     fig = draw_graph(G,
                      node_colors=node_colors,
                      node_shapes=node_shapes,
@@ -591,6 +596,7 @@ def draw_graph(G,
     # e[2] is edge value: edges_iter returns (i,j,data)
     gvals = np.array([ e[2]['weight'] for e in G.edges(data=True) ])
     gvmin, gvmax = gvals.min(), gvals.max()
+
     gvrange = gvmax-gvmin
     if vrange is None:
         vrange = gvmin,gvmax
@@ -640,7 +646,8 @@ def draw_graph(G,
                 fade=1.0
 
             edge_color = [ tuple(edge_cmap(ecol,fade)) ]
-
+            #dbg:
+            #print u,v,y
             draw_networkx_edges(G, pos, edgelist=[(u,v)],
                                             width=min_width + alpha*max_width,
                                             edge_color=edge_color,
@@ -684,9 +691,9 @@ def draw_graph(G,
         cb =mpl.colorbar.ColorbarBase(ax_cb,
                                     cmap=edge_cmap,
                                     norm=cnorm,
-                                    boundaries = np.linspace(min((gvmin,0)),
-                                                             max((gvmax,0)),
-                                                             256),
+                                    #boundaries = np.linspace(min((gvmin,0)),
+                                    #                         max((gvmax,0)),
+                                    #                         256),
                                     orientation='horizontal',
                                     format = '%.2f')
 
