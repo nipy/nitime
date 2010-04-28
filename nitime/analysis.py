@@ -23,19 +23,6 @@ from nitime import timeseries as ts
 # imported at module level? 
 from inspect import getargspec
 
-
-#XXX This bit is only pertinent for the SparseCoherenceAnalyzer. Is there any
-#way to not make it run at this level? 
-try:
-    os.environ['C_INCLUDE_PATH']=np.get_include()
-    import pyximport; pyximport.install()
-    from coherencyx import cache_fft,cache_to_psd,cache_to_coherency,cache_to_phase
-    #print 'using cython?'
-    
-except:
-    from algorithms import cache_fft,cache_to_psd,cache_to_coherency,cache_to_phase
-    #print 'definitely not using cython!'
-
     
 class BaseAnalyzer(desc.ResetMixin):
     """Analyzer that implements the default data flow.
