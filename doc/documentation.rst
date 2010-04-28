@@ -17,8 +17,3 @@ Contents:
    devel/index
    api/index
    
-.. toctree::
-   :maxdepth: 1
-
-   discussion/index
-

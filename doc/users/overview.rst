@@ -16,6 +16,7 @@ The library has several sets of classes, used for the representation of time and
 
 The first kind of classes is used in order to represent time and inherits from :class:`np.ndarray`, see :ref:`time_classes`. Another are data containers, used to represent different kinds of time-series data, see :ref:`time_series_classes`
 A third important kind are *analyzer* objects. This objects can be used in order to apply a particular analysis to time-series objects, see :ref:`analyzer_objects`
+
 .. _time_classes:
 
 Time
@@ -68,7 +69,7 @@ to an :ref:`interval_class` and :func:`index_during`, which will return the
 array of integers corresponding to the indices of these time-points in the
 array.
 
-For the time being, there are two types of Time classes: :ref:`TimeArray` and :ref:`NonUniformTime`, and :ref:`UniformTime`.
+For the time being, there are two types of Time classes: :ref:`TimeArray` and :ref:`UniformTime`.
 
 .. _TimeArray:
 
@@ -89,10 +90,10 @@ time objects. In particular, an object of :class:`UniformTime`, UT, will have
 the following:
 
 * :attr:`UT.t_0`: the first time-point in the series.
-* :attr:`UT.sampling_rate`: the sampling rate of the series.
+* :attr:`UT.sampling_rate`: the sampling rate of the series (this is an
+  instance of .
 * :attr:`UT.sampling_interval`: the value of $\delta t$, mentioned above.
-* :attr:`UT.duration`: the total time (in dtype :class:`deltatime64`) of
-  the series.
+* :attr:`UT.duration`: the total time of the series.
 
 Obviously, :attr:`UT.sampling_rate` and :attr:`UT.sampling_interval` are redundant, but can both be useful.
 
@@ -100,10 +101,74 @@ Obviously, :attr:`UT.sampling_rate` and :attr:`UT.sampling_interval` are redunda
 :class:`Frequency`
 ------------------
 
-In particular, the :attr:`UT.sampling_rate` of :class:`UniformTime` is an object of the :class:`Frequency` class. This is a representation of the frequency in Hz. It is derived from a combination of the :attr:`sampling_interval` and the :attr:`time_unit`.
+The :attr:`UT.sampling_rate` of :class:`UniformTime` is an object of the :class:`Frequency` class. This is a representation of the frequency in Hz. It is derived from a combination of the :attr:`sampling_interval` and the :attr:`time_unit`.
+
+.. _time_series_classes:
+
+Time-series 
+===========
+
+These are data container classes for representing different kinds of
+time-series data types.
+
+In implementing these objects, we follow the following principles:
+
+* The time-series data representations do not inherit from
+  :class:`np.ndarray`. Instead, one of their attributes is a :attr:`data`
+  attribute, which *is* a :class:`np.ndarray`. This principle should allow for
+  a clean and compact implementation, which doesn't carry all manner of
+  unwanted properties into a bloated object with obscure and unknown behaviors.
+  We have previously decided to make *time* the last dimension in this
+  object, but recently we have been considering making this a user choice (in
+  order to enable indexing into the data by time in a straight-forward manner
+  (using expressions such as :class:`TI.data[i]`. 
+* In tandem, one of their attributes is one of the :ref:`time_classes` base
+  classes described above. This is the :attr:`time` attribute of the
+  time-series object. Therefore, for :class:`TimeSeries` it is implemented in
+  the object with a :func:`desc.setattr_on_read` decoration, so that it is only
+  generated if it is needed.
+
+.. _Events:
+
+:class:`Events`
+--------------------
+
+This is an object which represents a collection of events. For example, this
+can represent discrete button presses occuring during an experiment. This
+object contains a :ref:`TimeArray` as its representation of time. This means
+that the events recorded in the :attr:`data` array can be organized
+according to any organizing principle you would want, not neccesarily according
+to their organization or order in time. For example, if events are read from
+different devices, the order of the events in the data array can be arbitrarily
+chosen to be the order of the devices from which data is read.
+
+.. _TimeSeries:
+
+:class:`TimeSeries`
+--------------------------
+
+This represents time-series of data collected continuously and regularly. Can
+be used in order to represent typical physiological data measurements, such as
+measurements of BOLD responses, or of membrane-potential. The representation of
+time here is :ref:`UniformTime`.
+
+
+.. +--------+----------------------+----------------+-----------------+
+.. |        | class                |    time        | example         |
+.. +========+======================+================+=================+
+.. |  Time  | EventSeries          | EventArray     | button presses  |
+.. | Series |----------------------+----------------+-----------------+
+.. |   	    | NonUniformTimeSeries | NonUniformTime | spike trains    |
+.. | 	    |----------------------+----------------+-----------------+ 
+.. |        | UniformTimeSeri      | UniformTime    | BOLD            |
+.. +--------+----------------------+----------------+-----------------+
 
 
 Analyzers
 =========
 
 These objects implement a particular analysis, or family of analyses. Typically, the initialization of this kind of object can happen with a time-series object provided as input, as well as a parameter setting. However, for most analyzer objects, the inputs can be provided upong calling the object, or by assignment to the already generated object.  
+
+
+.. [Goldberg1991] Goldberg D (1991). What every computer scientist should know
+   about floating-point arithmetic. ACM computing surveys 23: 5-48
