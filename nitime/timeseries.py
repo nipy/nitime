@@ -1049,21 +1049,25 @@ def concatenate_uniform_time_series(time_series_list):
     #The data in the output object has the size of the input time-series,
     #except in the last dimension (time), where it has the sum of all the
     #lengths of the time-series:
-    
     data_out = np.empty(time_series_list[0].data.shape[0:-1]
                         + (total_len,)) #this variable is an int, so needs to
                                         #be cast into a tuple, so that it can
                                         #be used to initialize the empty variable
-    
+
+    # The output metadata is computed by updating a dict with the metadata for
+    # each individual time series.
     idx_start = 0
+    metadata = {}
     for i in xrange(len(time_series_list)):
         idx_end = idx_start+time_series_list[i].data.shape[-1]
         data_out[...,idx_start:idx_end] = time_series_list[i].data
         idx_start = idx_end
+        metadata.update(time_series_list.metadata)
 
 
     tseries = UniformTimeSeries(data_out,
                     sampling_interval=time_series_list[0].sampling_interval)
+    tseries.metadata = metadata
 
     return tseries
 
