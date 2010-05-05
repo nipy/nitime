@@ -558,7 +558,7 @@ class TimeSeriesInterface(TimeInterface):
 class TimeSeriesBase(object):
     """Base class for time series, implementing the TimeSeriesInterface."""
 
-    def __init__(self,data,time_unit):
+    def __init__(self, data, time_unit, metadata=None):
         """Common constructor shared by all TimeSeries classes."""
         # Check that sensible time units were given
         if time_unit not in time_unit_conversion:
@@ -572,8 +572,10 @@ class TimeSeriesBase(object):
         # Every instance carries an empty metadata dict, which we promise never
         # to touch.  This reserves this name as a user area for extra
         # information without the danger of name clashes in the future.
-        self.metadata = {}
-
+        if metadata is None:
+            self.metadata = {}
+        else:
+            self.metadata = metadata
 
     def __len__(self):
         """Return the length of the time series."""
@@ -672,7 +674,8 @@ class UniformTimeSeries(TimeSeriesBase):
     
     
     def __init__(self, data, t0=None, sampling_interval=None,
-                 sampling_rate=None, duration=None, time=None, time_unit='s'):
+                 sampling_rate=None, duration=None, time=None, time_unit='s',
+                 metadata=None):
         """Create a new UniformTimeSeries.
 
         This class assumes that data is uniformly sampled, but you can specify
@@ -815,7 +818,7 @@ class UniformTimeSeries(TimeSeriesBase):
         #Otherwise, you can still call the common constructor to get the real
         #object initialized, with time_unit set to None and that will generate
         #the object with time_unit set to 's':  
-        TimeSeriesBase.__init__(self,data,time_unit)
+        TimeSeriesBase.__init__(self, data, time_unit, metadata=metadata)
     
         self.time_unit = time_unit
         self.sampling_interval = TimeArray(sampling_interval,
@@ -1034,52 +1037,25 @@ def nifti_from_time_series(volume,coords,time_series,nifti_path):
     # XXX Implement! 
     raise NotImplementedError
     
-def concatenate_uniform_time_series(time_series_list):
-    """Concatenates a list of time-series objects in time, according to their
-    order in the input list.
+def concatenate(time_series_seq):
+    """Concatenates a sequence of time-series objects in time.
+
+    The input can be any iterable of time-series objects; metadata, sampling
+    rates and other attributes are kept from the last one in the sequence.
 
     This one requires that all the time-series in the list have the same
     sampling rate and that all the data have the same number of items in all
     dimensions, except the time dimension"""
 
-    total_len = 0
-    for i in xrange(len(time_series_list)):
-        total_len += time_series_list[i].data.shape[-1]
-
-    #The data in the output object has the size of the input time-series,
-    #except in the last dimension (time), where it has the sum of all the
-    #lengths of the time-series:
-    data_out = np.empty(time_series_list[0].data.shape[0:-1]
-                        + (total_len,)) #this variable is an int, so needs to
-                                        #be cast into a tuple, so that it can
-                                        #be used to initialize the empty variable
-
-    # The output metadata is computed by updating a dict with the metadata for
-    # each individual time series.
-    idx_start = 0
+    # Extract the data pointer for each and build a common data block
+    data = []
     metadata = {}
-    for i in xrange(len(time_series_list)):
-        idx_end = idx_start+time_series_list[i].data.shape[-1]
-        data_out[...,idx_start:idx_end] = time_series_list[i].data
-        idx_start = idx_end
-        metadata.update(time_series_list.metadata)
+    for ts in time_series_seq:
+        data.append(ts.data)
+        metadata.update(ts.metadata)
 
-
-    tseries = UniformTimeSeries(data_out,
-                    sampling_interval=time_series_list[0].sampling_interval)
-    tseries.metadata = metadata
-
+    # Sampling interval is read from the last one
+    tseries = UniformTimeSeries(np.hstack(data),
+                                sampling_interval=ts.sampling_interval,
+                                metadata=metadata)
     return tseries
-
-    
-def concatenate_time_series(time_series_list):
-    """Concatenates a list of time series objects in time, according to their
-    order in the input list.
-
-    This one doesn't require that the time-series all have the same sampling
-    rate. Requires that the data all have the same number of rows""" 
-
-    # XXX Implement! Probably as generalization of above
-    # (concatenate_uniform_time_series)
-    raise NotImplementedError
-
