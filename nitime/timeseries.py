@@ -229,9 +229,17 @@ class TimeArray(np.ndarray,TimeInterface):
 
     def convert_unit(self,time_unit):
         """Convert from one time unit to another in place"""
-        #XXX Implement
-        pass
-     
+
+        return TimeArray(self,time_unit=time_unit)
+
+    def __div__(self,d):
+        """Division by another time object eliminates units """
+        if isinstance(d,TimeInterface):
+            return np.divide(np.array(self),np.array(d).astype(float))
+        else: 
+            return np.divide(self,d)           
+        
+    
 class UniformTime(np.ndarray,TimeInterface):
     """ A representation of time sampled uniformly
 

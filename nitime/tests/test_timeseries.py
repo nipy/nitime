@@ -65,6 +65,38 @@ def test_TimeArray_bool():
     yield npt.assert_equal(bool_arr,time1==time2)
     yield nt.assert_not_equal(type(time1==time2),ts.TimeArray)
 
+@decotest.parametric
+def test_TimeArray_div():
+
+    #divide singelton by singleton:
+    a = 2.0
+    b = 6.0
+    time1 = ts.TimeArray(a,time_unit='s')
+    time2 = ts.TimeArray(b,time_unit='s')
+    div1 = a/b
+    #This should eliminate the units and return a float, not a TimeArray:
+    div2 = time1/time2
+    yield npt.assert_equal(div1,div2)
+
+    #Divide a TimeArray by a singelton:
+    a = np.array([1,2,3])
+    b = 6.0
+    time1 = ts.TimeArray(a,time_unit='s')
+    time2 = ts.TimeArray(b,time_unit='s')
+    div1 = a/b
+    #This should eliminate the units and return a float array, not a TimeArray:
+    div2 = time1/time2
+    yield npt.assert_equal(div1,div2)
+
+    #Divide a TimeArray by another TimeArray:
+    a = np.array([1,2,3])
+    b = np.array([2,2,2]).astype(float) #TimeArray division is float division!
+    time1 = ts.TimeArray(a,time_unit='s')
+    time2 = ts.TimeArray(b,time_unit='s')
+    div1 = a/b
+    #This should eliminate the units and return a float array, not a TimeArray:
+    div2 = time1/time2
+    yield npt.assert_equal(div1,div2)
     
 @decotest.parametric
 def test_TimeArray_index_at():
@@ -257,12 +289,12 @@ def test_Frequency():
         f = ts.Frequency(0.001,time_unit=unit)
         yield npt.assert_equal(f.to_period(),tuc[unit]*1000)       
 
-
     
 @decotest.parametric
 def test_UniformTimeSeries():
     """Testing the initialization of the uniform time series object """ 
 
+    #Test initialization with duration:
     tseries1 = ts.UniformTimeSeries([1,2,3,4,5,6,7,8,9,10],duration=10)
     tseries2 = ts.UniformTimeSeries([1,2,3,4,5,6,7,8,9,10],sampling_interval=1)
     npt.assert_equal(tseries1.time,tseries2.time)
