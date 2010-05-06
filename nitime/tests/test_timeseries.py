@@ -263,7 +263,10 @@ def test_Frequency():
 def test_UniformTimeSeries():
     """Testing the initialization of the uniform time series object """ 
 
-    #tseries = ts.UniformTimeSeries([1,2,3,4],duration=10)
+    tseries1 = ts.UniformTimeSeries([1,2,3,4,5,6,7,8,9,10],duration=10)
+    tseries2 = ts.UniformTimeSeries([1,2,3,4,5,6,7,8,9,10],sampling_interval=1)
+    npt.assert_equal(tseries1.time,tseries2.time)
+
     #downsampling:
     t1 = ts.UniformTime(length=8,sampling_rate=2)
     #duration is the same, but we're downsampling to 1Hz

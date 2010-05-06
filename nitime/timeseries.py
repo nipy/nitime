@@ -772,6 +772,7 @@ class UniformTimeSeries(TimeSeriesBase):
                         "You provided: %s\n %s see docstring for more info." % (
                             str_tspec(tspec, tspec_arg_names),
                             str_valid_tspecs(valid_tspecs,tspec_arg_names)))
+
         
         #Calculate the sampling_interval or sampling_rate from each other and
         #assign t0, if it is not already assigned:
@@ -779,7 +780,8 @@ class UniformTimeSeries(TimeSeriesBase):
             if isinstance(sampling_rate,Frequency):
                 sampling_interval=sampling_rate.to_period()
             elif sampling_rate is None:
-                sampling_interval = float(duration)/self.__len__()
+                data_len = np.asarray(data).shape[-1]
+                sampling_interval = float(duration)/data_len
                 sampling_rate = Frequency(1.0/sampling_interval,
                                              time_unit=time_unit)
             else:
@@ -861,6 +863,9 @@ class UniformTimeSeries(TimeSeriesBase):
         self.sampling_rate = sampling_rate
         self.duration = TimeArray(duration,time_unit=self.time_unit)
 
+    @property
+    def shape(self):
+        return self.data.shape
 
 def str_tspec(tspec, arg_names):
     """ Turn a single tspec into human readable form"""
@@ -877,6 +882,7 @@ def str_valid_tspecs(valid_tspecs, arg_names):
     for tsp in valid_tspecs: 
         vargs.append(str_tspec(tsp, arg_names))
     return "\n Valid time specifications are:\n\t%s" %("\n\t".join(vargs))
+
 
 
 class NonUniformTimeSeries(TimeSeriesBase):
