@@ -4,18 +4,88 @@
 Nitime: an overview
 ===================
 
-Nitime can be used in order to represent, manipulate and analyze data in time-series. This is done via an object-oriented interface, which separates representation and manipulation of time-series from the application of analysis to the time-series.
+Nitime can be used in order to represent, manipulate and analyze data in
+time-series from experimental data. The main intention of the library is to
+serve as a platform for analyzing data collected in neuroscientific
+experiments, ranging from single-cell recordings to fMRI. However, the
+object-oriented interface may match other kinds of time-series.
 
-In the following, we will provide a brief overview of the objects implemented in the library and their usage.  
+In the :ref:`tutorial`, we provide examples of usage of the objects in the
+library and of some basic analysis.
+
+Here, we will provide a brief overview of the guiding principles underlying the
+structure and implementation of the library and the programming interface
+provided by library. 
+
+We will survey the library their attributes and central functions and some possible example
+use-cases.
+
+=================
+Design Principles
+=================
+The main principle of the implementation of this library is a separation
+between representation of time-series and the analysis of time-series. Thus,
+the implementation is divided into three main elements:
+
+- Base classes for representation of time and data: These include objects
+  representing time (including support for the representation and conversion
+  between time-units) and objects that serve as containers for data:
+  representation of the time-series to be analyzed. These base classes will be
+  surveyed in more detail in the :ref:`base_classes`
+  
+- Algorithms for analysis of time-series: A library containing implementations
+  of algorithms for various analysis methods is provided. Importantly, this
+  library is intentionally agnostic to the existence of the library
+  base-classes. Thus, users can choose to use these algorithms directly,
+  instead of relying on the base-classes provided by the library  
+  
+- Analyzer interfaces: These objects provide an interface between the algorithm
+  library and the time-series objects. Each one of these objects calls an
+  algorithm from the algorithms  These objects rely on the details of the
+  implementation of the time-series objects. The input to these classes is
+  usually a time-series object and a set of parameters, which guide the
+  analysis. Some of the analyzer objects implement a thin interface (or
+  'facade') to algorithms provided by scipy.signal. 
+
+This principle is important, because it allows use of the analysis algorithms
+at two different levels. The algorithms are more general-purpose, but provide
+less support for the unique properties of time-series. The analyzer objects, on
+the other hand, provide a richer interface, but may be less flexible in their
+usage, because they assume use of the base-classes of the library.  
+
+This structure also makes development of new algorithms and adoption of
+analysis code from other sources easier, because no specialized design
+properties are required in order to include an algorithm or set of algorithms
+in the algorithm library. However, once algorithms are adopted into the
+library, it requires that additional development of the analyzer object
+specific for this set of algorithms be implemented as well.  
+
+Another important principle of the implementation is lazy initialization. Most
+attributes of both time-series and analysis objects are provided on a
+need-to-know basis. That is, initializing a time-series object, or an analyzer
+object does not trigger any intensive computations. Instead the computation of
+the attributes of analyzer objects is delayed until the moment the user calls
+these attributes. In addition, once a computation is triggered it is stored as
+an attribute of the object, which assures that accessing the results of an
+analysis will trigger the computation only on the first time the analysis resut
+is required. Thereafter, the result of the analysis is stored for further use
+of this result.
+
+.. _base_classes: 
 
 ==============
  Base classes
 ==============
 
-The library has several sets of classes, used for the representation of time and of time-series, in addition to classes used for analysis.
+The library has several sets of classes, used for the representation of time
+and of time-series, in addition to classes used for analysis.
 
-The first kind of classes is used in order to represent time and inherits from :class:`np.ndarray`, see :ref:`time_classes`. Another are data containers, used to represent different kinds of time-series data, see :ref:`time_series_classes`
-A third important kind are *analyzer* objects. This objects can be used in order to apply a particular analysis to time-series objects, see :ref:`analyzer_objects`
+The first kind of classes is used in order to represent time and inherits from
+:class:`np.ndarray`, see :ref:`time_classes`. Another are data containers, used
+to represent different kinds of time-series data, see
+:ref:`time_series_classes` A third important kind are *analyzer* objects. These
+objects can be used in order to apply a particular analysis to time-series
+objects, see :ref:`analyzer_objects`
 
 .. _time_classes:
 
@@ -106,7 +176,7 @@ The :attr:`UT.sampling_rate` of :class:`UniformTime` is an object of the :class:
 .. _time_series_classes:
 
 Time-series 
-===========
+============
 
 These are data container classes for representing different kinds of
 time-series data types.
@@ -153,22 +223,21 @@ measurements of BOLD responses, or of membrane-potential. The representation of
 time here is :ref:`UniformTime`.
 
 
-.. +--------+----------------------+----------------+-----------------+
-.. |        | class                |    time        | example         |
-.. +========+======================+================+=================+
-.. |  Time  | EventSeries          | EventArray     | button presses  |
-.. | Series |----------------------+----------------+-----------------+
-.. |   	    | NonUniformTimeSeries | NonUniformTime | spike trains    |
-.. | 	    |----------------------+----------------+-----------------+ 
-.. |        | UniformTimeSeri      | UniformTime    | BOLD            |
-.. +--------+----------------------+----------------+-----------------+
-
 
 Analyzers
 =========
 
-These objects implement a particular analysis, or family of analyses. Typically, the initialization of this kind of object can happen with a time-series object provided as input, as well as a parameter setting. However, for most analyzer objects, the inputs can be provided upong calling the object, or by assignment to the already generated object.  
+These objects implement a particular analysis, or family of analyses. Typically, the initialization of this kind of object can happen with
+a time-series object provided as input, as well as a set of parameter values  setting. However, for most analyzer objects, the inputs can be provided upong
+calling the object, or by assignment to the already generated object.
 
+Sometimes, a user may wish to revert the computation, change some of the
+analysis parameters and recompute one or more of the results of the
+analysis. In order to do that, the analyzer objects implement a :attr:`reset`
+attribute, which reverts the computation of analysis attributes and allows to
+change parameters in the analyzer and recompute the analysis results. This
+structure keeps the cost of computation of quantities derived from the analysis
+rather low.
 
 .. [Goldberg1991] Goldberg D (1991). What every computer scientist should know
    about floating-point arithmetic. ACM computing surveys 23: 5-48
