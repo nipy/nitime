@@ -201,18 +201,18 @@ class TimeArray(np.ndarray,TimeInterface):
         """ Returns the values of the TimeArray object at time t"""
         return self[self.index_at(t,tol=tol)]
 
-    def min(self,axis=None,out=None):
-        """Returns the minimal time"""
-        # this is a quick fix to return a time and will
-        # be obsolete once we use proper time dtypes
-        if axis is not None:
-            raise NotImplementedError, 'axis argument not implemented'
-        if out is not None:
-            raise NotImplementedError, 'out argument not implemented'
-        if self.ndim:
-            return self[self.argmin()]
-        else:
-            return self
+##     def min(self,axis=None,out=None):
+##         """Returns the minimal time"""
+##         # this is a quick fix to return a time and will
+##         # be obsolete once we use proper time dtypes
+##         if axis is not None:
+##             raise NotImplementedError, 'axis argument not implemented'
+##         if out is not None:
+##             raise NotImplementedError, 'out argument not implemented'
+##         if self.ndim:
+##             return self[self.argmin()]
+##         else:
+##             return self
 
     def max(self,axis=None,out=None):
         """Returns the maximal time"""
@@ -230,8 +230,10 @@ class TimeArray(np.ndarray,TimeInterface):
     def convert_unit(self,time_unit):
         """Convert from one time unit to another in place"""
 
-        return TimeArray(self,time_unit=time_unit)
+        self.time_unit=time_unit
+        self._conversion_factor = time_unit_conversion[time_unit]
 
+        
     def __div__(self,d):
         """Division by another time object eliminates units """
         if isinstance(d,TimeInterface):

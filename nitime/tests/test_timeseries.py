@@ -65,6 +65,16 @@ def test_TimeArray_bool():
     yield npt.assert_equal(bool_arr,time1==time2)
     yield nt.assert_not_equal(type(time1==time2),ts.TimeArray)
 
+@decotest.ipdoctest    
+def test_TimeArray_convert_unit():
+    """
+    >>> a = ts.TimeArray([1,2,3,4])
+    >>> a.convert_unit('ms')
+    >>> a
+    TimeArray([ 1000.,  2000.,  3000.,  4000.], time_unit='ms')
+    """
+    
+
 @decotest.parametric
 def test_TimeArray_div():
 
