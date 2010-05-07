@@ -15,7 +15,7 @@ stim = (20*1/np.log(10))*(np.log(stim[:,1]/2.0e-5))
 stim = maxdB-stim.max()+stim
 
 #Create the stimulus time-series (sampled at 20 kHz):
-stim_time_series = ts.UniformTimeSeries(t0=0,
+stim_time_series = ts.TimeSeries(t0=0,
                                         data=stim,
                                         sampling_interval=0.05,
                                         time_unit='ms') 
@@ -25,7 +25,7 @@ spike_times = np.loadtxt('data/grasshopper_spike_times1.txt')
 #Spike times are in 0.01 msec resolution, so need to be resampled:
 spike_times = (spike_times/50).astype(int)
 #Initialize the time-series holding the spike-times:
-spike_time_series = ts.UniformTimeSeries(t0=0,sampling_interval=0.05,
+spike_time_series = ts.TimeSeries(t0=0,sampling_interval=0.05,
                                          time_unit='ms',
                                          data=np.zeros(stim.shape))
 #The position of a spike is encoded as a '1': 

@@ -16,7 +16,7 @@ In the following, we will demonstrate some simple time-series analysis and
 visualization techniques which can be applied to this kind of data.
 
 This kind of data is sampled regularly, so we make use of the
-:class:`UniformTimeSeries` class. We extract the data using
+:class:`TimeSeries` class. We extract the data using
 :meth:`mlab.csv2rec`, which generates a :class:`recarray` object. This data
 structure contains in its :class:`dtype` a field :class:`names`, which contains
 the first row in each column. In this case, that is the labels of the ROIs from
@@ -41,7 +41,7 @@ putamen seem to have a moderately low correlation value. One way to examine
 this question is by looking at the temporal structure of the cross-correlation
 functions. In order to do that, from the :class:`CorrelationAnalyzer` object,
 we extract the normalized cross-correlation function. This results in another
-:class:`UniformTimeSeries` object, which contains the full time-series of the
+:class:`TimeSeries` object, which contains the full time-series of the
 cross-correlation between any combination of time-series from the different
 channels in the time-series object. We can pass the resulting object, together
 with a list of indices to the :func:`viz.plot_xcorr` function, which visualizes
@@ -107,7 +107,7 @@ compute the temporal delay between activity in one ROI and the other.
 
 First, let's look at the pair-wise coherence between all our ROIs. This can be
 done by creating a :class:`CoherenceAnalyzer` object. Once this object is
-initialized with the :class:`UniformTimeSeries` object, the mid-frequency of
+initialized with the :class:`TimeSeries` object, the mid-frequency of
 the frequency bands represented in the spectral decomposition of the
 time-series can be accessed in the :attr:`C.frequencies` attribute of the
 object. The spectral resolution of this representation is the same one used in

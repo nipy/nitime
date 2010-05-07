@@ -18,7 +18,7 @@ for n_idx in range(len(roi_names)):
    data[n_idx] = data_rec[roi_names[n_idx]]
    
 
-T = ts.UniformTimeSeries(data,sampling_interval=TR)
+T = ts.TimeSeries(data,sampling_interval=TR)
 T.metadata['roi'] = roi_names 
 
 C = ts.CorrelationAnalyzer(T)

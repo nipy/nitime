@@ -4,7 +4,7 @@
 import numpy as np
 from matplotlib.pyplot import figure,legend
 from matplotlib.mlab import csv2rec
-from nitime.timeseries import UniformTimeSeries 
+from nitime.timeseries import TimeSeries 
 from nitime.analysis import CorrelationAnalyzer
 from nitime.utils import percent_change
 import nitime.viz
@@ -22,7 +22,7 @@ for n_idx, roi in enumerate(roi_names):
    data[n_idx] = data_rec[roi]
 
 data = percent_change(data)
-T = UniformTimeSeries(data,sampling_interval=TR)
+T = TimeSeries(data,sampling_interval=TR)
 T.metadata['roi'] = roi_names 
 C = CorrelationAnalyzer(T)
 

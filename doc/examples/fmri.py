@@ -27,7 +27,7 @@ for n_idx in range(len(roi_names)):
 data = tsu.percent_change(data)
 
 #Initialize the time-series from the normalized data:
-T = ts.UniformTimeSeries(data,sampling_interval=TR)
+T = ts.TimeSeries(data,sampling_interval=TR)
 T.metadata['roi'] = roi_names 
 
 C = tsa.CorrelationAnalyzer(T)

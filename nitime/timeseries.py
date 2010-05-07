@@ -520,6 +520,14 @@ class UniformTime(np.ndarray,TimeInterface):
         else:
             return self
 
+    def __div__(self,d):
+        """Division by another time object eliminates units """
+        if isinstance(d,TimeInterface):
+            return np.divide(np.array(self),np.array(d).astype(float))
+        else: 
+            return np.divide(self,d)           
+
+
 ##Frequency:
 
 class Frequency(float):

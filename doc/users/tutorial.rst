@@ -19,7 +19,7 @@ some information about the sampling-rate or sampling-interval:
 
 .. code-block:: python
 
-   In [2]: t1 = ts.UniformTimeSeries([[1,2,3],[3,6,8]],sampling_rate=0.5)
+   In [2]: t1 = ts.TimeSeries([[1,2,3],[3,6,8]],sampling_rate=0.5)
 
 If you tab-complete, you will see that the object now has several different
 attributes:

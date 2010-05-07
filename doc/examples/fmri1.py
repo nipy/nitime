@@ -6,7 +6,7 @@ from matplotlib.pyplot import figure
 from matplotlib.mlab import csv2rec
 
 #Import the time-series objects: 
-from nitime.timeseries import UniformTimeSeries 
+from nitime.timeseries import TimeSeries 
 #Import the correlation analyis object
 from nitime.analysis import CorrelationAnalyzer
 #Import utility functions:
@@ -36,7 +36,7 @@ for n_idx, roi in enumerate(roi_names):
 data = percent_change(data)
 
 #Initialize the time-series from the normalized data:
-T = UniformTimeSeries(data,sampling_interval=TR)
+T = TimeSeries(data,sampling_interval=TR)
 T.metadata['roi'] = roi_names 
 
 #Initialize the correlation analyzer

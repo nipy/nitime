@@ -21,9 +21,9 @@ stimulus 'preferred' by this neuron.
 
 The code example makes use of :class:`EventRelatedAnalyzer` and, in particular,
 of the :meth:`EventRelatedAnalyzer.eta` method of this object. This method gets
-evaluated as an instance of the :class:`UniformTimeSeries` class. In addition,
+evaluated as an instance of the :class:`TimeSeries` class. In addition,
 vizualization, using :func:`viz.plot_tseries` is demonstrated. This function
-plots the values of the :attr:`UniformTimeSeries.data`, with the appropriate
+plots the values of the :attr:`TimeSeries.data`, with the appropriate
 time-units and their values on the x axis. 
 
 In the following example, a second channel has been added to both the stimulus

@@ -16,7 +16,7 @@ stim2 = (20*1/np.log(10))*(np.log(stim2[:,1]/2.0e-5))
 stim2 = maxdB1-stim2.max()+stim2
 
 #This time the time-series is generated from both stimulus arrays: 
-stim_time_series = ts.UniformTimeSeries(t0=0,
+stim_time_series = ts.TimeSeries(t0=0,
                                         data=np.vstack([stim1,stim2]),
                                         sampling_interval=0.05,
                                         time_unit='ms') 
@@ -26,7 +26,7 @@ spike_times1 = np.loadtxt('data/grasshopper_spike_times1.txt')
 spike_times2 = np.loadtxt('data/grasshopper_spike_times2.txt')
 spike_times1 = (spike_times1/50).astype(int)
 spike_times2 = (spike_times2/50).astype(int)
-spike_time_series = ts.UniformTimeSeries(t0=0,sampling_interval=0.05,
+spike_time_series = ts.TimeSeries(t0=0,sampling_interval=0.05,
                                      time_unit='ms',
                                      data=np.zeros(stim_time_series.data.shape))
 #Again - spike-times are marked by the presence of a '1':
