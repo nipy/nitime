@@ -185,7 +185,7 @@ def test_UniformTime():
 
         #The following two tests verify that first-last are equal to the
         #duration, but it is unclear whether that is really the behavior we
-        #want, because the t_i held by a UniformTimeSeries is the left
+        #want, because the t_i held by a TimeSeries is the left
         #(smaller) side of the time-duration defined by the bin
         
         #The difference between the first and last item is the duration:
@@ -306,41 +306,41 @@ def test_Frequency():
 
     
 @decotest.parametric
-def test_UniformTimeSeries():
+def test_TimeSeries():
     """Testing the initialization of the uniform time series object """ 
 
     #Test initialization with duration:
-    tseries1 = ts.UniformTimeSeries([1,2,3,4,5,6,7,8,9,10],duration=10)
-    tseries2 = ts.UniformTimeSeries([1,2,3,4,5,6,7,8,9,10],sampling_interval=1)
+    tseries1 = ts.TimeSeries([1,2,3,4,5,6,7,8,9,10],duration=10)
+    tseries2 = ts.TimeSeries([1,2,3,4,5,6,7,8,9,10],sampling_interval=1)
     npt.assert_equal(tseries1.time,tseries2.time)
 
     #downsampling:
     t1 = ts.UniformTime(length=8,sampling_rate=2)
     #duration is the same, but we're downsampling to 1Hz
-    tseries1 = ts.UniformTimeSeries(data=[1,2,3,4],time=t1,sampling_rate=1)
+    tseries1 = ts.TimeSeries(data=[1,2,3,4],time=t1,sampling_rate=1)
     #If you didn't explicitely provide the rate you want to downsample to, that
     #is an error:
-    npt.assert_raises(ValueError,ts.UniformTimeSeries,dict(data=[1,2,3,4],
+    npt.assert_raises(ValueError,ts.TimeSeries,dict(data=[1,2,3,4],
                                                            time=t1)) 
 
-    tseries2 = ts.UniformTimeSeries(data=[1,2,3,4],sampling_rate=1)
-    tseries3 = ts.UniformTimeSeries(data=[1,2,3,4],sampling_rate=1000,
+    tseries2 = ts.TimeSeries(data=[1,2,3,4],sampling_rate=1)
+    tseries3 = ts.TimeSeries(data=[1,2,3,4],sampling_rate=1000,
                                     time_unit='ms')
     #you can specify the sampling_rate or the sampling_interval, to the same
     #effect, where specificying the sampling_interval is in the units of that
     #time-series: 
-    tseries4 = ts.UniformTimeSeries(data=[1,2,3,4],sampling_interval=1,
+    tseries4 = ts.TimeSeries(data=[1,2,3,4],sampling_interval=1,
                                         time_unit='ms')
     npt.assert_equal(tseries4.time,tseries3.time)
 
     #The units you use shouldn't matter - time is time:
-    tseries6 = ts.UniformTimeSeries(data=[1,2,3,4],
+    tseries6 = ts.TimeSeries(data=[1,2,3,4],
                                     sampling_interval=0.001,
                                     time_unit='s')
     npt.assert_equal(tseries6.time,tseries3.time)
 
     #And this too - perverse, but should be possible: 
-    tseries5 = ts.UniformTimeSeries(data=[1,2,3,4],
+    tseries5 = ts.TimeSeries(data=[1,2,3,4],
                                     sampling_interval=ts.TimeArray(0.001,
                                                          time_unit='s'),
                                     time_unit='ms')
@@ -348,16 +348,16 @@ def test_UniformTimeSeries():
     npt.assert_equal(tseries5.time,tseries3.time)
 
 @decotest.ipdoctest    
-def test_UniformTimeSeries_repr():
+def test_TimeSeries_repr():
 
     """
     >>> t=ts.UniformTime(length=3,sampling_rate=3)
-    >>> tseries1 = ts.UniformTimeSeries(data=[3,5,8],time=t)
+    >>> tseries1 = ts.TimeSeries(data=[3,5,8],time=t)
     >>> t.sampling_rate
     3.0 Hz
     >>> tseries1.sampling_rate
     3.0 Hz
-    >>> tseries1 = ts.UniformTimeSeries(data=[3,5,8],sampling_rate=3)
+    >>> tseries1 = ts.TimeSeries(data=[3,5,8],sampling_rate=3)
     >>> tseries1.time
     UniformTime([ 0.        ,  0.33333333,  0.66666667], time_unit='s')
     >>> tseries1.sampling_rate
@@ -366,7 +366,7 @@ def test_UniformTimeSeries_repr():
     0.33333333333300003 s
     In [435]: a = ts.UniformTime(length=1,sampling_rate=2)
 
-    In [436]: b = ts.UniformTimeSeries(data=[1,2,3],sampling_interval=a.sampling_interval)
+    In [436]: b = ts.TimeSeries(data=[1,2,3],sampling_interval=a.sampling_interval)
 
     In [437]: b.sampling_rate
     Out[437]: 2.0 Hz
@@ -374,7 +374,7 @@ def test_UniformTimeSeries_repr():
 
     In [361]: a = ts.UniformTime(length=1,sampling_rate=1)
 
-    In [362]: b = ts.UniformTimeSeries(data=[1,2,3],sampling_interval=a.sampling_interval)
+    In [362]: b = ts.TimeSeries(data=[1,2,3],sampling_interval=a.sampling_interval)
 
     In [363]: b.sampling_rate
     Out[363]: 1.0 Hz

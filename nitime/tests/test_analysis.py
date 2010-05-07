@@ -13,7 +13,7 @@ def test_SpectralAnalyzer():
     x = np.sin(10*t) + np.random.rand(t.shape[-1])
     y = np.sin(10*t) + np.random.rand(t.shape[-1])
 
-    T = ts.UniformTimeSeries(np.vstack([x,y]),sampling_rate=Fs)
+    T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
 
     C = nta.SpectralAnalyzer(T)
 
@@ -38,7 +38,7 @@ def test_CoherenceAnalyzer():
     t = np.arange(10)
     x = np.sin(10*t) + np.random.rand(t.shape[-1])
     y = np.sin(10*t) + np.random.rand(t.shape[-1])
-    T = ts.UniformTimeSeries(np.vstack([x,y]),sampling_rate=Fs)
+    T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
     C = nta.CoherenceAnalyzer(T)
 
     npt.assert_equal(C().shape,(2,2,33)) #Default mlab_method
@@ -58,7 +58,7 @@ def test_SparseCoherenceAnalyzer():
     t = np.arange(10)
     x = np.sin(10*t) + np.random.rand(t.shape[-1])
     y = np.sin(10*t) + np.random.rand(t.shape[-1])
-    T = ts.UniformTimeSeries(np.vstack([x,y]),sampling_rate=Fs)
+    T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
     C = nta.SparseCoherenceAnalyzer(T,ij=((0,1),(1,0)))
 
     #Coherence symmetry:
@@ -71,7 +71,7 @@ def test_CorrelationAnalyzer():
     x = np.sin(10*t) + np.random.rand(t.shape[-1])
     y = np.sin(10*t) + np.random.rand(t.shape[-1])
 
-    T = ts.UniformTimeSeries(np.vstack([x,y]),sampling_rate=Fs)
+    T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
 
     C = nta.CorrelationAnalyzer(T)
 
@@ -99,7 +99,7 @@ def test_CorrelationAnalyzer():
     x = np.sin(10*t) + np.random.rand(t.shape[-1])
     y = np.sin(10*t) + np.random.rand(t.shape[-1])
 
-    T = ts.UniformTimeSeries(np.vstack([x,y]),sampling_rate=Fs)
+    T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
 
     C = nta.CorrelationAnalyzer(T)
     
@@ -121,8 +121,8 @@ def test_EventRelatedAnalyzer():
     #and another kind of event at the end of each cycle:
     events[idx[1:-1:2]]=2
 
-    T_signal = ts.UniformTimeSeries(signal,sampling_rate=1)
-    T_events = ts.UniformTimeSeries(events,sampling_rate=1)
+    T_signal = ts.TimeSeries(signal,sampling_rate=1)
+    T_events = ts.TimeSeries(events,sampling_rate=1)
     ETA = nta.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).eta
 
     #This looks good, but doesn't pass unless you consider 3 digits:
@@ -145,7 +145,7 @@ def test_HilbertAnalyzer():
     a2 = np.sin(2*t)
     a3 = np.cos(2*t)
 
-    T = ts.UniformTimeSeries(data=np.vstack([a0,a1,a2,a3]),
+    T = ts.TimeSeries(data=np.vstack([a0,a1,a2,a3]),
                              sampling_rate=Fs)
 
     H = nta.HilbertAnalyzer(T)
@@ -176,7 +176,7 @@ def test_FilterAnalyzer():
     t = np.arange(np.pi/100,10*np.pi,np.pi/100)
     fast = np.sin(50*t)
     slow = np.sin(10*t)
-    time_series = ts.UniformTimeSeries(data=fast+slow,sampling_rate=np.pi)
+    time_series = ts.TimeSeries(data=fast+slow,sampling_rate=np.pi)
 
     #0.6 is somewhere between the two frequencies 
     f_slow = nta.FilterAnalyzer(time_series,ub=0.6)
@@ -187,7 +187,7 @@ def test_FilterAnalyzer():
 
 def test_MorletWaveletAnalyzer():
     """Testing the MorletWaveletAnalyzer """
-    time_series = ts.UniformTimeSeries(data=np.random.rand(100),sampling_rate=100)
+    time_series = ts.TimeSeries(data=np.random.rand(100),sampling_rate=100)
 
     W = nta.MorletWaveletAnalyzer(time_series,freqs=20)
     WL = nta.MorletWaveletAnalyzer(time_series,freqs=20,log_morlet=True)

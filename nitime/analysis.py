@@ -335,7 +335,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     def output(self):
         """ The default behavior is to calculate the cache, extract it and then
         output the coherency""" 
-        coherency = cache_to_coherency(self.cache,self.ij)
+        coherency = tsa.cache_to_coherency(self.cache,self.ij)
 
         return coherency
 
@@ -352,7 +352,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         SparseCoherenceAnalyzer. Calculate only once and reuse
         """
         data = self.input.data 
-        f,cache = cache_fft(data,self.ij,
+        f,cache = tsa.cache_fft(data,self.ij,
                         lb=self.lb,ub=self.ub,
                         method=self.method,
                         prefer_speed_over_memory=self.prefer_speed_over_memory,
@@ -412,7 +412,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
         Returns
         -------
 
-        UniformTimeSeries: the time-dependent cross-correlation, with zero-lag
+        TimeSeries: the time-dependent cross-correlation, with zero-lag
         at time=0"""
         tseries_length = self.input.data.shape[0]
         t_points = self.input.data.shape[-1]
@@ -427,7 +427,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
         idx = tsu.tril_indices(tseries_length,-1)
         xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
 
-        return ts.UniformTimeSeries(xcorr,
+        return ts.TimeSeries(xcorr,
                                 sampling_interval=self.input.sampling_interval,
                                 t0=-self.input.sampling_interval*t_points)
     
@@ -440,7 +440,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
         Returns
         -------
 
-        UniformTimeSeries: the time-dependent cross-correlation, with zero-lag
+        TimeSeries: the time-dependent cross-correlation, with zero-lag
         at time=0"""
 
         tseries_length = self.input.data.shape[0]
@@ -458,7 +458,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
         idx = tsu.tril_indices(tseries_length,-1)
         xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
 
-        return ts.UniformTimeSeries(xcorr,
+        return ts.TimeSeries(xcorr,
                                 sampling_interval=self.input.sampling_interval,
                                 t0=-self.input.sampling_interval*t_points)
     
@@ -583,7 +583,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
         h = np.array(h).squeeze()
 
-        return ts.UniformTimeSeries(data=h,sampling_rate=self.sampling_rate,
+        return ts.TimeSeries(data=h,sampling_rate=self.sampling_rate,
                                  t0=self._offset*self.sampling_interval,
                                  time_unit=self.time_unit)
 
@@ -642,7 +642,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         ## first time point, because the functions 'look' back and forth for
         ## len_et bins
 
-        return ts.UniformTimeSeries(data=h,
+        return ts.TimeSeries(data=h,
                                  sampling_rate=self.sampling_rate,
                                  t0 = -1*self.len_et*self.sampling_interval,
                                  time_unit=self.time_unit)
@@ -681,7 +681,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                 idx_w_len = np.array([idx[0]+count+self._offset for count
                                       in range(self.len_et)])
                 event_trig = data[idx_w_len].T
-                this_list[e_idx] = ts.UniformTimeSeries(data=event_trig,
+                this_list[e_idx] = ts.TimeSeries(data=event_trig,
                                  sampling_interval=self.sampling_interval,
                                  t0=self._offset*self.sampling_interval,
                                  time_unit=self.time_unit)
@@ -722,7 +722,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                 h[i][e_idx] = np.mean(event_trig,-1)
                 
         h = np.array(h).squeeze()
-        return ts.UniformTimeSeries(data=h,
+        return ts.TimeSeries(data=h,
                                  sampling_interval=self.sampling_interval,
                                  t0=self._offset*self.sampling_interval,
                                  time_unit=self.time_unit)
@@ -752,7 +752,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                 
         h = np.array(h).squeeze()
 
-        return ts.UniformTimeSeries(data=h,
+        return ts.TimeSeries(data=h,
                                  sampling_interval=self.sampling_interval,
                                  t0=self._offset*self.sampling_interval,
                                  time_unit=self.time_unit)
@@ -768,7 +768,7 @@ class HilbertAnalyzer(BaseAnalyzer):
         Parameters
         ----------
         
-        input: UniformTimeSeries
+        input: TimeSeries
 
         """
         BaseAnalyzer.__init__(self,input)
@@ -780,10 +780,10 @@ class HilbertAnalyzer(BaseAnalyzer):
         sampling_rate = self.input.sampling_rate
         #If you have scipy with the fixed scipy.signal.hilbert (r6205 and later)
         if float(scipy.__version__[:3]>=0.8):
-            return ts.UniformTimeSeries(data=signal.hilbert(data),
+            return ts.TimeSeries(data=signal.hilbert(data),
                                         sampling_rate=sampling_rate)
         else: 
-            a_signal = ts.UniformTimeSeries(data=np.zeros(data.shape,
+            a_signal = ts.TimeSeries(data=np.zeros(data.shape,
                                                           dtype='D'),
                                         sampling_rate=sampling_rate)
 
@@ -799,22 +799,22 @@ class HilbertAnalyzer(BaseAnalyzer):
         
     @desc.setattr_on_read
     def amplitude(self):
-        return ts.UniformTimeSeries(data=np.abs(self.output.data),
+        return ts.TimeSeries(data=np.abs(self.output.data),
                                  sampling_rate=self.output.sampling_rate)
                                  
     @desc.setattr_on_read
     def phase(self):
-        return ts.UniformTimeSeries(data=np.angle(self.output.data),
+        return ts.TimeSeries(data=np.angle(self.output.data),
                                  sampling_rate=self.output.sampling_rate)
 
     @desc.setattr_on_read
     def real(self):
-        return ts.UniformTimeSeries(data=self.output.data.real,
+        return ts.TimeSeries(data=self.output.data.real,
                                     sampling_rate=self.output.sampling_rate)
     
     @desc.setattr_on_read
     def imag(self):
-        return ts.UniformTimeSeries(data=self.output.data.imag,
+        return ts.TimeSeries(data=self.output.data.imag,
                                     sampling_rate=self.output.sampling_rate)
 
 
@@ -855,7 +855,7 @@ class FilterAnalyzer(desc.ResetMixin):
                                       #left with float-precision residual
                                       #complex parts
 
-        return ts.UniformTimeSeries(data=data_out,
+        return ts.TimeSeries(data=data_out,
                                  sampling_rate=self.sampling_rate,
                                  time_unit=self.time_unit) 
 
@@ -876,7 +876,7 @@ class FilterAnalyzer(desc.ResetMixin):
         data_out = tsa.boxcar_filter(self.data,lb=lb,ub=ub,
                                      n_iterations=self._boxcar_iterations)
 
-        return ts.UniformTimeSeries(data=data_out,
+        return ts.TimeSeries(data=data_out,
                                  sampling_rate=self.sampling_rate,
                                  time_unit=self.time_unit) 
 
@@ -957,7 +957,7 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
         sampling_rate = self.input.sampling_rate
         
         a_signal =\
-    ts.UniformTimeSeries(data=np.zeros(self.freqs.shape+data.shape,
+    ts.TimeSeries(data=np.zeros(self.freqs.shape+data.shape,
                                         dtype='D'),sampling_rate=sampling_rate)
         if self.freqs.ndim == 0:
             w = self.wavelet(self.freqs,self.sd,
@@ -979,20 +979,20 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
 
     @desc.setattr_on_read
     def amplitude(self):
-        return ts.UniformTimeSeries(data=np.abs(self.output.data),
+        return ts.TimeSeries(data=np.abs(self.output.data),
                                     sampling_rate=self.output.sampling_rate)
                                  
     @desc.setattr_on_read
     def phase(self):
-        return ts.UniformTimeSeries(data=np.angle(self.output.data),
+        return ts.TimeSeries(data=np.angle(self.output.data),
                                     sampling_rate=self.output.sampling_rate)
 
     @desc.setattr_on_read
     def real(self):
-        return ts.UniformTimeSeries(data=self.output.data.real,
+        return ts.TimeSeries(data=self.output.data.real,
                                     sampling_rate=self.output.sampling_rate)
     
     @desc.setattr_on_read
     def imag(self):
-        return ts.UniformTimeSeries(data=self.output.data.imag,
+        return ts.TimeSeries(data=self.output.data.imag,
                                     sampling_rate=self.output.sampling_rate)

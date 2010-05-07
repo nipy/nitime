@@ -17,7 +17,7 @@ after their design is well proven in real-world use.
 #-----------------------------------------------------------------------------
 __all__ = ['time_unit_conversion',
            'TimeSeriesInterface',
-           'UniformTimeSeries',
+           'TimeSeries',
            'TimeInterface',
            'UniformTime',
            'TimeArray',
@@ -611,7 +611,7 @@ class TimeSeriesBase(object):
             return self.data[key]
 
         
-class UniformTimeSeries(TimeSeriesBase):
+class TimeSeries(TimeSeriesBase):
     """Represent data collected at uniform intervals.
     
     Examples 
@@ -619,7 +619,7 @@ class UniformTimeSeries(TimeSeriesBase):
 
     The minimal specication of data and sampling interval:
 
-    >>> ts = UniformTimeSeries([1,2,3],sampling_interval=0.25)
+    >>> ts = TimeSeries([1,2,3],sampling_interval=0.25)
     >>> ts.time
     UniformTime([ 0.  ,  0.25,  0.5 ], time_unit='s')
     >>> ts.t0
@@ -628,7 +628,7 @@ class UniformTimeSeries(TimeSeriesBase):
     4.0 Hz
 
     Or data and sampling rate:
-    >>> ts = UniformTimeSeries([1,2,3],sampling_rate=2)
+    >>> ts = TimeSeries([1,2,3],sampling_rate=2)
     >>> ts.time
     UniformTime([ 0. ,  0.5,  1. ], time_unit='s')
     >>> ts.t0
@@ -637,7 +637,7 @@ class UniformTimeSeries(TimeSeriesBase):
     0.5 s
 
     A time series where we specify the start time and sampling interval:
-    >>> ts = UniformTimeSeries([1,2,3],t0=4.25,sampling_interval=0.5)
+    >>> ts = TimeSeries([1,2,3],t0=4.25,sampling_interval=0.5)
     >>> ts.data
     array([1, 2, 3])
     >>> ts.time
@@ -649,7 +649,7 @@ class UniformTimeSeries(TimeSeriesBase):
     >>> ts.sampling_rate
     2.0 Hz
 
-    >>> ts = UniformTimeSeries([1,2,3],t0=4.25,sampling_rate=2.0)
+    >>> ts = TimeSeries([1,2,3],t0=4.25,sampling_rate=2.0)
     >>> ts.data
     array([1, 2, 3])
     >>> ts.time
@@ -668,7 +668,7 @@ class UniformTimeSeries(TimeSeriesBase):
     @desc.setattr_on_read
     def time(self):
         """Construct time array for the time-series object. This holds a
-    UniformTime object, with properties derived from the UniformTimeSeries
+    UniformTime object, with properties derived from the TimeSeries
     object"""
         return UniformTime(length=self.__len__(),t0=self.t0,
                            sampling_interval=self.sampling_interval,
@@ -679,14 +679,14 @@ class UniformTimeSeries(TimeSeriesBase):
     #the constructor itself:  
     @staticmethod
     def from_time_and_data(time, data):
-        return UniformTimeSeries.__init__(data, time=time)
+        return TimeSeries.__init__(data, time=time)
         
     
     
     def __init__(self, data, t0=None, sampling_interval=None,
                  sampling_rate=None, duration=None, time=None, time_unit='s',
                  metadata=None):
-        """Create a new UniformTimeSeries.
+        """Create a new TimeSeries.
 
         This class assumes that data is uniformly sampled, but you can specify
         the sampling in one of three (mutually exclusive) ways:
@@ -697,7 +697,7 @@ class UniformTimeSeries(TimeSeriesBase):
         - sampling_rate [, t0]: data sampled starting at t0, equal intervals of
           width 1/sampling_rate.
 
-        - time: a UniformTime object, in which case the UniformTimeSeries can
+        - time: a UniformTime object, in which case the TimeSeries can
           'inherit' the properties of this object.  
         
         Parameters
@@ -895,46 +895,6 @@ def str_valid_tspecs(valid_tspecs, arg_names):
 
 
 
-class NonUniformTimeSeries(TimeSeriesBase):
-    """Represent data collected at arbitrary time points.
-
-    This class combines a one dimensional array of time values (assumed, but
-    not verified, to be monotonically increasing) with an n-dimensional array
-    of data values.
-
-    Examples
-    --------
-    >>> t = np.array([0.3, 0.5, 1, 1.9])
-    >>> y = np.array([4.7, 8.4, 9.1, 10.4])
-    >>> uts = NonUniformTimeSeries(t,y)
-    >>> uts.time
-    array([  4.7,   8.4,   9.1,  10.4])
-    >>> uts.data
-    array([ 0.3,  0.5,  1. ,  1.9])
-    >>> uts.time_unit
-    's'
-    """
-
-    def __init__(self,data,time,time_unit='s'):
-        """Construct a new NonUniformTimeSeries from data and time.
-
-        Parameters
-        ----------
-        data : ndarray
-          An n-dimensional dataset whose last axis runs along the time
-          direction.
-        time : 1-d array
-          A sorted array of time values, with as many points as the last
-          dimension of the dataset.
-        time_unit :  string
-          The unit of time.
-        """
-        # Call the common constructor to get the real object initialized
-        TimeSeriesBase.__init__(self,data,time_unit)
-
-        self.time = np.asarray(time)
-
-
 def time_series_from_file(analyze_file,coords,normalize=False,detrend=False,
                            average=False,f_c=0.01,TR=None):
     """ Make a time series from a Analyze file, provided coordinates into the
@@ -1026,7 +986,7 @@ def time_series_from_file(analyze_file,coords,normalize=False,detrend=False,
     #initialized:
     data_out = np.array(data_out).squeeze()
         
-    tseries = UniformTimeSeries(data_out,sampling_interval=TR)
+    tseries = TimeSeries(data_out,sampling_interval=TR)
 
     return tseries
 
@@ -1071,7 +1031,7 @@ def concatenate(time_series_seq):
         metadata.update(ts.metadata)
 
     # Sampling interval is read from the last one
-    tseries = UniformTimeSeries(np.hstack(data),
+    tseries = TimeSeries(np.hstack(data),
                                 sampling_interval=ts.sampling_interval,
                                 metadata=metadata)
     return tseries
