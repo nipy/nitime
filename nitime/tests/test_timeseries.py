@@ -72,6 +72,11 @@ def test_TimeArray_convert_unit():
     >>> a.convert_unit('ms')
     >>> a
     TimeArray([ 1000.,  2000.,  3000.,  4000.], time_unit='ms')
+    >>> a.time_unit
+    'ms'
+    >>> b = ts.TimeArray([1,2,3,4],'s')
+    >>> a==b
+    array([ True,  True,  True,  True], dtype=bool)
     """
     
 
