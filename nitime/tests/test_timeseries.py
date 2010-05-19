@@ -394,9 +394,9 @@ def test_Epochs():
     e1ms_outofrange = ts.Epochs(0,1, offset = 1e100,time_unit='ms')
     
     #one day
-    e1d = ts.Epochs(0,1, time_unit='d')
+    e1d = ts.Epochs(0,1, time_unit='D')
     # one day (repeated twice)
-    e1d_ar = ts.Epochs([0,0],[1,1], time_unit='d')
+    e1d_ar = ts.Epochs([0,0],[1,1], time_unit='D')
 
     for t in [tsms, tsmin, tssec]:
         # the sample time series are all at least 1ms long, so this should
@@ -405,6 +405,7 @@ def test_Epochs():
         
         # assert that with the epoch moved outside of the time range of our
         # data, slicing with the epoch now yields an empty array
+        print t.during(e1ms_outofrange).data
         yield npt.assert_equal(len(t.during(e1ms_outofrange)),0)
 
         # the sample timeseries are all shorter than a day, so these should be
