@@ -21,6 +21,7 @@ __all__ = ['time_unit_conversion',
            'TimeInterface',
            'UniformTime',
            'TimeArray',
+           'Epochs'
            ]
 #-----------------------------------------------------------------------------
 # Imports
@@ -28,6 +29,7 @@ __all__ = ['time_unit_conversion',
 
 import warnings
 import numpy as np
+
 
 # Our own
 from nitime import descriptors as desc
@@ -881,14 +883,88 @@ class TimeSeries(TimeSeriesBase):
         self.sampling_rate = sampling_rate
         self.duration = TimeArray(duration,time_unit=self.time_unit)
 
+    def during(self,e):
+        """ Returns the TimeSeries slice corresponding to epoch e """
+
+        if not isinstance(e,Epochs):
+            raise ValueError, 'e has to be of Epochs type'
+
+        if e.data.ndim == 0:
+            i_start = self.time.index_at(e.start)
+            i_stop = self.time.index_at(e.stop)
+            return TimeSeries(data=self.data[...,i_start:i_stop],
+                              time_unit=self.time_unit, t0=e.offset,
+                              sampling_rate=self.sampling_rate)
+        else:
+            raise NotImplementedError, 'slicing with Epochs array not implemented'
+
     @property
     def shape(self):
         return self.data.shape
 
+_epochtype = np.dtype({'names':['start','stop'],'formats':[np.int64]*2})
 class Epochs():
-    "XXX: Just a place holder class, so we can start using tests"
-    def __init__(self, epochs, **kwargs):
-        pass
+    """Represents a time interval"""
+    
+    def __init__(self, start, stop=None, offset=None, duration=None,
+                 time_unit=None, **kwargs):
+
+        if stop is None and duration is None:
+            raise ValueError, 'Either stop or duration have to be specified'
+
+        if stop is not None and duration is not None:
+            ### TODO: check if stop and duration are consistent
+            raise ValueError, 'Only either stop or duration have to be specified'
+        
+        t_start = TimeArray(start,time_unit=time_unit)
+
+        # inherit time_unit of t_start
+        self.time_unit = t_start.time_unit
+
+        if stop is None:
+            t_duration = TimeArray(duration,time_unit=time_unit)
+            t_stop = t_start + t_duration
+        else:
+            t_stop = TimeArray(stop,time_unit=time_unit)
+
+        if t_start.shape != t_stop.shape:
+            raise ValueError, 'start and stop have to have same shape'
+
+        if t_start.ndim == 0:
+            # return a 'scalar' epoch
+            self.data = np.empty(1,dtype=_epochtype).reshape(())
+        elif t_start.ndim == 1:
+            # return a 1-d epoch array
+            self.data = np.empty(t_start.shape[0],dtype=_epochtype)
+        else:
+            raise ValueError, 'Only 0-dim and 1-dim start and stop times allowed'
+
+        self.data['start'] = t_start
+        self.data['stop'] = t_stop
+        
+        if offset is None:
+            offset = 0
+
+        t_offset = TimeArray(offset,time_unit=time_unit)
+        if t_offset.ndim > 0:
+            raise ValueError, 'Only scalar offset allowed'
+
+        self.offset = t_offset
+
+    # TODO: define setters for start, stop, offset attributes
+    @property
+    def start(self):
+        return TimeArray(self.data['start'],time_unit=self.time_unit,copy=False)
+
+    @property
+    def stop(self):
+        return TimeArray(self.data['stop'],time_unit=self.time_unit,copy=False)
+
+    @desc.setattr_on_read
+    def duration(self):
+        """Duration array for the epoch"""
+        return self.stop-self.start
+
 
 def str_tspec(tspec, arg_names):
     """ Turn a single tspec into human readable form"""
