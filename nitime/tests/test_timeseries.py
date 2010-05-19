@@ -401,18 +401,18 @@ def test_Epochs():
     for t in [tsms, tsmin, tssec]:
         # the sample time series are all at least 1ms long, so this should
         # return a timeseries that has exactly one time point in it
-        yield npt.assert_equal(len(t[e1ms]),1)
+        yield npt.assert_equal(len(t.during(e1ms),1)
         
         # assert that with the epoch moved outside of the time range of our
         # data, slicing with the epoch now yields an empty array
-        yield npt.assert_equal(len(t[e1ms_outofrange]),0)
+        yield npt.assert_equal(len(t.during(e1ms_outofrange),0)
 
         # the sample timeseries are all shorter than a day, so these should be
         # the length of the entire time series
-        yield npt.assert_equal(len(t[e1d]),len(t))
+        yield npt.assert_equal(len(t.during(e1d),len(t))
 
         # same thing but now there's an array of epochs
         for ep in e1d_ar:
-            yield npt.assert_equal(len(t[ep]),len(t))
+            yield npt.assert_equal(len(t.during(ep),len(t))
     
 
