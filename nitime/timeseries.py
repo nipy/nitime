@@ -617,6 +617,8 @@ class TimeSeriesBase(object):
         """use fancy time-indexing (at() method).""" 
         if isinstance(key,TimeInterface):
             return self.at(key)
+        elif isinstance(key,Epochs):
+            return self.during(key)
         else:
             return self.data[key]
 
@@ -892,11 +894,25 @@ class TimeSeries(TimeSeriesBase):
         if e.data.ndim == 0:
             i_start = self.time.index_at(e.start)
             i_stop = self.time.index_at(e.stop)
+            if e.stop != self.time[i_stop]:
+                i_stop += 1 
             return TimeSeries(data=self.data[...,i_start:i_stop],
                               time_unit=self.time_unit, t0=e.offset,
                               sampling_rate=self.sampling_rate)
         else:
-            raise NotImplementedError, 'slicing with Epochs array not implemented'
+            # TODO: make this a more efficient implementation, naive first pass
+            data = np.empty(e.start.shape+self.data.shape[:-1])
+            data = []
+            for i in range(len(e.data)):
+                i_start = self.time.index_at(e[i].start)
+                i_stop = self.time.index_at(e[i].stop)
+                if e[i].stop != self.time[i_stop]:
+                    i_stop += 1 
+                data.append( self.data[...,i_start:i_stop])
+            data = np.array(data)
+            return TimeSeries(data=data,
+                              time_unit=self.time_unit, t0=e.offset,
+                              sampling_rate=self.sampling_rate)
 
     @property
     def shape(self):
@@ -964,6 +980,11 @@ class Epochs():
     def duration(self):
         """Duration array for the epoch"""
         return self.stop-self.start
+
+    def __getitem__(self,key):
+        # XXX: this smells, we shouldn't have to call the constructor
+        return Epochs(self.start[key],self.stop[key],offset=self.offset,
+                time_unit=self.time_unit)
 
 
 def str_tspec(tspec, arg_names):
