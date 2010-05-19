@@ -388,13 +388,13 @@ def test_Epochs():
     tssec = ts.TimeSeries(data=range(100), sampling_interval=1, time_unit='s')
 
     # one millisecond epoch
-    e1ms = ts.Epochs((0,1), time_unit='ms')
+    e1ms = ts.Epochs(0,1, time_unit='ms')
 
     #An epoch way outside of the range of our data,
-    e1ms_outofrange = ts.Epochs((0,1), time_unit='ms')
+    e1ms_outofrange = ts.Epochs(0,1, time_unit='ms')
     
     #one day
-    e1d = ts.Epochs((0,1), time_unit='d')
+    e1d = ts.Epochs(0,1, time_unit='d')
 
     for t in [tsms, tsmin, tssec]:
         # the sample time series are all at least 1ms long, so this should
