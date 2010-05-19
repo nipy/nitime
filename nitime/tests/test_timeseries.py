@@ -391,10 +391,12 @@ def test_Epochs():
     e1ms = ts.Epochs(0,1, time_unit='ms')
 
     #An epoch way outside of the range of our data,
-    e1ms_outofrange = ts.Epochs(0,1, time_unit='ms')
+    e1ms_outofrange = ts.Epochs(0,1, offset = 1e100,time_unit='ms')
     
     #one day
     e1d = ts.Epochs(0,1, time_unit='d')
+    # one day (repeated twice)
+    e1d_ar = ts.Epochs([0,0],[1,1], time_unit='d')
 
     for t in [tsms, tsmin, tssec]:
         # the sample time series are all at least 1ms long, so this should
@@ -408,5 +410,9 @@ def test_Epochs():
         # the sample timeseries are all shorter than a day, so these should be
         # the length of the entire time series
         yield npt.assert_equal(len(t[e1d]),len(t))
+
+        # same thing but now there's an array of epochs
+        for ep in e1d_ar:
+            yield npt.assert_equal(len(t[ep]),len(t))
     
 
