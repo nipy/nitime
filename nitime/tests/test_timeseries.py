@@ -381,3 +381,32 @@ def test_TimeSeries_repr():
 
     """ 
     
+@decotest.parametric
+def test_Epochs():
+    tsms = ts.TimeSeries(data=range(100), sampling_interval=1, time_unit='ms')
+    tsmin = ts.TimeSeries(data=range(100), sampling_interval=1, time_unit='m')
+    tssec = ts.TimeSeries(data=range(100), sampling_interval=1, time_unit='s')
+
+    # one millisecond epoch
+    e1ms = ts.Epochs((0,1), time_unit='ms')
+
+    #An epoch way outside of the range of our data,
+    e1ms_outofrange = ts.Epochs((0,1), time_unit='ms')
+    
+    #one day
+    e1d = ts.Epochs((0,1), time_unit='d')
+
+    for t in [tsms, tsmin, tssec]:
+        # the sample time series are all at least 1ms long, so this should
+        # return a timeseries that has exactly one time point in it
+        yield npt.assert_equal(len(t[e1ms]),1)
+        
+        # assert that with the epoch moved outside of the time range of our
+        # data, slicing with the epoch now yields an empty array
+        yield npt.assert_equal(len(t[e1ms_outofrange]),0)
+
+        # the sample timeseries are all shorter than a day, so these should be
+        # the length of the entire time series
+        yield npt.assert_equal(len(t[e1d]),len(t))
+    
+

@@ -885,6 +885,11 @@ class TimeSeries(TimeSeriesBase):
     def shape(self):
         return self.data.shape
 
+class Epochs():
+    "XXX: Just a place holder class, so we can start using tests"
+    def __init__(self, epochs, **kwargs):
+        pass
+
 def str_tspec(tspec, arg_names):
     """ Turn a single tspec into human readable form"""
     # an all "False" will convert to an empty string unless we do the following
