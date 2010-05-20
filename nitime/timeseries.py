@@ -619,8 +619,14 @@ class TimeSeriesBase(object):
             return self.at(key)
         elif isinstance(key,Epochs):
             return self.during(key)
+        elif self.data.ndim==1:
+            return self.data[key] #time is the last dimension
         else:
-            return self.data[key]
+            return self.data[:,key] #time is the last dimension
+
+    def __repr__(self):
+        rep = self.__class__.__name__ + " (time, data):" 
+        return rep + zip(self.time, self.data.T).__repr__()
 
         
 class TimeSeries(TimeSeriesBase):
@@ -901,13 +907,17 @@ class TimeSeries(TimeSeriesBase):
                               sampling_rate=self.sampling_rate)
         else:
             # TODO: make this a more efficient implementation, naive first pass
+            if (e.duration != e.duration[0]).any():
+                raise ValueError("All epochs must have the same duration")
             data = np.empty(e.start.shape+self.data.shape[:-1])
             data = []
-            for i in range(len(e.data)):
-                i_start = self.time.index_at(e[i].start)
-                i_stop = self.time.index_at(e[i].stop)
-                if e[i].stop != self.time[i_stop]:
+            #for i in range(len(e.data)):
+            for i,ep in enumerate(e):
+                i_start = self.time.index_at(ep.start)
+                i_stop = self.time.index_at(ep.stop)
+                if ep.stop != self.time[i_stop]:
                     i_stop += 1 
+                #data = self.data[...,i_start:i_stop]
                 data.append( self.data[...,i_start:i_stop])
             data = np.array(data)
             return TimeSeries(data=data,
@@ -923,7 +933,16 @@ class Epochs():
     """Represents a time interval"""
     
     def __init__(self, start, stop=None, offset=None, duration=None,
-                 time_unit=None, **kwargs):
+                 time_unit=None, static=None, **kwargs):
+        
+        # Short-circuit path for a fast initialization. This relies on `static`
+        # to be a dict that contains everything that defines an Epochs class
+        # XXX: add this sort of fast __init__ to all other classes
+        if static is not None:
+            self.__dict__.update(static)
+            return
+
+        # Normal, error checking and type converting initialization logic
 
         if stop is None and duration is None:
             raise ValueError, 'Either stop or duration have to be specified'
@@ -982,9 +1001,21 @@ class Epochs():
         return self.stop-self.start
 
     def __getitem__(self,key):
-        # XXX: this smells, we shouldn't have to call the constructor
-        return Epochs(self.start[key],self.stop[key],offset=self.offset,
-                time_unit=self.time_unit)
+        # create the static dict needed for fast version of __init__
+        static = self.__dict__.copy()
+        static['data'] = self.data[key]
+        return Epochs(start=None,static=static) # `start` is a required argument
+
+    def __repr__(self):
+        if self.data.ndim == 0:
+            z = (self.start, self.stop)
+        else:
+            z = zip(self.start, self.stop)
+        rep =self.__class__.__name__ + "(" + z.__repr__()
+        return rep + ", as (start,stop) tuples)"
+
+    def __len__(self):
+        return len(self.data)
 
 
 def str_tspec(tspec, arg_names):

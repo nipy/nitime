@@ -390,21 +390,10 @@ def test_Epochs():
     # one millisecond epoch
     e1ms = ts.Epochs(0,1, time_unit='ms')
 
-    #An epoch way outside of the range of our data,
-    e1ms_outofrange = ts.Epochs(1000000,1000001, time_unit='ms')
-    
+
     #one day
     e1d = ts.Epochs(0,1, time_unit='D')
-    # one day (repeated twice)
     e1ms_ar = ts.Epochs([0,0],[1,1], time_unit='ms')
-
-
-    e2 = ts.Epochs([0,10],[10,20],time_unit='ms')
-
-    yield npt.assert_equal(tsms[e2].data.shape, (2,10))
-    yield npt.assert_equal(tsms[e2].data[0], range(10))
-    yield npt.assert_equal(tsms[e2].data[1], range(10,20))
-
 
     for t in [tsms, tsmin, tssec]:
         # the sample time series are all at least 1ms long, so this should
@@ -412,18 +401,43 @@ def test_Epochs():
         yield npt.assert_equal(len(t.during(e1ms)),1)
         
         # same thing but now there's an array of epochs
-        #for ep in e1ms_ar:
-        #    yield npt.assert_equal(len(t.during(ep)),len(t))
+        e2 = ts.Epochs([0,10],[10,20],time_unit=t.time_unit)
+        
+        # Indexing with an array of epochs (all of which are the same length)
+        yield npt.assert_equal(t[e2].data.shape, (2,10))
+        yield npt.assert_equal(len(t.during(e2)),10)
+        yield npt.assert_equal(t[e2].data.ndim,2)
+        # check the data at some timepoints (a dimension was added)
+        yield npt.assert_equal(t[e2][0], (0,10))
+        yield npt.assert_equal(t[e2][1], (1,11))
+        # check the data for each epoch
+        yield npt.assert_equal(t[e2].data[0], range(10))
+        yield npt.assert_equal(t[e2].data[1], range(10,20))
+        yield npt.assert_equal(t[e2].duration,e2[0].duration)
+        
+        # slice with Epochs of different length (not supported for timeseries,
+        # raise error, though future jagged array implementation could go here)
+        ejag = ts.Epochs([0,10],[10,40],time_unit=t.time_unit)
+        # next line is the same as t[ejag]
+        yield npt.assert_raises(ValueError,t.__getitem__, ejag)
 
-        yield npt.assert_equal(len(t.during(e1ms_ar)),1)
-        yield npt.assert_equal(t[e1ms_ar].data.ndim,2)
+
+        # if an epoch lies entirely between samples in the timeseries, return
+        # the previous sample. We define the bin as any time between
+        # [t,t+delta_t)
+        eshort = ts.Epochs(2.5,2.7,time_unit=t.time_unit)
+        yield npt.assert_equal(len(t[eshort].data),1)
+        yield npt.assert_equal(t[eshort].data[0],t[2])
+
+        e1ms_outofrange = ts.Epochs(200,300,time_unit=t.time_unit)
         # assert that with the epoch moved outside of the time range of our
         # data, slicing with the epoch now yields an empty array
-        #yield npt.assert_equal(len(t.during(e1ms_outofrange)),0)
+        yield npt.assert_raises(ValueError, t.during, dict(e=e1ms_outofrange))
 
-        # the sample timeseries are all shorter than a day, so these should be
-        # the length of the entire time series
-        #yield npt.assert_equal(len(t.during(e1d)),len(t))
+        # the sample timeseries are all shorter than a day, so this should
+        # raise an error (instead of padding, or returning a shorter than
+        # expected array.
+        yield npt.assert_raises(ValueError, t.during, dict(e=e1d))
 
     
 
