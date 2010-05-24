@@ -14,6 +14,13 @@ from mpl_toolkits.axes_grid import make_axes_locatable
 from nitime import timeseries as ts
 from nitime.utils import threshold_arr,minmax_norm,rescale_arr
 
+# triu_indices was only added to numpy in v1.4, so we carry it here in the
+# meantime to allow numpy 1.3-compatibility.
+try:
+    from numpy import triu_indices
+except ImportError:
+    from nitime.utils import triu_indices
+
 #Some visualization functions require networkx. Import that if possible:
 try:
     import networkx as nx
@@ -171,7 +178,7 @@ def drawmatrix_channels(in_m,channel_names=None,fig=None,x_tick_rot=90,size=None
 
     #Null the upper triangle, so that you don't get the redundant and the
     #diagonal values:  
-    idx_null = np.triu_indices(m.shape[0])
+    idx_null = triu_indices(m.shape[0])
     m[idx_null]=np.nan
 
     #Extract the minimum and maximum values for scaling of the colormap/colorbar:
