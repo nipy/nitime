@@ -11,3 +11,8 @@ and auxiliary objects that expose a high level interface to the numerical
 machinery and make common analysis tasks easy to express with compact and
 semantically clear code.
 
+.. toctree::
+   :hidden:
+
+   documentation
+   news
