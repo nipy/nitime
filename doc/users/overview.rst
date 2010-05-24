@@ -107,37 +107,33 @@ comparison of the time progression of data in different experiments conducted
 in different calendar times (different days, different times in the same day)
 is more common.
 
-The underlying representation of time in :module:`nitime` is in arrays of dtype
+The underlying representation of time in :mod:`nitime` is in arrays of dtype
 :class:`int64`. This allows the representation to be immune to rounding errors
 arising from representation of time with floating point numbers (see
 [Goldberg1991]_). However, it restricts the smallest time-interval that can be
-represented. In :module:`nitime`, the smallest discrete time-points are of size
-:attribute:`base_unit`, and this unit is *picoseconds*. Thus, all underlying
+represented. In :mod:`nitime`, the smallest discrete time-points are of size
+:attr:`base_unit`, and this unit is *picoseconds*. Thus, all underlying
 representations of time are made in this unit. Since for most practical uses,
 this representation is far too small, this might have resulted, in most cases
 in representations of time too long to be useful. In order to make the
-time-objects more manageable, time objects in :module:`nitime` carry a
-:attribute:`time_unit` and a :attribute:`_conversion_factor`, which can be used
+time-objects more manageable, time objects in :mod:`nitime` carry a
+:attr:`time_unit` and a :attr:`_conversion_factor`, which can be used
 as a convenience, in order to convert between the representation of time in the
-base unit and the appearance of time in the relevant time-unit.  
+base unit and the appearance of time in the relevant time-unit.   
 
 The first set of base classes is a set of representations of time itself. All
-these classes inherit from :class:`np.array`. As mentioned above, the dtype of
+these classes inherit from :class:`np.ndarray`. As mentioned above, the dtype of
 these classes is :class:`int64` and the underlying representation is always at
-the base unit. These representations will all serve as the underlying machinery
-to index into the :class:`TimeSeries` objects with arrays of time-points.  The
-additional functionality common to all of these is described in detail in
-:ref:`time_series_access`. Briefly, they will all have an :func:`at` method,
-which allows indexing with time-objects of various kind. The result of this
-indexing will be to return the time-point in the the respective
-:class:`TimeSeries` which is most appropriate (see :ref:`time_series_access`
-for details). They will also all have an :func:`index_at` method, which returns
-the integer index of this time in the underlying array. Finally, they will all
-have a :func:`during` method, which will allow indexing into these objects with
-an :ref:`interval_class`. This will return the appropriate times corresponding
-to an :ref:`interval_class` and :func:`index_during`, which will return the
-array of integers corresponding to the indices of these time-points in the
-array.
+the base unit. In addition to the methods inherited from :class:`np.ndarray`,
+these time representations have an :func:`at` method which . The result of this indexing
+will be to return the time-point in the the respective :class:`TimeSeries`
+which is most appropriate (see :ref:`time_series_access` for details). They
+have an :func:`index_at` method, which returns the integer index of this time
+in the underlying array. Finally, they will all have a :func:`during` method,
+which will allow indexing into these objects with an
+:ref:`interval_class`. This will return the appropriate times corresponding to
+an :ref:`interval_class` and :func:`index_during`, which will return the array
+of integers corresponding to the indices of these time-points in the array.
 
 For the time being, there are two types of Time classes: :ref:`TimeArray` and :ref:`UniformTime`.
 
@@ -198,20 +194,6 @@ In implementing these objects, we follow the following principles:
   the object with a :func:`desc.setattr_on_read` decoration, so that it is only
   generated if it is needed.
 
-.. _Events:
-
-:class:`Events`
---------------------
-
-This is an object which represents a collection of events. For example, this
-can represent discrete button presses occuring during an experiment. This
-object contains a :ref:`TimeArray` as its representation of time. This means
-that the events recorded in the :attr:`data` array can be organized
-according to any organizing principle you would want, not neccesarily according
-to their organization or order in time. For example, if events are read from
-different devices, the order of the events in the data array can be arbitrarily
-chosen to be the order of the devices from which data is read.
-
 .. _TimeSeries:
 
 :class:`TimeSeries`
@@ -221,6 +203,39 @@ This represents time-series of data collected continuously and regularly. Can
 be used in order to represent typical physiological data measurements, such as
 measurements of BOLD responses, or of membrane-potential. The representation of
 time here is :ref:`UniformTime`.
+
+XXX Write more about the different attributes of this class.
+
+.. _Epochs:
+
+:class:`Epochs`
+---------------
+
+This class represents intervals of time, or epochs. Each instance of this class
+contains several attributes:
+
+- :attr:`E.start`: This is an object of class :class:`TimeArray`, which
+  represents a collection of starting times of epochs
+- :attr:`E.stop`: This is an object of class :class:`TimeArray` which
+  represents a collection of end points of the epochs. 
+- :attr:`E.duration`: This is an object of class :class:`TimeArray` which
+  represents the durations of the epochs.
+- :attr:`E.offset`: This attribute represents the offset of the epoch 
+- :attr:`E.time_unit`: This is 
+
+.. _Events:
+
+:class:`Events`
+---------------
+
+This is an object which represents a collection of events. For example, this
+can represent discrete button presses occuring during an experiment. This
+object contains a :ref:`TimeArray` as its representation of time. This means
+that the events recorded in the :attr:`data` array can be organized
+according to any organizing principle you would want, not neccesarily according
+to their organization or order in time. For example, if events are read from
+different devices, the order of the events in the data array can be arbitrarily
+chosen to be the order of the devices from which data is read.
 
 
 
