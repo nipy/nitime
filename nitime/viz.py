@@ -348,9 +348,9 @@ def plot_xcorr(xc,ij,fig=None,line_labels=None,xticks=None,yticks=None,
     for (i,j) in ij:
         if this_labels is not None:
             #Use pop() to get the first one and remove it:
-            ax.plot(this_time,xc[i,j].squeeze(),label=this_labels.pop())
+            ax.plot(this_time,xc.data[i,j].squeeze(),label=this_labels.pop())
         else:
-            ax.plot(this_time,xc[i,j].squeeze())
+            ax.plot(this_time,xc.data[i,j].squeeze())
         
     ax.set_xlabel('Time(sec)')
     ax.set_ylabel('Correlation(normalized)')
