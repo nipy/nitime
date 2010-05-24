@@ -383,6 +383,14 @@ def test_TimeSeries_repr():
     
 @decotest.parametric
 def test_Epochs():
+    tms = ts.TimeArray(data=range(100), time_unit='ms')
+    tmin = ts.TimeArray(data=range(100), time_unit='m')
+    tsec = ts.TimeArray(data=range(100), time_unit='s')
+    
+    utms = ts.UniformTime(length=100, sampling_interval=1, time_unit='ms')
+    utmin = ts.UniformTime(length=100, sampling_interval=1, time_unit='m')
+    utsec = ts.UniformTime(length=100, sampling_interval=1, time_unit='s')
+
     tsms = ts.TimeSeries(data=range(100), sampling_interval=1, time_unit='ms')
     tsmin = ts.TimeSeries(data=range(100), sampling_interval=1, time_unit='m')
     tssec = ts.TimeSeries(data=range(100), sampling_interval=1, time_unit='s')
@@ -395,14 +403,28 @@ def test_Epochs():
     e1d = ts.Epochs(0,1, time_unit='D')
     e1ms_ar = ts.Epochs([0,0],[1,1], time_unit='ms')
 
+    for t in [tms, tmin, tsec, utms, utmin, utsec]:
+        # the sample time arrays are all at least 1ms long, so this should
+        # return a timearray that has exactly one time point in it
+        yield npt.assert_equal(len(t.during(e1ms)),1)
+
+        # make sure, slicing doesn't change the class
+        yield npt.assert_equal(type(t),type(t.during(e1ms)))
+        
     for t in [tsms, tsmin, tssec]:
         # the sample time series are all at least 1ms long, so this should
         # return a timeseries that has exactly one time point in it
         yield npt.assert_equal(len(t.during(e1ms)),1)
         
+        # make sure, slicing doesn't change the class
+        yield npt.assert_equal(type(t),type(t.during(e1ms)))
+
         # same thing but now there's an array of epochs
         e2 = ts.Epochs([0,10],[10,20],time_unit=t.time_unit)
         
+        # make sure, slicing doesn't change the class for array of epochs
+        yield npt.assert_equal(type(t),type(t.during(e2)))
+
         # Indexing with an array of epochs (all of which are the same length)
         yield npt.assert_equal(t[e2].data.shape, (2,10))
         yield npt.assert_equal(len(t.during(e2)),10)

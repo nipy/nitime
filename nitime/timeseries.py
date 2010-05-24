@@ -174,6 +174,8 @@ class TimeArray(np.ndarray,TimeInterface):
             return self[[key]].reshape(())
         elif isinstance(key,float):
             return self.at(key)
+        elif isinstance(key,Epochs):
+            return self.during(key)
         else:
             return np.ndarray.__getitem__(self,key)
 
@@ -186,7 +188,7 @@ class TimeArray(np.ndarray,TimeInterface):
        return np.ndarray.__setitem__(self,key,val)
     
     def index_at(self,t,tol=None):
-        """ Find the integer indices that corresponds to the time t"""
+        """ Returns the integer indices that corresponds to the time t"""
         t_e = TimeArray(t,time_unit=self.time_unit)
         d = np.abs(self-t_e)
         if tol is None:
@@ -199,9 +201,40 @@ class TimeArray(np.ndarray,TimeInterface):
 
         return idx
 
+    def slice_during(self,e):
+        """ Returns the slice that corresponds to Epoch e"""
+
+        if not isinstance(e,Epochs):
+            raise ValueError, 'e has to be of Epochs type'
+
+        if e.data.ndim > 0:
+            raise NotImplementedError, 'e has to be a scalar Epoch'
+
+        if self.ndim != 1:
+            return NotImplementedError, 'slicing only implemented for 1-d TimeArrays'
+        i_start = self.index_at(e.start)[0].max()
+        i_stop = self.index_at(e.stop)[0].min()
+        if e.stop != self[i_stop]:
+            i_stop += 1
+
+        return slice(i_start,i_stop)
+
     def at(self,t,tol=None):
         """ Returns the values of the TimeArray object at time t"""
         return self[self.index_at(t,tol=tol)]
+
+    def during(self,e):
+        """ Returns the values of the TimeArray object during Epoch e"""
+
+        if not isinstance(e,Epochs):
+            raise ValueError, 'e has to be of Epochs type'
+
+        if e.data.ndim > 0:
+            ## TODO: Implement slicing with 1-d Epochs array, 
+            ## resulting in (ragged/jagged) 2-d TimeArray
+            raise NotImplementedError, 'e has to be a scalar Epoch'
+
+        return self[self.slice_during(e)]
 
 ##     def min(self,axis=None,out=None):
 ##         """Returns the minimal time"""
@@ -458,6 +491,8 @@ class UniformTime(np.ndarray,TimeInterface):
             return self[[key]].reshape(()).view(TimeArray)
         elif isinstance(key,float) or isinstance(key, TimeInterface):
             return self.at(key)
+        elif isinstance(key,Epochs):
+            return self.during(key)
         else:
             return np.ndarray.__getitem__(self,key)
 
@@ -492,9 +527,38 @@ class UniformTime(np.ndarray,TimeInterface):
         else:
             return idx
 
+    def slice_during(self,e):
+        """ Returns the slice that corresponds to Epoch e"""
+
+        if not isinstance(e,Epochs):
+            raise ValueError, 'e has to be of Epochs type'
+
+        if e.data.ndim > 0:
+            raise NotImplementedError, 'e has to be a scalar Epoch'
+
+        if self.ndim != 1:
+            return NotImplementedError, 'slicing only implemented for 1-d TimeArrays'
+        i_start = self.index_at(e.start)
+        i_stop = self.index_at(e.stop)
+        if e.stop != self[i_stop]:
+            i_stop += 1
+
+        return slice(i_start,i_stop)
+
     def at(self,t):
         """ Returns the values of the UniformTime object at time t"""
         return TimeArray(self[self.index_at(t)],time_unit=self.time_unit)
+
+    def during(self,e):
+        """ Returns the values of the UniformTime object during Epoch e"""
+
+        if not isinstance(e,Epochs):
+            raise ValueError, 'e has to be of Epochs type'
+
+        if e.data.ndim > 0:
+            raise NotImplementedError, 'e has to be a scalar Epoch'
+
+        return self[self.slice_during(e)]
 
     def min(self,axis=None,out=None):
         """Returns the minimal time"""
@@ -898,28 +962,14 @@ class TimeSeries(TimeSeriesBase):
             raise ValueError, 'e has to be of Epochs type'
 
         if e.data.ndim == 0:
-            i_start = self.time.index_at(e.start)
-            i_stop = self.time.index_at(e.stop)
-            if e.stop != self.time[i_stop]:
-                i_stop += 1 
-            return TimeSeries(data=self.data[...,i_start:i_stop],
+            return TimeSeries(data=self.data[...,self.time.slice_during(e)],
                               time_unit=self.time_unit, t0=e.offset,
                               sampling_rate=self.sampling_rate)
         else:
             # TODO: make this a more efficient implementation, naive first pass
             if (e.duration != e.duration[0]).any():
                 raise ValueError("All epochs must have the same duration")
-            data = np.empty(e.start.shape+self.data.shape[:-1])
-            data = []
-            #for i in range(len(e.data)):
-            for i,ep in enumerate(e):
-                i_start = self.time.index_at(ep.start)
-                i_stop = self.time.index_at(ep.stop)
-                if ep.stop != self.time[i_stop]:
-                    i_stop += 1 
-                #data = self.data[...,i_start:i_stop]
-                data.append( self.data[...,i_start:i_stop])
-            data = np.array(data)
+            data = np.array([self.data[...,self.time.slice_during(ep)] for ep in e])
             return TimeSeries(data=data,
                               time_unit=self.time_unit, t0=e.offset,
                               sampling_rate=self.sampling_rate)
