@@ -8,9 +8,8 @@
    __not_case_sensitive__, so only one target definition is needed for
    nipy, NIPY, Nipy, etc...
 
-.. nitime placeholders
-.. _nitime: http://nipy.sourceforge.net/nitime/
-.. _`nitime github`: http://github.com/fperez/nitime
+.. _nitime: http://nipy.org/nitime
+.. _`nitime github`: http://github.com/fperez/nitime/
 .. _`nitime mailing list`: http://projects.scipy.org/mailman/listinfo/nipy-devel
 
 .. nipy

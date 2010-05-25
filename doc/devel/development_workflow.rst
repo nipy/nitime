@@ -4,7 +4,7 @@
 Development workflow
 ====================
 
-You already have your own forked copy of the nitime_ repository, by
+You already have your own forked copy of the Nitime_ repository, by
 following :ref:`forking`, :ref:`set-up-fork`, and you have configured
 git_ by following :ref:`configure-git`.
 
@@ -12,8 +12,8 @@ Workflow summary
 ================
 
 * Keep your ``master`` branch clean of edits that have not been merged
-  to the main nitime_ development repo.  Your ``master`` then will follow
-  the main nitime_ repository.
+  to the main Nitime_ development repo.  Your ``master`` then will follow
+  the main Nitime_ repository.
 * Start a new *feature branch* for each set of edits that you do.
 * If you can avoid it, try not to merge other branches into your feature
   branch while you are working.
@@ -33,7 +33,7 @@ Making a new feature branch
    git checkout my-new-feature
 
 Generally, you will want to keep this also on your public github_ fork
-of nitime_.  To do this, you `git push`_ this new branch up to your github_
+of Nitime_.  To do this, you `git push`_ this new branch up to your github_
 repo.  Generally (if you followed the instructions in these pages, and
 by default), git will have a link to your github_ repo, called
 ``origin``.  You push up to your own repo on github_ with::
@@ -91,7 +91,7 @@ In more detail
 Asking for code review
 ======================
 
-#. Go to your repo URL - e.g. ``http://github.com/your-user-name/fperez``.
+#. Go to your repo URL - e.g. ``http://github.com/your-user-name/nitime``.
 #. Click on the *Branch list* button:
 
    .. image:: branch_list.png
@@ -104,9 +104,9 @@ Asking for code review
    compare.  Usually these will be ``master`` and ``my-new-feature``
    (where that is your feature branch name).
 #. At this point you should get a nice summary of the changes.  Copy the
-   URL for this, and post it to the `nitime mailing list`_, asking for
+   URL for this, and post it to the `Nitime mailing list`_, asking for
    review.  The URL will look something like:
-   ``http://github.com/your-user-name/fperez/compare/master...my-new-feature``.
+   ``http://github.com/your-user-name/nitime/compare/master...my-new-feature``.
    There's an example at
    http://github.com/matthew-brett/nipy/compare/master...find-install-data
    See: http://github.com/blog/612-introducing-github-compare-view for
@@ -125,19 +125,19 @@ Asking for your changes to be merged with the main repo
 When you are ready to ask for the merge of your code:
 
 #. Go to the URL of your forked repo, say
-   ``http://github.com/your-user-name/fperez.git``.
+   ``http://github.com/your-user-name/nitime.git``.
 #. Click on the 'Pull request' button:
 
    .. image:: pull_button.png
 
-   Enter a message; we suggest you select only ``nitime`` as the
-   recipient.  The message will go to the `nitime mailing list`_.  Please
+   Enter a message; we suggest you select only ``Nitime`` as the
+   recipient.  The message will go to the `Nitime mailing list`_.  Please
    feel free to add others from the list as you like.
 
 Merging from trunk
 ==================
 
-This updates your code from the upstream `nitime github`_  repo. 
+This updates your code from the upstream `Nitime github`_  repo. 
 
 Overview
 --------
@@ -192,10 +192,10 @@ If you want to work on some stuff with other people, where you are all
 committing into the same repository, or even the same branch, then just
 share it via github_.
 
-First fork nitime into your account, as from :ref:`forking`.
+First fork Nitime into your account, as from :ref:`forking`.
 
 Then, go to your forked repository github page, say
-``http://github.com/your-user-name/fperez``
+``http://github.com/your-user-name/nitime``
 
 Click on the 'Admin' button, and add anyone else to the repo as a
 collaborator:
@@ -204,7 +204,7 @@ collaborator:
 
 Now all those people can do::
 
-    git clone git@githhub.com:your-user-name/fperez.git
+    git clone git@githhub.com:your-user-name/nitime.git
 
 Remember that links starting with ``git@`` use the ssh protocol and are
 read-write; links starting with ``git://`` are read-only.

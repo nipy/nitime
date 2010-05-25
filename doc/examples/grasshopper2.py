@@ -16,8 +16,7 @@ stim2 = (20*1/np.log(10))*(np.log(stim2[:,1]/2.0e-5))
 stim2 = maxdB1-stim2.max()+stim2
 
 #This time the time-series is generated from both stimulus arrays: 
-stim_time_series = ts.TimeSeries(t0=0,
-                                        data=np.vstack([stim1,stim2]),
+stim_time_series = ts.TimeSeries(data=np.vstack([stim1,stim2]),
                                         sampling_interval=0.05,
                                         time_unit='ms') 
 
