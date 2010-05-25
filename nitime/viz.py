@@ -121,7 +121,8 @@ def subcolormap(xmin, xmax, cmap):
 
 
 def drawmatrix_channels(in_m,channel_names=None,fig=None,x_tick_rot=90,size=None,
-                cmap=plt.cm.RdBu_r,colorbar=True,color_anchor=None):
+                        cmap=plt.cm.RdBu_r, colorbar=True, color_anchor=None,
+                        title=None):
     """Creates a lower-triangle of the matrix of an nxn set of values. This is
     the typical format to show a symmetrical bivariate quantity (such as
     correlation or coherence between two different ROIs).
@@ -139,6 +140,9 @@ def drawmatrix_channels(in_m,channel_names=None,fig=None,x_tick_rot=90,size=None
 
     cmap (optional): a matplotlib colormap to be used for displaying the values
     of the connections on the graph
+
+    title : optional, string
+      If given, title to be drawn atop the matrix.
 
     Returns
     -------
@@ -229,6 +233,9 @@ def drawmatrix_channels(in_m,channel_names=None,fig=None,x_tick_rot=90,size=None
 
     ax.set_axis_off()
 
+    if title is not None:
+        ax.set_title(title)
+
     #The following produces the colorbar and sets the ticks
     if colorbar:
         #Set the ticks - if 0 is in the interval of values, set that, as well
@@ -247,6 +254,10 @@ def drawmatrix_channels(in_m,channel_names=None,fig=None,x_tick_rot=90,size=None
                           ticks = ticks,
                           format = '%.2f')
 
+    # Set the current figure active axis to be the top-one, which is the one
+    # most likely to be operated on by users later on
+    fig.sca(ax)
+    
     return fig
 
 def drawgraph_channels(in_m,channel_names=None,cmap=plt.cm.RdBu_r,
