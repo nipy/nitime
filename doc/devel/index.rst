@@ -1,20 +1,18 @@
-.. _developers-guide-index:
+.. _using-git:
 
-=================
- Developer Guide
-=================
+Working with *nitime* source code
+======================================
 
-:Release: |version|
-:Date: |today|
-
-Since nitime is part of the NIPY_ project, we follow the same
-conventions documented in the `NIPY Developers Guide
-<http://neuroimaging.scipy.org/site/doc/manual/html/devel/index.html>`_
+Contents:
 
 .. toctree::
    :maxdepth: 2
-   
-   development_quickstart
-   usecases
 
-.. include:: ../links_names.txt
+   git_intro
+   git_install
+   following_latest
+   patching
+   git_development
+   git_resources
+
+
