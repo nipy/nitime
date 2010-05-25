@@ -28,7 +28,7 @@ __url__     = 'http://neuroimaging.scipy.org'
 #The order of the following is important - make sure to import according to the
 #order of dependency (for example, timeseries depends on descriptors, so
 #descriptors needs to be imported before timeseries): 
-import utils, algorithms, descriptors, timeseries, vista_utils, viz, analysis
+import utils, algorithms, descriptors, timeseries, viz, analysis
 
 from timeseries import *
 
