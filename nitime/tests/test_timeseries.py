@@ -44,10 +44,10 @@ def test_TimeArray_copyflag():
     t1 = ts.TimeArray(np.array([1],dtype=np.int64),copy=False)
     #This one holds time_unit='ps':
     t2 = ts.TimeArray(1,time_unit='ps')
-    t3 = ts.TimeArray(t1,copy=False)
+    t3 = ts.TimeArray(t2,copy=False)
     
     npt.assert_equal(t1,t2)
-    npt.assert_equal(t1 is t3, True)
+    npt.assert_equal(t2 is t3, True)
     
 @decotest.parametric
 def test_TimeArray_new():
