@@ -79,7 +79,7 @@ class TimeInterface(object):
     
 class TimeArray(np.ndarray,TimeInterface):
     """Base-class for time representations, implementing the TimeInterface"""  
-    def __new__(cls, data, time_unit=None, copy=False):
+    def __new__(cls, data, time_unit=None, copy=True):
         """XXX Write a doc-string - in particular, mention the the default
         time-units to be used are seconds (which is why it is set to None) """ 
 
@@ -93,16 +93,10 @@ class TimeArray(np.ndarray,TimeInterface):
         # We can only honor the copy flag in a very narrow set of cases
         # if data is already an TimeArray or if data is an ndarray with
         # dtype=int64
-        if copy==False and getattr(data, 'dtype', None) == np.int64:
-            # XXX: the logic commented out below allowed us to initialize with
-            # np.int64 arrays, but broke all of our Epoch implementation stuff.
-            # I added a test to make sure we fix initializing with np.int64
-            # arrays.
-            #if isinstance(data, TimeInterface):
-                time = np.asarray(data)
-            #else:
-            #    # Additionall - won't this make a copy?
-            #    time = np.asarray(data*conv_fac)
+        if copy==False:
+            if not getattr(data, 'dtype', None) == np.int64:
+                raise ValueError('When copy flag is set to False, must provide a TimeArray object, or int64 times, in %s'%base_unit)
+            time = np.array(data,copy=False)
         else:
             if isinstance(data, TimeInterface):
                 time = data.copy()
@@ -889,16 +883,17 @@ class TimeSeries(TimeSeriesBase):
         #assign t0, if it is not already assigned:
         if sampling_interval is None:
             if isinstance(sampling_rate,Frequency):
-                sampling_interval=sampling_rate.to_period()
+                c_f = time_unit_conversion[time_unit]
+                sampling_interval=sampling_rate.to_period()/float(c_f)
             elif sampling_rate is None:
                 data_len = np.asarray(data).shape[-1]
                 sampling_interval = float(duration)/data_len
                 sampling_rate = Frequency(1.0/sampling_interval,
                                              time_unit=time_unit)
             else:
+                c_f = time_unit_conversion[time_unit]
                 sampling_rate = Frequency(sampling_rate,time_unit='s')
-                sampling_interval = TimeArray(sampling_rate.to_period(),
-                                              time_unit=base_unit)
+                sampling_interval = sampling_rate.to_period()/float(c_f)
         else:
             if sampling_rate is None: #Only if you didn't already 'inherit'
                                       #this property from another time object
