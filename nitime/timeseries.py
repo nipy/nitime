@@ -94,12 +94,12 @@ class TimeArray(np.ndarray,TimeInterface):
         # if data is already an TimeArray or if data is an ndarray with
         # dtype=int64
         if copy==False and getattr(data, 'dtype', None) == np.int64:
-            time = np.asarray(data)
+            if isinstance(data, TimeInterface):
+                time = np.asarray(data)
+            else:
+                time = np.asarray(data*conv_fac)
         else:
-            # XXX: do we mean isinstance(data,TimeInterface) - it could also be
-            # NonUniformTime or UniformTime, it doesn't have to be an
-            # TimeArray
-            if isinstance(data, TimeArray):
+            if isinstance(data, TimeInterface):
                 time = data.copy()
             else:
                 data_arr = np.asarray(data)
@@ -119,8 +119,8 @@ class TimeArray(np.ndarray,TimeInterface):
         # with the conversion factor:            
         time = np.asarray(time).view(cls)
 
-        if time_unit is None and isinstance(data, TimeArray):
-            time_unit = data.time_unit
+        #if time_unit is None and isinstance(data, TimeArray):
+        #    time_unit = data.time_unit
 
         if time_unit is None:
             time_unit = 's'
@@ -380,17 +380,31 @@ class UniformTime(np.ndarray,TimeInterface):
             raise ValueError('Invalid time unit %s, must be one of %s' %
                          (time_unit,time_unit_conversion.keys()))         
 
+        # Make sure you have a time unit:
+        if time_unit is None:
+            #If you gave us a duration with time_unit attached 
+            if isinstance(duration,TimeInterface):
+                time_unit = duration.time_unit
+            #Otherwise, you might have given us a sampling_interval with a
+            #time_unit attached:
+            elif isinstance(sampling_interval,TimeInterface):
+                time_unit = sampling_interval.time_unit
+            else:
+                time_unit = 's'
+
         # Calculate the sampling_interval or sampling_rate:
         if sampling_interval is None:
             if isinstance(sampling_rate,Frequency):
-                sampling_interval=sampling_rate.to_period()
+                c_f = time_unit_conversion[time_unit]
+                sampling_interval=sampling_rate.to_period()/float(c_f)
             elif sampling_rate is None:
                 sampling_interval = float(duration)/length
                 sampling_rate = Frequency(1.0/sampling_interval,
                                              time_unit=time_unit)
             else:
+                c_f = time_unit_conversion[time_unit]
                 sampling_rate = Frequency(sampling_rate,time_unit='s')
-                sampling_interval = sampling_rate.to_period()
+                sampling_interval = sampling_rate.to_period()/float(c_f)
         else:
             if isinstance(sampling_interval,TimeInterface):
                 c_f = time_unit_conversion[sampling_interval.time_unit]
@@ -404,17 +418,6 @@ class UniformTime(np.ndarray,TimeInterface):
         if duration is None:
             duration=length*sampling_interval
 
-        # Make sure you have a time unit:
-        if time_unit is None:
-            #If you gave us a duration with time_unit attached 
-            if isinstance(duration,TimeInterface):
-                time_unit = duration.time_unit
-            #Otherwise, you might have given us a sampling_interval with a
-            #time_unit attached:
-            elif isinstance(sampling_interval,TimeInterface):
-                time_unit = sampling_interval.time_unit
-            else:
-                time_unit = 's'
 
         # 'cast' the time inputs as TimeArray
         duration=TimeArray(duration,time_unit=time_unit)
@@ -865,6 +868,17 @@ class TimeSeries(TimeSeriesBase):
                             str_tspec(tspec, tspec_arg_names),
                             str_valid_tspecs(valid_tspecs,tspec_arg_names)))
 
+
+        # Make sure to grab the time unit from the inputs, if it is provided: 
+        if time_unit is None:
+            #If you gave us a duration with time_unit attached 
+            if isinstance(duration,TimeInterface):
+                time_unit = duration.time_unit
+            #Otherwise, you might have given us a sampling_interval with a
+            #time_unit attached:
+            elif isinstance(sampling_interval,TimeInterface):
+                time_unit = sampling_interval.time_unit
+
         
         #Calculate the sampling_interval or sampling_rate from each other and
         #assign t0, if it is not already assigned:
@@ -878,7 +892,8 @@ class TimeSeries(TimeSeriesBase):
                                              time_unit=time_unit)
             else:
                 sampling_rate = Frequency(sampling_rate,time_unit='s')
-                sampling_interval = sampling_rate.to_period()
+                sampling_interval = TimeArray(sampling_rate.to_period(),
+                                              time_unit=base_unit)
         else:
             if sampling_rate is None: #Only if you didn't already 'inherit'
                                       #this property from another time object
@@ -890,7 +905,6 @@ class TimeSeries(TimeSeriesBase):
                 else:
                    sampling_rate = Frequency(1.0/sampling_interval,
                                           time_unit=time_unit)
-
             
         #Calculate the duration, if that is not defined:
         if duration is None:
@@ -899,15 +913,6 @@ class TimeSeries(TimeSeriesBase):
         if t0 is None:
            t0=0
            
-        # Make sure to grab the time unit from the inputs, if it is provided: 
-        if time_unit is None:
-            #If you gave us a duration with time_unit attached 
-            if isinstance(duration,TimeInterface):
-                time_unit = duration.time_unit
-            #Otherwise, you might have given us a sampling_interval with a
-            #time_unit attached:
-            elif isinstance(sampling_interval,TimeInterface):
-                time_unit = sampling_interval.time_unit
 
         #Otherwise, you can still call the common constructor to get the real
         #object initialized, with time_unit set to None and that will generate
