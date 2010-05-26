@@ -94,10 +94,15 @@ class TimeArray(np.ndarray,TimeInterface):
         # if data is already an TimeArray or if data is an ndarray with
         # dtype=int64
         if copy==False and getattr(data, 'dtype', None) == np.int64:
-            if isinstance(data, TimeInterface):
+            # XXX: the logic commented out below allowed us to initialize with
+            # np.int64 arrays, but broke all of our Epoch implementation stuff.
+            # I added a test to make sure we fix initializing with np.int64
+            # arrays.
+            #if isinstance(data, TimeInterface):
                 time = np.asarray(data)
-            else:
-                time = np.asarray(data*conv_fac)
+            #else:
+            #    # Additionall - won't this make a copy?
+            #    time = np.asarray(data*conv_fac)
         else:
             if isinstance(data, TimeInterface):
                 time = data.copy()
