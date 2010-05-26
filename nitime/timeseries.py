@@ -987,7 +987,7 @@ _epochtype = np.dtype({'names':['start','stop'],'formats':[np.int64]*2})
 class Epochs():
     """Represents a time interval"""
     
-    def __init__(self, start, stop=None, offset=None, duration=None,
+    def __init__(self, t0=None, stop=None,offset=None, start=None, duration=None,
                  time_unit=None, static=None, **kwargs):
         
         # Short-circuit path for a fast initialization. This relies on `static`
@@ -997,17 +997,35 @@ class Epochs():
             self.__dict__.update(static)
             return
 
+        if t0 is None and start is None:
+            raise ValueError('Either start or t0 need to be specified') 
         # Normal, error checking and type converting initialization logic
 
         if stop is None and duration is None:
-            raise ValueError, 'Either stop or duration have to be specified'
+            raise ValueError('Either stop or duration have to be specified')
 
         if stop is not None and duration is not None:
             ### TODO: check if stop and duration are consistent
-            raise ValueError, 'Only either stop or duration have to be specified'
-        
-        t_start = TimeArray(start,time_unit=time_unit)
+            raise ValueError('Only either stop or duration have to be specified')
 
+        if offset is None:
+            offset = 0
+
+        t_offset = TimeArray(offset,time_unit=time_unit)
+
+        if t_offset.ndim > 0:
+            raise ValueError, 'Only scalar offset allowed'
+
+        if t0 is None:
+            t_0 = 0
+        else:
+            t_0 = TimeArray(t0,time_unit=time_unit)
+
+        if start is None:
+            t_start = t_0-t_offset
+        else:
+            t_start = TimeArray(start,time_unit=time_unit)
+            
         # inherit time_unit of t_start
         self.time_unit = t_start.time_unit
 
@@ -1032,12 +1050,6 @@ class Epochs():
         self.data['start'] = t_start
         self.data['stop'] = t_stop
         
-        if offset is None:
-            offset = 0
-
-        t_offset = TimeArray(offset,time_unit=time_unit)
-        if t_offset.ndim > 0:
-            raise ValueError, 'Only scalar offset allowed'
 
         self.offset = t_offset
 
