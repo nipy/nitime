@@ -14,6 +14,12 @@ def test_TimeArray():
     time1 = ts.TimeArray(10**6)
     yield npt.assert_equal(time1.__repr__(),'1000000.0 s')
 
+def test_TimeArray_init_int64():
+    """Make sure that we can initialize TimeArray with an array of ints"""
+    time = ts.TimeArray(np.int64(1))
+    npt.assert_equal(time.__repr__(), '1.0 s')
+
+    pass
                                            
 @decotest.ipdoctest    
 def test_TimeArray_repr():
@@ -397,10 +403,14 @@ def test_Epochs():
 
     # one millisecond epoch
     e1ms = ts.Epochs(0,1, time_unit='ms')
+    msg = "Seems like a problem with copy=False in TimeArray constructor."
+    yield npt.assert_equal(e1ms.duration, ts.TimeArray(1,time_unit='ms'),msg)
 
 
     #one day
     e1d = ts.Epochs(0,1, time_unit='D')
+    yield npt.assert_equal(e1d.duration, ts.TimeArray(1,time_unit='D'),msg)
+
     e1ms_ar = ts.Epochs([0,0],[1,1], time_unit='ms')
 
     for t in [tms, tmin, tsec, utms, utmin, utsec]:
