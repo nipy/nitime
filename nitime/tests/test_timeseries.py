@@ -36,30 +36,40 @@ TimeArray([ 1100.,  2000.,  3000.], time_unit='ms')
     """
 
 @decotest.parametric
+def test_TimeArray_copyflag():
+    """Testing the setting of the copy-flag, where that makes sense""" 
+
+    #These two should both generate a TimeArray, with one picosecond.
+    #This one holds time_unit='s'
+    t1 = ts.TimeArray(np.array([1],dtype=np.int64),copy=False)
+    #This one holds time_unit='ps':
+    t2 = ts.TimeArray(1,time_unit='ps')
+    t3 = ts.TimeArray(t1,copy=False)
+    
+    npt.assert_equal(t1,t2)
+    npt.assert_equal(t1 is t3, True)
+    
+@decotest.parametric
 def test_TimeArray_new():
     for unit in ['ns','ms','s',None]:
         for flag,assertion in [(True,nt.assert_not_equal),
                 (False, nt.assert_equal)]:
-            #default parameters (timeunits, copy flag, etc)
-            #list
-            time1 = ts.TimeArray(range(5),time_unit=unit, copy=flag)
-            #numpy array (int)
-            time2 = ts.TimeArray(np.arange(5), time_unit=unit, copy=flag)
-            #numpy array (float)
-            time2f = ts.TimeArray(np.arange(5.), time_unit=unit, copy=flag)
+            #list -doesn't make sense to set copy=True
+            time2 = ts.TimeArray(range(5), time_unit=unit, copy=True)
+            #numpy array (float) - doesn't make sense to set copy=True
+            time2f = ts.TimeArray(np.arange(5.), time_unit=unit, copy=True)
             #TimeArray
-            time3 = ts.TimeArray(time1, time_unit=unit, copy=flag)
+            time3 = ts.TimeArray(time2, time_unit=unit, copy=flag)
             #integer
-            time4 = ts.TimeArray(5,time_unit=unit,copy=flag)
+            time4 = ts.TimeArray(5,time_unit=unit,copy=True)
             #float
-            time5 = ts.TimeArray(5.0,time_unit=unit,copy=flag)
+            time5 = ts.TimeArray(5.0,time_unit=unit,copy=True)
 
-            yield npt.assert_equal(time1,time2)
             yield npt.assert_equal(time2,time2f)
-            yield npt.assert_equal(time1,time3)
+            yield npt.assert_equal(time2,time3)
             time3[0] +=100
-            yield assertion(time1[0],time3[0])
-            yield npt.assert_equal(time1[1:],time3[1:])
+            yield assertion(time2[0],time3[0])
+            yield npt.assert_equal(time2[1:],time3[1:])
             yield npt.assert_equal(time4,time5)
 
 @decotest.parametric
