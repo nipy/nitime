@@ -481,5 +481,19 @@ def test_Epochs():
         # expected array.
         yield npt.assert_raises(ValueError, t.during, dict(e=e1d))
 
-    
 
+@decotest.parametric
+def test_Events():
+
+    t = ts.TimeArray([1,2,3],time_unit='ms')
+    x = [1,2,3]
+    y = [2,4,6]
+    z = [10.,20.,30.]
+    for unit in ['s','ns','D']:
+        ev1 = ts.Events(t,time_unit=unit,i=x,j=y,k=z)
+
+        yield npt.assert_equal(ev1.data.i,x)
+        yield npt.assert_equal(ev1.data.j,y)
+        yield npt.assert_equal(ev1.data.k,z)
+        yield npt.assert_equal(ev1.time_unit,unit)
+    

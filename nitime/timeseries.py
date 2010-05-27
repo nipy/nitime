@@ -1123,3 +1123,29 @@ def concatenate_time_series(time_series_seq):
                                 sampling_interval=ts.sampling_interval,
                                 metadata=metadata)
     return tseries
+
+class Events():
+    """Represents time-stamps and associated events """ 
+
+    def __init__(self,time,time_unit=None,**data):
+        #First initilaize the TimeArray from the time-stamps
+        self.time = TimeArray(time,time_unit=time_unit)
+        self.time_unit = self.time.time_unit
+        
+        data_dict = dict(data)
+        v = data_dict.values()
+        
+        for check_v in v:
+            if len(check_v)!=self.time.shape[-1]:
+                raise ValueError('All data in the Events must be of the same length as the associated time')
+
+        k = data_dict.keys()
+        
+        a = zip(data_dict.values()[0])
+        for i in range(len(a)):
+            for j in range(1,len(v)):
+                a[i]+=(v[j][i],)
+
+        k = data_dict.keys()
+        dt = [(st,np.array(data_dict[st]).dtype) for st in k]
+        self.data = np.array(a,dtype=dt).view(np.recarray)

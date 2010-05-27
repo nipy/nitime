@@ -472,7 +472,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
     in hard to understand ways.
     """
     
-    def __init__(self,time_series,events_time_series,len_et,zscore=False,
+    def __init__(self,time_series,events,len_et,zscore=False,
                  correct_baseline=False,offset=0):
         """
         Parameters
@@ -513,28 +513,30 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         #Make sure that the offset and the len_et values can be used, by
         #padding with zeros before and after:
 
-        s = time_series.data.shape
-        zeros_before = np.zeros((s[:-1]+ (abs(offset),)))
-        zeros_after = np.zeros((s[:-1]+(abs(len_et),)))
-        time_series_data = np.hstack([zeros_before,time_series.data,
-                                      zeros_after])
-        events_data = np.hstack([zeros_before,events_time_series.data,
-                                 zeros_after])
-        
-        #If the events and the time_series have more than 1-d, the analysis can
-        #traverse their first dimension
-        if events_time_series.data.ndim-1>0:
-            self._len_h = events_time_series.data.shape[0]
-            self.events = events_data
-            self.data = time_series_data
-        #Otherwise, in order to extract the array from the first dimension, we
-        #wrap it in a list
-        
-        else:
-            self._len_h = 1
-            self.events = [events_data]
-            self.data = [time_series_data]
+        if  isinstance(events, ts.TimeSeries):
+            s = time_series.data.shape
+            zeros_before = np.zeros((s[:-1]+ (abs(offset),)))
+            zeros_after = np.zeros((s[:-1]+(abs(len_et),)))
+            time_series_data = np.hstack([zeros_before,time_series.data,
+                                          zeros_after])
+            events_data = np.hstack([zeros_before,events.data,
+                                     zeros_after])
 
+            #If the events and the time_series have more than 1-d, the analysis
+            #can traverse their first dimension
+            if events.data.ndim-1>0:
+                self._len_h = events.data.shape[0]
+                self.events = events_data
+                self.data = time_series_data
+            #Otherwise, in order to extract the array from the first dimension,
+            #we wrap it in a list
+
+            else:
+                self._len_h = 1
+                self.events = [events_data]
+                self.data = [time_series_data]
+        elif isinstance(events,ts.Events):
+            raise NotImplementedError
 
         self.sampling_rate = time_series.sampling_rate
         self.sampling_interval = time_series.sampling_interval
