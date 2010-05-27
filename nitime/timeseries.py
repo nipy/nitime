@@ -21,7 +21,8 @@ __all__ = ['time_unit_conversion',
            'TimeInterface',
            'UniformTime',
            'TimeArray',
-           'Epochs'
+           'Epochs',
+           'Events'
            ]
 #-----------------------------------------------------------------------------
 # Imports
@@ -1124,28 +1125,30 @@ def concatenate_time_series(time_series_seq):
                                 metadata=metadata)
     return tseries
 
-class Events():
-    """Represents time-stamps and associated events """ 
+class Events(TimeInterface):
+    """Represents timestamps and associated data """ 
 
-    def __init__(self,time,time_unit=None,**data):
-        #First initilaize the TimeArray from the time-stamps
+    def __init__(self, time, labels=None, indices=None, time_unit=None, **data):
+        # First initilaize the TimeArray from the time-stamps
         self.time = TimeArray(time,time_unit=time_unit)
         self.time_unit = self.time.time_unit
-        
-        data_dict = dict(data)
-        v = data_dict.values()
-        
-        for check_v in v:
-            if len(check_v)!=self.time.shape[-1]:
+
+        # Make sure time is one-dimensional
+        if self.time.ndim != 1:
+            raise ValueError('timestamps have to be one-dimensional')
+
+        # Make sure all data has same length
+        for check_v in data.values():
+            if len(check_v) != len(self.time):
                 raise ValueError('All data in the Events must be of the same length as the associated time')
 
-        k = data_dict.keys()
-        
-        a = zip(data_dict.values()[0])
-        for i in range(len(a)):
-            for j in range(1,len(v)):
-                a[i]+=(v[j][i],)
+        # Make sure indices have same length and are integers
+        if labels is not None:
+            dt = [(l,np.int64) for l in labels]
+        else:
+            dt = np.int64
+            dt = [('i%d'%i,np.int64) for i in range(len(indices or ()))] or np.int64
+        self.index = np.array(zip(*(indices or ())), dtype=dt).view(np.recarray)
 
-        k = data_dict.keys()
-        dt = [(st,np.array(data_dict[st]).dtype) for st in k]
-        self.data = np.array(a,dtype=dt).view(np.recarray)
+        dt = [(st,np.array(data[st]).dtype) for st in data] or None
+        self.data = np.array(zip(*data.values()), dtype=dt).view(np.recarray)

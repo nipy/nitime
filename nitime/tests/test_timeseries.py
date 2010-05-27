@@ -336,7 +336,7 @@ def test_TimeSeries():
     tseries1 = ts.TimeSeries(data=[1,2,3,4],time=t1,sampling_rate=1)
     #If you didn't explicitely provide the rate you want to downsample to, that
     #is an error:
-    npt.assert_raises(ValueError,ts.TimeSeries,dict(data=[1,2,3,4],
+    yield npt.assert_raises(ValueError,ts.TimeSeries,dict(data=[1,2,3,4],
                                                            time=t1)) 
 
     tseries2 = ts.TimeSeries(data=[1,2,3,4],sampling_rate=1)
@@ -347,13 +347,13 @@ def test_TimeSeries():
     #time-series: 
     tseries4 = ts.TimeSeries(data=[1,2,3,4],sampling_interval=1,
                                         time_unit='ms')
-    npt.assert_equal(tseries4.time,tseries3.time)
+    yield npt.assert_equal(tseries4.time,tseries3.time)
 
     #The units you use shouldn't matter - time is time:
     tseries6 = ts.TimeSeries(data=[1,2,3,4],
                                     sampling_interval=0.001,
                                     time_unit='s')
-    npt.assert_equal(tseries6.time,tseries3.time)
+    yield npt.assert_equal(tseries6.time,tseries3.time)
 
     #And this too - perverse, but should be possible: 
     tseries5 = ts.TimeSeries(data=[1,2,3,4],
@@ -361,7 +361,7 @@ def test_TimeSeries():
                                                          time_unit='s'),
                                     time_unit='ms')
 
-    npt.assert_equal(tseries5.time,tseries3.time)
+    yield npt.assert_equal(tseries5.time,tseries3.time)
 
 @decotest.ipdoctest    
 def test_TimeSeries_repr():
@@ -417,7 +417,7 @@ def test_Epochs():
     yield npt.assert_equal(e1ms.duration, ts.TimeArray(1,time_unit='ms'),msg)
 
 
-    #one day
+    # one day
     e1d = ts.Epochs(0,1, time_unit='D')
     yield npt.assert_equal(e1d.duration, ts.TimeArray(1,time_unit='D'),msg)
 
@@ -485,15 +485,49 @@ def test_Epochs():
 @decotest.parametric
 def test_Events():
 
+    # time has to be one-dimensional
+    yield nt.assert_raises, ValueError, ts.Events, np.zeros((2,2))
+
     t = ts.TimeArray([1,2,3],time_unit='ms')
     x = [1,2,3]
     y = [2,4,6]
     z = [10.,20.,30.]
-    for unit in ['s','ns','D']:
+    i0 = [0,0,1]
+    i1 = [0,1,2]
+    for unit in [None, 's','ns','D']:
+        # events with data
         ev1 = ts.Events(t,time_unit=unit,i=x,j=y,k=z)
 
+        # events with indices
+        ev2 = ts.Events(t,time_unit=unit,indices=[i0,i1])
+
+        # events with indices and labels
+        ev3 = ts.Events(t,time_unit=unit,labels=['trial','other'],indices=[i0,i1])
+
+        # make sure the time is retained
+        yield npt.assert_equal(ev1.time,t)
+        yield npt.assert_equal(ev2.time,t)
+
+        # make sure time unit is correct
+        if unit is not None:
+            yield npt.assert_equal(ev1.time_unit,unit)
+            yield npt.assert_equal(ev2.time_unit,unit)
+        else:
+            yield npt.assert_equal(ev1.time_unit,'s')
+            yield npt.assert_equal(ev2.time_unit,'s')
+
+        # make sure we can extract data
         yield npt.assert_equal(ev1.data.i,x)
         yield npt.assert_equal(ev1.data.j,y)
         yield npt.assert_equal(ev1.data.k,z)
-        yield npt.assert_equal(ev1.time_unit,unit)
+
+        # make sure we can get the indices by label
+        yield npt.assert_equal(ev3.index.trial,i0)
+        yield npt.assert_equal(ev3.index.other,i1)
+
+        # make sure we can get the indices by position
+        yield npt.assert_equal(ev2.index.i0,i0)
+        yield npt.assert_equal(ev2.index.i1,i1)
+
+
     
