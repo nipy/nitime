@@ -196,3 +196,11 @@ def test_MorletWaveletAnalyzer():
 
     npt.assert_almost_equal(np.sin(H.phase.data[10:-10]),np.sin(W.phase.data[10:-10]),decimal=0)
     npt.assert_almost_equal(np.sin(HL.phase.data[10:-10]),np.sin(WL.phase.data[10:-10]),decimal=0)
+
+def test_EventTriggeredAnalyzer():
+    ts1 = ts.TimeSeries(np.arange(100),sampling_rate=1)
+    ev = ts.Events([10,20,30])
+    et = nta.EventTriggeredAnalzer(ts1,ev,5)
+
+    #The five points comprising the average of the three sequences:
+    et.eta.data = [20.,21,22,23,24]

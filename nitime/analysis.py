@@ -485,29 +485,30 @@ class EventTriggeredAnalzer(desc.ResetMixin):
 
         self.sampling_interval=time_series.sampling_interval
         self.time_unit = time_series.time_unit
-        #Get the indices necessary for extraction of the eta:
-        add_offset = np.arange(offset,offset+len_et)[:,np.newaxis]
-        idx = (events.time/time_series.sampling_interval).astype(int)
-        self.event_idx = idx + add_offset
-
-        self._offset = offset
-
+        self.events = events
+        self.offset = offset
+        self.len_et = len_et
    
     @desc.setattr_on_read
     def eta(self):
         """The event-triggered average activity.
         """
-        #Make a list fo the output 
+
+        #Get the indices necessary for extraction of the eta:
+        add_offset = np.arange(self.offset,self.offset+self.len_et)[:,np.newaxis]
+        idx = (self.events.time/self.sampling_interval).astype(int)
+        event_idx = idx + add_offset
+
+        #Make a list for the output 
         h = [0] * self._len_h
         # Loop over channels
         for i in xrange(self._len_h):
-            event_trig = self.data[i][self.event_idx]
+            event_trig = self.data[i][event_idx]
             h[i]= np.mean(event_trig,-1)
                 
         h = np.array(h).squeeze()
-        print h
         return ts.TimeSeries(data=h,sampling_interval=self.sampling_interval,
-                                 #t0=self._offset*self.sampling_interval,
+                                 t0=self.offset*self.sampling_interval,
                                  time_unit=self.time_unit)
 
 
