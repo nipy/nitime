@@ -1,9 +1,9 @@
-=========
-fMRI data
-=========
+=======================================
+fMRI data from resting state experiment
+=======================================
 
 The fMRI data-set analyzed in the following examples was contributed by Beth
-Mormino. The data is taken from a single subject in a "steady-state" scan, in
+Mormino. The data is taken from a single subject in a "resting-state" scan, in
 which subjects are fixating on a cross and maintaining alert wakefulness, but
 not performing any other behavioral task.
 

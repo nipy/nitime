@@ -9,3 +9,4 @@ Here are a couple of examples:
 
    grasshopper
    resting_state_fmri
+   event_related_fmri
