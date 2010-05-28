@@ -461,7 +461,56 @@ class CorrelationAnalyzer(BaseAnalyzer):
         return ts.TimeSeries(xcorr,
                                 sampling_interval=self.input.sampling_interval,
                                 t0=-self.input.sampling_interval*t_points)
-    
+
+
+class EventTriggeredAnalzer(desc.ResetMixin):
+    def __init__(self,time_series,events,len_et,zscore=False,
+                 correct_baseline=False,offset=0):
+        """This one takes an Events object as its input """
+        s = time_series.data.shape
+        zeros_before = np.zeros((s[:-1]+ (abs(offset),)))
+        zeros_after = np.zeros((s[:-1]+(abs(len_et),)))
+
+        #If the time_series has more than 1-d, the analysis can traverse the
+        #first dimension
+        if time_series.data.ndim-1>0:
+                self._len_h = time_series.shape[0]
+                self.data = time_series
+
+        #Otherwise, in order to extract the array from the first dimension,
+        #we wrap it in a list
+        else:
+            self._len_h = 1
+            self.data = [time_series]
+
+        self.sampling_interval=time_series.sampling_interval
+        self.time_unit = time_series.time_unit
+        #Get the indices necessary for extraction of the eta:
+        add_offset = np.arange(offset,offset+len_et)[:,np.newaxis]
+        idx = (events.time/time_series.sampling_interval).astype(int)
+        self.event_idx = idx + add_offset
+
+        self._offset = offset
+
+   
+    @desc.setattr_on_read
+    def eta(self):
+        """The event-triggered average activity.
+        """
+        #Make a list fo the output 
+        h = [0] * self._len_h
+        # Loop over channels
+        for i in xrange(self._len_h):
+            event_trig = self.data[i][self.event_idx]
+            h[i]= np.mean(event_trig,-1)
+                
+        h = np.array(h).squeeze()
+        print h
+        return ts.TimeSeries(data=h,sampling_interval=self.sampling_interval,
+                                 #t0=self._offset*self.sampling_interval,
+                                 time_unit=self.time_unit)
+
+
 ##Event-related analysis:
 class EventRelatedAnalyzer(desc.ResetMixin): 
     """Analyzer object for reverse-correlation/event-related analysis.
@@ -535,8 +584,9 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                 self._len_h = 1
                 self.events = [events_data]
                 self.data = [time_series_data]
+        
         elif isinstance(events,ts.Events):
-            raise NotImplementedError
+            self.idx = (events.time/time_series.sampling_interval).astype(int)
 
         self.sampling_rate = time_series.sampling_rate
         self.sampling_interval = time_series.sampling_interval
