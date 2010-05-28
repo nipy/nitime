@@ -1011,9 +1011,10 @@ def zscore(time_series, axis=-1):
     zt : ndarray
         the renormalized time series array
     """
+    time_series = np.asarray(time_series)
     et = time_series.mean(axis=axis)
     st = time_series.std(axis=axis)
-    sl = [slice(None)] * len(t.shape)
+    sl = [slice(None)] * len(time_series.shape)
     sl[axis] = np.newaxis
     zt = time_series - et[sl]
     zt /= st[sl]
@@ -1035,6 +1036,7 @@ def percent_change(time_series, axis=-1):
     ndarray
         the renormalized time series array (in units of %)
     """
+    time_series = np.asarray(time_series)
     
     return ((time_series.T/np.mean(time_series,axis) - 1).T)*100 
     
