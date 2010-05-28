@@ -119,6 +119,10 @@ class TimeArray(np.ndarray,TimeInterface):
         # with the conversion factor:            
         time = np.asarray(time).view(cls)
 
+        # Make sure time is one-dimensional or 0-d
+        if time.ndim > 1:
+            raise ValueError('TimeArray can only be one-dimensional or 0-d')
+        
         #if time_unit is None and isinstance(data, TimeArray):
         #    time_unit = data.time_unit
 
@@ -1135,7 +1139,7 @@ class Events(TimeInterface):
 
         # Make sure time is one-dimensional
         if self.time.ndim != 1:
-            raise ValueError('timestamps have to be one-dimensional')
+            raise ValueError('The TimeArray provided can only be one-dimensional ')
 
         # Make sure all data has same length
         for check_v in data.values():
@@ -1144,11 +1148,16 @@ class Events(TimeInterface):
 
         # Make sure indices have same length and are integers
         if labels is not None:
+            if len(labels) != len(indices):
+                raise ValueError('Labels and indices must have the same length')
             dt = [(l,np.int64) for l in labels]
         else:
             dt = np.int64
             dt = [('i%d'%i,np.int64) for i in range(len(indices or ()))] or np.int64
         self.index = np.array(zip(*(indices or ())), dtype=dt).view(np.recarray)
 
-        dt = [(st,np.array(data[st]).dtype) for st in data] or None
-        self.data = np.array(zip(*data.values()), dtype=dt).view(np.recarray)
+        #Should data be a recarray? 
+##         dt = [(st,np.array(data[st]).dtype) for st in data] or None
+##         self.data = np.array(zip(*data.values()), dtype=dt).view(np.recarray)
+        #Or a dict? 
+        self.data = dict(data)
