@@ -756,13 +756,12 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                                    self.offset+self.len_et)[:,np.newaxis]
 
             idx = (self.events.time/self.sampling_interval).astype(int)
-            event_idx = idx + add_offset
-
+            
             #Make a list for the output 
             h = [0] * self._len_h
             # Loop over channels
             for i in xrange(self._len_h):
-                event_trig = self.data[i][event_idx]
+                event_trig = self.data[i][idx + add_offset]
                 h[i]= np.mean(event_trig,-1)
 
         h = np.array(h).squeeze()
