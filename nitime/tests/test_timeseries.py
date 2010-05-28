@@ -13,6 +13,9 @@ def test_TimeArray():
     yield npt.assert_equal(time2.time_unit,'ms')
     time1 = ts.TimeArray(10**6)
     yield npt.assert_equal(time1.__repr__(),'1000000.0 s')
+    #TimeArray can't be more than 1-d:
+    yield nt.assert_raises, ValueError, ts.Events, np.zeros((2,2))
+    
 
 def test_TimeArray_init_int64():
     """Make sure that we can initialize TimeArray with an array of ints"""
@@ -502,7 +505,12 @@ def test_Events():
         ev2 = ts.Events(t,time_unit=unit,indices=[i0,i1])
 
         # events with indices and labels
-        ev3 = ts.Events(t,time_unit=unit,labels=['trial','other'],indices=[i0,i1])
+        ev3 = ts.Events(t,time_unit=unit,labels=['trial','other'],
+                        indices=[i0,i1])
+
+        # Note that the length of indices and labels has to be identical: 
+        yield nt.assert_raises, ValueError,ts.Events,dict(t=t,time_unit=unit,labels=['trial','other'],indices=[i0])#Only one of the indices!
+            
 
         # make sure the time is retained
         yield npt.assert_equal(ev1.time,t)
@@ -517,9 +525,9 @@ def test_Events():
             yield npt.assert_equal(ev2.time_unit,'s')
 
         # make sure we can extract data
-        yield npt.assert_equal(ev1.data.i,x)
-        yield npt.assert_equal(ev1.data.j,y)
-        yield npt.assert_equal(ev1.data.k,z)
+        yield npt.assert_equal(ev1.data['i'],x)
+        yield npt.assert_equal(ev1.data['j'],y)
+        yield npt.assert_equal(ev1.data['k'],z)
 
         # make sure we can get the indices by label
         yield npt.assert_equal(ev3.index.trial,i0)
