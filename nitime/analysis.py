@@ -463,55 +463,6 @@ class CorrelationAnalyzer(BaseAnalyzer):
                                 t0=-self.input.sampling_interval*t_points)
 
 
-class EventTriggeredAnalzer(desc.ResetMixin):
-    def __init__(self,time_series,events,len_et,zscore=False,
-                 correct_baseline=False,offset=0):
-        """This one takes an Events object as its input """
-        s = time_series.data.shape
-        zeros_before = np.zeros((s[:-1]+ (abs(offset),)))
-        zeros_after = np.zeros((s[:-1]+(abs(len_et),)))
-
-        #If the time_series has more than 1-d, the analysis can traverse the
-        #first dimension
-        if time_series.data.ndim-1>0:
-                self._len_h = time_series.shape[0]
-                self.data = time_series
-
-        #Otherwise, in order to extract the array from the first dimension,
-        #we wrap it in a list
-        else:
-            self._len_h = 1
-            self.data = [time_series]
-
-        self.sampling_interval=time_series.sampling_interval
-        self.time_unit = time_series.time_unit
-        self.events = events
-        self.offset = offset
-        self.len_et = len_et
-   
-    @desc.setattr_on_read
-    def eta(self):
-        """The event-triggered average activity.
-        """
-
-        #Get the indices necessary for extraction of the eta:
-        add_offset = np.arange(self.offset,self.offset+self.len_et)[:,np.newaxis]
-        idx = (self.events.time/self.sampling_interval).astype(int)
-        event_idx = idx + add_offset
-
-        #Make a list for the output 
-        h = [0] * self._len_h
-        # Loop over channels
-        for i in xrange(self._len_h):
-            event_trig = self.data[i][event_idx]
-            h[i]= np.mean(event_trig,-1)
-                
-        h = np.array(h).squeeze()
-        return ts.TimeSeries(data=h,sampling_interval=self.sampling_interval,
-                                 t0=self.offset*self.sampling_interval,
-                                 time_unit=self.time_unit)
-
-
 ##Event-related analysis:
 class EventRelatedAnalyzer(desc.ResetMixin): 
     """Analyzer object for reverse-correlation/event-related analysis.
@@ -530,7 +481,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         time_series: a time-series object
            A time-series with data on which the event-related analysis proceeds
         
-        events_time_series: a time_series object
+        events_time_series: a TimeSeries object or an Events object
 
         The events which occured in tandem with the time-series in the
         EventRelatedAnalyzer. This object's data has to have the same
@@ -564,6 +515,8 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         #padding with zeros before and after:
 
         if  isinstance(events, ts.TimeSeries):
+            #Set a flag to indicate the input is a time-series object:
+            self._is_ts = True
             s = time_series.data.shape
             zeros_before = np.zeros((s[:-1]+ (abs(offset),)))
             zeros_after = np.zeros((s[:-1]+(abs(len_et),)))
@@ -587,14 +540,34 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                 self.data = [time_series_data]
         
         elif isinstance(events,ts.Events):
-            self.idx = (events.time/time_series.sampling_interval).astype(int)
+            #Set 
+            self._is_ts=False
+            s = time_series.data.shape
+            zeros_before = np.zeros((s[:-1]+ (abs(offset),)))
+            zeros_after = np.zeros((s[:-1]+(abs(len_et),)))
 
+            #If the time_series has more than 1-d, the analysis can traverse the
+            #first dimension
+            if time_series.data.ndim-1>0:
+                self._len_h = time_series.shape[0]
+                self.data = time_series
+                self.events = events
+
+            #Otherwise, in order to extract the array from the first dimension,
+            #we wrap it in a list
+            else:
+                self._len_h = 1
+                self.data = [time_series]
+                #No need to do that for the Events object:
+                self.events = events
+
+   
         self.sampling_rate = time_series.sampling_rate
         self.sampling_interval = time_series.sampling_interval
         self.len_et=int(len_et)
         self._zscore=zscore
         self._correct_baseline=correct_baseline
-        self._offset=offset
+        self.offset=offset
         self.time_unit = time_series.time_unit
         
     @desc.setattr_on_read
@@ -625,7 +598,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             #Get the design matrix (roll by the offset, in order to get the
             #right thing): 
 
-            roll_events = np.roll(self.events[i],self._offset)
+            roll_events = np.roll(self.events[i],self.offset)
             design = tsu.fir_design_matrix(roll_events,self.len_et)
             #Compute the fir estimate, in linear form: 
             this_h = tsa.fir(self.data[i],design)
@@ -637,7 +610,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         h = np.array(h).squeeze()
 
         return ts.TimeSeries(data=h,sampling_rate=self.sampling_rate,
-                                 t0=self._offset*self.sampling_interval,
+                                 t0=self.offset*self.sampling_interval,
                                  time_unit=self.time_unit)
 
     
@@ -731,12 +704,12 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             for e_idx in xrange(event_types.shape[0]):
                 idx = np.where(self.events[i]==event_types[e_idx])
                 
-                idx_w_len = np.array([idx[0]+count+self._offset for count
+                idx_w_len = np.array([idx[0]+count+self.offset for count
                                       in range(self.len_et)])
                 event_trig = data[idx_w_len].T
                 this_list[e_idx] = ts.TimeSeries(data=event_trig,
                                  sampling_interval=self.sampling_interval,
-                                 t0=self._offset*self.sampling_interval,
+                                 t0=self.offset*self.sampling_interval,
                                  time_unit=self.time_unit)
 
             h[i] = this_list
@@ -747,37 +720,55 @@ class EventRelatedAnalyzer(desc.ResetMixin):
     def eta(self):
         """The event-triggered average activity.
         """
-        #Make a list fo the output 
+        #Make a list for the output 
         h = [0] * self._len_h
-        # Loop over channels
-        for i in xrange(self._len_h):
-            data = self.data[i]
-            u = np.unique(self.events[i])
-            event_types = u[np.unique(self.events[i])!=0]
-            h[i] = np.empty((event_types.shape[0], self.len_et),
-                            dtype=complex)
 
-            # This offset is used to pull the event indices below, but we have
-            # to broadcast it so the shape of the resulting idx+offset
-            # operation below gives us the (nevents, len_et) array we want, per
-            # channel.
-            offset = np.arange(self._offset,
-                               self._offset+self.len_et)[:,np.newaxis]
-            # Loop over event types
-            for e_idx in xrange(event_types.shape[0]):
-                idx = np.where(self.events[i]==event_types[e_idx])[0]
-                event_trig = data[idx + offset]
-                #Correct baseline by removing the first point in the series for
-                #each channel:
-                if self._correct_baseline:
-                    event_trig -= event_trig[0]
-                    
-                h[i][e_idx] = np.mean(event_trig,-1)
-                
+        if self._is_ts: 
+            # Loop over channels
+            for i in xrange(self._len_h):
+                data = self.data[i]
+                u = np.unique(self.events[i])
+                event_types = u[np.unique(self.events[i])!=0]
+                h[i] = np.empty((event_types.shape[0], self.len_et),
+                                dtype=complex)
+
+                # This offset is used to pull the event indices below, but we
+                # have to broadcast it so the shape of the resulting idx+offset
+                # operation below gives us the (nevents, len_et) array we want,
+                # per channel.
+                offset = np.arange(self.offset,
+                                   self.offset+self.len_et)[:,np.newaxis]
+                # Loop over event types
+                for e_idx in xrange(event_types.shape[0]):
+                    idx = np.where(self.events[i]==event_types[e_idx])[0]
+                    event_trig = data[idx + offset]
+                    #Correct baseline by removing the first point in the series
+                    #for each channel:
+                    if self._correct_baseline:
+                        event_trig -= event_trig[0]
+
+                    h[i][e_idx] = np.mean(event_trig,-1)
+
+        #In case the input events are an Events:            
+        else:
+            #Get the indices necessary for extraction of the eta:
+            add_offset = np.arange(self.offset,
+                                   self.offset+self.len_et)[:,np.newaxis]
+
+            idx = (self.events.time/self.sampling_interval).astype(int)
+            event_idx = idx + add_offset
+
+            #Make a list for the output 
+            h = [0] * self._len_h
+            # Loop over channels
+            for i in xrange(self._len_h):
+                event_trig = self.data[i][event_idx]
+                h[i]= np.mean(event_trig,-1)
+
         h = np.array(h).squeeze()
         return ts.TimeSeries(data=h,
                                  sampling_interval=self.sampling_interval,
-                                 t0=self._offset*self.sampling_interval,
+                                 t0=self.offset*self.sampling_interval,
                                  time_unit=self.time_unit)
 
     @desc.setattr_on_read
@@ -793,7 +784,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             h[i] = np.empty((event_types.shape[0],self.len_et),dtype=complex)
             for e_idx in xrange(event_types.shape[0]):
                 idx = np.where(self.events[i]==event_types[e_idx])
-                idx_w_len = np.array([idx[0]+count+self._offset for count
+                idx_w_len = np.array([idx[0]+count+self.offset for count
                                       in range(self.len_et)])
                 event_trig = data[idx_w_len]
                 #Correct baseline by removing the first point in the series for
@@ -807,7 +798,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
         return ts.TimeSeries(data=h,
                                  sampling_interval=self.sampling_interval,
-                                 t0=self._offset*self.sampling_interval,
+                                 t0=self.offset*self.sampling_interval,
                                  time_unit=self.time_unit)
 
             
