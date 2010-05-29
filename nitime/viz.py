@@ -31,7 +31,7 @@ except ImportError:
 
 def plot_tseries(time_series,fig=None,axis=0,
                  xticks=None,xunits=None,yticks=None,yunits=None,xlabel=None,
-                 ylabel=None,yerror=None):
+                 ylabel=None,yerror=None,time_unit=None):
 
     """plot a timeseries object
 
@@ -70,12 +70,21 @@ def plot_tseries(time_series,fig=None,axis=0,
         ax = fig.get_axes()[axis]
 
     #Make sure that time displays on the x axis with the units you want:
-    conv_fac = time_series.time._conversion_factor
+    #If you want to change the time-unit on the visualization from that used to
+    #represent the time-series:
+    if time_unit is not None:
+        tu = time_unit
+        conv_fac=ts.time_unit_conversion[time_unit]
+    #Otherwise, get the information from your input:
+    else:
+        tu = time_series.time_unit
+        conv_fac = time_series.time._conversion_factor
+        
     this_time = time_series.time/float(conv_fac)
     ax.plot(this_time,time_series.data.T)
         
     if xlabel is None:
-        ax.set_xlabel('Time (%s)' %time_series.time_unit) 
+        ax.set_xlabel('Time (%s)' %tu) 
     else:
         ax.set_xlabel(xlabel)
     
