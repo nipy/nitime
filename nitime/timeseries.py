@@ -812,7 +812,7 @@ class TimeSeries(TimeSeriesBase):
         """
 
         #If a UniformTime object was provided as input: 
-        if isinstance(time,UniformTime):
+        if isinstance(time,UniformTime): 
             c_fac = time._conversion_factor
             #If the user did not provide an alternative t0, get that from the
             #input: 
@@ -831,8 +831,10 @@ class TimeSeries(TimeSeriesBase):
                 #sampling_rate, make sure that this was explicitely required by
                 #the user - if the user did not explicitely set the
                 #sampling_rate, or it is inconsistent, throw an error: 
-                if (length != len(data) and
-                    sampling_rate != float(len(data)*c_fac)/time.duration):
+                data_len = np.array(data).shape[-1]
+
+                if (length != data_len and
+                    sampling_rate != float(data_len*c_fac)/time.duration):
                     e_s = "Length of the data (%s) " %str(len(data))  
                     e_s += "specified sampling_rate (%s) " %str(sampling_rate)
                     e_s +="do not match."

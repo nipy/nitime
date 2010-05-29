@@ -899,6 +899,8 @@ class FilterAnalyzer(desc.ResetMixin):
         power = np.fft.fft(self.data)
         idx_0 = np.hstack([np.where(freqs<self.lb)[0],
                            np.where(freqs>self.ub)[0]])
+
+        
         
         power[...,idx_0] = 0
         power[...,-1*idx_0] = 0 #Take care of the negative frequencies

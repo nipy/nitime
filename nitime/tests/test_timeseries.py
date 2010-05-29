@@ -366,6 +366,20 @@ def test_TimeSeries():
 
     yield npt.assert_equal(tseries5.time,tseries3.time)
 
+    #initializing with a UniformTime object:
+    t=ts.UniformTime(length=3,sampling_rate=3)
+
+    data = [1,2,3]
+
+    tseries7 = ts.TimeSeries(data=data,time=t)
+
+    yield npt.assert_equal(tseries7.data,data)
+
+    data = [1,2,3,4]
+    #If the data is not the right length, that should throw an error:
+    yield npt.assert_raises(ValueError,
+                          ts.TimeSeries,dict(data=data,time=t))
+    
 @decotest.ipdoctest    
 def test_TimeSeries_repr():
 
