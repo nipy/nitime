@@ -901,7 +901,7 @@ class FilterAnalyzer(desc.ResetMixin):
                            np.where(freqs>self.ub)[0]])
         
         power[...,idx_0] = 0
-        #power[...,-1*idx_0] = 0 #Take care of the negative frequencies
+        power[...,-1*idx_0] = 0 #Take care of the negative frequencies
         data_out = np.fft.ifft(power)
 
         data_out = np.real(data_out) #In order to make sure that you are not
