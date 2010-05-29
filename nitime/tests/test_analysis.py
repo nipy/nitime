@@ -193,13 +193,13 @@ def test_FilterAnalyzer():
     """Testing the FilterAnalyzer """
     t = np.arange(np.pi/100,10*np.pi,np.pi/100)
     fast = np.sin(50*t)+10
-    slow = np.sin(10*t)
+    slow = np.sin(10*t)-20
     fast_ts = ts.TimeSeries(data=fast,sampling_rate=np.pi)
     slow_ts = ts.TimeSeries(data=slow,sampling_rate=np.pi)
    
     #Make sure that the DC is preserved
     f_slow = nta.FilterAnalyzer(slow_ts,ub=0.6)
-    npt.assert_almost_equal(f_slow.filtered_fourier.data.mean(),0)
+    npt.assert_almost_equal(f_slow.filtered_fourier.data.mean(),-20)
     f_fast = nta.FilterAnalyzer(fast_ts,lb=0.6)
     npt.assert_almost_equal(f_fast.data.mean(),10)
 
