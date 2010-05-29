@@ -895,15 +895,16 @@ class FilterAnalyzer(desc.ResetMixin):
 
         if self.ub is None:
             self.ub = freqs[-1]
-        
+            
         power = np.fft.fft(self.data)
         idx_0 = np.hstack([np.where(freqs<self.lb)[0],
                            np.where(freqs>self.ub)[0]])
 
-        
-        
+        #Make sure that you keep the DC component:
+        keep_dc = power[...,0]
         power[...,idx_0] = 0
         power[...,-1*idx_0] = 0 #Take care of the negative frequencies
+        power[...,0] = keep_dc #And put it back in when you're done:
         data_out = np.fft.ifft(power)
 
         data_out = np.real(data_out) #In order to make sure that you are not

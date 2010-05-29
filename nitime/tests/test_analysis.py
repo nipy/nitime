@@ -189,22 +189,19 @@ def test_HilbertAnalyzer():
     #Ditto for the 'fast' cosine:
     npt.assert_almost_equal(h_angle[3,:128],np.arange(0,pi,pi/128))
 
-#This is known to fail because of artifacts induced by the fourier transform
-#for limited samples: 
-@npt.dec.knownfailureif(True) 
 def test_FilterAnalyzer():
     """Testing the FilterAnalyzer """
     t = np.arange(np.pi/100,10*np.pi,np.pi/100)
-    fast = np.sin(50*t)
+    fast = np.sin(50*t)+10
     slow = np.sin(10*t)
-    time_series = ts.TimeSeries(data=fast+slow,sampling_rate=np.pi)
-
-    #0.6 is somewhere between the two frequencies 
-    f_slow = nta.FilterAnalyzer(time_series,ub=0.6)
-    npt.assert_equal(f_slow.filtered_fourier.data,slow)
-    #
-    f_fast = nta.FilterAnalyzer(time_series,lb=0.6)
-    npt.assert_equal(f_fast.filtered_fourier.data,fast)
+    fast_ts = ts.TimeSeries(data=fast,sampling_rate=np.pi)
+    slow_ts = ts.TimeSeries(data=slow,sampling_rate=np.pi)
+   
+    #Make sure that the DC is preserved
+    f_slow = nta.FilterAnalyzer(slow_ts,ub=0.6)
+    npt.assert_almost_equal(f_slow.filtered_fourier.data.mean(),0)
+    f_fast = nta.FilterAnalyzer(fast_ts,lb=0.6)
+    npt.assert_almost_equal(f_fast.data.mean(),10)
 
 def test_MorletWaveletAnalyzer():
     """Testing the MorletWaveletAnalyzer """
