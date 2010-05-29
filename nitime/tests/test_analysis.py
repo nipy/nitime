@@ -134,14 +134,27 @@ def test_EventRelatedAnalyzer():
     npt.assert_almost_equal(FIR.data[0],signal[:FIR.data.shape[-1]],3)
     npt.assert_almost_equal(FIR.data[1],-1*signal[:FIR.data.shape[-1]],3)
 
+    #More dimensions: 
+    T_signal = ts.TimeSeries(np.vstack([signal,signal]),sampling_rate=1)
+    T_events = ts.TimeSeries(np.vstack([events,events]),sampling_rate=1)
+    ETA = nta.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).eta
+
+    #Input is an Events object, instead of a time-series:
     ts1 = ts.TimeSeries(np.arange(100),sampling_rate=1)
     ev = ts.Events([10,20,30])
     et = nta.EventRelatedAnalyzer(ts1,ev,5)
 
     #The five points comprising the average of the three sequences:
-    et.eta.data = [20.,21.,22.,23.,24.]
+    npt.assert_equal(et.eta.data,[20.,21.,22.,23.,24.])
 
+    ts2 = ts.TimeSeries(np.arange(200).reshape(2,100),sampling_rate=1)
+    ev = ts.Events([10,20,30])
+    et = nta.EventRelatedAnalyzer(ts2,ev,5)
+    
+    npt.assert_equal(et.eta.data,[[  20.,   21.,   22.,   23.,   24.],
+                                  [ 120.,  121.,  122.,  123.,  124.]])
 
+    
 def test_HilbertAnalyzer():
     """Testing the HilbertAnalyzer (analytic signal)"""
     pi = np.pi

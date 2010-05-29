@@ -1161,3 +1161,4 @@ class Events(TimeInterface):
 ##         self.data = np.array(zip(*data.values()), dtype=dt).view(np.recarray)
         #Or a dict? 
         self.data = dict(data)
+

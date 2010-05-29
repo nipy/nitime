@@ -759,9 +759,18 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             
             #Make a list for the output 
             h = [0] * self._len_h
+
+            
             # Loop over channels
             for i in xrange(self._len_h):
-                event_trig = self.data[i][idx + add_offset]
+                #If this is a list with one element:
+                if self._len_h==1:
+                    event_trig = self.data[0][idx + add_offset]
+                #Otherwise, you need to index straight into the underlying data
+                #array:
+                else:
+                    event_trig = self.data.data[i][idx + add_offset]
+                
                 h[i]= np.mean(event_trig,-1)
 
         h = np.array(h).squeeze()
@@ -870,7 +879,6 @@ class FilterAnalyzer(desc.ResetMixin):
     def __init__(self,time_series,lb=0,ub=None,boxcar_iterations=2):
         self.data = time_series.data 
         self.sampling_rate = time_series.sampling_rate
-        self.freqs = tsu.get_freqs(self.sampling_rate,self.data.shape[-1])
         self.ub=ub
         self.lb=lb
         self.time_unit=time_series.time_unit
@@ -882,13 +890,15 @@ class FilterAnalyzer(desc.ResetMixin):
 
         """Filter the time-series by passing it to the Fourier domain and null
         out the frequency bands outside of the range [lb,ub] """
-        
+
+        freqs = tsu.get_freqs(self.sampling_rate,self.data.shape[-1])
+
         if self.ub is None:
-            self.ub = self.freqs[-1]
+            self.ub = freqs[-1]
         
         power = np.fft.fft(self.data)
-        idx_0 = np.hstack([np.where(self.freqs<self.lb)[0],
-                           np.where(self.freqs>self.ub)[0]])
+        idx_0 = np.hstack([np.where(freqs<self.lb)[0],
+                           np.where(freqs>self.ub)[0]])
         
         power[...,idx_0] = 0
         #power[...,-1*idx_0] = 0 #Take care of the negative frequencies
