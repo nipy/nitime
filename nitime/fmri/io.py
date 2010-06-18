@@ -1,27 +1,25 @@
-""" Input and output for fmri-related data files"""
-
+""" Input and output for fmri data files"""
 
 try:
-    from nipy.io.files import load
+    from nibabel import load
 except ImportError: 
-        print "nipy not available"
+        print "nibabel required for fmri I/O"
 
+from nitime import TimeSeries
 
-
-def time_series_from_file(analyze_file,coords,normalize=False,detrend=False,
-                           average=False,f_c=0.01,TR=None):
+def time_series_from_file(nifti_file,coords,TR,average=False):
     """ Make a time series from a Analyze file, provided coordinates into the
             file 
 
     Parameters
     ----------
 
-    analyze_file: string.
+    nifti_file: string.
 
            The full path to the file from which the time-series is extracted 
      
     coords: ndarray or list of ndarrays
-           x,y,z (slice,inplane,inplane) coordinates of the ROI from which the
+           x,y,z (inplane,inplane,slice) coordinates of the ROI from which the
            time-series is to be derived. If the list has more than one such
            array, the t-series will have more than one row in the data, as many
            as there are coordinates in the total list. Averaging is done on
@@ -30,72 +28,30 @@ def time_series_from_file(analyze_file,coords,normalize=False,detrend=False,
            result will be a time-series with as many rows of data as different
            ROIs in the input 
 
-    detrend: bool, optional
-           whether to detrend the time-series . For now, we do box-car
-           detrending, but in the future we will do real high-pass filtering
-
-    normalize: bool, optional
-           whether to convert the time-series values into % signal change (on a
-           voxel-by-voxel level)
-
-    average: bool, optional
-           whether to average the time-series across the voxels in the ROI. In
-           which case, self.data will be 1-d
-
-    f_c: float, optional
-        cut-off frequency for detrending
-
     TR: float, optional
         TR, if different from the one which can be extracted from the nifti
         file header
+
+    average: bool, optional
+           whether to average the time-series across the voxels in the ROI. In
+           which case, TS.data will be 1-d
 
     Returns
     -------
 
     time-series object
 
-        """
+    """
     
-    im = load(analyze_file)
-    data = np.asarray(im)
-    #Per default read TR from file:
-    if TR is None:
-        TR = im.header.get_zooms()[-1]/1000.0 #in msec?
-        
-    #If we got a list of coord arrays, we're happy. Otherwise, we want to force
-    #our input to be a list:
-    try:
-        coords.shape #If it is an array, it has a shape, otherwise, we 
-        #assume it's a list. If it's an array, we want to
-        #make it into a list:
-        coords = [coords]
-    except: #If it's a list already, we don't need to do anything:
-        pass
+    im = load(nifti_file)
+    data = im.get_data()
 
-    #Make a list the size of the coords-list, with place-holder 0's
-    data_out = list([0]) * len(coords)
-
-    for c in xrange(len(coords)): 
-        data_out[c] = data[coords[c][0],coords[c][1],coords[c][2],:]
-        
-        if normalize:
-            data_out[c] = tsu.percent_change(data_out[c])
-
-        #Currently uses mrVista style box-car detrending, will eventually be
-        #replaced by a filter:
+    out_data = data[coords[0],coords[1],coords[2]]
     
-        if detrend:
-            from nitime import vista_utils as tsv
-            data_out[c] = tsv.detrend_tseries(data_out[c],TR,f_c)
-            
-        if average:
-            data_out[c] = np.mean(data_out[c],0)
-
-    #Convert this into the array with which the time-series object is
-    #initialized:
-    data_out = np.array(data_out).squeeze()
+    if average:
+        out_data = np.mean(out_data,0)
         
-    tseries = TimeSeries(data_out,sampling_interval=TR)
+    tseries = TimeSeries(out_data,sampling_interval=TR)
 
     return tseries
 
