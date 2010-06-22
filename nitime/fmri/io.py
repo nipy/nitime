@@ -5,7 +5,8 @@ try:
 except ImportError: 
         print "nibabel required for fmri I/O"
 
-from nitime import TimeSeries
+import nitime.timeseries as ts 
+import numpy as np
 
 def time_series_from_file(nifti_file,coords,TR,average=False):
     """ Make a time series from a Analyze file, provided coordinates into the
@@ -46,12 +47,12 @@ def time_series_from_file(nifti_file,coords,TR,average=False):
     im = load(nifti_file)
     data = im.get_data()
 
-    out_data = data[coords[0],coords[1],coords[2]]
+    out_data = np.asarray(data[coords[0],coords[1],coords[2]])
     
     if average:
         out_data = np.mean(out_data,0)
         
-    tseries = TimeSeries(out_data,sampling_interval=TR)
+    tseries = ts.TimeSeries(out_data,sampling_interval=TR)
 
     return tseries
 

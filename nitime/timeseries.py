@@ -919,11 +919,11 @@ class TimeSeries(TimeSeriesBase):
 
         if t0 is None:
            t0=0
-           
 
+           
         #Otherwise, you can still call the common constructor to get the real
         #object initialized, with time_unit set to None and that will generate
-        #the object with time_unit set to 's':  
+        #the object with time_unit set to 's':
         TimeSeriesBase.__init__(self, data, time_unit, metadata=metadata)
     
         self.time_unit = time_unit
