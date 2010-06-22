@@ -835,8 +835,7 @@ class HilbertAnalyzer(BaseAnalyzer):
             return ts.TimeSeries(data=signal.hilbert(data),
                                         sampling_rate=sampling_rate)
         else: 
-            a_signal = ts.TimeSeries(data=np.zeros(data.shape,
-                                                          dtype='D'),
+            a_signal = ts.TimeSeries(data=np.zeros(data.shape,dtype='D'),
                                         sampling_rate=sampling_rate)
 
             if self.data.ndim == 1:
@@ -936,6 +935,34 @@ class FilterAnalyzer(desc.ResetMixin):
         return ts.TimeSeries(data=data_out,
                                  sampling_rate=self.sampling_rate,
                                  time_unit=self.time_unit) 
+
+class NormalizationAnalyzer(BaseAnalyzer):
+
+    """ A class for performing normalization operations on time-series and
+    producing the renormalized versions of the time-series"""
+
+    def __init__(self,input=None):
+        """Constructor function for the Hilbert analyzer class.
+
+        Parameters
+        ----------
+        
+        input: TimeSeries
+
+        """
+        BaseAnalyzer.__init__(self,input)
+        
+    @desc.setattr_on_read
+    def percent_change(self):
+        return ts.TimeSeries(tsu.percent_change(self.input.data),
+                             sampling_rate=self.input.sampling_rate,
+                             time_unit = self.input.time_unit)
+
+    @desc.setattr_on_read
+    def z_score(self):
+        return ts.TimeSeries(tsu.zscore(self.input.data),
+                             sampling_rate=self.input.sampling_rate,
+                             time_unit = self.input.time_unit)
 
 #TODO:
 # * Write test for MorletWaveletAnalyzer
@@ -1053,3 +1080,5 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
     def imag(self):
         return ts.TimeSeries(data=self.output.data.imag,
                                     sampling_rate=self.output.sampling_rate)
+
+

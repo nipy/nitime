@@ -203,6 +203,21 @@ def test_FilterAnalyzer():
     f_fast = nta.FilterAnalyzer(fast_ts,lb=0.6)
     npt.assert_almost_equal(f_fast.data.mean(),10)
 
+def test_NormalizationAnalyzer():
+    """Testing the NormalizationAnalyzer """
+
+    t1 = ts.TimeSeries(data=[[99,100,101],[99,100,101]],sampling_interval=1.)
+    t2 = ts.TimeSeries(data=[[-1,0,1],[-1,0,1]],sampling_interval=1.)
+
+    N1 = nta.NormalizationAnalyzer(t1)
+    npt.assert_almost_equal(N1.percent_change[0],t2[0])
+
+    t3 = ts.TimeSeries(data=[[100,102],[1,3]],sampling_interval=1.)
+    t4 = ts.TimeSeries(data=[[-1,1],[-1,1]],sampling_interval=1.)
+    
+    N2 = nta.NormalizationAnalyzer(t3)
+    npt.assert_almost_equal(N2.z_score[0],t4[0])
+    
 def test_MorletWaveletAnalyzer():
     """Testing the MorletWaveletAnalyzer """
     time_series = ts.TimeSeries(data=np.random.rand(100),sampling_rate=100)

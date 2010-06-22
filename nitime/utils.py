@@ -1038,7 +1038,7 @@ def percent_change(time_series, axis=-1):
     """
     time_series = np.asarray(time_series)
     
-    return ((time_series.T/np.mean(time_series,axis) - 1).T)*100 
+    return ((time_series.T/np.mean(time_series,axis) - 1).T)*100
     
 
 #----------Event-related analysis utils ----------------------------------------
