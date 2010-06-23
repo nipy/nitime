@@ -831,22 +831,13 @@ class HilbertAnalyzer(BaseAnalyzer):
         data = self.input.data
         sampling_rate = self.input.sampling_rate
         #If you have scipy with the fixed scipy.signal.hilbert (r6205 and later)
-        if float(scipy.__version__[:3]>=0.8):
-            return ts.TimeSeries(data=signal.hilbert(data),
-                                        sampling_rate=sampling_rate)
-        else: 
-            a_signal = ts.TimeSeries(data=np.zeros(data.shape,dtype='D'),
-                                        sampling_rate=sampling_rate)
+        if float(scipy.__version__[:3])>=0.8:
+            hilbert = signal.hilbert
+        else:
+            hilbert = tsu.hilbert_from_new_scipy
 
-            if self.data.ndim == 1:
-                a_signal.data[:] = signal.hilbert(data)
-            elif self.data.ndim == 2:
-                for i,dat in enumerate(self.data):
-                    a_signal.data[i,:] = signal.hilbert(dat)
-            else:
-                raise NotImplementedError, 'signal has to be 1d or 2d'
-
-            return a_signal
+        return ts.TimeSeries(data=hilbert(data),
+                                        sampling_rate=sampling_rate)
         
     @desc.setattr_on_read
     def amplitude(self):

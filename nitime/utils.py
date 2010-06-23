@@ -1253,3 +1253,37 @@ def bayesian_information_criterion(x,y,m):
     BIC =  (2*( np.log(linalg.det(sigma)) ) +
            ( (2*(sigma.shape[0]**2) * m * np.log(x.shape[-1])) / (x.shape[-1]) ))
     return BIC
+
+
+#We carry around a copy of the hilbert transform analytic signal from newer
+#versions of scipy, in case someone is using an older version of scipy with a
+#borked hilbert:
+
+def hilbert_from_new_scipy(x, N=None, axis=-1):
+    """This is a verbatim copy of scipy.signal.hilbert from scipy version
+    0.8dev, which we carry around in order to use in case the version of scipy
+    installed is old enough to have a broken implementation of hilbert """
+
+    x = np.asarray(x)
+    if N is None:
+        N = x.shape[axis]
+    if N <=0:
+        raise ValueError, "N must be positive."
+    if np.iscomplexobj(x):
+        print "Warning: imaginary part of x ignored."
+        x = real(x)
+    Xf = np.fft.fft(x, N, axis=axis)
+    h = np.zeros(N)
+    if N % 2 == 0:
+        h[0] = h[N/2] = 1
+        h[1:N/2] = 2
+    else:
+        h[0] = 1
+        h[1:(N+1)/2] = 2
+
+    if len(x.shape) > 1:
+        ind = [np.newaxis]*x.ndim
+        ind[axis] = slice(None)
+        h = h[ind]
+    x = np.fft.ifft(Xf*h, axis=axis)
+    return x

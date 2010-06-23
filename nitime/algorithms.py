@@ -2715,4 +2715,3 @@ def wlogmorlet(f0,sd,sampling_rate,ns=5,normed='area'):
         assert 0, 'unknown norm %s'%normed
     return w
 
-
