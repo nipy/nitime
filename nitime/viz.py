@@ -100,6 +100,60 @@ def plot_tseries(time_series,fig=None,axis=0,
     
     return fig
 
+def matshow_tseries(time_series,fig=None,axis=0,xtick_n=5):
+
+    """Creates an image of the time-series, ordered according to the first
+    dimension of the time-series object
+    
+    Arguments
+    ---------
+
+    time_series: a nitime time-series object
+
+    fig: a figure handle, opens a new figure if None
+
+    axis: an axis number (if there are several in the figure to be opened),
+        defaults to 0.
+        
+    xtick_n: int, optional, sets the number of ticks to be placed on the x axis
+    
+    """  
+
+    if fig is None:
+        fig=plt.figure()
+
+    if not fig.get_axes():
+        ax = fig.add_subplot(1,1,1)
+    else:
+        ax = fig.get_axes()[axis]
+
+    #Make sure that time displays on the x axis with the units you want:
+    #If you want to change the time-unit on the visualization from that used to
+    #represent the time-series:
+    if time_unit is not None:
+        tu = time_unit
+        conv_fac=ts.time_unit_conversion[time_unit]
+    #Otherwise, get the information from your input:
+    else:
+        tu = time_series.time_unit
+        conv_fac = time_series.time._conversion_factor
+        
+    this_time = time_series.time/float(conv_fac)
+    ax.matshow(time_series.data)
+
+    ax.set_xticks(range(len(this_time))[::len(this_time)/xtick_n])
+    ax.set_xticklabels(this_time[::len(this_time)/xtick_n])
+    
+    if xlabel is None:
+        ax.set_xlabel('Time (%s)' %tu) 
+    else:
+        ax.set_xlabel(xlabel)
+    
+    if ylabel is not None:
+        ax.set_ylabel(ylabel)
+    
+    return fig
+
 ## Helper functions for matshow_roi and for drawgraph_roi, in order to get the
 ## right cmap for the colorbar:
 
