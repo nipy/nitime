@@ -6,9 +6,10 @@ except ImportError:
         print "nibabel required for fmri I/O"
 
 import nitime.timeseries as ts 
+import nitime.analysis as tsa
 import numpy as np
 
-def time_series_from_file(nifti_file,coords,TR,average=False):
+def time_series_from_file(nifti_file,coords,TR,normalize=None,average=False):
     """ Make a time series from a Analyze file, provided coordinates into the
             file 
 
@@ -19,28 +20,35 @@ def time_series_from_file(nifti_file,coords,TR,average=False):
 
            The full path to the file from which the time-series is extracted 
      
-    coords: ndarray or list of ndarrays
-           x,y,z (inplane,inplane,slice) coordinates of the ROI from which the
-           time-series is to be derived. If the list has more than one such
-           array, the t-series will have more than one row in the data, as many
-           as there are coordinates in the total list. Averaging is done on
-           each item in the list separately, such that if several ROIs are
-           entered, averaging will be done on each one separately and the
-           result will be a time-series with as many rows of data as different
-           ROIs in the input 
-
+    coords: ndarray
+        x,y,z (inplane,inplane,slice) coordinates of the ROI from which the
+        time-series is to be derived.
+        
     TR: float, optional
         TR, if different from the one which can be extracted from the nifti
         file header
 
-    average: bool, optional
-           whether to average the time-series across the voxels in the ROI. In
-           which case, TS.data will be 1-d
+    normalize: Whether to normalize the activity in each voxel, defaults to
+        None, in which case the original fMRI signal is used. Other options
+        are: 'percent': the activity in each voxel is converted to percent
+        change, relative to this scan. 'zscore': the activity is converted to a
+        zscore relative to the mean and std in this voxel in this scan.
 
+    average: bool, optional whether to average the time-series across the
+           voxels in the ROI (assumed to be the first dimension). In which
+           case, TS.data will be 1-d
+
+    
     Returns
     -------
 
     time-series object
+
+    Note
+    ----
+
+    Normalization occurs before averaging on a voxel-by-voxel basis, followed
+    by the averaging. 
 
     """
     
@@ -48,12 +56,17 @@ def time_series_from_file(nifti_file,coords,TR,average=False):
     data = im.get_data()
 
     out_data = np.asarray(data[coords[0],coords[1],coords[2]])
-    
-    if average:
-        out_data = np.mean(out_data,0)
         
     tseries = ts.TimeSeries(out_data,sampling_interval=TR)
 
+    if normalize=='percent':
+        tseries = tsa.NormalizationAnalyzer(tseries).percent_change
+    elif normalize=='zscore':
+        tseries = tsa.NormalizationAnalyzer(tseries).z_score
+
+    if average:
+        tseries.data = np.mean(tseries.data,0)
+        
     return tseries
 
 
