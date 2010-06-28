@@ -139,6 +139,12 @@ def test_EventRelatedAnalyzer():
     T_events = ts.TimeSeries(np.vstack([events,events]),sampling_rate=1)
     ETA = nta.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).eta
 
+    #The events input and the time-series input have different dimensions:
+    T_events = ts.TimeSeries(events,sampling_rate=1)
+    ETA = nta.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).eta
+    npt.assert_almost_equal(ETA.data[0][0],signal[:ETA.data.shape[-1]],3)
+    npt.assert_almost_equal(ETA.data[1][1],-1*signal[:ETA.data.shape[-1]],3)
+    
     #Input is an Events object, instead of a time-series:
     ts1 = ts.TimeSeries(np.arange(100),sampling_rate=1)
     ev = ts.Events([10,20,30])
@@ -153,7 +159,7 @@ def test_EventRelatedAnalyzer():
     
     npt.assert_equal(et.eta.data,[[  20.,   21.,   22.,   23.,   24.],
                                   [ 120.,  121.,  122.,  123.,  124.]])
-
+        
     
 def test_HilbertAnalyzer():
     """Testing the HilbertAnalyzer (analytic signal)"""

@@ -505,9 +505,6 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         point in the event-triggered average (where possible)
         
         """ 
-        #XXX enable the possibility that the event_time_series only has one
-        #dimension, corresponding to time and then all channels have the same
-        #series of events (and there is no need to loop over all channels?)
         #XXX Change so that the offset and length of the eta can be given in
         #units of time 
 
@@ -518,17 +515,25 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             #Set a flag to indicate the input is a time-series object:
             self._is_ts = True
             s = time_series.data.shape
+            e_data = np.copy(events.data)
+            
+            #If the input is a one-dimensional (instead of an n-channel
+            #dimensional) time-series, we will need to broadcast to make the
+            #data assume the same number of dimensions as the time-series input:
+            if len(events.shape) == 1 and len(s)>1: 
+                e_data = e_data + np.zeros((s[0],1))
+                
             zeros_before = np.zeros((s[:-1]+ (abs(offset),)))
             zeros_after = np.zeros((s[:-1]+(abs(len_et),)))
             time_series_data = np.hstack([zeros_before,time_series.data,
                                           zeros_after])
-            events_data = np.hstack([zeros_before,events.data,
+            events_data = np.hstack([zeros_before,e_data,
                                      zeros_after])
 
             #If the events and the time_series have more than 1-d, the analysis
             #can traverse their first dimension
-            if events.data.ndim-1>0:
-                self._len_h = events.data.shape[0]
+            if time_series.data.ndim-1>0:
+                self._len_h = time_series.data.shape[0]
                 self.events = events_data
                 self.data = time_series_data
             #Otherwise, in order to extract the array from the first dimension,
