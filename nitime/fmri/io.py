@@ -9,16 +9,17 @@ import nitime.timeseries as ts
 import nitime.analysis as tsa
 import numpy as np
 
-def time_series_from_file(nifti_file,coords,TR,normalize=None,average=False):
+def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False):
     """ Make a time series from a Analyze file, provided coordinates into the
             file 
 
     Parameters
     ----------
 
-    nifti_file: string.
+    nifti_files: a string or a list of strings.
 
-           The full path to the file from which the time-series is extracted 
+           The full path(s) to the file(s) from which the time-series is (are)
+           extracted
      
     coords: ndarray
         x,y,z (inplane,inplane,slice) coordinates of the ROI from which the
@@ -51,22 +52,43 @@ def time_series_from_file(nifti_file,coords,TR,normalize=None,average=False):
     by the averaging. 
 
     """
-    
-    im = load(nifti_file)
-    data = im.get_data()
+    #If just one string was provided:
+    if isinstance(nifti_files,str):
+        im = load(nifti_files)
+        data = im.get_data()
 
-    out_data = np.asarray(data[coords[0],coords[1],coords[2]])
-        
-    tseries = ts.TimeSeries(out_data,sampling_interval=TR)
+        out_data = np.asarray(data[coords[0],coords[1],coords[2]])
 
-    if normalize=='percent':
-        tseries = tsa.NormalizationAnalyzer(tseries).percent_change
-    elif normalize=='zscore':
-        tseries = tsa.NormalizationAnalyzer(tseries).z_score
+        tseries = ts.TimeSeries(out_data,sampling_interval=TR)
 
-    if average:
-        tseries.data = np.mean(tseries.data,0)
-        
+        if normalize=='percent':
+            tseries = tsa.NormalizationAnalyzer(tseries).percent_change
+        elif normalize=='zscore':
+            tseries = tsa.NormalizationAnalyzer(tseries).z_score
+
+        if average:
+            tseries.data = np.mean(tseries.data,0)
+            
+    #Otherwise loop over the files and concatenate:
+    else:
+        tseries_list = []
+        for f in nifti_files:
+            im = load(f)
+            data = im.get_data()
+
+            out_data = np.asarray(data[coords[0],coords[1],coords[2]])
+
+            tseries_list.append(ts.TimeSeries(out_data,sampling_interval=TR))
+
+            if normalize=='percent':
+                tseries_list[-1] = tsa.NormalizationAnalyzer(tseries_list[-1]).percent_change
+            elif normalize=='zscore':
+                tseries_list[-1] = tsa.NormalizationAnalyzer(tseries_list[-1]).z_score
+
+            if average:
+                tseries_list[-1].data = np.mean(tseries_list[-1].data,0)
+
+        tseries = ts.concatenate_time_series(tseries_list)
     return tseries
 
 
