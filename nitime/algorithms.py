@@ -1635,7 +1635,7 @@ def get_spectra(time_series,method=None):
         freqs, fxy = func(time_series, **mdict)
         f = ut.circle_to_hz(freqs, mdict.get('Fs', 2*np.pi))
 
-    return f,fxy
+    return f,fxy.squeeze()
 
 def get_spectra_bi(x,y,method = None):
     r"""
@@ -2521,7 +2521,7 @@ def cache_to_coherency(cache,ij):
 
     channels_i = max(1,max(ij_array[:,0])+1)
     channels_j = max(1,max(ij_array[:,1])+1)
-    Cxy = np.zeros((channels_i,channels_j,freqs))
+    Cxy = np.zeros((channels_i,channels_j,freqs),dtype=np.complex)
 
     #print Cxy.shape
     #These checks take time, so do them up front, not in every iteration:

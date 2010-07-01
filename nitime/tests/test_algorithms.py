@@ -249,5 +249,18 @@ def test_boxcar_filter():
     b = tsa.boxcar_filter(a,lb=0.25)
     npt.assert_equal(a.shape,b.shape)
 
-    
+def test_get_spectra():
+    """Testing get_spectra"""
+    t = np.linspace(0,16*np.pi,2**14)
+    x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + 0.1 *np.random.rand(t.shape[-1])
+    x = np.reshape(x,(2,x.shape[-1]/2))
+    N = x.shape[-1]
 
+    #Make sure you get back the expected shape for different spectra: 
+    NFFT = 64
+    f_mlab=tsa.get_spectra(x,method={'this_method':'mlab','NFFT':NFFT})
+    f_periodogram=tsa.get_spectra(x,method={'this_method':'periodogram_csd'})
+    f_multi_taper=tsa.get_spectra(x,method={'this_method':'multi_taper_csd'})
+    
+    npt.assert_equal(f_mlab[0].shape[0],NFFT/2+1)
+    npt.assert_equal(f_periodogram[0].shape,f_multi_taper[0].shape)

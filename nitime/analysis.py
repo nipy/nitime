@@ -151,7 +151,9 @@ class CoherenceAnalyzer(BaseAnalyzer):
             self.method = {'this_method':'mlab'}
         else:
             self.method = method
-            
+
+        #If an input is provided, get the sampling rate from there, if you want
+        #to over-ride that, input a method with a 'Fs' field specified: 
         self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
 
     @desc.setattr_on_read
