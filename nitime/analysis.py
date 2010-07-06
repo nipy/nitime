@@ -567,7 +567,8 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                 self.data = [time_series]
                 #No need to do that for the Events object:
                 self.events = events
-
+        else:
+            raise ValueError("Input 'events' to EventRelatedAnalyzer must be of type Events or of type TimeSeries")
    
         self.sampling_rate = time_series.sampling_rate
         self.sampling_interval = time_series.sampling_interval

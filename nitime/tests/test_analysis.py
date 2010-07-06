@@ -159,7 +159,12 @@ def test_EventRelatedAnalyzer():
     
     npt.assert_equal(et.eta.data,[[  20.,   21.,   22.,   23.,   24.],
                                   [ 120.,  121.,  122.,  123.,  124.]])
-        
+
+
+    #Test that providing the analyzer with an array, instead of an Events or a
+    #TimeSeries object throws an error:
+    npt.assert_raises(ValueError,nta.EventRelatedAnalyzer,ts2,events,10)
+     
     
 def test_HilbertAnalyzer():
     """Testing the HilbertAnalyzer (analytic signal)"""
