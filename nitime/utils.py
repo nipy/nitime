@@ -192,12 +192,14 @@ def jackknifed_sdf_variance(sdfs, weights=None):
         items = list(set(range(order)).difference([i]))
         sdfs_i = np.take(sdfs, items, axis=-2)
         if weights is None:
-            weights = 1.0
+            weights_i = 1.0
+            w_sos = 1.0
         else:
             weights_i = np.take(weights, items, axis=-2)
+            w_sos = (weights_i**2).sum(axis=-2)
         # this is the leave-one-out estimate of the sdf
         e_sdf[i] = ( weights_i**2 * sdfs_i ).sum(axis=-2)
-        e_sdf[i] /= (weights_i**2).sum(axis=-2)
+        e_sdf[i] /= w_sos
 
     # this is the average of the leave-one-outs
     e_sdf_all = e_sdf.mean(axis=-2)

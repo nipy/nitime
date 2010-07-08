@@ -8,8 +8,12 @@ import nitime.utils as utils
 def dB(x):
     return 10 * np.log10(x)
 
+### Log-to-dB conversion factor ###
+ln2db = dB(np.e)
+
 N = 512
 ar_seq, nz, alpha = utils.ar_generator(N=N, drop_transients=10)
+# --- True SDF
 fgrid, hz = alg.my_freqz(1.0, a=np.r_[1, -alpha], Nfreqs=N)
 sdf = dB( (hz*hz.conj()).real )
 
@@ -34,21 +38,31 @@ adaptive_sdf_mt = (p_sdfs * weights**2).sum(axis=0)
 adaptive_sdf_mt /= (weights**2).sum(axis=0)
 adaptive_sdf_mt = dB(adaptive_sdf_mt)
 
-### Log-to-dB conversion factor ###
-ln2db = dB(np.e)
+# --- Jack-knifed intervals for regular weighting-----------------------------
 
-# --- Jack-knifed intervals --------------------------------------------------
-
-jn_var = utils.jackknifed_sdf_variance(p_sdfs, weights=weights)
+jn_var = utils.jackknifed_sdf_variance(p_sdfs) # returns log-variance
 # convert sigma to dB (?? or var??)
 jn_sigma_db = ln2db * np.sqrt(jn_var)
 
+# log(sdf_mt) is approximately distributed about the true sdf
+# as a Student's t distribution with variance jn_var 
 jn_p = dist.t.ppf(.975, Kmax-1) * jn_sigma_db
 
-jn_limits = ( adaptive_sdf_mt - jn_p, adaptive_sdf_mt + jn_p )
+jn_limits = ( sdf_mt - jn_p, sdf_mt + jn_p )
+
+# --- Jack-knifed intervals for adaptive weighting----------------------------
+
+adaptive_jn_var = utils.jackknifed_sdf_variance(p_sdfs, weights=weights)
+# convert sigma to dB (?? or var??)
+jn_sigma_db = ln2db * np.sqrt(adaptive_jn_var)
+
+jn_p = dist.t.ppf(.975, Kmax-1) * jn_sigma_db
+
+adaptive_jn_limits = ( adaptive_sdf_mt - jn_p, adaptive_sdf_mt + jn_p )
 
 # --- Hypothetical intervals with chi2(2Kmax) --------------------------------
 
+# from Percival and Walden eq 258
 p975 = dist.chi2.ppf(.975, 2*Kmax)
 p025 = dist.chi2.ppf(.025, 2*Kmax)
 
@@ -78,16 +92,19 @@ def plot_estimate(ax, f, sdf_est, limits=None, elabel=''):
     ax.legend()
 
 f = pp.figure()
-ax = f.add_subplot(411)
+ax = f.add_subplot(511)
 plot_estimate(ax, freqs, d_sdf, elabel='Periodogram')
-ax = f.add_subplot(412)
+ax = f.add_subplot(512)
 plot_estimate(ax, freqs, sdf_mt, hyp_limits,
               elabel='MT with hypothetical 5% interval')
-ax = f.add_subplot(413)
+ax = f.add_subplot(513)
+plot_estimate(ax, freqs, sdf_mt, jn_limits,
+              elabel='MT with jackknifed 5% interval')
+ax = f.add_subplot(514)
 plot_estimate(ax, freqs, adaptive_sdf_mt, adaptive_hyp_limits,
               elabel='(a)MT with hypothetical 5% interval')
-ax = f.add_subplot(414)
-plot_estimate(ax, freqs, adaptive_sdf_mt, jn_limits,
+ax = f.add_subplot(515)
+plot_estimate(ax, freqs, adaptive_sdf_mt, adaptive_jn_limits,
               elabel='(a)MT with jackknifed 5% interval')
 f.text(.5, .9, '%d Tapers'%Kmax)
 pp.show()
