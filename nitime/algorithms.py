@@ -25,6 +25,9 @@ from matplotlib import mlab
 from scipy import linalg
 import utils as ut
 from scipy.misc import factorial
+
+from nitime.fixes.fftconvolve import fftconvolve
+import nitime.utils as utils
 #-----------------------------------------------------------------------------
 #  Coherency 
 #-----------------------------------------------------------------------------
@@ -1848,54 +1851,23 @@ def periodogram_csd(s, Sk=None, N=None, sides='onesided', normalize=True):
     csd_mat[upper_idc] = csd_mat[lower_idc].conj()
     return freqs, csd_mat
 
-
-
-def nDPSS(Fs, N, BW):
-    """Given a sampling frequency, number of samples, and an approximate
-    DPSS window bandwidth, return the number of DPSSs to use in a
-    multi-taper PSD estimate: K = N*BW/Fs = BW/f0
-    Also returns the true bandwidth.
-
-    Paramters
-    ---------
-    Fs : float
-        sampling frequency
-    N : int
-        sequence length
-    BW : float
-        window bandwidth to match
-
-    Returns
-    -------
-    K, true_BW : int, float
-        The optimal number of DPSS windows to use in PSD estimation, and
-        the true bandwidth of the windows.
-
-    Notes
-    -----
-    The bandwidth parameter reflects the length of the interval [-BW/2, BW/2].
-    """
-    K = int(N*BW/Fs + 0.5)
-    true_BW = Fs*K/N
-    return K, true_BW
-
-def DPSS_windows(N, W, Kmax):
-    """Returns the first Kmax-1 Discrete Prolate Spheroidal Sequences for
-    a given frequency-spacing multiple W and sequence length N. 
+def DPSS_windows(N, NW, Kmax):
+    """Returns the Discrete Prolate Spheroidal Sequences of orders [0,Kmax-1]
+    for a given frequency-spacing multiple W and sequence length N. 
 
     Paramters
     ---------
     N : int
         sequence length
-    W : float
+    W : float (unit of Hz)
         half bandwidth corresponding to 2W = Kmax*f0 = (Kmax/T)
     Kmax : int
-        number of DPSS windows to return is Kmax-1
+        number of DPSS windows to return is Kmax (orders 0 through Kmax-1)
 
     Returns
     -------
     v : ndarray
-        an array of DPSS windows shaped (Kmax-1, N)
+        an array of DPSS windows shaped (Kmax, N)
 
     Notes
     -----
@@ -1912,8 +1884,8 @@ def DPSS_windows(N, W, Kmax):
     # (A - (l1)I)v = 0, where the eigenvector corresponding to the largest
     # eigenvalue is the sequence with maximally concentrated energy. The
     # collection of eigenvectors of this system are called Slepian sequences,
-    # or discrete prolate spheroidal sequences (DPSS). Only the first K-1,
-    # K = 2NW orders of DPSS will exhibit good spectral concentration
+    # or discrete prolate spheroidal sequences (DPSS). Only the first K,
+    # K = 2NW/dt orders of DPSS will exhibit good spectral concentration
     # [see http://en.wikipedia.org/wiki/Spectral_concentration_problem]
     
     # Here I set up an alternative symmetric tri-diagonal eigenvalue problem
@@ -1922,35 +1894,68 @@ def DPSS_windows(N, W, Kmax):
     # the main diagonal = ([N-1-2*t]/2)**2 cos(2PIW), t=[0,1,2,...,N-1]
     # and the first off-diangonal = t(N-t)/2, t=[1,2,...,N-1]
     # [see Percival and Walden, 1993]
+    W = float(NW)/N
     ab = np.zeros((2,N), 'd')
     nidx = np.arange(N)
     ab[0,1:] = nidx[1:]*(N-nidx[1:])/2.
     ab[1] = ((N-1-2*nidx)/2.)**2 * np.cos(2*np.pi*W)
     # only calculate the highest Kmax-1 eigenvectors
-    l,v = linalg.eig_banded(ab, select='i', select_range=(N+1-Kmax, N-1))
-    return v.transpose()[::-1]
+    l,v = linalg.eig_banded(ab, select='i', select_range=(N-Kmax, N-1))
+    dpss = v.transpose()[::-1]
 
-def multi_taper_psd(s, BW=None, Fs=2*np.pi, sides='onesided'):
+    # By convention (Percival and Walden, 1993 pg 379)
+    # * symmetric tapers (k=0,2,4,...) should have a positive average.
+    # * antisymmetric tapers should begin with a positive lobe
+    fix_symmetric = (dpss[0::2].sum(axis=1) < 0)
+    for i, f in enumerate(fix_symmetric):
+        if f:
+            dpss[2*i] *= -1
+    fix_skew = (dpss[1::2,1] < 0)
+    for i, f in enumerate(fix_skew):
+        if f:
+            dpss[2*i+1] *= -1
+
+    # Now find the eigenvalues of the original 
+    # Use the autocovariance sequence technique from Percival and Walden, 1993
+    # pg 390
+    # XXX: return to this implementation of autocovariance
+    acvs = fftconvolve(dpss, dpss[:,::-1], axis=1)[:,:N][:,::-1]
+    r = 4*W*np.sinc(2*W*nidx)
+    r[0] = 2*W
+    eigvals = np.dot(acvs, r)
+    
+    return dpss, eigvals
+
+def multi_taper_psd(s, width=None, adaptive=True, estimate_variance=True,
+                    sides='onesided'):
     """Returns an estimate of the PSD function of s using the multitaper
-    method. If BW and Fs are not specified by the user, a bandwidth of 4
-    times the fundamental frequency, corresponding to K = 8.
+    method. If the NW product, or the BW and Fs in Hz are not specified
+    by the user, a bandwidth of 4 times the fundamental frequency,
+    corresponding to NW = 8 will be used.
 
     Parameters
     ----------
     s : ndarray
-        An array of sampled random processes, where the time axis is
-        assumed to be on the last axis
-    BW : float (optional)
-        The bandwidth of the windowing function will determine the number
-        tapers to use. Normal values are in the range [3/2,5] * 2f0, where
-        f0 is the fundamental frequency of an N-length sequence.
-        This parameters represents trade-off between frequency resolution (BW)
-        and variance reduction (number of tapers).
-    Fs : float (optional)
-        The sampling frequency
-    sides : str (optional)
-        Indicates whether to return a one-sided or two-sided PSD
+       An array of sampled random processes, where the time axis is
+       assumed to be on the last axis
+    width : tuple or int, optional    
+       The bandwidth of the windowing function will determine the number
+       tapers to use. This parameters represents trade-off between frequency
+       resolution (lower main lobe BW for the taper) and variance reduction
+       (higher BW and number of averaged estimates).
+       This parameter can be given in two ways:
 
+       * the NW product, which is typically an integer between 3, 10 (??);
+         sampling frequency is taken to be unity in this case.
+       * the (Fs, BW) pair specifying sampling frequency and taper
+         bandwidth. This converts to a NW number rounded from BW / (2*f0),
+         where f0 is the fundamental frequency of an N-length sequence.
+         
+    sides : str (optional)
+       Indicates whether to return a one-sided or two-sided PSD
+    estimate_variance : {True/False}
+       Return an estimate of the PSD variance at each point, based on
+       the windowed samples.
     Returns
     -------
     (freqs, psd_est) : ndarrays
@@ -1959,35 +1964,74 @@ def multi_taper_psd(s, BW=None, Fs=2*np.pi, sides='onesided'):
     """
     # have last axis be time series for now
     N = s.shape[-1]
+    rest_of = s.shape[:-1]
 
-    # choose bw 2W to be a small multiple of the fundamental freq f0=Fs/N
-    if not BW:
-        W = 4 * Fs / N # 2W = 4 * 2f0
-        Kmax = 8
+    s = s.reshape( int(np.product(rest_of)), N )
+    # de-mean this sucker
+    s = (s - s.mean(axis=-1)[None,:])
+    
+    if isinstance(width, (list, tuple)):
+        Fs, BW = width
+        NW = BW/(2*Fs) * N
+        Kmax = int(2*NW)
+##         NW = int(BW * N / (2*Fs) + .5 )
+    elif isinstance(width, (int, float)):
+        Fs, NW = 1.0, width
+        Kmax = int(2*NW)
     else:
-        Kmax, true_BW = nDPSS(Fs, N, BW)
-        W = true_BW/2.
-
-    v = DPSS_windows(N, W, Kmax)
+        NW = 4
+        Kmax = 8
+        
+    print 'using', Kmax, 'tapers with BW=', 2*NW * Fs/N
+    w, v = DPSS_windows(N, NW, Kmax)
 
     sig_sl = [slice(None)]*len(s.shape)
     sig_sl.insert(-1, np.newaxis)
 
-    # tapers.shape is (..., Kmax-1, N)
-    tapers = s[sig_sl] * v
+    # tapered.shape is (..., Kmax-1, N)
+    tapered = s[sig_sl] * w
+    # Find the direct spectral estimators S_k(f) for k tapered signals..
     # don't normalize the periodograms by 1/N as normal.. since the taper
     # windows are orthonormal, they effectively scale the signal by 1/N
-    f,tapers_sdf = periodogram(tapers, sides=sides, normalize=False)
+    f,tapered_sdf = periodogram(tapered, sides=sides, normalize=False)
+
+    if adaptive:
+        weights = np.empty_like(tapered_sdf)
+        nu = np.empty( (s.shape[0], tapered_sdf.shape[-1]) )
+        for i in xrange(s.shape[0]):
+            weights[i], nu[i] = utils.adaptive_weights(
+                tapered_sdf[i], w, v, N
+                )
+        sdf_est = (tapered_sdf * weights**2).sum(axis=-2)
+        sdf_est /= (weights**2).sum(axis=-2)
+    else:
+        # Now the unbiased spectral estimator for S(f) is the sum of
+        # the S_k(f), weighted by the eigenvalues v, all divided by the
+        # sum of the eigenvalues
+        sdf_est = (tapered_sdf*v[:,None]).sum(axis=-2)
+        sdf_est /= v.sum()
+        nu = np.ones_like(sdf_est)
+        nu.fill(2*NW)
 
     if sides=='onesided':
         freqs = np.linspace(0, Fs/2, N/2+1)
     else:
         freqs = np.linspace(0, Fs, N, endpoint=False)
-        
-    psd_est = tapers_sdf.mean(axis=-2)
-    return freqs, psd_est
 
-def multi_taper_csd(s, BW=None, Fs=2*np.pi, sides='onesided'):
+##     if estimate_variance:
+##         if adaptive:
+##             weights = b_k * np.sqrt(v[:,None])
+##         else:
+##             weights = np.sqrt(v)
+##         var = utils.jackknife_sdfs(tapered_sdf, weights)
+
+    out_shape = rest_of + ( len(freqs), )
+    sdf_est.shape = out_shape
+    nu.shape = out_shape
+        
+    return freqs, sdf_est, nu
+
+def multi_taper_csd(s, BW=None, Fs=1.0, sides='onesided'):
     """Returns an estimate of the PSD function of s using the multitaper
     method. If BW and Fs are not specified by the user, a bandwidth of 4
     times the fundamental frequency, corresponding to K = 8.
@@ -2021,23 +2065,24 @@ def multi_taper_csd(s, BW=None, Fs=2*np.pi, sides='onesided'):
     M, N = np.prod(s_shape[:-1]), s_shape[-1]
     s.shape = (M, N)
     
-    # choose bw W to be a small multiple of the fundamental freq f0=Fs/N
+    # choose bw 2W to be a small multiple of the fundamental freq f0=Fs/N
     if not BW:
-        W = 4 * Fs/N # 2W = 4 * 2f0
-        Kmax = 8
+        # force NW = 8
+        NW = int(float(N)/8 + 0.5)
     else:
-        Kmax, true_BW = nDPSS(Fs, N, BW)
-        W = true_BW/2.
+        NW = int(BW * N / (2*Fs) + .5)
+        
+    print 'using', NW, 'tapers with BW=', 2*NW * Fs/N
+    w, v = DPSS_windows(N, NW, NW)
 
-    v = DPSS_windows(N, W, Kmax)
 
     sig_sl = [slice(None)]*len(s.shape)
     sig_sl.insert(len(s.shape)-1, np.newaxis)
     
-    # tapers.shape is (M, Kmax-1, N)
-    tapers = s[sig_sl] * v
+    # tapered.shape is (M, Kmax-1, N)
+    tapered = s[sig_sl] * w
 
-    Sk = np.fft.fft(tapers)
+    Sk = np.fft.fft(tapered)
     if sides=='onesided':
         Fl = (N+1)/2
         Fn = N/2 + 1
@@ -2045,18 +2090,20 @@ def multi_taper_csd(s, BW=None, Fs=2*np.pi, sides='onesided'):
         freqs = np.linspace(0, np.pi, Fn)
         for i in xrange(M):
             for j in xrange(i+1):
-                csd = np.zeros((Kmax-1,Fn), 'D')
+                csd = np.zeros((NW,Fn), 'D')
                 csd[:,0] = (Sk[i,:,0]*Sk[j,:,0].conj())
                 csd[:,1:Fl] = 2 * (Sk[i,:,1:Fl]*Sk[j,:,1:Fl].conj())
                 if Fn > Fl:
                     csd[:,Fn-1] = Sk[i,:,Fn-1]*Sk[j,:,Fn-1].conj()
-                csd_mat[i,j] = csd.mean(axis=0)
+                csd_mat[i,j] = (csd*v[:,None]).sum(axis=-2)
+                csd_mat[i,j] /= v.sum()
     else:
         csd_mat = np.empty((M,M,N), 'D')
         freqs = np.linspace(0, 2*np.pi, N, endpoint=False)
         for i in xrange(M):
             for j in xrange(i+1):
-                csd_mat[i,j] = (Sk[i]*Sk[j].conj()).mean(axis=0)
+                csd_mat[i,j] = (Sk[i]*Sk[j].conj()*v[:,None]).sum(axis=-2)
+                csd_mat[i,j] /= v.sum()
 
     upper_idc = ut.triu_indices(M,k=1)
     lower_idc = ut.tril_indices(M,k=-1)

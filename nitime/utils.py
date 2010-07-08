@@ -95,12 +95,31 @@ def hanning_window_spectrum(N, Fs):
 
 def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     """
-    # this generates a signal u(n) = a1*u(n-1) + a2*u(n-2) + ... + v(n)
-    # where v(n) is a stationary stochastic process with zero mean
-    # and variance = sigma
-    # this sequence is shown to be estimated well by an order 8 AR system
+    This generates a signal u(n) = a1*u(n-1) + a2*u(n-2) + ... + v(n)
+    where v(n) is a stationary stochastic process with zero mean
+    and variance = sigma.
+
+    Returns
+    -------
+
+    u : ndarray, the AR sequence
+    v : ndarray, the additive noise sequence
+    coefs : ndarray, feedback coefficients from k=1,len(coefs)
+
+    The form of the feedback coefficients is a little different than
+    the normal linear constant-coefficient difference equation. For
+    example ...
+
+    Examples
+    --------
+    
+    >>> ar_seq, nz, alpha = utils.ar_generator()
+    >>> fgrid, hz = alg.my_freqz(1.0, a=np.r_[1, -alpha])
+    >>> sdf_ar = (hz*hz.conj()).real
+
     """
     if coefs is None:
+        # this sequence is shown to be estimated well by an order 8 AR system
         coefs = np.array([2.7607, -3.8106, 2.6535, -0.9238])
     else:
         coefs = np.asarray(coefs)
@@ -156,6 +175,73 @@ def circularize(x,bottom=0,top=2*np.pi,deg=False):
 
     return np.squeeze(circularize(x,bottom=bottom,top=top))
 
+#-----------------------------------------------------------------------------
+# Stats utils
+#-----------------------------------------------------------------------------
+
+def jackknifed_sdf_variance(sdfs, weights=None):
+    """
+    Returns the log-variance estimated through jack-knifing a group
+    of independent sdf estimates. Use this variance to scale the Student's
+    t distribution with degrees of freedom len(sdfs)-1
+    """
+    order = sdfs.shape[-2]
+    npts = sdfs.shape[-1]
+    e_sdf = np.empty(sdfs.shape[:-2] + (order, npts))
+    for i in xrange(order):
+        items = list(set(range(order)).difference([i]))
+        sdfs_i = np.take(sdfs, items, axis=-2)
+        if weights is None:
+            weights = 1.0
+        else:
+            weights_i = np.take(weights, items, axis=-2)
+        # this is the leave-one-out estimate of the sdf
+        e_sdf[i] = ( weights_i**2 * sdfs_i ).sum(axis=-2)
+        e_sdf[i] /= (weights_i**2).sum(axis=-2)
+
+    # this is the average of the leave-one-outs
+    e_sdf_all = e_sdf.mean(axis=-2)
+    # log of all the leave-one-outs minus the average
+    jn_var = (np.log(e_sdf) - np.log(e_sdf_all[...,None,:]))**2
+    order = float(order)
+    f = (order-1)**2 / order / (order - 0.5)
+    jn_var = jn_var.sum(axis=-2) * f
+    return jn_var
+
+#-----------------------------------------------------------------------------
+# Multitaper utils
+#-----------------------------------------------------------------------------
+def adaptive_weights(sdfs, tapers, eigvals, N):
+    if len(tapers) < 2:
+        print """
+        Warning--not adaptively combining the spectral estimators
+        due to a low number of tapers.
+        """
+        return np.sqrt(eigvals), len(tapers)
+    v = eigvals
+    rt_v = np.sqrt(eigvals)
+    # XXX: this should really be an iterative search
+    # for the sets of b_k(f) at each f -- should Cythonize this
+    sdf_iter = (sdfs[:2,:] * v[:2,None]).sum(axis=-2)
+    sdf_iter /= v[:2].sum()
+    weights = np.empty_like(sdfs)
+    nu = np.empty_like(sdf_iter)
+    err = np.zeros( (len(v), len(sdf_iter)) )
+    while True:
+        sigma_est = np.trapz(sdf_iter, dx=1.0/N)
+        b_k = sdf_iter[None,:] / (v[:,None]*sdf_iter[None,:] + \
+                                  (1-v[:,None])*sigma_est)
+        err -= b_k
+        sdf_iter = (b_k**2*v[:,None]*sdfs).sum(axis=0)
+        sdf_iter /= (b_k**2*v[:,None]).sum(axis=0)
+        if (( (err**2).mean(axis=1) )**.5).max() < 1e-10:
+            break
+        err = b_k
+    sdf_est = sdf_iter
+    weights = b_k * rt_v[:,None]
+    nu = 2 * (weights**2).sum(axis=-2)**2
+    nu /= (weights**4).sum(axis=-2)
+    return weights, nu
 
 #-----------------------------------------------------------------------------
 # Correlation utils
