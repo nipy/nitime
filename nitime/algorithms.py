@@ -1708,10 +1708,11 @@ def get_spectra_bi(x,y,method = None):
 
 
 # The following spectrum estimates are normalized to the following convention..
-# By definition, Sxx(f) = DTFT{sxx(n)}, where sxx(n) is the autocorrelation
+# By definition, Sxx(f) = DTFT{sxx(n)}, where sxx(n) is the autocovariance
 # function of s(n). Therefore the integral from
 # [-PI, PI] of Sxx/(2PI) is sxx(0)
-# And from the definition of sxx(n), sxx(0) = Expected-Value{s(n)s*(n)},
+# And from the definition of sxx(n),
+# sxx(0) = Expected-Value{s(n)s*(n)} = Expected-Value{ Var(s) },
 # which is estimated simply as (s*s.conj()).mean()
 
 def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
@@ -1740,7 +1741,7 @@ def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
     Notes
     -----
     setting dw = 2*PI/N, then the integral from -PI, PI (or 0,PI) of PSD/(2PI)
-    will be nearly equal to sxx(0), where sxx is the autocorrelation function
+    will be nearly equal to sxx(0), where sxx is the autocovariance function
     of s(n). By definition, sxx(0) = E{s(n)s*(n)} ~ (s*s.conj()).mean()
     """
     if Sk is not None:
@@ -1804,7 +1805,7 @@ def periodogram_csd(s, Sk=None, N=None, sides='onesided', normalize=True):
     Notes
     -----
     setting dw = 2*PI/N, then the integral from -PI, PI (or 0,PI) of PSD/(2PI)
-    will be nearly equal to sxy(0), where sxx is the crosscorrelation function
+    will be nearly equal to sxy(0), where sxx is the crosscovariance function
     of s1(n), s2(n). By definition, sxy(0) = E{s1(n)s2*(n)} ~ (s1*s2.conj()).mean()
     """
     s_shape = s.shape
@@ -1918,8 +1919,7 @@ def DPSS_windows(N, NW, Kmax):
     # Now find the eigenvalues of the original 
     # Use the autocovariance sequence technique from Percival and Walden, 1993
     # pg 390
-    # XXX: return to this implementation of autocovariance
-    acvs = fftconvolve(dpss, dpss[:,::-1], axis=1)[:,:N][:,::-1]
+    acvs = utils.autocov(dpss) * N
     r = 4*W*np.sinc(2*W*nidx)
     r[0] = 2*W
     eigvals = np.dot(acvs, r)
@@ -2000,7 +2000,7 @@ def multi_taper_psd(s, width=None, adaptive=True, estimate_variance=True,
         nu = np.empty( (s.shape[0], tapered_sdf.shape[-1]) )
         for i in xrange(s.shape[0]):
             weights[i], nu[i] = utils.adaptive_weights(
-                tapered_sdf[i], w, v, N
+                tapered_sdf[i], v, N
                 )
         sdf_est = (tapered_sdf * weights**2).sum(axis=-2)
         sdf_est /= (weights**2).sum(axis=-2)
@@ -2112,6 +2112,30 @@ def multi_taper_csd(s, BW=None, Fs=1.0, sides='onesided'):
     return freqs, csd_mat 
 
 def my_freqz(b, a=1., Nfreqs=1024, sides='onesided'):
+    """
+    Returns the frequency response of the IIR or FIR filter described
+    by beta and alpha coefficients. 
+
+    Parameters
+    ----------
+
+    b : beta sequence (moving average component)
+    a : alpha sequence (autoregressive component)
+    Nfreqs : size of frequency grid
+    sides : {'onesided', 'twosided'}
+       compute frequencies between [-PI,PI), or from [0, PI]
+
+    Returns
+    -------
+
+    fgrid, H(e^jw)
+
+    Notes
+    -----
+    For a description of the linear constant-coefficient difference
+    equation, see http://en.wikipedia.org/wiki/Z-transform#Linear_constant-coefficient_difference_equation
+
+    """
     if sides=='onesided':
         fgrid = np.linspace(0,np.pi,Nfreqs/2+1)
     else:
@@ -2159,7 +2183,7 @@ def yule_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
         If sides=='onesided', Nfreqs/2+1 frequencies are computed from [0,PI]
 
     sxx : ndarray (optional)
-        An optional, possibly unbiased estimate of the autocorrelation of s
+        An optional, possibly unbiased estimate of the autocovariance of s
 
     sides : str (optional)
         Indicates whether to return a one-sided or two-sided PSD
@@ -2177,7 +2201,7 @@ def yule_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
     if sxx is not None and type(sxx) == np.ndarray:
         sxx_m = sxx[:order+1]
     else:
-        sxx_m = ut.autocorr(s)[:order+1]
+        sxx_m = ut.autocov(s)[:order+1]
 
     R = linalg.toeplitz(sxx_m[:order].conj())
     y = sxx_m[1:].conj()
@@ -2223,7 +2247,7 @@ def LD_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
         If sides=='onesided', Nfreqs/2+1 frequencies are computed from [0,PI]
 
     sxx : ndarray (optional)
-        An optional, possibly unbiased estimate of the autocorrelation of s
+        An optional, possibly unbiased estimate of the autocovariance of s
 
     sides : str (optional)
         Indicates whether to return a one-sided or two-sided PSD
@@ -2241,7 +2265,7 @@ def LD_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
     if sxx is not None and type(sxx) == np.ndarray:
         sxx_m = sxx[:order+1]
     else:
-        sxx_m = ut.autocorr(s)[:order+1]
+        sxx_m = ut.autocov(s)[:order+1]
     
     phi = np.zeros((order+1, order+1), 'd')
     sig = np.zeros(order+1)
@@ -2636,39 +2660,6 @@ def gauss_white_noise(npts):
 
     # XXX No validation that output is gaussian enough yet
     return n
-
-def autocov(x):
-    """ Calculate the auto-covariance of a signal.
-
-    This assumes that the signal is wide-sense stationary
-
-    Parameters
-    ----------
-
-    x: 1-d float array
-
-    The signal
-
-    Returns
-    -------
-
-    nXn array (where n is x.shape[0]) with the autocovariance matrix of the
-    signal x
-
-    Notes
-    -----
-
-    See: http://en.wikipedia.org/wiki/Autocovariance
-    
-    """
-
-    n = x.shape[0]
-    autocov = np.empty((n,n))
-
-    for i in range(n):
-        autocov[i] = np.correlate(x,np.roll(x,-i),'same') - x.mean()**2
-
-    return autocov
         
 #TODO:
 # * Write tests for various morlet wavelets

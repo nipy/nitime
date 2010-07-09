@@ -424,7 +424,9 @@ class CorrelationAnalyzer(BaseAnalyzer):
          
         for i in xrange(tseries_length): 
             for j in xrange(i,tseries_length):
-                xcorr[i][j] = tsu.xcorr(self.input.data[i],self.input.data[j])
+                xcorr[i][j] = tsu.crosscov(
+                    self.input.data[i],self.input.data[j],all_lags=True
+                    )
 
         idx = tsu.tril_indices(tseries_length,-1)
         xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
@@ -453,7 +455,9 @@ class CorrelationAnalyzer(BaseAnalyzer):
          
         for i in xrange(tseries_length): 
             for j in xrange(i,tseries_length):
-                xcorr[i,j] = tsu.xcorr(self.input.data[i],self.input.data[j])
+                xcorr[i,j] = tsu.crosscov(
+                    self.input.data[i],self.input.data[j],all_lags=True
+                    )
                 xcorr[i,j] /= (xcorr[i,j,t_points])
                 xcorr[i,j] *= self.output[i,j]
 
