@@ -1714,7 +1714,7 @@ def get_spectra_bi(x,y,method = None):
 # And from the definition of sxx(n), sxx(0) = Expected-Value{s(n)s*(n)},
 # which is estimated simply as (s*s.conj()).mean()
 
-def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
+def periodogram(s, Sk=None, N=None, sides='default', normalize=True):
     """Takes an N-point periodogram estimate of the PSD function. The
     number of points N, or a precomputed FFT Sk may be provided. By default,
     the PSD function returned is normalized so that the integral of the PSD
@@ -1724,14 +1724,20 @@ def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
     ----------
     s : ndarray
         Signal(s) for which to estimate the PSD, time dimension in the last axis
+
     Sk : ndarray (optional)
         Precomputed FFT of s
+
     N : int (optional)
         Indicates an N-point FFT where N != s.shape[-1]
-    sides : str (optional)        
-        Indicates whether to return a one-sided or two-sided PSD
-    normalize : boolean (optional)
-        Normalizes the PSD
+        
+    sides : str (optional) [ 'default' | 'onesided' | 'twosided' ]
+         This determines which sides of the spectrum to return. 
+         For complex-valued inputs, the default is two-sided, for real-valued
+         inputs, default is one-sided Indicates whether to return a one-sided
+         or two-sided
+         
+    PSD normalize : boolean (optional, default=True) Normalizes the PSD
 
     Returns
     -------
@@ -1750,8 +1756,13 @@ def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
         Sk = np.fft.fft(s, n=N)
     pshape = list(Sk.shape)
     norm = float(s.shape[-1])
-    # if the time series is a complex vector, a one sided PSD is invalid..
-    # should we check for that?
+    
+    # if the time series is a complex vector, a one sided PSD is invalid:
+    if (sides == 'default' and np.iscomplexobj(x)) or sides == 'twosided':
+        sides='twosided'
+    elif sides in ('default', 'onesided'):
+        sides='onesided'
+
     if sides=='onesided':
         # putative Nyquist freq
         Fn = N/2 + 1
@@ -1866,8 +1877,9 @@ def DPSS_windows(N, NW, Kmax):
 
     Returns
     -------
-    v : ndarray
-        an array of DPSS windows shaped (Kmax, N)
+    v,e : tuple,
+        v is an array of DPSS windows shaped (Kmax, N)
+        e are the eigenvalues 
 
     Notes
     -----
