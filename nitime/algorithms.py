@@ -1854,14 +1854,15 @@ def periodogram_csd(s, Sk=None, N=None, sides='onesided', normalize=True):
 
 def DPSS_windows(N, NW, Kmax):
     """Returns the Discrete Prolate Spheroidal Sequences of orders [0,Kmax-1]
-    for a given frequency-spacing multiple W and sequence length N. 
+    for a given frequency-spacing multiple NW and sequence length N. 
 
     Paramters
     ---------
     N : int
         sequence length
-    W : float (unit of Hz)
-        half bandwidth corresponding to 2W = Kmax*f0 = (Kmax/T)
+    NW : float, unitless
+        standardized half bandwidth corresponding to 2NW = BW*f0 = BW*N/dt
+        but with dt taken as 1
     Kmax : int
         number of DPSS windows to return is Kmax (orders 0 through Kmax-1)
 
