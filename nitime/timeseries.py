@@ -696,8 +696,8 @@ class TimeSeriesBase(object):
             return self.data[:,key] #time is the last dimension
 
     def __repr__(self):
-        rep = self.__class__.__name__ + " (time, data):" 
-        return rep + zip(self.time, self.data.T).__repr__()
+        rep = self.__class__.__name__ + ":" 
+        return rep + self.time.__repr__() + self.data.T.__repr__()
 
         
 class TimeSeries(TimeSeriesBase):
