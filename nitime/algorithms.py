@@ -1715,7 +1715,7 @@ def get_spectra_bi(x,y,method = None):
 # sxx(0) = Expected-Value{s(n)s*(n)} = Expected-Value{ Var(s) },
 # which is estimated simply as (s*s.conj()).mean()
 
-def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
+def periodogram(s, Sk=None, N=None, sides='default', normalize=True):
     """Takes an N-point periodogram estimate of the PSD function. The
     number of points N, or a precomputed FFT Sk may be provided. By default,
     the PSD function returned is normalized so that the integral of the PSD
@@ -1725,14 +1725,20 @@ def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
     ----------
     s : ndarray
         Signal(s) for which to estimate the PSD, time dimension in the last axis
+
     Sk : ndarray (optional)
         Precomputed FFT of s
+
     N : int (optional)
         Indicates an N-point FFT where N != s.shape[-1]
-    sides : str (optional)        
-        Indicates whether to return a one-sided or two-sided PSD
-    normalize : boolean (optional)
-        Normalizes the PSD
+        
+    sides : str (optional) [ 'default' | 'onesided' | 'twosided' ]
+         This determines which sides of the spectrum to return. 
+         For complex-valued inputs, the default is two-sided, for real-valued
+         inputs, default is one-sided Indicates whether to return a one-sided
+         or two-sided
+         
+    PSD normalize : boolean (optional, default=True) Normalizes the PSD
 
     Returns
     -------
@@ -1751,8 +1757,13 @@ def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
         Sk = np.fft.fft(s, n=N)
     pshape = list(Sk.shape)
     norm = float(s.shape[-1])
-    # if the time series is a complex vector, a one sided PSD is invalid..
-    # should we check for that?
+    
+    # if the time series is a complex vector, a one sided PSD is invalid:
+    if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
+        sides='twosided'
+    elif sides in ('default', 'onesided'):
+        sides='onesided'
+
     if sides=='onesided':
         # putative Nyquist freq
         Fn = N/2 + 1
@@ -1772,7 +1783,7 @@ def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
         P /= norm
     return freqs, P
 
-def periodogram_csd(s, Sk=None, N=None, sides='onesided', normalize=True):
+def periodogram_csd(s, Sk=None, N=None, sides='default', normalize=True):
     """Takes an N-point periodogram estimate of all the cross spectral
     density functions between rows of s.
 
@@ -1783,14 +1794,22 @@ def periodogram_csd(s, Sk=None, N=None, sides='onesided', normalize=True):
 
     Paramters
     ---------
+
     s : ndarray
         Signals for which to estimate the CSD, time dimension in the last axis
+
     Sk : ndarray (optional)
         Precomputed FFT of rows of s
+
     N : int (optional)
         Indicates an N-point FFT where N != s.shape[-1]
-    sides : str (optional)        
-        Indicates whether to return a one-sided or two-sided CSD
+
+    sides : str (optional)   [ 'default' | 'onesided' | 'twosided' ]
+         This determines which sides of the spectrum to return. 
+         For complex-valued inputs, the default is two-sided, for real-valued
+         inputs, default is one-sided Indicates whether to return a one-sided
+         or two-sided
+         
     normalize : boolean (optional)
         Normalizes the PSD
 
@@ -1824,6 +1843,14 @@ def periodogram_csd(s, Sk=None, N=None, sides='onesided', normalize=True):
 
     M = Sk_loc.shape[0]
     norm = float(s.shape[-1])
+
+    # if the time series is a complex vector, a one sided PSD is invalid:
+    if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
+        sides='twosided'
+    elif sides in ('default', 'onesided'):
+        sides='onesided'
+
+
     if sides=='onesided':
         # putative Nyquist freq
         Fn = N/2 + 1
@@ -1868,8 +1895,9 @@ def DPSS_windows(N, NW, Kmax):
 
     Returns
     -------
-    v : ndarray
-        an array of DPSS windows shaped (Kmax, N)
+    v,e : tuple,
+        v is an array of DPSS windows shaped (Kmax, N)
+        e are the eigenvalues 
 
     Notes
     -----
@@ -1928,7 +1956,7 @@ def DPSS_windows(N, NW, Kmax):
     return dpss, eigvals
 
 def multi_taper_psd(s, width=None, adaptive=True, estimate_variance=True,
-                    sides='onesided'):
+                    sides='default'):
     """Returns an estimate of the PSD function of s using the multitaper
     method. If the NW product, or the BW and Fs in Hz are not specified
     by the user, a bandwidth of 4 times the fundamental frequency,
@@ -1952,11 +1980,16 @@ def multi_taper_psd(s, width=None, adaptive=True, estimate_variance=True,
          bandwidth. This converts to a NW number rounded from BW / (2*f0),
          where f0 is the fundamental frequency of an N-length sequence.
          
-    sides : str (optional)
-       Indicates whether to return a one-sided or two-sided PSD
+    sides : str (optional)   [ 'default' | 'onesided' | 'twosided' ]
+         This determines which sides of the spectrum to return. 
+         For complex-valued inputs, the default is two-sided, for real-valued
+         inputs, default is one-sided Indicates whether to return a one-sided
+         or two-sided
+
     estimate_variance : {True/False}
        Return an estimate of the PSD variance at each point, based on
        the windowed samples.
+
     Returns
     -------
     (freqs, psd_est) : ndarrays
@@ -2014,6 +2047,12 @@ def multi_taper_psd(s, width=None, adaptive=True, estimate_variance=True,
         nu = np.ones_like(sdf_est)
         nu.fill(2*NW)
 
+    # if the time series is a complex vector, a one sided PSD is invalid:
+    if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
+        sides='twosided'
+    elif sides in ('default', 'onesided'):
+        sides='onesided'
+    
     if sides=='onesided':
         freqs = np.linspace(0, Fs/2, N/2+1)
     else:
@@ -2052,8 +2091,12 @@ def multi_taper_csd(s, BW=None, Fs=1.0, sides='onesided'):
         (narrow BW) and variance reduction (number of tapers).
     Fs : float (optional)
         The sampling frequency
-    sides : str (optional)
-        Indicates whether to return a one-sided or two-sided PSD
+
+    sides : str (optional)   [ 'default' | 'onesided' | 'twosided' ]
+         This determines which sides of the spectrum to return. 
+         For complex-valued inputs, the default is two-sided, for real-valued
+         inputs, default is one-sided Indicates whether to return a one-sided
+         or two-sided
 
     Returns
     -------
@@ -2082,6 +2125,12 @@ def multi_taper_csd(s, BW=None, Fs=1.0, sides='onesided'):
     
     # tapered.shape is (M, Kmax-1, N)
     tapered = s[sig_sl] * w
+
+    # if the time series is a complex vector, a one sided PSD is invalid:
+    if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
+        sides='twosided'
+    elif sides in ('default', 'onesided'):
+        sides='onesided'
 
     Sk = np.fft.fft(tapered)
     if sides=='onesided':
