@@ -35,9 +35,9 @@ For instance, using discrete prolate spheroidal sequences (DPSS) windows, the :m
 
 A natural choice for a *leave-one-out* measurement is (leaving out the dependence on argument *f*)
 
-:math:`\hat{S}_{-i}^{mt} = \dfrac{\sum_{k \neq i} w_k^2S^{mt}_k}{\lVert \vec{w}_{-i} \rVert^2}`
+:math:`\ln\hat{S}_{-i}^{mt} = \ln\dfrac{\sum_{k \neq i} w_k^2S^{mt}_k}{\lVert \vec{w}_{-i} \rVert^2} = \ln\sum_{k \neq i} w_k^2S^{mt}_k - \ln\lVert \vec{w}_{-i} \rVert^2`
 
-where :math:`\vec{w}_{-i}` is the vector of weights with the *ith* element set to zero.
+where :math:`\vec{w}_{-i}` is the vector of weights with the *ith* element set to zero. The natural log has been taken so that the estimate is distributed below and above :math:`S(f)` more evenly.
 
 Multitaper Pseudovalues
 -----------------------
@@ -49,11 +49,11 @@ One Option
 
 The simple option is to weight the different *leave-one-out* measurements equally, which leads to
 
-:math:`\hat{S}_{i}^{mt} = n\hat{S}^{mt} - (n-1)\hat{S}_{-i}^{mt}`
+:math:`\ln\hat{S}_{i}^{mt} = n\ln\hat{S}^{mt} - (n-1)\ln\hat{S}_{-i}^{mt}`
 
 And of course the estimate of :math:`S(f)` is given by
 
-:math:`\tilde{S}^{mt} (f) = \dfrac{1}{n}\sum_i \hat{S}_i^{mt}(f)`
+:math:`\ln\tilde{S}^{mt} (f) = \dfrac{1}{n}\sum_i \ln\hat{S}_i^{mt}(f)`
 
 Another Option
 ``````````````
@@ -66,14 +66,14 @@ Another approach seems obvious which weights the *leave-one-out* measurements ac
 
 Then the pseudovalues are
 
-:math:`\hat{S}_i^{mt} = g\hat{S}^{mt} - g_i\hat{S}_{-i}^{mt}`
+:math:`\ln\hat{S}_i^{mt} = \left(\ln\hat{S}^{mt} + \ln g\right) - \left(\ln\hat{S}_{-i}^{mt} + \ln g_i\right)`
 
 and the jackknifed estimator is
 
-:math:`\tilde{S}^{mt} = \dfrac{1}{g}\sum_i \hat{S}_i = g\hat{S}^{mt} - \sum_i \hat{S}_{-i}^{mt}`
+:math:`\ln\tilde{S}^{mt} = \sum_i \ln\hat{S}_i^{mt} - \ln g`
 
 and I would wager, the standard error is estimated as
 
-:math:`s^2 = \dfrac{1}{n}\sum_i \left(\hat{S}_i^{mt} - \tilde{S}^{mt}\right)^2`
+:math:`s^2 = \dfrac{1}{n}\sum_i \left(\ln\hat{S}_i^{mt} - \ln\tilde{S}^{mt}\right)^2`
 
 

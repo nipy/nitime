@@ -14,6 +14,7 @@ Contents:
 
    users/index
    examples/index
+   discussion/index
    devel/index
    api/index
    
