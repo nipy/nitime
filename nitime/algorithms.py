@@ -43,38 +43,8 @@ def coherency(time_series,csd_method= None):
     time_series: n*t float array
        an array of n different time series of length t each
 
-    csd_method: dict, optional
-
-    contains:
-    this_method:'mlab' indicates that mlab's
-    psd will be used in order to calculate the psd/csd, in which case,
-    additional optional inputs (and default values) are:
-    
-    NFFT=256
-    Fs=2pi
-    detrend=mlab.detrend_none
-    window=mlab.window_hanning
-    n_overlap=0
-    
-    this_method:'periodogram_csd' indicates that
-    timeseries.algorithms.periodogram will be used in order to calculate the
-    psd/csd, in which case, additional optional inputs (and default values)
-    are:
-
-    Skx=None
-    Sky=None
-    N=None
-    sides='onesided'
-    normalize=True
-    Fs=2pi
-    
-    this_method:'multi_taper_csd' indicates that
-    timeseries.algorithms.multi_taper_psd used in order to calculate psd/csd,
-    in which case additional optional inputs (and default values) are:
-
-    BW=0.01
-    Fs=2pi
-    sides = 'onesided'
+    csd_method: dict, optional.
+       See :func:`get_spectra` documentation for details
 
     Returns
     -------
@@ -149,7 +119,7 @@ def coherency_calculate(fxy, fxx, fyy):
 
     See also
     --------
-    :func: `coherency`
+    :func:`coherency`
     """
 
     return fxy / np.sqrt(fxx*fyy)
@@ -164,42 +134,12 @@ def coherence(time_series,csd_method=None):
     time_series: n*t float array
        an array of n different time series of length t each
 
-   time_series: n*t float array
+    time_series: n*t float array
        an array of n different time series of length t each
 
-    csd_method: dict, optional
-    contains:
-    this_method:'mlab' indicates that mlab's
-    psd will be used in order to calculate the psd/csd, in which case,
-    additional optional inputs (and default values) are:
-    
-    NFFT=256
-    Fs=2pi
-    detrend=mlab.detrend_none
-    window=mlab.window_hanning
-    n_overlap=0
-    
-    this_method:'periodogram_csd' indicates that
-    timeseries.algorithms.periodogram will be used in order to calculate the
-    psd/csd, in which case, additional optional inputs (and default values)
-    are:
+    csd_method: dict, optional.
+       See :func:`get_spectra` documentation for details
 
-    Skx=None
-    Sky=None
-    N=None
-    sides='onesided'
-    normalize=True
-    Fs=2pi
-    
-    this_method:'multi_taper_csd' indicates that
-    timeseries.algorithms.multi_taper_psd used in order to calculate psd/csd,
-    in which case additional optional inputs (and default values) are:
-
-    BW=0.01
-    Fs=2pi
-    sides = 'onesided'
-
-    
     Returns
     -------
     f: float array
@@ -312,41 +252,8 @@ def coherency_regularized(time_series,epsilon,alpha,csd_method=None):
     alpha: float
     large regularization parameter
 
-    csd_method: dict, optional
-    time_series: n*t float array
-       an array of n different time series of length t each
-
-    csd_method: dict, optional
-    contains:
-    this_method:'mlab' indicates that mlab's
-    psd will be used in order to calculate the psd/csd, in which case,
-    additional optional inputs (and default values) are:
-    
-    NFFT=256
-    Fs=2pi
-    detrend=mlab.detrend_none
-    window=mlab.window_hanning
-    n_overlap=0
-    
-    this_method:'periodogram_csd' indicates that
-    timeseries.algorithms.periodogram will be used in order to calculate the
-    psd/csd, in which case, additional optional inputs (and default values)
-    are:
-
-    Skx=None
-    Sky=None
-    N=None
-    sides='onesided'
-    normalize=True
-    Fs=2pi
-    
-    this_method:'multi_taper_csd' indicates that
-    timeseries.algorithms.multi_taper_psd used in order to calculate psd/csd,
-    in which case additional optional inputs (and default values) are:
-
-    BW=0.01
-    Fs=2pi
-    sides = 'onesided'
+    csd_method: dict, optional.
+       See :func:`get_spectra` documentation for details
 
     Returns
     -------
@@ -443,59 +350,27 @@ def coherence_regularized(time_series,epsilon,alpha,csd_method=None):
     ----------
     
     time_series: n-d float array
-    The time series data for which the regularized coherence is calculated 
+       The time series data for which the regularized coherence is calculated 
 
     epsilon: float
-    small regularization parameter
+       small regularization parameter
 
     alpha: float
-    large regularization parameter
+       large regularization parameter
 
-    csd_method: dict, optional
-    time_series: n*t float array
-       an array of n different time series of length t each
 
-    csd_method: dict, optional
-
-    contains:
-    this_method:'mlab' indicates that mlab's
-    psd will be used in order to calculate the psd/csd, in which case,
-    additional optional inputs (and default values) are:
-    
-    NFFT=256
-    Fs=2pi
-    detrend=mlab.detrend_none
-    window=mlab.window_hanning
-    n_overlap=0
-    
-    this_method:'periodogram_csd' indicates that
-    timeseries.algorithms.periodogram will be used in order to calculate the
-    psd/csd, in which case, additional optional inputs (and default values)
-    are:
-
-    Skx=None
-    Sky=None
-    N=None
-    sides='onesided'
-    normalize=True
-    Fs=2pi
-    
-    this_method:'multi_taper_csd' indicates that
-    timeseries.algorithms.multi_taper_psd used in order to calculate psd/csd,
-    in which case additional optional inputs (and default values) are:
-
-    BW=0.01
-    Fs=2pi
-    sides = 'onesided'
+    csd_method: dict, optional.
+       See :func:`get_spectra` documentation for details
 
     Returns
     -------
     f: float array
-    The central frequencies for the frequency
-    bands for which the spectra are estimated
+       The central frequencies for the frequency
+       bands for which the spectra are estimated
 
-    c: n-d array This is a symmetric matrix with the coherencys of the
-    signals. The coherency of signal i and signal j is in f[i][j].
+    c: n-d array
+       This is a symmetric matrix with the coherencys of the
+       signals. The coherency of signal i and signal j is in f[i][j].
     
     Returns
     -------
@@ -592,38 +467,8 @@ def coherency_bavg(time_series,lb=0,ub=None,csd_method=None):
        the upper and lower bound on the frequency band to be used in averaging
        defaults to 1,max(f)
 
-    csd_method: dict, optional
-
-    contains:
-    this_method:'mlab' indicates that mlab's
-    psd will be used in order to calculate the psd/csd, in which case,
-    additional optional inputs (and default values) are:
-    
-    NFFT=256
-    Fs=2pi
-    detrend=mlab.detrend_none
-    window=mlab.window_hanning
-    n_overlap=0
-    
-    this_method:'periodogram_csd' indicates that
-    timeseries.algorithms.periodogram will be used in order to calculate the
-    psd/csd, in which case, additional optional inputs (and default values)
-    are:
-
-    Skx=None
-    Sky=None
-    N=None
-    sides='onesided'
-    normalize=True
-    Fs=2pi
-    
-    this_method:'multi_taper_csd' indicates that
-    timeseries.algorithms.multi_taper_psd used in order to calculate psd/csd,
-    in which case additional optional inputs (and default values) are:
-
-    BW=0.01
-    Fs=2pi
-    sides = 'onesided'
+    csd_method: dict, optional.
+       See :func:`get_spectra` documentation for details
 
     Returns 
     -------
@@ -745,38 +590,8 @@ def coherence_bavg (time_series,lb=0,ub=None,csd_method=None):
        the upper and lower bound on the frequency band to be used in averaging
        defaults to 1,max(f)
 
-    csd_method: dict, optional
-
-    contains:
-    this_method:'mlab' indicates that mlab's
-    psd will be used in order to calculate the psd/csd, in which case,
-    additional optional inputs (and default values) are:
-    
-    NFFT=256
-    Fs=2pi
-    detrend=mlab.detrend_none
-    window=mlab.window_hanning
-    n_overlap=0
-    
-    this_method:'periodogram_csd' indicates that
-    timeseries.algorithms.periodogram will be used in order to calculate the
-    psd/csd, in which case, additional optional inputs (and default values)
-    are:
-
-    Skx=None
-    Sky=None
-    N=None
-    sides='onesided'
-    normalize=True
-    Fs=2pi
-    
-    this_method:'multi_taper_csd' indicates that
-    timeseries.algorithms.multi_taper_psd used in order to calculate psd/csd,
-    in which case additional optional inputs (and default values) are:
-
-    BW=0.01
-    Fs=2pi
-    sides = 'onesided'
+    csd_method: dict, optional.
+       See :func:`get_spectra` documentation for details
 
     Returns 
     -------
@@ -858,38 +673,8 @@ def coherence_partial(time_series,r,csd_method=None):
     r: the temporal sequence of the common cause, sampled at the same rate as
     time_series
 
-        csd_method: dict, optional
-
-    contains:
-    this_method:'mlab' indicates that mlab's
-    psd will be used in order to calculate the psd/csd, in which case,
-    additional optional inputs (and default values) are:
-    
-    NFFT=256
-    Fs=2pi
-    detrend=mlab.detrend_none
-    window=mlab.window_hanning
-    n_overlap=0
-    
-    this_method:'periodogram_csd' indicates that
-    timeseries.algorithms.periodogram will be used in order to calculate the
-    psd/csd, in which case, additional optional inputs (and default values)
-    are:
-
-    Skx=None
-    Sky=None
-    N=None
-    sides='onesided'
-    normalize=True
-    Fs=2pi
-    
-    this_method:'multi_taper_csd' indicates that
-    timeseries.algorithms.multi_taper_psd used in order to calculate psd/csd,
-    in which case additional optional inputs (and default values) are:
-
-    BW=0.01
-    Fs=2pi
-    sides = 'onesided'
+    csd_method: dict, optional.
+       See :func:`get_spectra` documentation for details
 
 
     Returns 
@@ -1445,99 +1230,6 @@ def event_related_zscored(tseries,events,Tbefore, Tafter, Fs=1):
              - meanSurr)
              / stdSurr )
 
-
-def gamma_hrf(duration,A=1.,tau=1.08,n=3,delta=2.05,Fs=1.0):
-
-    r"""A gamma function hrf model, with two parameters, based on [Boynton1996]_
-
-
-    Parameters
-    ----------
-    
-    duration: float, the length of the HRF (in the inverse units of the sampling
-    rate)
-
-    A: float, a scaling factor, sets the max of the function, defaults to 1
-
-    tau: float The time constant of the gamma function, defaults to 1.08 
-
-    n: int, the phase delay of the gamma function, defaults to 3
-
-    delta: a pure delay, allowing for an additional delay from the onset of the
-    time-series to the beginning of the gamma hrf, defaults to 2.05
-    
-    Fs: float, the sampling rate, defaults to 1.0
-   
-
-    Returns
-    -------
-
-    h: the gamma function hrf, as a function of time
-    
-    Notes
-    -----    
-    This is based on equation 3 in [Boynton1996]_:
-
-    .. math::
-
-        h(t) = \frac{(\frac{t-\delta}{\tau})^{(n-1)}e^{-(\frac{t-\delta}{\tau})}}{\tau(n-1)!}
-        
-    
-    .. [Boynton1996] Geoffrey M. Boynton, Stephen A. Engel, Gary H. Glover and
-       David J. Heeger (1996). Linear Systems Analysis of Functional Magnetic
-       Resonance Imaging in Human V1. J Neurosci 16: 4207-4221 
-    
-    """
-    # XXX Maybe change to take out the time (Fs, duration, etc) from this and
-    # instead implement this in units of sampling interval (pushing the time
-    # aspect to the higher level)? 
-    if type(n) is not int:
-        print ('gamma_hrf received unusual input, converting n from %s to %i'
-               %(str(n),int(n)))
-
-        n=int(n)
-               
-    sampling_interval = 1/float(Fs)
-
-    #Prevent negative delta values:
-    if delta<0:
-        raise ValueError('in gamma_hrf, delta cannot be smaller than 0')
-
-    #Prevent cases in which the delta is larger than the entire hrf:
-    if delta>duration:
-     raise ValueError('in gamma_hrf, delta cannot be larger than the duration') 
-
-    t_max = duration - delta
-    
-    t = np.hstack([np.zeros((delta*Fs)),np.linspace(0,t_max,t_max*Fs)])
-
-    t_tau = t/tau
-
-    h = (t_tau**(n-1) * np.exp(-1*(t_tau)) /
-         (tau * factorial(n-1) ) )
-
-    return A*h/max(h)
-
-def polonsky_hrf(A, B, tau1, f1, tau2, f2,t_max,Fs=1.0):
-    r""" HRF based on [Polonsky2000]_
-
-    .. math::
-
-       H(t) = exp(\frac{-t}{\tau_1}) sin(2\cdot\pi f_1 \cdot t) -a\cdot exp(-\frac{t}{\tau_2})*sin(2\pi f_2 t)
-
-       .. [Polonsky2000] Alex Polonsky, Randolph Blake, Jochen Braun and David
-       J. Heeger. Neuronal activity in human primary visual cortex correlates
-       with perception during binocular rivalry. Nature Neuroscience 3: 1153-1159
-
-    """
-    sampling_interval = 1/float(Fs)
-
-    t = np.arange(0,t_max,sampling_interval)
-
-    h = (np.exp(-t/tau1) * np.sin(2*np.pi * f1 * t) -
-            (B * np.exp(-t/tau2) * np.sin(2 * np.pi * f2 * t)))
-
-    return A*h/max(h) 
 #-----------------------------------------------------------------------------
 # Spectral estimation
 #-----------------------------------------------------------------------------
@@ -1552,35 +1244,38 @@ def get_spectra(time_series,method=None):
     The time-series, where t (time) is the last dimension
 
     method: dict, optional
-    contains:
-    this_method:'mlab' indicates that mlab's
-    psd will be used in order to calculate the psd/csd, in which case,
-    additional optional inputs (and default values) are:
-    
-    NFFT=256
-    Fs=2pi
-    detrend=mlab.detrend_none
-    window=mlab.window_hanning
-    n_overlap=0
-    
-    this_method:'periodogram_csd' indicates that timeseries.algorithms.periodogram
-    will be used in order to calculate the psd/csd, in which case, additional
-    optional inputs (and default values) are:
 
-    Skx=None
-    Sky=None
-    N=None
-    sides='onesided'
-    normalize=True
-    Fs=2pi
-    
-    this_method:'multi_taper_csd' indicates that
-    timeseries.algorithms.multi_taper_psd used in order to calculate psd/csd,
-    in which case additional optional inputs (and default values) are:
+        contains: this_method:'mlab'
+           indicates that :func:`mlab.psd` will be used in
+           order to calculate the psd/csd, in which case, additional optional
+           inputs (and default values) are:
 
-    BW=0.01
-    Fs=2pi
-    sides = 'onesided'
+           NFFT=256
+           Fs=2pi
+           detrend=mlab.detrend_none
+           window=mlab.window_hanning
+           n_overlap=0
+
+        this_method:'periodogram_csd'
+           indicates that :func:`periodogram` will
+           be used in order to calculate the psd/csd, in which case, additional
+           optional inputs (and default values) are:
+
+           Skx=None
+           Sky=None
+           N=None
+           sides='onesided'
+           normalize=True
+           Fs=2pi
+
+        this_method:'multi_taper_csd'
+           indicates that :func:`multi_taper_psd` used in order to calculate
+           psd/csd, in which case additional optional inputs (and default
+           values) are:
+
+           BW=0.01
+           Fs=2pi
+           sides = 'onesided'
 
     Returns
     -------
@@ -1628,13 +1323,16 @@ def get_spectra(time_series,method=None):
                  
                 fxy[i][j] = temp.squeeze() #the output of mlab.csd has a wierd
                                             #shape
-    else:
+    elif method in ['multi_taper_csd','periodogram_csd']:
         # these methods should work with similar signatures
         mdict = method.copy()
         func = eval(mdict.pop('this_method'))
         freqs, fxy = func(time_series, **mdict)
         f = ut.circle_to_hz(freqs, mdict.get('Fs', 2*np.pi))
 
+    else:
+        raise ValueError("Unknown method provided")
+    
     return f,fxy.squeeze()
 
 def get_spectra_bi(x,y,method = None):
@@ -1646,38 +1344,9 @@ def get_spectra_bi(x,y,method = None):
 
     x,y : float arrays
     time series data
-    
+
     method: dict, optional
-    contains:
-    this_method:'mlab' indicates that mlab's
-    psd will be used in order to calculate the psd/csd, in which case,
-    additional optional inputs (and default values) are:
-    
-    NFFT=256
-    Fs=2
-    detrend=mlab.detrend_none
-    window=mlab.window_hanning
-    n_overlap=0
-    
-    this_method:'periodogram_csd' indicates that
-    timeseries.algorithms.periodogram will be used in order to calculate the
-    psd/csd, in which case, additional optional inputs (and default values)
-    are:
-
-    Skx=None
-    Sky=None
-    N=None
-    sides='onesided'
-    normalize=True
-    Fs=2
-    
-    this_method:'multi_taper_csd' indicates that
-    timeseries.algorithms.multi_taper_psd used in order to calculate psd/csd,
-    in which case additional optional inputs (and default values) are:
-
-    BW=0.01
-    Fs=2
-    sides = 'onesided'
+       See :func:`get_spectra` documentation for details
     
     Returns
     -------
@@ -1693,9 +1362,8 @@ def get_spectra_bi(x,y,method = None):
 
     See also
     --------
-    :func: `periodogram_csd`
-    :func: `multi_taper_csd`
-
+    :func:`get_spectra`
+    
     """
     f, fij = get_spectra(np.vstack((x,y)), method=method)
     fxx = fij[0,0].real
