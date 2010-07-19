@@ -1815,6 +1815,7 @@ def periodogram_csd(s, Sk=None, N=None, sides='default', normalize=True):
 
     Returns
     -------
+    
     (freqs, csd_est) : ndarrays
         The estimatated CSD and the frequency points vector.
         The CSD{i,j}(f) are returned in a square "matrix" of vectors
@@ -1955,12 +1956,12 @@ def DPSS_windows(N, NW, Kmax):
     
     return dpss, eigvals
 
-def multi_taper_psd(s, width=None, adaptive=True, estimate_variance=True,
+def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
                     sides='default'):
     """Returns an estimate of the PSD function of s using the multitaper
     method. If the NW product, or the BW and Fs in Hz are not specified
     by the user, a bandwidth of 4 times the fundamental frequency,
-    corresponding to NW = 8 will be used.
+    corresponding to NW = 4 will be used.
 
     Parameters
     ----------
@@ -1980,20 +1981,30 @@ def multi_taper_psd(s, width=None, adaptive=True, estimate_variance=True,
          bandwidth. This converts to a NW number rounded from BW / (2*f0),
          where f0 is the fundamental frequency of an N-length sequence.
          
+    adaptive : {True/False}
+       Use an adaptive weighting routine to combine the PSD estimates of
+       different tapers.
+    jackknife : {True/False}
+       Use the jackknife method to make an estimate of the PSD and
+       PSD variance at each point, .
     sides : str (optional)   [ 'default' | 'onesided' | 'twosided' ]
          This determines which sides of the spectrum to return. 
          For complex-valued inputs, the default is two-sided, for real-valued
          inputs, default is one-sided Indicates whether to return a one-sided
          or two-sided
 
-    estimate_variance : {True/False}
-       Return an estimate of the PSD variance at each point, based on
-       the windowed samples.
-
     Returns
     -------
-    (freqs, psd_est) : ndarrays
-        The estimatated PSD and the frequency points vector
+    (freqs, psd_est, ssigma_or_nu) : ndarrays
+        The first two arrays are the frequency points vector and the
+        estimatated PSD. The last returned array differs depending on whether
+        the jackknife was used. It is either
+
+        * The jackknife estimated variance, OR
+        * The degrees of freedom in a chi2 model of how the estimated
+          log-PSD is distributed about the true log-PSD (this is either
+          2*floor(2*NW), or calculated from adaptive weights)
+          
 
     """
     # have last axis be time series for now
@@ -2008,7 +2019,6 @@ def multi_taper_psd(s, width=None, adaptive=True, estimate_variance=True,
         Fs, BW = width
         NW = BW/(2*Fs) * N
         Kmax = int(2*NW)
-##         NW = int(BW * N / (2*Fs) + .5 )
     elif isinstance(width, (int, float)):
         Fs, NW = 1.0, width
         Kmax = int(2*NW)
@@ -2036,17 +2046,23 @@ def multi_taper_psd(s, width=None, adaptive=True, estimate_variance=True,
             weights[i], nu[i] = utils.adaptive_weights(
                 tapered_sdf[i], v, N
                 )
-        sdf_est = (tapered_sdf * weights**2).sum(axis=-2)
-        sdf_est /= (weights**2).sum(axis=-2)
     else:
-        # Now the unbiased spectral estimator for S(f) is the sum of
+        weights = np.sqrt(v[:,None])
+        nu = np.ones_like(sdf_est)
+        nu.fill(2*Kmax)
+
+
+    if jackknife:
+        jn_var, sdf_est = utils.jackknifed_sdf_variance(
+            tapered_sdf, weights=weights
+            )
+    else:
+        # Compute the unbiased spectral estimator for S(f) as the sum of
         # the S_k(f), weighted by the eigenvalues v, all divided by the
         # sum of the eigenvalues
-        sdf_est = (tapered_sdf*v[:,None]).sum(axis=-2)
-        sdf_est /= v.sum()
-        nu = np.ones_like(sdf_est)
-        nu.fill(2*NW)
-
+        sdf_est = (tapered_sdf * weights**2).sum(axis=-2)
+        sdf_est /= (weights**2).sum(axis=-2)
+    
     # if the time series is a complex vector, a one sided PSD is invalid:
     if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
         sides='twosided'
@@ -2058,18 +2074,15 @@ def multi_taper_psd(s, width=None, adaptive=True, estimate_variance=True,
     else:
         freqs = np.linspace(0, Fs, N, endpoint=False)
 
-##     if estimate_variance:
-##         if adaptive:
-##             weights = b_k * np.sqrt(v[:,None])
-##         else:
-##             weights = np.sqrt(v)
-##         var = utils.jackknife_sdfs(tapered_sdf, weights)
-
     out_shape = rest_of + ( len(freqs), )
     sdf_est.shape = out_shape
-    nu.shape = out_shape
+    if jackknife:
+        jn_var.shape = out.shape
+        return freqs, sdf_est, jn_var
+    else:
+        nu.shape = out_shape
+        return freqs, sdf_est, nu
         
-    return freqs, sdf_est, nu
 
 def multi_taper_csd(s, BW=None, Fs=1.0, sides='onesided'):
     """Returns an estimate of the PSD function of s using the multitaper

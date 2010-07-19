@@ -76,4 +76,8 @@ and I would wager, the standard error is estimated as
 
 :math:`s^2 = \dfrac{1}{n}\sum_i \left(\ln\hat{S}_i^{mt} - \ln\tilde{S}^{mt}\right)^2`
 
+Consensus in Literature (??)
+````````````````````````````
+
+From what I can tell from a couple of sources from Thompson [#f1]_, [#f2]_, this is the approach for estimating the variance.
 

@@ -281,7 +281,7 @@ def adaptive_weights(sdfs, eigvals, N):
     -----
 
     The weights to use for making the multitaper estimate, such that
-    :math:`S_{mt} = \sum_{k} w_k^2S_k / \sum_{k} |w_k|^2`
+    :math:`S_{mt} = \sum_{k} w_k^2S_k^{mt} / \sum_{k} |w_k|^2`
 
     If there are less than 3 tapers, then the adaptive weights are not
     found. The square root of the eigenvalues are returned as weights,
@@ -298,6 +298,8 @@ def adaptive_weights(sdfs, eigvals, N):
     rt_v = np.sqrt(eigvals)
     # XXX: this should really be an iterative search
     # for the sets of b_k(f) at each f -- should Cythonize this
+
+    # start with an estimate from incomplete data--the first 2 tapers
     sdf_iter = (sdfs[:2,:] * v[:2,None]).sum(axis=-2)
     sdf_iter /= v[:2].sum()
     weights = np.empty_like(sdfs)
