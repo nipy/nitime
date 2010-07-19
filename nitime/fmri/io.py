@@ -52,6 +52,9 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False):
     by the averaging. 
 
     """
+    if normalize is not None:
+        if normalize not in ('percent','zscore'):
+            raise ValueError("Normalization of fMRI time-series can only be done using 'percent' or 'zscore' as input")
     #If just one string was provided:
     if isinstance(nifti_files,str):
         im = load(nifti_files)
