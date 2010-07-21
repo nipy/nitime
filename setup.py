@@ -4,6 +4,11 @@ import sys
 
 from nitime import  __version__, __doc__
 
+## Apply the matthew-monkey patch
+from build_helpers import generate_a_pyrex_source
+from numpy.distutils.command import build_src
+build_src.build_src.generate_a_pyrex_source = generate_a_pyrex_source
+
 def configuration(parent_package='',top_path=None):
     from numpy.distutils.misc_util import Configuration
 

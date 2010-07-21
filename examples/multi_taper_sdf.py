@@ -52,7 +52,7 @@ adaptive_sdf_mt = dB(adaptive_sdf_mt)
 
 # returns log-variance
 jn_var, jn_mean = utils.jackknifed_sdf_variance(
-    p_sdfs, weights=np.sqrt(v[:,None])
+    p_sdfs, np.sqrt(v[:,None])
     )
 # convert sigma and mu to dB
 jn_sigma_db = ln2db * np.sqrt(jn_var)
@@ -68,7 +68,7 @@ jn_limits = ( jn_mu_db - jn_p, jn_mu_db + jn_p )
 # --- Jack-knifed intervals for adaptive weighting----------------------------
 
 adaptive_jn_var, adaptive_jn_mean = utils.jackknifed_sdf_variance(
-    p_sdfs, weights=weights
+    p_sdfs, weights
     )
 # convert sigma and mu to dB
 jn_sigma_db = ln2db * np.sqrt(adaptive_jn_var)

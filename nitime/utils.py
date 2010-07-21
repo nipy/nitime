@@ -181,7 +181,7 @@ def circularize(x,bottom=0,top=2*np.pi,deg=False):
 # Stats utils
 #-----------------------------------------------------------------------------
 
-def jackknifed_sdf_variance(sdfs, weights=None):
+def jackknifed_sdf_variance(sdfs, weights):
     """
     Returns the log-variance and log-mean estimated through
     jack-knifing a group of independent sdf estimates.
@@ -210,28 +210,30 @@ def jackknifed_sdf_variance(sdfs, weights=None):
     """
     K = sdfs.shape[-2]
     npts = sdfs.shape[-1]
+
     e_sdf = np.empty_like(sdfs)
+
+    # S_k = | x_k |**2 = | y_k * d_k |**2
+    sdf_samples = sdfs*(weights**2)
+    
     all_orders = set(range(K))
 
-    # get the estimate from all samples
-    if weights is None:
-        all_est = sdfs.mean(axis=-2)
-    else:
-        all_est = (sdfs*weights**2).sum(axis=-2)
-        all_est /= (weights**2).sum(axis=-2)
-    np.log(all_est, all_est)
+    # get the sdf estimate from all samples (sample mean)
+    all_est = (sdfs*weights**2).sum(axis=-2)
+##         all_est /= (weights**2).sum(axis=-2)
+    all_est /= K
+
     # get the leave-one-out estimates
     for i in xrange(K):
         items = list(all_orders.difference([i]))
-        sdfs_i = np.take(sdfs, items, axis=-2)
+        sdfs_i = np.take(sdf_samples, items, axis=-2)
         # this is the leave-one-out estimate of the sdf
-        if weights is None:
-            e_sdf[i] = sdfs_i.mean(axis=-2)
-        else:
-            weights_i = np.take(weights, items, axis=-2)
-            e_sdf[i] = ( weights_i**2 * sdfs_i ).sum(axis=-2)
-            e_sdf[i] /= (weights_i**2).sum(axis=-2)
-    np.log(e_sdf, e_sdf)
+        e_sdf[i] = sdfs_i.sum(axis=-2)
+        e_sdf[i] /= (K-1)
+
+
+##     np.log(all_est, all_est)
+##     np.log(e_sdf, e_sdf)
     
     # define the psuedovalues as theta_i = K*all_est - (K-1)*e_sdf[i]
     # then the estimator from the pseudovalues is
@@ -240,7 +242,8 @@ def jackknifed_sdf_variance(sdfs, weights=None):
     pseudovals = K*all_est[...,None,:] - (K-1)*e_sdf
 
     pseudo_est = K*all_est - float(K-1) * e_sdf.sum(axis=-2) / K
-
+    np.log(pseudo_est, pseudo_est)
+    np.log(pseudovals, pseudovals)
     # square of all the pseudovals minus the log-average
     jn_var = (pseudovals - pseudo_est[...,None,:])**2
 ##     K = float(K)
@@ -309,6 +312,10 @@ def adaptive_weights(sdfs, eigvals, N):
         sigma_est = np.trapz(sdf_iter, dx=1.0/N)
         b_k = sdf_iter[None,:] / (v[:,None]*sdf_iter[None,:] + \
                                   (1-v[:,None])*sigma_est)
+        # test for convergence --
+        # Take the RMS error across frequencies, for each taper..
+        # if the maximum RMS error across tapers is less than 1e-10, then
+        # we're converged
         err -= b_k
         sdf_iter = (b_k**2*v[:,None]*sdfs).sum(axis=0)
         sdf_iter /= (b_k**2*v[:,None]).sum(axis=0)
@@ -321,8 +328,13 @@ def adaptive_weights(sdfs, eigvals, N):
     nu /= (weights**4).sum(axis=-2)
     return weights, nu
 
+try:
+    from _utils import adaptive_weights_cython
+except:
+    pass
+
 #-----------------------------------------------------------------------------
-# Correlation utils
+# Correlation/Covariance utils
 #-----------------------------------------------------------------------------
 
 def remove_bias(x, axis):
