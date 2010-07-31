@@ -5,81 +5,89 @@ import scipy.stats.distributions as dist
 import nitime.algorithms as alg
 import nitime.utils as utils
 
-def dB(x):
-    return 10 * np.log10(x)
+def dB(x, out=None):
+    if out is None:
+        return 10 * np.log10(x)
+    else:
+        np.log10(x, out)
+        np.multiply(out, 10, out)
 
 ### Log-to-dB conversion factor ###
 ln2db = dB(np.e)
 
 N = 512
-ar_seq, nz, alpha = utils.ar_generator(N=N, drop_transients=10)
+import os
+if os.path.exists('example_arrs.npz'):
+    foo = np.load('example_arrs.npz')
+    ar_seq = foo['arr_0']
+    nz = foo['arr_1']
+    alpha = foo['arr_2']
+else:
+    ar_seq, nz, alpha = utils.ar_generator(N=N, drop_transients=10)
+    ar_seq -= ar_seq.mean()
+    np.savez('example_arrs', ar_seq, nz, alpha)
 # --- True SDF
 fgrid, hz = alg.my_freqz(1.0, a=np.r_[1, -alpha], Nfreqs=N)
 sdf = (hz*hz.conj()).real
 # onesided spectrum, so double the power
 sdf[1:-1] *= 2
-sdf = dB( sdf )
+dB(sdf, sdf)
 
 # --- Direct Spectral Estimator
 freqs, d_sdf = alg.periodogram(ar_seq)
-d_sdf = dB(d_sdf)
+dB(d_sdf, d_sdf)
 
 # --- Welch's Overlapping Periodogram Method via mlab
 mlab_sdf, mlab_freqs = pp.mlab.psd(ar_seq, NFFT=N)
-mlab_sdf = dB(mlab_sdf.squeeze())
 mlab_freqs *= (np.pi/mlab_freqs.max())
+mlab_sdf = mlab_sdf.squeeze()
+dB(mlab_sdf, mlab_sdf)
 
 
 ### Taper Bandwidth Adjustments
-NW = 2; Kmax = int(2*NW)
-
-tapers, v = alg.DPSS_windows(N, NW, Kmax)
-
-freqs, p_sdfs = alg.periodogram( tapers * ar_seq, normalize=False )
+NW = 4
 
 # --- Regular Multitaper Estimate
-sdf_mt = (p_sdfs * v[:,None]).sum(axis=0)
-sdf_mt /= v.sum()
-sdf_mt = dB(sdf_mt)
+f, sdf_mt, nu = alg.multi_taper_psd(
+    ar_seq, width=NW, adaptive=False, jackknife=False
+    )
+dB(sdf_mt, sdf_mt)
+# OK.. grab the number of tapers used from here
+Kmax = nu[0]/2
 
 # --- Adaptively Weighted Multitapter Estimate
-weights, nu_f = utils.adaptive_weights(p_sdfs, v, N)
-adaptive_sdf_mt = (p_sdfs * weights**2).sum(axis=0)
-adaptive_sdf_mt /= (weights**2).sum(axis=0)
-adaptive_sdf_mt = dB(adaptive_sdf_mt)
+f, adaptive_sdf_mt, nu = alg.multi_taper_psd(
+    ar_seq, width=NW, adaptive=True, jackknife=False
+    )
+dB(adaptive_sdf_mt, adaptive_sdf_mt)
 
 # --- Jack-knifed intervals for regular weighting-----------------------------
-
-# returns log-variance
-jn_var, jn_mean = utils.jackknifed_sdf_variance(
-    p_sdfs, np.sqrt(v[:,None])
+# currently returns log-variance
+_, _, jk_var = alg.multi_taper_psd(
+    ar_seq, width=NW, adaptive=False, jackknife=True
     )
-# convert sigma and mu to dB
-jn_sigma_db = ln2db * np.sqrt(jn_var)
-jn_mu_db = ln2db * jn_mean
 
-# jn_mean is approximately distributed about the true log-sdf
-# as a Student's t distribution with variance jn_var 
-jn_p = dist.t.ppf(.975, Kmax-1) * jn_sigma_db
+# the Jackknife mean is approximately distributed about the true log-sdf
+# as a Student's t distribution with variance jk_var ... but in
+# fact the jackknifed variance better describes the normal
+# multitaper estimator < have ref for this >
 
-# the limits are only really valid around jn_mu_db
-jn_limits = ( jn_mu_db - jn_p, jn_mu_db + jn_p )
+# find 95% confidence limits from inverse of t-dist CDF
+jk_p = (dist.t.ppf(.975, Kmax-1) * np.sqrt(jk_var)) * ln2db
+
+jk_limits = ( sdf_mt - jk_p, sdf_mt + jk_p )
 
 # --- Jack-knifed intervals for adaptive weighting----------------------------
-
-adaptive_jn_var, adaptive_jn_mean = utils.jackknifed_sdf_variance(
-    p_sdfs, weights
+_, _, adaptive_jk_var = alg.multi_taper_psd(
+    ar_seq, width=NW, adaptive=True, jackknife=True
     )
-# convert sigma and mu to dB
-jn_sigma_db = ln2db * np.sqrt(adaptive_jn_var)
-adaptive_jn_mu_db = ln2db * adaptive_jn_mean
 
-jn_p = dist.t.ppf(.975, Kmax-1) * jn_sigma_db
+# find 95% confidence limits from inverse of t-dist CDF
+jk_p = (dist.t.ppf(.975, Kmax-1)*np.sqrt(adaptive_jk_var)) * ln2db
 
-adaptive_jn_limits = ( adaptive_jn_mu_db - jn_p, adaptive_jn_mu_db + jn_p )
+adaptive_jk_limits = ( adaptive_sdf_mt - jk_p, adaptive_sdf_mt + jk_p )
 
 # --- Hypothetical intervals with chi2(2Kmax) --------------------------------
-
 # from Percival and Walden eq 258
 p975 = dist.chi2.ppf(.975, 2*Kmax)
 p025 = dist.chi2.ppf(.025, 2*Kmax)
@@ -91,13 +99,13 @@ hyp_limits = ( sdf_mt + l1, sdf_mt + l2 )
 
 # --- Hypothetical intervals with chi2(nu(f)) --------------------------------
 
-p975 = dist.chi2.ppf(.975, nu_f)
-p025 = dist.chi2.ppf(.025, nu_f)
+## p975 = dist.chi2.ppf(.975, nu_f)
+## p025 = dist.chi2.ppf(.025, nu_f)
 
-l1 = ln2db * np.log(nu_f/p975)
-l2 = ln2db * np.log(nu_f/p025)
+## l1 = ln2db * np.log(nu_f/p975)
+## l2 = ln2db * np.log(nu_f/p025)
 
-adaptive_hyp_limits = ( adaptive_sdf_mt + l1, adaptive_sdf_mt + l2 )
+## adaptive_hyp_limits = ( adaptive_sdf_mt + l1, adaptive_sdf_mt + l2 )
 
 # --- Plotting ---------------------------------------------------------------
 ax_limits = 2*sdf.min(), 1.25*sdf.max()
@@ -124,18 +132,16 @@ ax = f.add_subplot(613)
 plot_estimate(ax, freqs, (sdf_mt,), hyp_limits,
               elabels=('MT with hypothetical 5% interval',))
 ax = f.add_subplot(614)
-plot_estimate(ax, freqs, (sdf_mt, jn_mu_db),
-              jn_limits,
-              elabels=('MT with JN 5% interval',
-                       'JN MT with JN 5% interval'))
+plot_estimate(ax, freqs, (sdf_mt,),
+              jk_limits,
+              elabels=('MT with JK 5% interval',))
 ax = f.add_subplot(615)
-plot_estimate(ax, freqs, (adaptive_sdf_mt,),
-              adaptive_hyp_limits,
-              elabels=('(a)MT with hypothetical 5% interval',))
-ax = f.add_subplot(616)
-plot_estimate(ax, freqs, (adaptive_sdf_mt, adaptive_jn_mu_db),
-              adaptive_jn_limits,
-              elabels=('(a)MT with JN 5% interval',
-                       'JN (a)MT with JN 5% interval'))
+## plot_estimate(ax, freqs, (adaptive_sdf_mt,),
+##               adaptive_hyp_limits,
+##               elabels=('(a)MT with hypothetical 5% interval',))
+## ax = f.add_subplot(616)
+plot_estimate(ax, freqs, (adaptive_sdf_mt, ),
+              adaptive_jk_limits,
+              elabels=('(a)MT with JK 5% interval',))
 f.text(.5, .9, '%d Tapers'%Kmax)
 pp.show()

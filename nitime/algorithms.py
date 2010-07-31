@@ -1949,7 +1949,9 @@ def DPSS_windows(N, NW, Kmax):
     # Now find the eigenvalues of the original 
     # Use the autocovariance sequence technique from Percival and Walden, 1993
     # pg 390
-    acvs = utils.autocov(dpss) * N
+    # XXX : why debias false? it's all messed up o.w., even with means
+    # on the order of 1e-2
+    acvs = utils.autocov(dpss, debias=False) * N
     r = 4*W*np.sinc(2*W*nidx)
     r[0] = 2*W
     eigvals = np.dot(acvs, r)
@@ -1957,7 +1959,7 @@ def DPSS_windows(N, NW, Kmax):
     return dpss, eigvals
 
 def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
-                    sides='default'):
+                    low_bias=True, sides='default'):
     """Returns an estimate of the PSD function of s using the multitaper
     method. If the NW product, or the BW and Fs in Hz are not specified
     by the user, a bandwidth of 4 times the fundamental frequency,
@@ -1975,7 +1977,7 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
        (higher BW and number of averaged estimates).
        This parameter can be given in two ways:
 
-       * the NW product, which is typically an integer between 3, 10 (??);
+       * the NW product, which is typically a number between 2.5, 10 (??);
          sampling frequency is taken to be unity in this case.
        * the (Fs, BW) pair specifying sampling frequency and taper
          bandwidth. This converts to a NW number rounded from BW / (2*f0),
@@ -1985,8 +1987,12 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
        Use an adaptive weighting routine to combine the PSD estimates of
        different tapers.
     jackknife : {True/False}
-       Use the jackknife method to make an estimate of the PSD and
-       PSD variance at each point, .
+       Use the jackknife method to make an estimate of the PSD variance
+       at each point.
+    low_bias : {True/False}
+       Rather than use 2NW tapers, only use the tapers that have better than
+       90% spectral concentration within the bandwidth (still using
+       a maximum of 2NW tapers)
     sides : str (optional)   [ 'default' | 'onesided' | 'twosided' ]
          This determines which sides of the spectrum to return. 
          For complex-valued inputs, the default is two-sided, for real-valued
@@ -2026,42 +2032,51 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
         NW = 4
         Kmax = 8
         
-    print 'using', Kmax, 'tapers with BW=', 2*NW * Fs/N
     w, v = DPSS_windows(N, NW, Kmax)
+    if low_bias:
+        keepers = (v > 0.9)
+        w = w[keepers]
+        v = v[keepers]
+        Kmax = len(v)
+    print 'using', Kmax, 'tapers with BW=', 2*NW * Fs/N
 
     sig_sl = [slice(None)]*len(s.shape)
     sig_sl.insert(-1, np.newaxis)
 
-    # tapered.shape is (..., Kmax-1, N)
+    # tapered.shape is (..., Kmax, N)
     tapered = s[sig_sl] * w
     # Find the direct spectral estimators S_k(f) for k tapered signals..
     # don't normalize the periodograms by 1/N as normal.. since the taper
     # windows are orthonormal, they effectively scale the signal by 1/N
     f,tapered_sdf = periodogram(tapered, sides=sides, normalize=False)
 
+    nu = np.empty( (s.shape[0], tapered_sdf.shape[-1]) )
     if adaptive:
         weights = np.empty_like(tapered_sdf)
-        nu = np.empty( (s.shape[0], tapered_sdf.shape[-1]) )
         for i in xrange(s.shape[0]):
-            weights[i], nu[i] = utils.adaptive_weights(
+            weights[i], nu[i] = utils.adaptive_weights_cython(
                 tapered_sdf[i], v, N
                 )
     else:
+        # let the weights simply be the square-root of the eigenvalues
         weights = np.sqrt(v[:,None])
-        nu = np.ones_like(sdf_est)
         nu.fill(2*Kmax)
 
-
     if jackknife:
-        jn_var, sdf_est = utils.jackknifed_sdf_variance(
-            tapered_sdf, weights=weights
-            )
-    else:
-        # Compute the unbiased spectral estimator for S(f) as the sum of
-        # the S_k(f), weighted by the eigenvalues v, all divided by the
-        # sum of the eigenvalues
-        sdf_est = (tapered_sdf * weights**2).sum(axis=-2)
-        sdf_est /= (weights**2).sum(axis=-2)
+        jk_var = np.empty_like(nu)
+        jk_kws = dict()
+        if adaptive:
+            jk_kws.update( dict(eigvals=v, N=N) )
+        for i in xrange(s.shape[0]):
+            jk_var[i] = utils.jackknifed_sdf_variance(
+                tapered_sdf[i], **jk_kws
+                )
+        
+    # Compute the unbiased spectral estimator for S(f) as the sum of
+    # the S_k(f) weighted by the function w_k(f)**2, all divided by the
+    # sum of the w_k(f)**2 over k
+    sdf_est = (tapered_sdf * weights**2).sum(axis=-2)
+    sdf_est /= (weights**2).sum(axis=-2)
     
     # if the time series is a complex vector, a one sided PSD is invalid:
     if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
@@ -2077,17 +2092,19 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
     out_shape = rest_of + ( len(freqs), )
     sdf_est.shape = out_shape
     if jackknife:
-        jn_var.shape = out.shape
-        return freqs, sdf_est, jn_var
+        jk_var.shape = out_shape
+        return freqs, sdf_est, jk_var
     else:
         nu.shape = out_shape
         return freqs, sdf_est, nu
         
 
-def multi_taper_csd(s, BW=None, Fs=1.0, sides='onesided'):
-    """Returns an estimate of the PSD function of s using the multitaper
-    method. If BW and Fs are not specified by the user, a bandwidth of 4
-    times the fundamental frequency, corresponding to K = 8.
+def multi_taper_csd(s, width=None, low_bias=True, sides='default'):
+    """Returns an estimate of the Cross Spectral Density (CSD) function
+    between all (N choose 2) pairs of timeseries in s, using the multitaper
+    method. If the NW product, or the BW and Fs in Hz are not specified by
+    the user, a bandwidth of 4 times the fundamental frequency, corresponding
+    to NW = 4 will be used.
 
     Parameters
     ----------
@@ -2095,13 +2112,19 @@ def multi_taper_csd(s, BW=None, Fs=1.0, sides='onesided'):
         An array of sampled random processes, where the time axis is
         assumed to be on the last axis. If ndim > 2, the number of time
         series to compare will still be taken as prod(s.shape[:-1])
-        
-    BW : float (optional)
-        The bandwidth of the windowing function will determine the number
-        tapers to use. Normal values are in the range [3/2,5] * 2f0, where
-        f0 is the fundamental frequency of an N-length sequence.
-        This parameters represents trade-off between frequency resolution
-        (narrow BW) and variance reduction (number of tapers).
+    width : tuple or int, optional    
+       The bandwidth of the windowing function will determine the number
+       tapers to use. This parameters represents trade-off between frequency
+       resolution (lower main lobe BW for the taper) and variance reduction
+       (higher BW and number of averaged estimates).
+       This parameter can be given in two ways:
+
+       * the NW product, which is typically a number between 2.5, 10 (??);
+         sampling frequency is taken to be unity in this case.
+       * the (Fs, BW) pair specifying sampling frequency and taper
+         bandwidth. This converts to a NW number rounded from BW / (2*f0),
+         where f0 is the fundamental frequency of an N-length sequence.
+         
     Fs : float (optional)
         The sampling frequency
 

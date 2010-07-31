@@ -7,6 +7,10 @@ import numpy as np
 import scipy.linalg as linalg
 
 from nitime.fixes.fftconvolve import fftconvolve
+try:
+    from _utils import adaptive_weights_cython
+except:
+    pass
 
 #-----------------------------------------------------------------------------
 # Spectral estimation testing utilities
@@ -181,7 +185,7 @@ def circularize(x,bottom=0,top=2*np.pi,deg=False):
 # Stats utils
 #-----------------------------------------------------------------------------
 
-def jackknifed_sdf_variance(sdfs, weights):
+def jackknifed_sdf_variance(sdfs, eigvals=None, N=None):
     """
     Returns the log-variance and log-mean estimated through
     jack-knifing a group of independent sdf estimates.
@@ -189,10 +193,10 @@ def jackknifed_sdf_variance(sdfs, weights):
     Parameters
     ----------
     
-    sdfs: ndarray (... x K x L)
+    sdfs: ndarray (K, L)
        The K sdf estimates from different tapers
-    weights: ndarray (... x K x L)
-       The combination weights for each Sk
+    eigvals: ndarray (K,)
+       The eigenvalues of the DPSS eigenfunctions used for tapering
 
     Returns
     -------
@@ -208,51 +212,57 @@ def jackknifed_sdf_variance(sdfs, weights):
     a Student's t-distribution with (K-1) degrees of freedom, and
     standard error equal to sqrt(var).
     """
-    K = sdfs.shape[-2]
-    npts = sdfs.shape[-1]
+    K = sdfs.shape[0]
+    npts = sdfs.shape[1]
 
-    e_sdf = np.empty_like(sdfs)
+    jk_sdf = np.empty_like(sdfs)
 
-    # S_k = | x_k |**2 = | y_k * d_k |**2
-    sdf_samples = sdfs*(weights**2)
+    # S_k = | x_k |**2
+    if eigvals is not None:
+        # | x_k |**2 = | y_k * d_k |**2
+        weights, _ = adaptive_weights_cython(sdfs, eigvals, N)
+        sdf_est = (sdfs*(weights**2)).sum(axis=0)
+        sdf_est /= (weights**2).sum(axis=0)
+    else:
+        # | x_k |**2 = | y_k |**2
+        sdf_est = sdfs.mean(axis=0)
+    np.log(sdf_est, sdf_est)
     
     all_orders = set(range(K))
-
-    # get the sdf estimate from all samples (sample mean)
-    all_est = (sdfs*weights**2).sum(axis=-2)
-##         all_est /= (weights**2).sum(axis=-2)
-    all_est /= K
 
     # get the leave-one-out estimates
     for i in xrange(K):
         items = list(all_orders.difference([i]))
-        sdfs_i = np.take(sdf_samples, items, axis=-2)
+        sdfs_i = np.take(sdfs, items, axis=0)
         # this is the leave-one-out estimate of the sdf
-        e_sdf[i] = sdfs_i.sum(axis=-2)
-        e_sdf[i] /= (K-1)
+        if eigvals is not None:
+            eigvals_i = np.take(eigvals, items)
+            weights_i, _ = adaptive_weights_cython(sdfs_i, eigvals_i, N)
+            sdfs_i *= (weights_i**2)
+            jk_sdf[i] = sdfs_i.sum(axis=0)
+            jk_sdf[i] /= (weights_i**2).sum(axis=0)
+        else:
+            jk_sdf[i] = sdfs_i.mean(axis=0)
 
+    # find the average of these jackknifed estimates
+    jk_avg = jk_sdf.mean(axis=0)
+    # log-transform the leave-one-out estimates and the mean
+    np.log(jk_sdf, jk_sdf)
+    np.log(jk_avg, jk_avg)
 
-##     np.log(all_est, all_est)
-##     np.log(e_sdf, e_sdf)
+    K = float(K)
+
+    jk_var = (jk_sdf - jk_avg)
+    np.power(jk_var, 2, jk_var)
+    jk_var = jk_var.sum(axis=0)
     
-    # define the psuedovalues as theta_i = K*all_est - (K-1)*e_sdf[i]
-    # then the estimator from the pseudovalues is
-    # theta = 1/K sum_{i} theta_i = K*all_est - (K-1)/K * sum_{i} e_sdf[i]
-
-    pseudovals = K*all_est[...,None,:] - (K-1)*e_sdf
-
-    pseudo_est = K*all_est - float(K-1) * e_sdf.sum(axis=-2) / K
-    np.log(pseudo_est, pseudo_est)
-    np.log(pseudovals, pseudovals)
-    # square of all the pseudovals minus the log-average
-    jn_var = (pseudovals - pseudo_est[...,None,:])**2
-##     K = float(K)
-##     # Thompson's recommended factor, eq 18
-##     # Jackknifing Multitaper Spectrum Estimates
-##     # IEEE SIGNAL PROCESSING MAGAZINE [20] JULY 2007 
-##     f = (K-1)**2 / K / (K - 0.5)
-    jn_var = jn_var.sum(axis=-2) / K
-    return jn_var, pseudo_est
+##     f = (K-1)/K
+    # Thompson's recommended factor, eq 18
+    # Jackknifing Multitaper Spectrum Estimates
+    # IEEE SIGNAL PROCESSING MAGAZINE [20] JULY 2007 
+    f = (K-1)**2 / K / (K - 0.5)
+    jk_var *= f
+    return jk_var
 
 #-----------------------------------------------------------------------------
 # Multitaper utils
@@ -296,7 +306,8 @@ def adaptive_weights(sdfs, eigvals, N):
         Warning--not adaptively combining the spectral estimators
         due to a low number of tapers.
         """
-        return np.sqrt(eigvals), len(eigvals)
+        K, L = sdfs.shape[-2:]
+        return ( np.multiply.outer(np.sqrt(eigvals), np.ones(L)), 2*K )
     v = eigvals
     rt_v = np.sqrt(eigvals)
     # XXX: this should really be an iterative search
@@ -327,11 +338,6 @@ def adaptive_weights(sdfs, eigvals, N):
     nu = 2 * (weights**2).sum(axis=-2)**2
     nu /= (weights**4).sum(axis=-2)
     return weights, nu
-
-try:
-    from _utils import adaptive_weights_cython
-except:
-    pass
 
 #-----------------------------------------------------------------------------
 # Correlation/Covariance utils
@@ -372,8 +378,9 @@ def crosscov(x, y, axis=-1, all_lags=False, debias=True):
         raise ValueError(
             'crosscov() only works on same-length sequences for now'
             )
-    x = remove_bias(x, axis)
-    y = remove_bias(y, axis)
+    if debias:
+        x = remove_bias(x, axis)
+        y = remove_bias(y, axis)
     slicing = [slice(d) for d in x.shape]
     slicing[axis] = slice(None,None,-1)
     sxy = fftconvolve(x, y[tuple(slicing)], axis=axis, mode='full')
@@ -429,7 +436,7 @@ def autocov(s, **kwargs):
     axis = kwargs.get('axis', -1)
     if debias:
         s = remove_bias(s, axis)
-        kwargs['debias'] = False
+    kwargs['debias'] = False
     return crosscov(s, s, **kwargs)
 
 def autocorr(s, **kwargs):
