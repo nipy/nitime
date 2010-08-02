@@ -185,25 +185,27 @@ def circularize(x,bottom=0,top=2*np.pi,deg=False):
 # Stats utils
 #-----------------------------------------------------------------------------
 
-def jackknifed_sdf_variance(sdfs, eigvals=None, N=None):
+def jackknifed_sdf_variance(sdfs, eigvals=None, last_freq=None):
     """
-    Returns the log-variance and log-mean estimated through
-    jack-knifing a group of independent sdf estimates.
+    Returns the log-variance estimated through jack-knifing a group of
+    independent sdf estimates.
 
     Parameters
     ----------
     
     sdfs: ndarray (K, L)
        The K sdf estimates from different tapers
-    eigvals: ndarray (K,)
+    eigvals: ndarray (K,), optional
        The eigenvalues of the DPSS eigenfunctions used for tapering
+
+    last_freq: int, optional
+       The last frequency to analyze
 
     Returns
     -------
 
-    var, mean:
-       The estimators for sdf variance, and the mean sdf estimate
-       respetively
+    var:
+       The estimate for sdf variance
 
     Notes
     -----
@@ -213,21 +215,15 @@ def jackknifed_sdf_variance(sdfs, eigvals=None, N=None):
     standard error equal to sqrt(var).
     """
     K = sdfs.shape[0]
-    npts = sdfs.shape[1]
+    L = sdfs.shape[1] if last_freq is None else last_freq
 
-    jk_sdf = np.empty_like(sdfs)
+    jk_sdf = np.empty( (K, L) )
 
+    # the samples {S_k} are defined, with or without weights, as
     # S_k = | x_k |**2
-    if eigvals is not None:
-        # | x_k |**2 = | y_k * d_k |**2
-        weights, _ = adaptive_weights_cython(sdfs, eigvals, N)
-        sdf_est = (sdfs*(weights**2)).sum(axis=0)
-        sdf_est /= (weights**2).sum(axis=0)
-    else:
-        # | x_k |**2 = | y_k |**2
-        sdf_est = sdfs.mean(axis=0)
-    np.log(sdf_est, sdf_est)
-    
+    # | x_k |**2 = | y_k * d_k |**2   (with weights)
+    # | x_k |**2 = | y_k |**2         (without weights)
+        
     all_orders = set(range(K))
 
     # get the leave-one-out estimates
@@ -237,16 +233,16 @@ def jackknifed_sdf_variance(sdfs, eigvals=None, N=None):
         # this is the leave-one-out estimate of the sdf
         if eigvals is not None:
             eigvals_i = np.take(eigvals, items)
-            weights_i, _ = adaptive_weights_cython(sdfs_i, eigvals_i, N)
-            sdfs_i *= (weights_i**2)
-            jk_sdf[i] = sdfs_i.sum(axis=0)
+            weights_i, _ = adaptive_weights_cython(sdfs_i, eigvals_i, L)
+            sdfs_i[:,:L] *= (weights_i**2)
+            jk_sdf[i] = sdfs_i[:,:L].sum(axis=0)
             jk_sdf[i] /= (weights_i**2).sum(axis=0)
         else:
-            jk_sdf[i] = sdfs_i.mean(axis=0)
+            jk_sdf[i] = sdfs_i[:,:L].mean(axis=0)
 
     # find the average of these jackknifed estimates
     jk_avg = jk_sdf.mean(axis=0)
-    # log-transform the leave-one-out estimates and the mean
+    # log-transform the leave-one-out estimates and the mean of estimates
     np.log(jk_sdf, jk_sdf)
     np.log(jk_avg, jk_avg)
 
@@ -264,6 +260,79 @@ def jackknifed_sdf_variance(sdfs, eigvals=None, N=None):
     jk_var *= f
     return jk_var
 
+def jackknifed_coh_variance(tx, ty, eigvals=None):
+    """
+    Returns the variance of the coherency between x and y, estimated
+    through jack-knifing the tapered samples in {tx, ty}.
+
+    Parameters
+    ----------
+
+    tx : ndarray, (K, L)
+       The K spectra of tapered timeseries x
+    ty : ndarray, (K, L)
+       The K spectra of tapered timeseries y
+    eigvals : ndarray, (K,)
+       The eigenvalues of the eigenfunctions used to taper x and y
+
+    """
+
+    K = tx.shape[0]
+    N = tx.shape[1]
+    # calculate leave-one-out estimates of MSC (magnitude squared coherence)
+    # which is calculated in coherence_calculate(fxy, fxx, fyy)
+
+    coh_shape = N
+    jk_coh = np.empty((K, coh_shape), 'd')
+    
+    all_orders = set(range(K))
+
+    import nitime.algorithms as alg
+
+    # get the leave-one-out estimates
+    for i in xrange(K):
+        items = list(all_orders.difference([i]))
+        tx_i = np.take(tx, items, axis=0)
+        ty_i = np.take(ty, items, axis=0)
+        if eigvals is not None:
+            weights = np.sqrt(np.take(eigvals, items))
+            eigs_i = np.take(eigvals, items)
+            mag_sqr_x = np.power(np.abs(tx_i), 2)
+            mag_sqr_y = np.power(np.abs(ty_i), 2)
+            wx, _ = adaptive_weights_cython(mag_sqr_x, eigs_i, N)
+            wy, _ = adaptive_weights_cython(mag_sqr_y, eigs_i, N)
+            weights = (wx, wy)
+        else:
+            weights = np.array([[1]])
+        # The CSD
+        sxy_i = alg.mtm_combine_spectra(tx_i, ty_i, weights)
+        # The PSDs
+        sxx_i = alg.mtm_combine_spectra(tx_i, tx_i, weights).real
+        syy_i = alg.mtm_combine_spectra(ty_i, ty_i, weights).real
+        # these are the | c_i | samples
+        jk_coh[i] = np.abs(sxy_i)
+        jk_coh[i] /= np.sqrt(sxx_i * syy_i)
+
+    jk_avg = np.mean(jk_coh, axis=0)
+    # now normalize the coherence estimates and the avg
+    np.arctanh(jk_coh, jk_coh)
+    jk_coh *= np.sqrt(2*K-2)
+    np.arctanh(jk_avg, jk_avg)
+    jk_avg *= np.sqrt(2*K-2)
+
+    jk_var = (jk_coh - jk_avg)
+    np.power(jk_var, 2, jk_var)
+    jk_var = jk_var.sum(axis=0)
+
+    # Do/Don't use the alternative scaling here??
+    f = float(K-1)/K
+
+    jk_var *= f
+
+    return jk_var
+        
+    
+    
 #-----------------------------------------------------------------------------
 # Multitaper utils
 #-----------------------------------------------------------------------------
