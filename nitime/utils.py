@@ -287,6 +287,15 @@ def jackknifed_coh_variance(tx, ty, eigvals=None):
     
     all_orders = set(range(K))
 
+    if eigvals is not None:
+        mag_sqr_x = np.power(np.abs(tx), 2)
+        mag_sqr_y = np.power(np.abs(ty), 2)
+        weights_x, _ = adaptive_weights_cython(mag_sqr_x, eigvals, N)
+        weights_y, _ = adaptive_weights_cython(mag_sqr_y, eigvals, N)
+    else:
+        weights_x = np.ones(K).reshape(K, 1)
+        weights_y = weights_x
+
     import nitime.algorithms as alg
 
     # get the leave-one-out estimates
@@ -294,16 +303,19 @@ def jackknifed_coh_variance(tx, ty, eigvals=None):
         items = list(all_orders.difference([i]))
         tx_i = np.take(tx, items, axis=0)
         ty_i = np.take(ty, items, axis=0)
-        if eigvals is not None:
-            weights = np.sqrt(np.take(eigvals, items))
-            eigs_i = np.take(eigvals, items)
-            mag_sqr_x = np.power(np.abs(tx_i), 2)
-            mag_sqr_y = np.power(np.abs(ty_i), 2)
-            wx, _ = adaptive_weights_cython(mag_sqr_x, eigs_i, N)
-            wy, _ = adaptive_weights_cython(mag_sqr_y, eigs_i, N)
-            weights = (wx, wy)
-        else:
-            weights = np.array([[1]])
+        wx = np.take(weights_x, items, axis=0)
+        wy = np.take(weights_y, items, axis=0)
+        weights = (wx, wy)
+##         if eigvals is not None:
+##             weights = np.sqrt(np.take(eigvals, items))
+##             eigs_i = np.take(eigvals, items)
+##             mag_sqr_x = np.power(np.abs(tx_i), 2)
+##             mag_sqr_y = np.power(np.abs(ty_i), 2)
+##             wx, _ = adaptive_weights_cython(mag_sqr_x, eigs_i, N)
+##             wy, _ = adaptive_weights_cython(mag_sqr_y, eigs_i, N)
+##             weights = (wx, wy)
+##         else:
+##             weights = np.array([[1]])
         # The CSD
         sxy_i = alg.mtm_combine_spectra(tx_i, ty_i, weights)
         # The PSDs
@@ -336,7 +348,7 @@ def jackknifed_coh_variance(tx, ty, eigvals=None):
 #-----------------------------------------------------------------------------
 # Multitaper utils
 #-----------------------------------------------------------------------------
-def adaptive_weights(sdfs, eigvals, N):
+def adaptive_weights(sdfs, eigvals, last_freq):
     r"""
     Perform an iterative procedure to find the optimal weights for K
     direct spectral estimators of DPSS tapered signals.
@@ -370,40 +382,55 @@ def adaptive_weights(sdfs, eigvals, N):
     and the degrees of freedom are 2*K
 
     """
+    if last_freq is None:
+        last_freq = sdfs.shape[1]
+    K, L = sdfs.shape[0], last_freq
     if len(eigvals) < 3:
         print """
         Warning--not adaptively combining the spectral estimators
         due to a low number of tapers.
         """
-        K, L = sdfs.shape[-2:]
         return ( np.multiply.outer(np.sqrt(eigvals), np.ones(L)), 2*K )
-    v = eigvals
-    rt_v = np.sqrt(eigvals)
-    # XXX: this should really be an iterative search
-    # for the sets of b_k(f) at each f -- should Cythonize this
+    l = eigvals
+    rt_l = np.sqrt(eigvals)
+    Kmax = len(eigvals)
+
+    # combine the SDFs in the traditional way in order to estimate
+    # the variance of the timeseries
+    N = sdfs.shape[1]
+    sdf = (sdfs*eigvals[:,None]).sum(axis=0)
+    sdf /= eigvals.sum()
+    var_est = np.trapz(sdf, dx=1.0/N)
 
     # start with an estimate from incomplete data--the first 2 tapers
-    sdf_iter = (sdfs[:2,:] * v[:2,None]).sum(axis=-2)
-    sdf_iter /= v[:2].sum()
-    weights = np.empty_like(sdfs)
-    nu = np.empty_like(sdf_iter)
-    err = np.zeros( (len(v), len(sdf_iter)) )
+    sdf_iter = (sdfs[:2,:last_freq] * l[:2,None]).sum(axis=-2)
+    sdf_iter /= l[:2].sum()
+    weights = np.empty( (Kmax, last_freq) )
+    nu = np.empty(last_freq)
+    err = np.zeros( (Kmax, last_freq) )
+
+    n = 0
     while True:
-        sigma_est = np.trapz(sdf_iter, dx=1.0/N)
-        b_k = sdf_iter[None,:] / (v[:,None]*sdf_iter[None,:] + \
-                                  (1-v[:,None])*sigma_est)
+        d_k = sdf_iter[None,:] / (l[:,None]*sdf_iter[None,:] + \
+                                  (1-l[:,None])*var_est)
+        d_k *= rt_l[:,None]
         # test for convergence --
         # Take the RMS error across frequencies, for each taper..
         # if the maximum RMS error across tapers is less than 1e-10, then
         # we're converged
-        err -= b_k
-        sdf_iter = (b_k**2*v[:,None]*sdfs).sum(axis=0)
-        sdf_iter /= (b_k**2*v[:,None]).sum(axis=0)
-        if (( (err**2).mean(axis=1) )**.5).max() < 1e-10:
+        err -= d_k
+        n += 1
+##         if (( (err**2).mean(axis=1) )**.5).max() < 1e-10:
+##             break
+        if (err**2).mean(axis=0).max() < 1e-10 or n > 40:
+            if n > 40:
+                print 'breaking due to iterative meltdown'
             break
-        err = b_k
-    sdf_est = sdf_iter
-    weights = b_k * rt_v[:,None]
+        # update the iterative estimate with this d_k
+        sdf_iter = (d_k**2 * sdfs[:,:last_freq]).sum(axis=0)
+        sdf_iter /= (d_k**2).sum(axis=0)
+        err = d_k
+    weights = d_k
     nu = 2 * (weights**2).sum(axis=-2)**2
     nu /= (weights**4).sum(axis=-2)
     return weights, nu
