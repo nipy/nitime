@@ -38,56 +38,58 @@ tdata = tapers[None,:,:] * pdata[:,None,:]
 tspectra = np.fft.fft(tdata)
 mag_sqr_spectra = np.abs(tspectra)
 np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
-
-w = np.empty( (nseq, K, n_samples) )
+# Only compute half the spectrum.. coherence for real sequences is symmetric
+L = n_samples/2 + 1
+#L = n_samples
+w = np.empty( (nseq, K, L) )
 for i in xrange(nseq):
-   w[i], _ = utils.adaptive_weights_cython(mag_sqr_spectra[i], eigs, n_samples)
+   w[i], _ = utils.adaptive_weights_cython(mag_sqr_spectra[i], eigs, L)
 
 # calculate the coherence
-coh_mat = np.zeros((nseq, nseq, n_samples), 'd')
+csd_mat = np.zeros((nseq, nseq, L), 'D')
+psd_mat = np.zeros((2, nseq, nseq, L), 'd')
+coh_mat = np.zeros((nseq, nseq, L), 'd')
 coh_var = np.zeros_like(coh_mat)
 for i in xrange(nseq):
-   print 'row', i
    for j in xrange(i):
-      sxy_i = alg.mtm_combine_spectra(
-         tspectra[i], tspectra[j], (w[i], w[j])
+      sxy = alg.mtm_combine_spectra(
+         tspectra[i], tspectra[j], (w[i], w[j]), sides='onesided'
          )
-      sxx_i = alg.mtm_combine_spectra(
-         tspectra[i], tspectra[i], (w[i], w[i])
+      sxx = alg.mtm_combine_spectra(
+         tspectra[i], tspectra[i], (w[i], w[i]), sides='onesided'
          ).real
-      syy_i = alg.mtm_combine_spectra(
-         tspectra[j], tspectra[j], (w[i], w[j])
+      syy = alg.mtm_combine_spectra(
+         tspectra[j], tspectra[j], (w[i], w[j]), sides='onesided'
          ).real
-      coh_mat[i,j] = np.abs(sxy_i)**2
-      coh_mat[i,j] /= (sxx_i * syy_i)
+      psd_mat[0,i,j] = sxx
+      psd_mat[1,i,j] = syy
+      coh_mat[i,j] = np.abs(sxy)**2
+      coh_mat[i,j] /= (sxx * syy)
+      csd_mat[i,j] = sxy
       if i != j:
          coh_var[i,j] = utils.jackknifed_coh_variance(
-            tspectra[i], tspectra[j], eigvals=eigs
+            tspectra[i], tspectra[j], weights=(w[i], w[j]), last_freq=L
             )
 upper_idc = utils.triu_indices(nseq, k=1)
 lower_idc = utils.tril_indices(nseq, k=-1)
 coh_mat[upper_idc] = coh_mat[lower_idc]
 coh_var[upper_idc] = coh_var[lower_idc]
+
 # convert this measure with the normalizing function
-coh_mat_xform = coh_mat.copy()
-np.arctanh(coh_mat_xform, coh_mat_xform)
-coh_mat_xform *= np.sqrt(2*K - 2)
+coh_mat_xform = utils.normalize_coherence(coh_mat, 2*K-2)
 
 t025_limit = coh_mat_xform + dist.t.ppf(.025, K-1)*np.sqrt(coh_var)
 t975_limit = coh_mat_xform + dist.t.ppf(.975, K-1)*np.sqrt(coh_var)
 
-#convert back?
-def back_to_unit_range(x, K):
-   y = x/np.sqrt(2*K-2)
-   np.tanh(y, y)
-   return y
 
-t025_limit_back = back_to_unit_range(t025_limit, K)
-t975_limit_back = back_to_unit_range(t975_limit, K)
+utils.normal_coherence_to_unit(t025_limit, 2*K-2, t025_limit)
+utils.normal_coherence_to_unit(t975_limit, 2*K-2, t975_limit)
 
-freqs = np.linspace(-1/(2*TR), 1/(2*TR), n_samples, endpoint=False)
+if L < n_samples:
+   freqs = np.linspace(0, 1/(2*TR), L)
+else:
+   freqs = np.linspace(0, 1/TR, L, endpoint=False)
 
-## C = CoherenceAnalyzer(T)
 
 #We look only at frequencies between 0.02 and 0.15 (the physiologically
 #relevant band, see http://imaging.mrc-cbu.cam.ac.uk/imaging/DesignEfficiency:
@@ -95,5 +97,18 @@ freq_idx = np.where((freqs>0.02) * (freqs<0.15))[0]
 
 #Extract the coherence and average across these frequency bands: 
 coh = np.mean(coh_mat[:,:,freq_idx],-1) #Averaging on the last dimension 
-drawmatrix_channels(coh,roi_names,size=[10.,10.],color_anchor=0)
+drawmatrix_channels(coh,roi_names,size=[10.,10.],color_anchor=0,
+                    title='MTM Coherence')
 
+C = CoherenceAnalyzer(T)
+
+#We look only at frequencies between 0.02 and 0.15 (the physiologically
+#relevant band, see http://imaging.mrc-cbu.cam.ac.uk/imaging/DesignEfficiency:
+freq_idx = np.where((C.frequencies>0.02) * (C.frequencies<0.15))[0]
+
+#Extract the coherence and average across these frequency bands: 
+coh = np.mean(C.coherence[:,:,freq_idx],-1) #Averaging on the last dimension 
+drawmatrix_channels(coh,roi_names,size=[10.,10.],color_anchor=0,
+                    title='CoherenceAnalyzer')
+
+pp.show()

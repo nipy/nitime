@@ -2166,7 +2166,7 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
         np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
         weights = np.empty( mag_sqr_spectra.shape[:-1] + (last_freq,) )
         for i in xrange(s.shape[0]):
-            weights[i], nu[i] = utils.adaptive_weights_cython(
+            weights[i], nu[i] = utils.adaptive_weights(
                 mag_sqr_spectra[i], l, last_freq
                 )
     else:
@@ -2178,20 +2178,14 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
 
     if jackknife:
         jk_var = np.empty_like(nu)
-        jk_kws = dict()
-        if adaptive:
-            for i in xrange(s.shape[0]):
-                jk_var[i] = utils.jackknifed_sdf_variance(
-                    mag_sqr_spectra[i], eigvals=l, last_freq=last_freq
-                    )
-        else:
+        if not adaptive:
+            # compute the magnitude squared spectra, if not done already
             mag_sqr_spectra = np.abs(tapered_spectra)
             np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
-
-            for i in xrange(s.shape[0]):
-                jk_var[i] = utils.jackknifed_sdf_variance(
-                    mag_sqr_spectra[i], last_freq=last_freq
-                    )
+        for i in xrange(s.shape[0]):
+            jk_var[i] = utils.jackknifed_sdf_variance(
+                mag_sqr_spectra[i], weights=weights[i], last_freq=last_freq
+                )
     
     # Compute the unbiased spectral estimator for S(f) as the sum of
     # the S_k(f) weighted by the function w_k(f)**2, all divided by the
@@ -2326,7 +2320,7 @@ def multi_taper_csd(s, width=None, low_bias=True, adaptive=True,
         w = np.empty( mag_sqr_spectra.shape[:-1] + (last_freq,) )
         nu = np.empty( (M, last_freq) )
         for i in xrange(M):
-            w[i], nu[i] = utils.adaptive_weights_cython(
+            w[i], nu[i] = utils.adaptive_weights(
                 mag_sqr_spectra[i], l, last_freq
                 )
     else:
