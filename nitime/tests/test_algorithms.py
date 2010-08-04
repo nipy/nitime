@@ -4,8 +4,6 @@ from scipy.signal import signaltools
 from nitime import algorithms as tsa
 from nitime import utils as ut
 
-reload(tsa)
-
 def test_scipy_resample():
     """ Tests scipy signal's resample function
     """
@@ -162,7 +160,11 @@ def test_coherence_linear_dependence():
 
     c_t = ( 1/( 1 + ( f_noise/( f_x*(alpha**2)) ) ) )
 
-    f,c = tsa.coherence(np.vstack([x,y]))
+    method = {"this_method":'mlab',
+              "NFFT":2048,
+              "Fs":2*np.pi}
+
+    f,c = tsa.coherence(np.vstack([x,y]),csd_method=method)
     c_t = np.abs(signaltools.resample(c_t,c.shape[-1]))
 
     npt.assert_array_almost_equal(c[0,1],c_t,2)

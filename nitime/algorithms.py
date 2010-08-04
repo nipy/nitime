@@ -1323,7 +1323,7 @@ def get_spectra(time_series,method=None):
                  
                 fxy[i][j] = temp.squeeze() #the output of mlab.csd has a wierd
                                             #shape
-    elif method in ['multi_taper_csd','periodogram_csd']:
+    elif method['this_method'] in ('multi_taper_csd','periodogram_csd'):
         # these methods should work with similar signatures
         mdict = method.copy()
         func = eval(mdict.pop('this_method'))
