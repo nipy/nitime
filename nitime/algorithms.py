@@ -2198,11 +2198,6 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
         tapered_spectra, tapered_spectra, weights, sides=sides
         ).real
 
-##     if jackknife:
-##         sdf_est, jk_var = scaled_power_spectrum(sdf_est, sides, var=jk_var)
-##     else:
-##         sdf_est = scaled_power_spectrum(sdf_est, sides)
-
     if sides=='onesided':
         freqs = np.linspace(0, Fs/2, N/2+1)
         if jackknife:
@@ -2220,7 +2215,6 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
     else:
         nu.shape = out_shape
         return freqs, sdf_est, nu
-        
 
 def multi_taper_csd(s, width=None, low_bias=True, adaptive=True,
                     sides='twosided'):
