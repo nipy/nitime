@@ -361,10 +361,10 @@ def jackknifed_coh_variance(tx, ty, weights=None, last_freq=None):
         wy = np.take(weights_y, items, axis=0)
         weights = (wx, wy)
         # The CSD
-        sxy_i = alg.mtm_combine_spectra(tx_i, ty_i, weights)
+        sxy_i = alg.mtm_cross_spectrum(tx_i, ty_i, weights)
         # The PSDs
-        sxx_i = alg.mtm_combine_spectra(tx_i, tx_i, weights).real
-        syy_i = alg.mtm_combine_spectra(ty_i, ty_i, weights).real
+        sxx_i = alg.mtm_cross_spectrum(tx_i, tx_i, weights).real
+        syy_i = alg.mtm_cross_spectrum(ty_i, ty_i, weights).real
         # these are the | c_i | samples
         jk_coh[i] = np.abs(sxy_i)
         jk_coh[i] /= np.sqrt(sxx_i * syy_i)

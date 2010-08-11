@@ -68,6 +68,7 @@ dB(sdf_mt, sdf_mt)
 Kmax = nu[0]/2
 
 # --- Adaptively Weighted Multitapter Estimate
+# -- Adaptive weighting from Thompson 1982, or Percival and Walden 1993
 f, adaptive_sdf_mt, nu = alg.multi_taper_psd(
     ar_seq, width=NW, adaptive=True, jackknife=False
     )

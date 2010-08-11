@@ -1626,7 +1626,7 @@ def DPSS_windows(N, NW, Kmax):
     
     return dpss, eigvals
 
-def mtm_combine_spectra(tx, ty, weights, sides='twosided'):
+def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
     r"""
 
     Parameters
@@ -1786,7 +1786,8 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
     s = s.reshape( int(np.product(rest_of)), N )
     # de-mean this sucker
     s = utils.remove_bias(s, axis=-1)
-    
+
+    # XXX : change width to Fs, BW in separate args
     if isinstance(width, (list, tuple)):
         Fs, BW = width
         NW = BW/(2*Fs) * N
@@ -1804,7 +1805,6 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
         v = v[keepers]
         l = l[keepers]
         Kmax = len(v)
-    print 'using', Kmax, 'tapers with BW=', NW * Fs/(np.pi*N)
 
     # if the time series is a complex vector, a one sided PSD is invalid:
     if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
@@ -1862,7 +1862,7 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
     # 1st, roll the tapers axis forward
     tapered_spectra = np.rollaxis(tapered_spectra, 1, start=0)
     weights = np.rollaxis(weights, 1, start=0)
-    sdf_est = mtm_combine_spectra(
+    sdf_est = mtm_cross_spectrum(
         tapered_spectra, tapered_spectra, weights, sides=sides
         ).real
 
@@ -1877,6 +1877,7 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
 
     out_shape = rest_of + ( len(freqs), )
     sdf_est.shape = out_shape
+    # XXX: always return nu and jk_var
     if jackknife:
         jk_var.shape = out_shape
         return freqs, sdf_est, jk_var
@@ -2001,7 +2002,7 @@ def multi_taper_csd(s, width=None, low_bias=True, adaptive=True,
                 wj = weights
             ti = tapered_spectra[i]
             tj = tapered_spectra[j]
-            csdfs[i,j] = mtm_combine_spectra(ti, tj, (wi, wj), sides=sides)
+            csdfs[i,j] = mtm_cross_spectrum(ti, tj, (wi, wj), sides=sides)
     
     upper_idc = ut.triu_indices(M,k=1)
     lower_idc = ut.tril_indices(M,k=-1)

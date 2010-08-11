@@ -52,13 +52,13 @@ coh_mat = np.zeros((nseq, nseq, L), 'd')
 coh_var = np.zeros_like(coh_mat)
 for i in xrange(nseq):
    for j in xrange(i):
-      sxy = alg.mtm_combine_spectra(
+      sxy = alg.mtm_cross_spectrum(
          tspectra[i], tspectra[j], (w[i], w[j]), sides='onesided'
          )
-      sxx = alg.mtm_combine_spectra(
+      sxx = alg.mtm_cross_spectrum(
          tspectra[i], tspectra[i], (w[i], w[i]), sides='onesided'
          ).real
-      syy = alg.mtm_combine_spectra(
+      syy = alg.mtm_cross_spectrum(
          tspectra[j], tspectra[j], (w[i], w[j]), sides='onesided'
          ).real
       psd_mat[0,i,j] = sxx
