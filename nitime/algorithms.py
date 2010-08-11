@@ -25,6 +25,9 @@ from matplotlib import mlab
 from scipy import linalg
 import utils as ut
 from scipy.misc import factorial
+
+from nitime.fixes.fftconvolve import fftconvolve
+import nitime.utils as utils
 #-----------------------------------------------------------------------------
 #  Coherency 
 #-----------------------------------------------------------------------------
@@ -1373,13 +1376,14 @@ def get_spectra_bi(x,y,method = None):
 
 
 # The following spectrum estimates are normalized to the following convention..
-# By definition, Sxx(f) = DTFT{sxx(n)}, where sxx(n) is the autocorrelation
+# By definition, Sxx(f) = DTFT{sxx(n)}, where sxx(n) is the autocovariance
 # function of s(n). Therefore the integral from
 # [-PI, PI] of Sxx/(2PI) is sxx(0)
-# And from the definition of sxx(n), sxx(0) = Expected-Value{s(n)s*(n)},
+# And from the definition of sxx(n),
+# sxx(0) = Expected-Value{s(n)s*(n)} = Expected-Value{ Var(s) },
 # which is estimated simply as (s*s.conj()).mean()
 
-def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
+def periodogram(s, Sk=None, N=None, sides='default', normalize=True):
     """Takes an N-point periodogram estimate of the PSD function. The
     number of points N, or a precomputed FFT Sk may be provided. By default,
     the PSD function returned is normalized so that the integral of the PSD
@@ -1389,14 +1393,20 @@ def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
     ----------
     s : ndarray
         Signal(s) for which to estimate the PSD, time dimension in the last axis
+
     Sk : ndarray (optional)
         Precomputed FFT of s
+
     N : int (optional)
         Indicates an N-point FFT where N != s.shape[-1]
-    sides : str (optional)        
-        Indicates whether to return a one-sided or two-sided PSD
-    normalize : boolean (optional)
-        Normalizes the PSD
+        
+    sides : str (optional) [ 'default' | 'onesided' | 'twosided' ]
+         This determines which sides of the spectrum to return. 
+         For complex-valued inputs, the default is two-sided, for real-valued
+         inputs, default is one-sided Indicates whether to return a one-sided
+         or two-sided
+         
+    PSD normalize : boolean (optional, default=True) Normalizes the PSD
 
     Returns
     -------
@@ -1405,7 +1415,7 @@ def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
     Notes
     -----
     setting dw = 2*PI/N, then the integral from -PI, PI (or 0,PI) of PSD/(2PI)
-    will be nearly equal to sxx(0), where sxx is the autocorrelation function
+    will be nearly equal to sxx(0), where sxx is the autocovariance function
     of s(n). By definition, sxx(0) = E{s(n)s*(n)} ~ (s*s.conj()).mean()
     """
     if Sk is not None:
@@ -1415,8 +1425,13 @@ def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
         Sk = np.fft.fft(s, n=N)
     pshape = list(Sk.shape)
     norm = float(s.shape[-1])
-    # if the time series is a complex vector, a one sided PSD is invalid..
-    # should we check for that?
+    
+    # if the time series is a complex vector, a one sided PSD is invalid:
+    if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
+        sides='twosided'
+    elif sides in ('default', 'onesided'):
+        sides='onesided'
+
     if sides=='onesided':
         # putative Nyquist freq
         Fn = N/2 + 1
@@ -1436,7 +1451,7 @@ def periodogram(s, Sk=None, N=None, sides='onesided', normalize=True):
         P /= norm
     return freqs, P
 
-def periodogram_csd(s, Sk=None, N=None, sides='onesided', normalize=True):
+def periodogram_csd(s, Sk=None, N=None, sides='default', normalize=True):
     """Takes an N-point periodogram estimate of all the cross spectral
     density functions between rows of s.
 
@@ -1447,19 +1462,28 @@ def periodogram_csd(s, Sk=None, N=None, sides='onesided', normalize=True):
 
     Paramters
     ---------
+
     s : ndarray
         Signals for which to estimate the CSD, time dimension in the last axis
+
     Sk : ndarray (optional)
         Precomputed FFT of rows of s
+
     N : int (optional)
         Indicates an N-point FFT where N != s.shape[-1]
-    sides : str (optional)        
-        Indicates whether to return a one-sided or two-sided CSD
+
+    sides : str (optional)   [ 'default' | 'onesided' | 'twosided' ]
+         This determines which sides of the spectrum to return. 
+         For complex-valued inputs, the default is two-sided, for real-valued
+         inputs, default is one-sided Indicates whether to return a one-sided
+         or two-sided
+         
     normalize : boolean (optional)
         Normalizes the PSD
 
     Returns
     -------
+    
     (freqs, csd_est) : ndarrays
         The estimatated CSD and the frequency points vector.
         The CSD{i,j}(f) are returned in a square "matrix" of vectors
@@ -1469,7 +1493,7 @@ def periodogram_csd(s, Sk=None, N=None, sides='onesided', normalize=True):
     Notes
     -----
     setting dw = 2*PI/N, then the integral from -PI, PI (or 0,PI) of PSD/(2PI)
-    will be nearly equal to sxy(0), where sxx is the crosscorrelation function
+    will be nearly equal to sxy(0), where sxx is the crosscovariance function
     of s1(n), s2(n). By definition, sxy(0) = E{s1(n)s2*(n)} ~ (s1*s2.conj()).mean()
     """
     s_shape = s.shape
@@ -1488,6 +1512,14 @@ def periodogram_csd(s, Sk=None, N=None, sides='onesided', normalize=True):
 
     M = Sk_loc.shape[0]
     norm = float(s.shape[-1])
+
+    # if the time series is a complex vector, a one sided PSD is invalid:
+    if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
+        sides='twosided'
+    elif sides in ('default', 'onesided'):
+        sides='onesided'
+
+
     if sides=='onesided':
         # putative Nyquist freq
         Fn = N/2 + 1
@@ -1516,54 +1548,25 @@ def periodogram_csd(s, Sk=None, N=None, sides='onesided', normalize=True):
     csd_mat[upper_idc] = csd_mat[lower_idc].conj()
     return freqs, csd_mat
 
-
-
-def nDPSS(Fs, N, BW):
-    """Given a sampling frequency, number of samples, and an approximate
-    DPSS window bandwidth, return the number of DPSSs to use in a
-    multi-taper PSD estimate: K = N*BW/Fs = BW/f0
-    Also returns the true bandwidth.
-
-    Paramters
-    ---------
-    Fs : float
-        sampling frequency
-    N : int
-        sequence length
-    BW : float
-        window bandwidth to match
-
-    Returns
-    -------
-    K, true_BW : int, float
-        The optimal number of DPSS windows to use in PSD estimation, and
-        the true bandwidth of the windows.
-
-    Notes
-    -----
-    The bandwidth parameter reflects the length of the interval [-BW/2, BW/2].
-    """
-    K = int(N*BW/Fs + 0.5)
-    true_BW = Fs*K/N
-    return K, true_BW
-
-def DPSS_windows(N, W, Kmax):
-    """Returns the first Kmax-1 Discrete Prolate Spheroidal Sequences for
-    a given frequency-spacing multiple W and sequence length N. 
+def DPSS_windows(N, NW, Kmax):
+    """Returns the Discrete Prolate Spheroidal Sequences of orders [0,Kmax-1]
+    for a given frequency-spacing multiple NW and sequence length N. 
 
     Paramters
     ---------
     N : int
         sequence length
-    W : float
-        half bandwidth corresponding to 2W = Kmax*f0 = (Kmax/T)
+    NW : float, unitless
+        standardized half bandwidth corresponding to 2NW = BW*f0 = BW*N/dt
+        but with dt taken as 1
     Kmax : int
-        number of DPSS windows to return is Kmax-1
+        number of DPSS windows to return is Kmax (orders 0 through Kmax-1)
 
     Returns
     -------
-    v : ndarray
-        an array of DPSS windows shaped (Kmax-1, N)
+    v,e : tuple,
+        v is an array of DPSS windows shaped (Kmax, N)
+        e are the eigenvalues 
 
     Notes
     -----
@@ -1580,8 +1583,8 @@ def DPSS_windows(N, W, Kmax):
     # (A - (l1)I)v = 0, where the eigenvector corresponding to the largest
     # eigenvalue is the sequence with maximally concentrated energy. The
     # collection of eigenvectors of this system are called Slepian sequences,
-    # or discrete prolate spheroidal sequences (DPSS). Only the first K-1,
-    # K = 2NW orders of DPSS will exhibit good spectral concentration
+    # or discrete prolate spheroidal sequences (DPSS). Only the first K,
+    # K = 2NW/dt orders of DPSS will exhibit good spectral concentration
     # [see http://en.wikipedia.org/wiki/Spectral_concentration_problem]
     
     # Here I set up an alternative symmetric tri-diagonal eigenvalue problem
@@ -1590,75 +1593,304 @@ def DPSS_windows(N, W, Kmax):
     # the main diagonal = ([N-1-2*t]/2)**2 cos(2PIW), t=[0,1,2,...,N-1]
     # and the first off-diangonal = t(N-t)/2, t=[1,2,...,N-1]
     # [see Percival and Walden, 1993]
+    W = float(NW)/N
     ab = np.zeros((2,N), 'd')
     nidx = np.arange(N)
     ab[0,1:] = nidx[1:]*(N-nidx[1:])/2.
     ab[1] = ((N-1-2*nidx)/2.)**2 * np.cos(2*np.pi*W)
     # only calculate the highest Kmax-1 eigenvectors
-    l,v = linalg.eig_banded(ab, select='i', select_range=(N+1-Kmax, N-1))
-    return v.transpose()[::-1]
+    l,v = linalg.eig_banded(ab, select='i', select_range=(N-Kmax, N-1))
+    dpss = v.transpose()[::-1]
 
-def multi_taper_psd(s, BW=None, Fs=2*np.pi, sides='onesided'):
+    # By convention (Percival and Walden, 1993 pg 379)
+    # * symmetric tapers (k=0,2,4,...) should have a positive average.
+    # * antisymmetric tapers should begin with a positive lobe
+    fix_symmetric = (dpss[0::2].sum(axis=1) < 0)
+    for i, f in enumerate(fix_symmetric):
+        if f:
+            dpss[2*i] *= -1
+    fix_skew = (dpss[1::2,1] < 0)
+    for i, f in enumerate(fix_skew):
+        if f:
+            dpss[2*i+1] *= -1
+
+    # Now find the eigenvalues of the original 
+    # Use the autocovariance sequence technique from Percival and Walden, 1993
+    # pg 390
+    # XXX : why debias false? it's all messed up o.w., even with means
+    # on the order of 1e-2
+    acvs = utils.autocov(dpss, debias=False) * N
+    r = 4*W*np.sinc(2*W*nidx)
+    r[0] = 2*W
+    eigvals = np.dot(acvs, r)
+    
+    return dpss, eigvals
+
+def mtm_combine_spectra(tx, ty, weights, sides='twosided'):
+    r"""
+
+    Parameters
+    ----------
+
+    tx, ty: ndarray (K, ..., N)
+       The tapered complex spectra, with K tapers
+
+    weights: ndarray, or 2-tuple or list
+       Weights can be specified as a length-2 list of weights for spectra tx
+       and ty respectively. Alternatively, if tx is ty and this function is
+       computing the spectral density function of a single sequence, the
+       weights can be given as an ndarray of weights for the spectrum.
+       Weights may be
+
+       * scalars, if the shape of the array is (K, ..., 1)
+       * vectors, with the shape of the array being the same as tx or ty
+
+    sides: str in {'onesided', 'twosided'}
+       For the symmetric spectra of a real sequence, optionally combine half
+       of the frequencies and scale the duplicate frequencies in the range
+       (0, F_nyquist).
+
+    Notes
+    -----
+
+    spectral densities are always computed as
+    :math:`S_{xy}^{mt}(f) = \frac{\sum_k [d_k^x(f)y_k^x(f)][d_k^y(f)(y_k^y(f))^{*}]}{[\sum_k d_k^x(f)^2]^{\frac{1}{2}}[\sum_k d_k^y(f)^2]^{\frac{1}{2}}}`
+
+    """
+    
+    N = tx.shape[-1]
+    if N!=ty.shape[-1]:
+        raise ValueError('shape mismatch between tx, ty')
+    pshape = list(tx.shape)
+
+    if isinstance(weights, (list, tuple)):
+        weights_x = weights[0]
+        weights_y = weights[1]
+        denom = (weights_x**2).sum(axis=0)**0.5
+        denom *= (weights_y**2).sum(axis=0)**0.5
+    else:
+        weights_x = weights
+        weights_y = weights
+        denom = (weights**2).sum(axis=0)
+
+    if sides=='onesided':
+        # where the nyq freq should be
+        Fn = N/2 + 1        
+        truncated_slice = [slice(None)] * len(tx.shape)
+        truncated_slice[-1] = slice(0, Fn)
+        tsl = tuple(truncated_slice)
+        tx = tx[tsl]
+        ty = ty[tsl]
+        # weights may be scalars, or already truncated
+        if weights_x.shape[-1] > Fn:
+            weights_x = weights_x[tsl]
+        if weights_y.shape[-1] > Fn:
+            weights_y = weights_y[tsl]
+
+    sf = weights_x*tx
+    sf *= (weights_y * ty.conj())
+    sf = sf.sum(axis=0)
+    sf /= denom
+
+    if sides=='onesided':
+        # last duplicate freq
+        Fl = (N+1)/2
+        sub_slice = [slice(None)] * len(sf.shape)
+        sub_slice[-1] = slice(1, Fl)
+        sf[tuple(sub_slice)] *= 2
+
+    return sf
+    
+##     if sides=='onesided':
+##         # putative Nyquist freq
+##         Fn = N/2 + 1
+##         # last duplicate freq
+##         Fl = (N+1)/2
+##         pshape[-1] = Fn
+##         p = np.zeros(pshape, 'D')
+##         p[...,0] = tx[...,0]*ty[...,0].conj()
+##         p[...,1:Fl] = 2 * tx[...,1:Fl]*ty[...,1:Fl].conj()
+##         if Fn > Fl:
+##             p[...,Fn-1] = tx[...,Fn-1]*ty[...,Fn-1].conj()
+##     else:
+##         p = tx*ty.conj()
+
+##     # now the combination is sum( p * (wx*wy), axis=0 ) / sum( wx*wy )
+##     wslice = [np.newaxis] * len(p.shape)
+##     wslice[0] = slice(None)
+##     p *= (weights_x[wslice] * weights_y[wslice])
+##     sxy = p.sum(axis=0)
+##     sxy /= (weights_x * weights_y).sum()
+##     return sxy
+
+
+def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
+                    low_bias=True, sides='default'):
     """Returns an estimate of the PSD function of s using the multitaper
-    method. If BW and Fs are not specified by the user, a bandwidth of 4
-    times the fundamental frequency, corresponding to K = 8.
+    method. If the NW product, or the BW and Fs in Hz are not specified
+    by the user, a bandwidth of 4 times the fundamental frequency,
+    corresponding to NW = 4 will be used.
 
     Parameters
     ----------
     s : ndarray
-        An array of sampled random processes, where the time axis is
-        assumed to be on the last axis
-    BW : float (optional)
-        The bandwidth of the windowing function will determine the number
-        tapers to use. Normal values are in the range [3/2,5] * 2f0, where
-        f0 is the fundamental frequency of an N-length sequence.
-        This parameters represents trade-off between frequency resolution (BW)
-        and variance reduction (number of tapers).
-    Fs : float (optional)
-        The sampling frequency
-    sides : str (optional)
-        Indicates whether to return a one-sided or two-sided PSD
+       An array of sampled random processes, where the time axis is
+       assumed to be on the last axis
+    width : tuple or int, optional    
+       The bandwidth of the windowing function will determine the number
+       tapers to use. This parameters represents trade-off between frequency
+       resolution (lower main lobe BW for the taper) and variance reduction
+       (higher BW and number of averaged estimates).
+       This parameter can be given in two ways:
+
+       * the NW product, which is typically a number between 2.5, 10 (??);
+         sampling frequency is taken to be unity in this case.
+       * the (Fs, BW) pair specifying sampling frequency and taper
+         bandwidth. This converts to a NW number rounded from BW / (2*f0),
+         where f0 is the fundamental frequency of an N-length sequence.
+         
+    adaptive : {True/False}
+       Use an adaptive weighting routine to combine the PSD estimates of
+       different tapers.
+    jackknife : {True/False}
+       Use the jackknife method to make an estimate of the PSD variance
+       at each point.
+    low_bias : {True/False}
+       Rather than use 2NW tapers, only use the tapers that have better than
+       90% spectral concentration within the bandwidth (still using
+       a maximum of 2NW tapers)
+    sides : str (optional)   [ 'default' | 'onesided' | 'twosided' ]
+         This determines which sides of the spectrum to return. 
+         For complex-valued inputs, the default is two-sided, for real-valued
+         inputs, default is one-sided Indicates whether to return a one-sided
+         or two-sided
 
     Returns
     -------
-    (freqs, psd_est) : ndarrays
-        The estimatated PSD and the frequency points vector
+    (freqs, psd_est, ssigma_or_nu) : ndarrays
+        The first two arrays are the frequency points vector and the
+        estimatated PSD. The last returned array differs depending on whether
+        the jackknife was used. It is either
+
+        * The jackknife estimated variance, OR
+        * The degrees of freedom in a chi2 model of how the estimated
+          log-PSD is distributed about the true log-PSD (this is either
+          2*floor(2*NW), or calculated from adaptive weights)
+          
 
     """
     # have last axis be time series for now
     N = s.shape[-1]
+    rest_of = s.shape[:-1]
 
-    # choose bw 2W to be a small multiple of the fundamental freq f0=Fs/N
-    if not BW:
-        W = 4 * Fs / N # 2W = 4 * 2f0
-        Kmax = 8
+    s = s.reshape( int(np.product(rest_of)), N )
+    # de-mean this sucker
+    s = utils.remove_bias(s, axis=-1)
+    
+    if isinstance(width, (list, tuple)):
+        Fs, BW = width
+        NW = BW/(2*Fs) * N
+        Kmax = int(2*NW)
+    elif isinstance(width, (int, float)):
+        Fs, NW = 2*np.pi, width
+        Kmax = int(2*NW)
     else:
-        Kmax, true_BW = nDPSS(Fs, N, BW)
-        W = true_BW/2.
+        NW = 4
+        Kmax = 8
+        
+    v, l = DPSS_windows(N, NW, Kmax)
+    if low_bias:
+        keepers = (l > 0.9)
+        v = v[keepers]
+        l = l[keepers]
+        Kmax = len(v)
+    print 'using', Kmax, 'tapers with BW=', NW * Fs/(np.pi*N)
 
-    v = DPSS_windows(N, W, Kmax)
+    # if the time series is a complex vector, a one sided PSD is invalid:
+    if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
+        sides='twosided'
+    elif sides in ('default', 'onesided'):
+        sides='onesided'
 
     sig_sl = [slice(None)]*len(s.shape)
     sig_sl.insert(-1, np.newaxis)
 
-    # tapers.shape is (..., Kmax-1, N)
-    tapers = s[sig_sl] * v
+    # tapered.shape is (..., Kmax, N)
+    tapered = s[sig_sl] * v
+    # Find the direct spectral estimators S_k(f) for k tapered signals..
     # don't normalize the periodograms by 1/N as normal.. since the taper
     # windows are orthonormal, they effectively scale the signal by 1/N
-    f,tapers_sdf = periodogram(tapers, sides=sides, normalize=False)
+
+##     f,tapered_sdf = periodogram(tapered, sides=sides, normalize=False)
+
+    tapered_spectra = np.fft.fft(tapered)
+
+    last_freq = N/2+1 if sides=='onesided' else N
+
+    # degrees of freedom at each timeseries, at each freq
+    nu = np.empty( (s.shape[0], last_freq) )
+    if adaptive:
+        mag_sqr_spectra = np.abs(tapered_spectra)
+        np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
+        weights = np.empty( mag_sqr_spectra.shape[:-1] + (last_freq,) )
+        for i in xrange(s.shape[0]):
+            weights[i], nu[i] = utils.adaptive_weights(
+                mag_sqr_spectra[i], l, last_freq
+                )
+    else:
+        # let the weights simply be the square-root of the eigenvalues
+        wshape = [1] * len(tapered.shape)
+        wshape[-2] = Kmax
+        weights = np.sqrt(l).reshape( *wshape )
+        nu.fill(2*Kmax)
+
+    if jackknife:
+        jk_var = np.empty_like(nu)
+        if not adaptive:
+            # compute the magnitude squared spectra, if not done already
+            mag_sqr_spectra = np.abs(tapered_spectra)
+            np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
+        for i in xrange(s.shape[0]):
+            jk_var[i] = utils.jackknifed_sdf_variance(
+                mag_sqr_spectra[i], weights=weights[i], last_freq=last_freq
+                )
+    
+    # Compute the unbiased spectral estimator for S(f) as the sum of
+    # the S_k(f) weighted by the function w_k(f)**2, all divided by the
+    # sum of the w_k(f)**2 over k
+
+    # 1st, roll the tapers axis forward
+    tapered_spectra = np.rollaxis(tapered_spectra, 1, start=0)
+    weights = np.rollaxis(weights, 1, start=0)
+    sdf_est = mtm_combine_spectra(
+        tapered_spectra, tapered_spectra, weights, sides=sides
+        ).real
 
     if sides=='onesided':
         freqs = np.linspace(0, Fs/2, N/2+1)
+        if jackknife:
+            # if the sdf was scaled by 2 at duplicate freqs,
+            # then the variance will have to be scaled by 2**2
+            jk_var[...,1:(N+1)/2] *= 4
     else:
         freqs = np.linspace(0, Fs, N, endpoint=False)
-        
-    psd_est = tapers_sdf.mean(axis=-2)
-    return freqs, psd_est
 
-def multi_taper_csd(s, BW=None, Fs=2*np.pi, sides='onesided'):
-    """Returns an estimate of the PSD function of s using the multitaper
-    method. If BW and Fs are not specified by the user, a bandwidth of 4
-    times the fundamental frequency, corresponding to K = 8.
+    out_shape = rest_of + ( len(freqs), )
+    sdf_est.shape = out_shape
+    if jackknife:
+        jk_var.shape = out_shape
+        return freqs, sdf_est, jk_var
+    else:
+        nu.shape = out_shape
+        return freqs, sdf_est, nu
+
+def multi_taper_csd(s, width=None, low_bias=True, adaptive=True,
+                    sides='twosided'):
+    """Returns an estimate of the Cross Spectral Density (CSD) function
+    between all (N choose 2) pairs of timeseries in s, using the multitaper
+    method. If the NW product, or the BW and Fs in Hz are not specified by
+    the user, a bandwidth of 4 times the fundamental frequency, corresponding
+    to NW = 4 will be used.
 
     Parameters
     ----------
@@ -1666,17 +1898,30 @@ def multi_taper_csd(s, BW=None, Fs=2*np.pi, sides='onesided'):
         An array of sampled random processes, where the time axis is
         assumed to be on the last axis. If ndim > 2, the number of time
         series to compare will still be taken as prod(s.shape[:-1])
-        
-    BW : float (optional)
-        The bandwidth of the windowing function will determine the number
-        tapers to use. Normal values are in the range [3/2,5] * 2f0, where
-        f0 is the fundamental frequency of an N-length sequence.
-        This parameters represents trade-off between frequency resolution
-        (narrow BW) and variance reduction (number of tapers).
-    Fs : float (optional)
-        The sampling frequency
-    sides : str (optional)
-        Indicates whether to return a one-sided or two-sided PSD
+    width : tuple or int, optional    
+       The bandwidth of the windowing function will determine the number
+       tapers to use. This parameters represents trade-off between frequency
+       resolution (lower main lobe BW for the taper) and variance reduction
+       (higher BW and number of averaged estimates).
+       This parameter can be given in two ways:
+
+       * the NW product, which is typically a number between 2.5, 10 (??);
+         sampling frequency is taken to be unity in this case.
+       * the (Fs, BW) pair specifying sampling frequency and taper
+         bandwidth. This converts to a NW number rounded from BW / (2*f0),
+         where f0 is the fundamental frequency of an N-length sequence.
+
+    adaptive : {True, False}
+       Use adaptive weighting to combine spectra
+    low_bias : {True, False}
+       Rather than use 2NW tapers, only use the tapers that have better than
+       90% spectral concentration within the bandwidth (still using
+       a maximum of 2NW tapers)
+    sides : str (optional)   [ 'default' | 'onesided' | 'twosided' ]
+         This determines which sides of the spectrum to return. 
+         For complex-valued inputs, the default is two-sided, for real-valued
+         inputs, default is one-sided Indicates whether to return a one-sided
+         or two-sided
 
     Returns
     -------
@@ -1685,54 +1930,115 @@ def multi_taper_csd(s, BW=None, Fs=2*np.pi, sides='onesided'):
         The CSD{i,j}(f) are returned in a square "matrix" of vectors
         holding Sij(f). For an input array of (M,N), the output is (M,M,N)
     """
-    s_shape = s.shape
-    M, N = np.prod(s_shape[:-1]), s_shape[-1]
-    s.shape = (M, N)
-    
-    # choose bw W to be a small multiple of the fundamental freq f0=Fs/N
-    if not BW:
-        W = 4 * Fs/N # 2W = 4 * 2f0
-        Kmax = 8
-    else:
-        Kmax, true_BW = nDPSS(Fs, N, BW)
-        W = true_BW/2.
+    # have last axis be time series for now
+    N = s.shape[-1]
+    rest_of = s.shape[:-1]
+    M = int(np.product(rest_of))
 
-    v = DPSS_windows(N, W, Kmax)
+    s = s.reshape( M, N )
+    # de-mean this sucker
+    s = utils.remove_bias(s, axis=-1)
+    
+    if isinstance(width, (list, tuple)):
+        Fs, BW = width
+        NW = BW/(2*Fs) * N
+        Kmax = int(2*NW)
+    elif isinstance(width, (int, float)):
+        Fs, NW = 2*np.pi, width
+        Kmax = int(2*NW)
+    else:
+        NW = 4
+        Kmax = 8
+        
+    v, l = DPSS_windows(N, NW, Kmax)
+    if low_bias:
+        keepers = (l > 0.9)
+        v = v[keepers]
+        l = l[keepers]
+        Kmax = len(v)
+    print 'using', Kmax, 'tapers with BW=', NW * Fs/(np.pi*N)
+
+    # if the time series is a complex vector, a one sided PSD is invalid:
+    if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
+        sides='twosided'
+    elif sides in ('default', 'onesided'):
+        sides='onesided'
 
     sig_sl = [slice(None)]*len(s.shape)
     sig_sl.insert(len(s.shape)-1, np.newaxis)
-    
-    # tapers.shape is (M, Kmax-1, N)
-    tapers = s[sig_sl] * v
 
-    Sk = np.fft.fft(tapers)
-    if sides=='onesided':
-        Fl = (N+1)/2
-        Fn = N/2 + 1
-        csd_mat = np.empty((M,M,Fn), 'D')
-        freqs = np.linspace(0, np.pi, Fn)
+    # tapered.shape is (M, Kmax-1, N)
+    tapered = s[sig_sl] * v
+
+    # compute the y_{i,k}(f)
+    tapered_spectra = np.fft.fft(tapered)
+
+    # compute the cross-spectral density functions
+    last_freq = N/2+1 if sides=='onesided' else N
+
+    if adaptive:
+        mag_sqr_spectra = np.abs(tapered_spectra)
+        np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
+        w = np.empty( mag_sqr_spectra.shape[:-1] + (last_freq,) )
+        nu = np.empty( (M, last_freq) )
         for i in xrange(M):
-            for j in xrange(i+1):
-                csd = np.zeros((Kmax-1,Fn), 'D')
-                csd[:,0] = (Sk[i,:,0]*Sk[j,:,0].conj())
-                csd[:,1:Fl] = 2 * (Sk[i,:,1:Fl]*Sk[j,:,1:Fl].conj())
-                if Fn > Fl:
-                    csd[:,Fn-1] = Sk[i,:,Fn-1]*Sk[j,:,Fn-1].conj()
-                csd_mat[i,j] = csd.mean(axis=0)
+            w[i], nu[i] = utils.adaptive_weights(
+                mag_sqr_spectra[i], l, last_freq
+                )
     else:
-        csd_mat = np.empty((M,M,N), 'D')
-        freqs = np.linspace(0, 2*np.pi, N, endpoint=False)
-        for i in xrange(M):
-            for j in xrange(i+1):
-                csd_mat[i,j] = (Sk[i]*Sk[j].conj()).mean(axis=0)
+        weights = np.sqrt(l).reshape(Kmax, 1)
 
+    csdfs = np.empty((M,M,last_freq), 'D')
+    for i in xrange(M):
+        if adaptive:
+            wi = w[i]
+        else:
+            wi = weights
+        for j in xrange(i+1):
+            if adaptive:
+                wj = w[j]
+            else:
+                wj = weights
+            ti = tapered_spectra[i]
+            tj = tapered_spectra[j]
+            csdfs[i,j] = mtm_combine_spectra(ti, tj, (wi, wj), sides=sides)
+    
     upper_idc = ut.triu_indices(M,k=1)
     lower_idc = ut.tril_indices(M,k=-1)
-    csd_mat[upper_idc] = csd_mat[lower_idc].conj()
+    csdfs[upper_idc] = csdfs[lower_idc].conj()
 
-    return freqs, csd_mat 
+    if sides=='onesided':
+        freqs = np.linspace(0, Fs/2, N/2+1)
+    else:
+        freqs = np.linspace(0, Fs, N, endpoint=False)
+
+    return freqs, csdfs 
 
 def my_freqz(b, a=1., Nfreqs=1024, sides='onesided'):
+    """
+    Returns the frequency response of the IIR or FIR filter described
+    by beta and alpha coefficients. 
+
+    Parameters
+    ----------
+
+    b : beta sequence (moving average component)
+    a : alpha sequence (autoregressive component)
+    Nfreqs : size of frequency grid
+    sides : {'onesided', 'twosided'}
+       compute frequencies between [-PI,PI), or from [0, PI]
+
+    Returns
+    -------
+
+    fgrid, H(e^jw)
+
+    Notes
+    -----
+    For a description of the linear constant-coefficient difference
+    equation, see http://en.wikipedia.org/wiki/Z-transform#Linear_constant-coefficient_difference_equation
+
+    """
     if sides=='onesided':
         fgrid = np.linspace(0,np.pi,Nfreqs/2+1)
     else:
@@ -1780,7 +2086,7 @@ def yule_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
         If sides=='onesided', Nfreqs/2+1 frequencies are computed from [0,PI]
 
     sxx : ndarray (optional)
-        An optional, possibly unbiased estimate of the autocorrelation of s
+        An optional, possibly unbiased estimate of the autocovariance of s
 
     sides : str (optional)
         Indicates whether to return a one-sided or two-sided PSD
@@ -1798,7 +2104,7 @@ def yule_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
     if sxx is not None and type(sxx) == np.ndarray:
         sxx_m = sxx[:order+1]
     else:
-        sxx_m = ut.autocorr(s)[:order+1]
+        sxx_m = ut.autocov(s)[:order+1]
 
     R = linalg.toeplitz(sxx_m[:order].conj())
     y = sxx_m[1:].conj()
@@ -1844,7 +2150,7 @@ def LD_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
         If sides=='onesided', Nfreqs/2+1 frequencies are computed from [0,PI]
 
     sxx : ndarray (optional)
-        An optional, possibly unbiased estimate of the autocorrelation of s
+        An optional, possibly unbiased estimate of the autocovariance of s
 
     sides : str (optional)
         Indicates whether to return a one-sided or two-sided PSD
@@ -1862,7 +2168,7 @@ def LD_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
     if sxx is not None and type(sxx) == np.ndarray:
         sxx_m = sxx[:order+1]
     else:
-        sxx_m = ut.autocorr(s)[:order+1]
+        sxx_m = ut.autocov(s)[:order+1]
     
     phi = np.zeros((order+1, order+1), 'd')
     sig = np.zeros(order+1)
@@ -2257,39 +2563,6 @@ def gauss_white_noise(npts):
 
     # XXX No validation that output is gaussian enough yet
     return n
-
-def autocov(x):
-    """ Calculate the auto-covariance of a signal.
-
-    This assumes that the signal is wide-sense stationary
-
-    Parameters
-    ----------
-
-    x: 1-d float array
-
-    The signal
-
-    Returns
-    -------
-
-    nXn array (where n is x.shape[0]) with the autocovariance matrix of the
-    signal x
-
-    Notes
-    -----
-
-    See: http://en.wikipedia.org/wiki/Autocovariance
-    
-    """
-
-    n = x.shape[0]
-    autocov = np.empty((n,n))
-
-    for i in range(n):
-        autocov[i] = np.correlate(x,np.roll(x,-i),'same') - x.mean()**2
-
-    return autocov
         
 #TODO:
 # * Write tests for various morlet wavelets

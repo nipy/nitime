@@ -195,6 +195,17 @@ def test_fir():
 @npt.dec.skipif(True)
 def test_percent_change():
     assert False, "Test Not Implemented"
+
+def test_DPSS_windows():
+    "Are the eigenvalues representing spectral concentration near unity"
+    # these values from Percival and Walden 1993
+    _, l = tsa.DPSS_windows(31, 6, 4)
+    unos = np.ones(4)
+    yield npt.assert_array_almost_equal, l, unos 
+    _, l = tsa.DPSS_windows(31, 7, 4)
+    yield npt.assert_array_almost_equal, l, unos 
+    _, l = tsa.DPSS_windows(31, 8, 4)
+    yield npt.assert_array_almost_equal, l, unos
                 
 def test_yule_walker_AR():
     arsig,_,_ = ut.ar_generator(N=512)
