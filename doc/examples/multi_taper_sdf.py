@@ -1,3 +1,15 @@
+"""This illustrates multi-taper spectral density function estimation.
+
+References:
+
+﻿[1] D. Thomson, "Spectrum estimation and harmonic analysis," Proceedings of the
+IEEE, vol. 70, 1982.
+
+﻿[2] D.J. Thomson, "Jackknifing Multitaper Spectrum Estimates [Identifying
+variances of complicated estimation procedures]," IEEE Signal Processing
+Magazine, 2007, pp. 20-30.
+"""
+
 import numpy as np
 import matplotlib.pyplot as pp
 import scipy.stats.distributions as dist
