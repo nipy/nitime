@@ -1519,7 +1519,6 @@ def periodogram_csd(s, Sk=None, N=None, sides='default', normalize=True):
     elif sides in ('default', 'onesided'):
         sides='onesided'
 
-
     if sides=='onesided':
         # putative Nyquist freq
         Fn = N/2 + 1
@@ -1876,7 +1875,7 @@ def multi_taper_psd(s, Fs=2*np.pi, BW = None,  adaptive=False,
         return freqs, sdf_est, nu
 
 def multi_taper_csd(s, Fs=2*np.pi, BW=None, low_bias=True,
-                    adaptive=False, sides='twosided'):
+                    adaptive=False, sides='default'):
     """Returns an estimate of the Cross Spectral Density (CSD) function
     between all (N choose 2) pairs of timeseries in s, using the multitaper
     method. If the NW product, or the BW and Fs in Hz are not specified by

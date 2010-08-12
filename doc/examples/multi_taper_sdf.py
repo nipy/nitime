@@ -2,10 +2,10 @@
 
 References:
 
-﻿[1] D. Thomson, "Spectrum estimation and harmonic analysis," Proceedings of the
+[1] D. Thomson, "Spectrum estimation and harmonic analysis," Proceedings of the
 IEEE, vol. 70, 1982.
 
-﻿[2] D.J. Thomson, "Jackknifing Multitaper Spectrum Estimates [Identifying
+[2] D.J. Thomson, "Jackknifing Multitaper Spectrum Estimates [Identifying
 variances of complicated estimation procedures]," IEEE Signal Processing
 Magazine, 2007, pp. 20-30.
 """
