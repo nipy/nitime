@@ -1724,8 +1724,8 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
 ##     return sxy
 
 
-def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
-                    low_bias=True, sides='default'):
+def multi_taper_psd(s, Fs=2*np.pi, BW = None,  adaptive=False,
+                    jackknife=True,low_bias=True, sides='default'):
     """Returns an estimate of the PSD function of s using the multitaper
     method. If the NW product, or the BW and Fs in Hz are not specified
     by the user, a bandwidth of 4 times the fundamental frequency,
@@ -1736,19 +1736,13 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
     s : ndarray
        An array of sampled random processes, where the time axis is
        assumed to be on the last axis
-    width : tuple or int, optional    
-       The bandwidth of the windowing function will determine the number
+    Fs: float, Sampling rate of the signal
+
+    BW: float, The bandwidth of the windowing function will determine the number
        tapers to use. This parameters represents trade-off between frequency
        resolution (lower main lobe BW for the taper) and variance reduction
        (higher BW and number of averaged estimates).
-       This parameter can be given in two ways:
-
-       * the NW product, which is typically a number between 2.5, 10 (??);
-         sampling frequency is taken to be unity in this case.
-       * the (Fs, BW) pair specifying sampling frequency and taper
-         bandwidth. This converts to a NW number rounded from BW / (2*f0),
-         where f0 is the fundamental frequency of an N-length sequence.
-         
+       
     adaptive : {True/False}
        Use an adaptive weighting routine to combine the PSD estimates of
        different tapers.
@@ -1787,17 +1781,13 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
     # de-mean this sucker
     s = utils.remove_bias(s, axis=-1)
 
-    # XXX : change width to Fs, BW in separate args
-    if isinstance(width, (list, tuple)):
-        Fs, BW = width
+    #Get the number of tapers from the sampoing rate and the bandwidth:
+    if BW is not None:
         NW = BW/(2*Fs) * N
-        Kmax = int(2*NW)
-    elif isinstance(width, (int, float)):
-        Fs, NW = 2*np.pi, width
-        Kmax = int(2*NW)
     else:
-        NW = 4
-        Kmax = 8
+        NW = 4 
+
+    Kmax = int(2*NW)
         
     v, l = DPSS_windows(N, NW, Kmax)
     if low_bias:
@@ -1885,8 +1875,8 @@ def multi_taper_psd(s, width=None, adaptive=True, jackknife=True,
         nu.shape = out_shape
         return freqs, sdf_est, nu
 
-def multi_taper_csd(s, width=None, low_bias=True, adaptive=True,
-                    sides='twosided'):
+def multi_taper_csd(s, Fs=2*np.pi, BW=None, low_bias=True,
+                    adaptive=False, sides='twosided'):
     """Returns an estimate of the Cross Spectral Density (CSD) function
     between all (N choose 2) pairs of timeseries in s, using the multitaper
     method. If the NW product, or the BW and Fs in Hz are not specified by
@@ -1899,18 +1889,13 @@ def multi_taper_csd(s, width=None, low_bias=True, adaptive=True,
         An array of sampled random processes, where the time axis is
         assumed to be on the last axis. If ndim > 2, the number of time
         series to compare will still be taken as prod(s.shape[:-1])
-    width : tuple or int, optional    
-       The bandwidth of the windowing function will determine the number
+
+    Fs: float, Sampling rate of the signal
+
+    BW: float, The bandwidth of the windowing function will determine the number
        tapers to use. This parameters represents trade-off between frequency
        resolution (lower main lobe BW for the taper) and variance reduction
        (higher BW and number of averaged estimates).
-       This parameter can be given in two ways:
-
-       * the NW product, which is typically a number between 2.5, 10 (??);
-         sampling frequency is taken to be unity in this case.
-       * the (Fs, BW) pair specifying sampling frequency and taper
-         bandwidth. This converts to a NW number rounded from BW / (2*f0),
-         where f0 is the fundamental frequency of an N-length sequence.
 
     adaptive : {True, False}
        Use adaptive weighting to combine spectra
@@ -1939,25 +1924,22 @@ def multi_taper_csd(s, width=None, low_bias=True, adaptive=True,
     s = s.reshape( M, N )
     # de-mean this sucker
     s = utils.remove_bias(s, axis=-1)
-    
-    if isinstance(width, (list, tuple)):
-        Fs, BW = width
+
+    #Get the number of tapers from the sampoing rate and the bandwidth:
+    if BW is not None:
         NW = BW/(2*Fs) * N
-        Kmax = int(2*NW)
-    elif isinstance(width, (int, float)):
-        Fs, NW = 2*np.pi, width
-        Kmax = int(2*NW)
     else:
-        NW = 4
-        Kmax = 8
-        
+        NW = 4 
+
+    Kmax = int(2*NW)
+
     v, l = DPSS_windows(N, NW, Kmax)
     if low_bias:
         keepers = (l > 0.9)
         v = v[keepers]
         l = l[keepers]
         Kmax = len(v)
-    print 'using', Kmax, 'tapers with BW=', NW * Fs/(np.pi*N)
+    #print 'using', Kmax, 'tapers with BW=', NW * Fs/(np.pi*N)
 
     # if the time series is a complex vector, a one sided PSD is invalid:
     if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
