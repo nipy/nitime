@@ -215,7 +215,7 @@ def test_yule_walker_AR():
     # for the following integral
     dw = 1./1024
     avg_pwr_est = np.trapz(psd, dx=dw)
-    npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=2)
+    npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
 
 def test_LD_AR():
     arsig,_,_ = ut.ar_generator(N=512)
@@ -225,7 +225,7 @@ def test_LD_AR():
     # for the following integral
     dw = 1./1024
     avg_pwr_est = np.trapz(psd, dx=dw)
-    npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=2)
+    npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
     
 def test_periodogram():
     arsig,_,_ = ut.ar_generator(N=512)
@@ -274,6 +274,7 @@ def test_get_spectra():
     f_mlab=tsa.get_spectra(x,method={'this_method':'mlab','NFFT':NFFT})
     f_periodogram=tsa.get_spectra(x,method={'this_method':'periodogram_csd'})
     f_multi_taper=tsa.get_spectra(x,method={'this_method':'multi_taper_csd'})
-    
+
     npt.assert_equal(f_mlab[0].shape[0],NFFT/2+1)
-    npt.assert_equal(f_periodogram[0].shape,f_multi_taper[0].shape)
+    npt.assert_equal(f_periodogram[0].shape[0],N/2+1)
+    npt.assert_equal(f_multi_taper[0].shape[0],N/2+1)
