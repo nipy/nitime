@@ -388,7 +388,7 @@ def jackknifed_coh_variance(tx, ty, weights=None, last_freq=None):
 #-----------------------------------------------------------------------------
 # Multitaper utils
 #-----------------------------------------------------------------------------
-def adaptive_weights(sdfs, eigvals, last_freq):
+def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
     r"""
     Perform an iterative procedure to find the optimal weights for K
     direct spectral estimators of DPSS tapered signals.
@@ -449,8 +449,7 @@ def adaptive_weights(sdfs, eigvals, last_freq):
     nu = np.empty(last_freq)
     err = np.zeros( (Kmax, last_freq) )
 
-    n = 0
-    while True:
+    for n in range(max_iter):
         d_k = sdf_iter[None,:] / (l[:,None]*sdf_iter[None,:] + \
                                   (1-l[:,None])*var_est)
         d_k *= rt_l[:,None]
@@ -459,17 +458,17 @@ def adaptive_weights(sdfs, eigvals, last_freq):
         # if the maximum RMS error across tapers is less than 1e-10, then
         # we're converged
         err -= d_k
-        n += 1
 ##         if (( (err**2).mean(axis=1) )**.5).max() < 1e-10:
 ##             break
-        if (err**2).mean(axis=0).max() < 1e-10 or n > 40:
-            if n > 40:
-                print 'breaking due to iterative meltdown'
+        if (err**2).mean(axis=0).max() < 1e-10:
             break
         # update the iterative estimate with this d_k
         sdf_iter = (d_k**2 * sdfs[:,:last_freq]).sum(axis=0)
         sdf_iter /= (d_k**2).sum(axis=0)
         err = d_k
+    else: #If you have reached maximum number of iterations
+        raise ValueError('breaking due to iterative meltdown')
+           
     weights = d_k
     nu = 2 * (weights**2).sum(axis=-2)**2
     nu /= (weights**4).sum(axis=-2)
