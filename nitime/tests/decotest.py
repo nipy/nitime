@@ -46,42 +46,6 @@ import unittest
 from compiler.consts import CO_GENERATOR
 from doctest import DocTestFinder, DocTestRunner
 
-#-----------------------------------------------------------------------------
-# nose monkeypatch, remove later
-#-----------------------------------------------------------------------------
-if 1:
-
-    def getTestCaseNames(self, testCaseClass):
-        """Override to select with selector, unless
-        config.getTestCaseNamesCompat is True
-        """
-        if self.config.getTestCaseNamesCompat:
-            return unittest.TestLoader.getTestCaseNames(self, testCaseClass)
-        
-        def wanted(attr, cls=testCaseClass, sel=self.selector):
-            item = getattr(cls, attr, None)
-            # MONKEYPATCH: replace this:
-            #if not ismethod(item):
-            # With:
-            if not hasattr(item, '__call__'):
-            # END MONKEYPATCH
-                return False
-            return sel.wantMethod(item)
-        cases = filter(wanted, dir(testCaseClass))
-        for base in testCaseClass.__bases__:
-            for case in self.getTestCaseNames(base):
-                if case not in cases:
-                    cases.append(case)
-        # add runTest if nothing else picked
-        if not cases and hasattr(testCaseClass, 'runTest'):
-            cases = ['runTest']
-        if self.sortTestMethodsUsing:
-            cases.sort(self.sortTestMethodsUsing)
-        return cases
-
-    import nose.loader
-    nose.loader.TestLoader.getTestCaseNames = getTestCaseNames
-
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -169,7 +133,14 @@ class ParametricTestCase(unittest.TestCase):
 def parametric(func):
     """Decorator to make a simple function into a normal test via unittest."""
     class Tester(ParametricTestCase):
-        test = staticmethod(func)
+
+        # We need a normal method that calls the original function.  Do NOT
+        # fall into the temptation of using staticmethod here, because a
+        # staticmethod doesn't have the proper structure of a real instance
+        # method, which the rest of nose/unittest will need later.  So a simple
+        # pass-through test() method that just calls func() is sufficient.
+        def test(self):
+            func()
 
     Tester.__name__ = func.func_name
 
