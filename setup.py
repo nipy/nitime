@@ -25,8 +25,6 @@ def configuration(parent_package='',top_path=None):
 
     config.get_version('nitime/version.py') # sets config.version
 
-    config.add_subpackage('nitime', 'nitime')
-
     return config
 
 
@@ -39,6 +37,10 @@ def main():
            author_email = 'nipy-devel@neuroimaging.scipy.org',
            url = 'http://neuroimaging.scipy.org',
            long_description = __doc__,
+           packages = ['nitime',
+                       'nitime.fmri', 'nitime.fmri.tests',
+                       'nitime.fixes',
+                       'nitime.tests'],
            configuration = configuration)
 
 
