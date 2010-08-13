@@ -34,8 +34,8 @@ model (see [Burock2000]_ for details) and the other is based on a
 cross-correlation method (thanks to Lavi Secundo for providing a previous
 implementation of this idea):
 
-.. plot:: examples/event_related_fmri_fir.py
-   :include-source:
+.. .. plot:: examples/event_related_fmri_fir.py
+..   :include-source:
 
 As you can see, the cross-correlation method can be applied directly to the %
 change, or can be applied to the zscore of the % signal change, by setting the

@@ -6,6 +6,12 @@ XXX wrie top level doc-string
 import numpy as np
 import scipy.linalg as linalg
 
+from nitime.fixes.fftconvolve import fftconvolve
+try:
+    from _utils import adaptive_weights_cython
+except:
+    pass
+
 #-----------------------------------------------------------------------------
 # Spectral estimation testing utilities
 #-----------------------------------------------------------------------------
@@ -70,15 +76,12 @@ def hanning_window_spectrum(N, Fs):
     -----
     This is equation 28b in [1]
     
-    ..math::
-
-    W(\theta) = 0.5 D(\theta) + 0.25 (D(\theta - \frac{2\pi}{N}) +
-    D(\theta + \frac{2\pi}{N}) ), 
+    :math:`W(\theta) = 0.5 D(\theta) + 0.25 (D(\theta - \frac{2\pi}{N}) +
+    D(\theta + \frac{2\pi}{N}) )`, 
 
     where:
 
-    D(\theta) = exp(j \frac{\theta}{2}) \frac{\frac{sin\frac{N\theta}{2}}
-    {sin\frac{\theta}{2}}}
+    :math:`D(\theta) = exp(j\frac{\theta}{2})\frac{sin\frac{N\theta}{2}}{sin\frac{\theta}{2}}`
 
     ..[1] F.J. Harris (1978). On the use of windows for harmonic analysis with
     the discrete Fourier transform. Proceedings of the IEEE, 66:51-83
@@ -95,12 +98,34 @@ def hanning_window_spectrum(N, Fs):
 
 def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     """
-    # this generates a signal u(n) = a1*u(n-1) + a2*u(n-2) + ... + v(n)
-    # where v(n) is a stationary stochastic process with zero mean
-    # and variance = sigma
-    # this sequence is shown to be estimated well by an order 8 AR system
+    This generates a signal u(n) = a1*u(n-1) + a2*u(n-2) + ... + v(n)
+    where v(n) is a stationary stochastic process with zero mean
+    and variance = sigma.
+
+    Returns
+    -------
+
+    u: ndarray
+       the AR sequence
+    v: ndarray
+       the additive noise sequence
+    coefs: ndarray
+       feedback coefficients from k=1,len(coefs)
+
+    The form of the feedback coefficients is a little different than
+    the normal linear constant-coefficient difference equation. For
+    example ...
+
+    Examples
+    --------
+    
+    >>> ar_seq, nz, alpha = utils.ar_generator()
+    >>> fgrid, hz = alg.my_freqz(1.0, a=np.r_[1, -alpha])
+    >>> sdf_ar = (hz*hz.conj()).real
+
     """
     if coefs is None:
+        # this sequence is shown to be estimated well by an order 8 AR system
         coefs = np.array([2.7607, -3.8106, 2.6535, -0.9238])
     else:
         coefs = np.asarray(coefs)
@@ -156,38 +181,428 @@ def circularize(x,bottom=0,top=2*np.pi,deg=False):
 
     return np.squeeze(circularize(x,bottom=bottom,top=top))
 
+#-----------------------------------------------------------------------------
+# Stats utils
+#-----------------------------------------------------------------------------
+def normalize_coherence(x, dof, out=None):
+    """
+    The generally accepted choice to transform coherence measures into
+    a more normal distribution
+
+    Parameters
+    ----------
+
+    x: ndarray, real
+       square-root of magnitude-square coherence measures
+    dof: int
+       number of degrees of freedom in the multitaper model
+    """
+    if out is None:
+        y = np.arctanh(x)
+    else:
+        np.arctanh(x, x)
+        y = x
+    y *= np.sqrt(dof)
+    return y
+
+def normal_coherence_to_unit(y, dof, out=None):
+    """
+    The inverse transform of the above normalization
+    """
+    if out is None:
+        x = y/np.sqrt(dof)
+    else:
+        y /= np.sqrt(dof)
+        x = y
+    np.tanh(x, x)
+    return x
+
+def jackknifed_sdf_variance(sdfs, weights=None, last_freq=None):
+    r"""
+    Returns the log-variance estimated through jack-knifing a group of
+    independent sdf estimates.
+
+    Parameters
+    ----------
+    
+    sdfs: ndarray (K, L)
+       The K sdf estimates from different tapers
+    weights: ndarray (K, [N]), optional
+       The weights to use for combining the direct spectral estimators in
+       sdfs.
+    last_freq: int, optional
+       The last frequency for which to compute variance (e.g., if only
+       computing the positive half of the spectrum)
+
+    Returns
+    -------
+
+    var:
+       The estimate for sdf variance
+
+    Notes
+    -----
+
+    The jackknifed mean estimate is distributed about the true mean as
+    a Student's t-distribution with (K-1) degrees of freedom, and
+    standard error equal to sqrt(var). However, Thompson and Chave [1]
+    point out that this variance better describes the sample mean.
+
+    
+    [1] Thomson D J, Chave A D (1991) Advances in Spectrum Analysis and Array
+    Processing (Prentice-Hall, Englewood Cliffs, NJ), 1, pp 58-113.
+    """
+    K = sdfs.shape[0]
+    L = sdfs.shape[1] if last_freq is None else last_freq
+    sdfs = sdfs[:,:L]
+    # prepare weights array a little, so that it is either (K,1) or (K,L)
+    if weights is None:
+        weights = np.ones(K)
+    if len(weights.shape) < 2:
+        weights = weights.reshape(K,1)
+    if weights.shape[1] > L:
+        weights = weights[:,:L]
+
+    jk_sdf = np.empty( (K, L) )
+
+    # the samples {S_k} are defined, with or without weights, as
+    # S_k = | x_k |**2
+    # | x_k |**2 = | y_k * d_k |**2   (with weights)
+    # | x_k |**2 = | y_k |**2         (without weights)
+        
+    all_orders = set(range(K))
+
+    # get the leave-one-out estimates
+    for i in xrange(K):
+        items = list(all_orders.difference([i]))
+        sdfs_i = np.take(sdfs, items, axis=0)
+        # this is the leave-one-out estimate of the sdf
+        weights_i = np.take(weights, items, axis=0)
+
+        sdfs_i *= (weights_i**2)
+        jk_sdf[i] = sdfs_i.sum(axis=0)
+        jk_sdf[i] /= (weights_i**2).sum(axis=0)
+
+    # find the average of these jackknifed estimates
+    jk_avg = jk_sdf.mean(axis=0)
+    # log-transform the leave-one-out estimates and the mean of estimates
+    np.log(jk_sdf, jk_sdf)
+    np.log(jk_avg, jk_avg)
+
+    K = float(K)
+
+    jk_var = (jk_sdf - jk_avg)
+    np.power(jk_var, 2, jk_var)
+    jk_var = jk_var.sum(axis=0)
+    
+##     f = (K-1)/K
+    # Thompson's recommended factor, eq 18
+    # Jackknifing Multitaper Spectrum Estimates
+    # IEEE SIGNAL PROCESSING MAGAZINE [20] JULY 2007 
+    f = (K-1)**2 / K / (K - 0.5)
+    jk_var *= f
+    return jk_var
+
+def jackknifed_coh_variance(tx, ty, weights=None, last_freq=None):
+    """
+    Returns the variance of the coherency between x and y, estimated
+    through jack-knifing the tapered samples in {tx, ty}.
+
+    Parameters
+    ----------
+
+    tx: ndarray, (K, L)
+       The K complex spectra of tapered timeseries x
+    ty: ndarray, (K, L)
+       The K complex spectra of tapered timeseries y
+    weights: ndarray, or sequence-of-ndarrays 2 x (K, [N]), optional
+       The weights to use for combining the K spectra in tx and ty
+    last_freq: int, optional
+       The last frequency for which to compute variance (e.g., if only
+       computing half of the coherence spectrum)
+
+    Returns
+    -------
+
+    jk_var: ndarray
+       The variance computed in the transformed domain (see normalize_coherence)
+    """
+
+    K = tx.shape[0]
+    L = tx.shape[1] if last_freq is None else last_freq
+    tx = tx[:,:L]
+    ty = ty[:,:L]
+    # prepare weights
+    if weights is None:
+        weights = ( np.ones(K), np.ones(K) )
+    if len(weights) != 2:
+        raise ValueError('Must provide 2 sets of weights')
+    weights_x, weights_y = weights
+    if len(weights_x.shape) < 2:
+        weights_x = weights_x.reshape(K, 1)
+        weights_y = weights_y.reshape(K, 1)
+    if weights_x.shape[1] > L:
+        weights_x = weights_x[:,:L]
+        weights_y = weights_y[:,:L]
+    
+    # calculate leave-one-out estimates of MSC (magnitude squared coherence)
+    jk_coh = np.empty((K, L), 'd')
+    
+    all_orders = set(range(K))
+
+    import nitime.algorithms as alg
+
+    # get the leave-one-out estimates
+    for i in xrange(K):
+        items = list(all_orders.difference([i]))
+        tx_i = np.take(tx, items, axis=0)
+        ty_i = np.take(ty, items, axis=0)
+        wx = np.take(weights_x, items, axis=0)
+        wy = np.take(weights_y, items, axis=0)
+        weights = (wx, wy)
+        # The CSD
+        sxy_i = alg.mtm_cross_spectrum(tx_i, ty_i, weights)
+        # The PSDs
+        sxx_i = alg.mtm_cross_spectrum(tx_i, tx_i, weights).real
+        syy_i = alg.mtm_cross_spectrum(ty_i, ty_i, weights).real
+        # these are the | c_i | samples
+        jk_coh[i] = np.abs(sxy_i)
+        jk_coh[i] /= np.sqrt(sxx_i * syy_i)
+
+    jk_avg = np.mean(jk_coh, axis=0)
+    # now normalize the coherence estimates and the avg
+    normalize_coherence(jk_coh, 2*K-2, jk_coh)
+    normalize_coherence(jk_avg, 2*K-2, jk_avg)
+
+    jk_var = (jk_coh - jk_avg)
+    np.power(jk_var, 2, jk_var)
+    jk_var = jk_var.sum(axis=0)
+
+    # Do/Don't use the alternative scaling here??
+    f = float(K-1)/K
+
+    jk_var *= f
+
+    return jk_var
+    
+#-----------------------------------------------------------------------------
+# Multitaper utils
+#-----------------------------------------------------------------------------
+def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
+    r"""
+    Perform an iterative procedure to find the optimal weights for K
+    direct spectral estimators of DPSS tapered signals.
+
+    Parameters
+    ----------
+
+    sdfs: ndarray, (K x L)
+       The K estimators
+    eigvals: ndarray, length-K
+       The eigenvalues of the DPSS tapers
+    N: int,
+       length of the signal
+
+    Returns
+    -------
+
+    weights, nu
+
+       The weights (array like sdfs), and the
+       "equivalent degrees of freedom" (array length-L)
+
+    Notes
+    -----
+
+    The weights to use for making the multitaper estimate, such that
+    :math:`S_{mt} = \sum_{k} w_k^2S_k^{mt} / \sum_{k} |w_k|^2`
+
+    If there are less than 3 tapers, then the adaptive weights are not
+    found. The square root of the eigenvalues are returned as weights,
+    and the degrees of freedom are 2*K
+
+    """
+    if last_freq is None:
+        last_freq = sdfs.shape[1]
+    K, L = sdfs.shape[0], last_freq
+    if len(eigvals) < 3:
+        print """
+        Warning--not adaptively combining the spectral estimators
+        due to a low number of tapers.
+        """
+        return ( np.multiply.outer(np.sqrt(eigvals), np.ones(L)), 2*K )
+    l = eigvals
+    rt_l = np.sqrt(eigvals)
+    Kmax = len(eigvals)
+
+    # combine the SDFs in the traditional way in order to estimate
+    # the variance of the timeseries
+    N = sdfs.shape[1]
+    sdf = (sdfs*eigvals[:,None]).sum(axis=0)
+    sdf /= eigvals.sum()
+    var_est = np.trapz(sdf, dx=1.0/N)
+
+    # start with an estimate from incomplete data--the first 2 tapers
+    sdf_iter = (sdfs[:2,:last_freq] * l[:2,None]).sum(axis=-2)
+    sdf_iter /= l[:2].sum()
+    weights = np.empty( (Kmax, last_freq) )
+    nu = np.empty(last_freq)
+    err = np.zeros( (Kmax, last_freq) )
+
+    for n in range(max_iter):
+        d_k = sdf_iter[None,:] / (l[:,None]*sdf_iter[None,:] + \
+                                  (1-l[:,None])*var_est)
+        d_k *= rt_l[:,None]
+        # test for convergence --
+        # Take the RMS error across frequencies, for each taper..
+        # if the maximum RMS error across tapers is less than 1e-10, then
+        # we're converged
+        err -= d_k
+##         if (( (err**2).mean(axis=1) )**.5).max() < 1e-10:
+##             break
+        if (err**2).mean(axis=0).max() < 1e-10:
+            break
+        # update the iterative estimate with this d_k
+        sdf_iter = (d_k**2 * sdfs[:,:last_freq]).sum(axis=0)
+        sdf_iter /= (d_k**2).sum(axis=0)
+        err = d_k
+    else: #If you have reached maximum number of iterations
+        raise ValueError('breaking due to iterative meltdown')
+           
+    weights = d_k
+    nu = 2 * (weights**2).sum(axis=-2)**2
+    nu /= (weights**4).sum(axis=-2)
+    return weights, nu
 
 #-----------------------------------------------------------------------------
-# Correlation utils
+# Correlation/Covariance utils
 #-----------------------------------------------------------------------------
 
-def autocorr(s, axis=-1):
-    """Returns the autocorrelation of signal s at all lags. Adheres to the
-    definition r(k) = E{s(n)s*(n-k)} where E{} is the expectation operator.
-    """
-    N = s.shape[axis]
-    S = np.fft.fft(s, n=2*N, axis=axis)
-    sxx = np.fft.ifft(S*S.conjugate(), axis=axis).real[:N]
-    return sxx/N
+def remove_bias(x, axis):
+    "Subtracts an estimate of the mean from signal x at axis"
+    padded_slice = [slice(d) for d in x.shape]
+    padded_slice[axis] = np.newaxis
+    mn = np.mean(x, axis=axis)
+    return x - mn[tuple(padded_slice)]
 
-def xcorr(x,y):
-    """Returns the crosscorrelation between two ndarrays, by calling
-    np.correlate in 'full' mode (this is what Matlab 'xcorr' does...).
-    """
-    return np.correlate(x,y,'full')
-                     
-def norm_corr(x,y,mode = 'valid'):
-    """Returns the correlation between to ndarrays, by calling np.correlate in
-    'same' mode and normalizing the result by the std of the arrays and by
-    their lengths. This results in a correlation = 1 for an auto-correlation"""
+def crosscov(x, y, axis=-1, all_lags=False, debias=True):
+    """Returns the crosscovariance sequence between two ndarrays.
+    This is performed by calling fftconvolve on x, y[::-1]
 
-    return ( np.correlate(x,y,mode) /
-             (np.std(x)*np.std(y)*(x.shape[-1])) )
+    Parameters
+    ----------
+
+    x: ndarray
+    y: ndarray
+    axis: time axis
+    all_lags: {True/False}
+       whether to return all nonzero lags, or to clip the length of s_xy
+       to be the length of x and y. If False, then the zero lag covariance
+       is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2
+    debias: {True/False}
+       Always removes an estimate of the mean along the axis, unless
+       told not to.
+
+    Notes
+    -----
+
+    cross covariance is defined as
+    sxy[k] := E{X[t]*Y[t+k]}, where X,Y are zero mean random processes
+    """
+    if x.shape[axis] != y.shape[axis]:
+        raise ValueError(
+            'crosscov() only works on same-length sequences for now'
+            )
+    if debias:
+        x = remove_bias(x, axis)
+        y = remove_bias(y, axis)
+    slicing = [slice(d) for d in x.shape]
+    slicing[axis] = slice(None,None,-1)
+    sxy = fftconvolve(x, y[tuple(slicing)], axis=axis, mode='full')
+    N = x.shape[axis]
+    sxy /= N
+    if all_lags:
+        return sxy
+    slicing[axis] = slice(N-1,2*N-1)
+    return sxy[tuple(slicing)]
+    
+def crosscorr(x, y, **kwargs):
+    """
+    Returns the crosscorrelation sequence between two ndarrays.
+    This is performed by calling fftconvolve on x, y[::-1]
+
+    Parameters
+    ----------
+
+    x: ndarray
+    y: ndarray
+    axis: time axis
+    all_lags: {True/False}
+       whether to return all nonzero lags, or to clip the length of r_xy
+       to be the length of x and y. If False, then the zero lag correlation
+       is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2
+
+    Notes
+    -----
+
+    cross correlation is defined as
+    rxy[k] := E{X[t]*Y[t+k]}/(E{X*X}E{Y*Y})**.5,
+    where X,Y are zero mean random processes. It is the noramlized cross
+    covariance.
+    """
+    sxy = crosscov(x, y, **kwargs)
+    # estimate sigma_x, sigma_y to normalize
+    sx = np.std(x)
+    sy = np.std(y)
+    return sxy/(sx*sy)
+
+def autocov(s, **kwargs):
+    """Returns the autocovariance of signal s at all lags.
+
+    Notes
+    -----
+    
+    Adheres to the definition
+    sxx[k] = E{S[n]S[n+k]} = cov{S[n],S[n+k]}
+    where E{} is the expectation operator, and S is a zero mean process
+    """
+    # only remove the mean once, if needed
+    debias = kwargs.pop('debias', True)
+    axis = kwargs.get('axis', -1)
+    if debias:
+        s = remove_bias(s, axis)
+    kwargs['debias'] = False
+    return crosscov(s, s, **kwargs)
+
+def autocorr(s, **kwargs):
+    """Returns the autocorrelation of signal s at all lags.
+
+    Notes
+    -----
+    
+    Adheres to the definition
+    rxx[k] = E{S[n]S[n+k]}/E{S*S} = cov{S[n],S[n+k]}/sigma**2
+    where E{} is the expectation operator, and S is a zero mean process
+    """
+    # only remove the mean once, if needed
+    debias = kwargs.pop('debias', True)
+    axis = kwargs.get('axis', -1)
+    if debias:
+        s = remove_bias(s, axis)
+        kwargs['debias'] = False
+    sxx = autocov(s, **kwargs)
+    all_lags = kwargs.get('all_lags', False)
+    if all_lags:
+        i = (2*s.shape[axis]-1)/2
+        sxx_0 = sxx[i]
+    else:
+        sxx_0 = sxx[0]
+    sxx /= sxx_0
+    return sxx
 
 #-----------------------------------------------------------------------------
 # 'get' utils
-#-----------------------------------------------------------------------------   
-
+#-----------------------------------------------------------------------------
 
 def get_freqs(Fs,n):
     """Returns the center frequencies of the frequency decomposotion of a time

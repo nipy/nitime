@@ -13,3 +13,4 @@ Contents:
    base_classes
    interval_object
    time_series_access
+   multitaper_jackknife

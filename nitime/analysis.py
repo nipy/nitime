@@ -2,12 +2,31 @@
 # Nitime analysis 
 #-----------------------------------------------------------------------------
 
-"""These classes are used in order to bridge between the time series objects
-and the algorithms provided in the algorithms library. The different analysis
-objects contain methods in order to call a family of algorithms and caches
-quantities related to this particular family. In general, the objects
-initialize on a time series object and analytical results are then derived from
-the combination of that time-series and the algorithms  """
+"""
+Nitime analysis
+---------------
+
+This module implements an analysis interface between between time-series
+objects implemented in the :mod:`timeseries` module and the algorithms provided
+in the :mod:`algorithms` library and other algorithms.
+
+The general pattern of use of Analyzer objects is that they an object is
+initialized with a TimeSeries object as input. Depending on the analysis
+methods implemented in the particular analysis object, additional inputs may
+also be required.
+
+The methods of the object are then implemented as instances of
+:obj:`OneTimeProperty`, which means that they are only calculated when they are
+needed and then cached for further use.
+
+Analyzer objects are generally implemented inheriting the
+:func:`desc.ResetMixin`, which means that they have a :meth:`reset`
+method. This method resets the object to its initialized state, in which none
+of the :obj:`OneTimeProperty` methods have been calculated. This allows to
+change parameter settings of the object and recalculating the quantities in
+these methods with the new parameter setting. 
+
+"""
 
 #Imports:
 import numpy as np
@@ -93,19 +112,55 @@ class BaseAnalyzer(desc.ResetMixin):
     
 ##Spectral estimation: 
 class SpectralAnalyzer(BaseAnalyzer):
-    """ Analyzer object for spectral analysis """
+    """ Analyzer object for spectral analysis"""
     def __init__(self,input=None,method=None):
+        """
+        The initialization of the
+        
+        Parameters
+        ----------
+        input: time-series objects
+
+        method: dict optional, see :func:`algorithms.get_spectra` for
+        specification of the spectral analysis method
+
+        Examples
+        --------
+
+        >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),sampling_rate=np.pi)
+        >>> s1 = SpectralAnalyzer(t1)
+        >>> s1.method['this_method']
+        'mlab'
+        >>> s1.method['Fs']
+        3.14159265359 Hz
+        >>> f,s = s1.output
+        >>> f
+        array([ 0.        ,  0.04908739,  0.09817477,  0.14726216,  0.19634954,
+                0.24543693,  0.29452431,  0.3436117 ,  0.39269908,  0.44178647,
+                0.49087385,  0.53996124,  0.58904862,  0.63813601,  0.68722339,
+                0.73631078,  0.78539816,  0.83448555,  0.88357293,  0.93266032,
+                0.9817477 ,  1.03083509,  1.07992247,  1.12900986,  1.17809725,
+                1.22718463,  1.27627202,  1.3253594 ,  1.37444679,  1.42353417,
+                1.47262156,  1.52170894,  1.57079633])
+        >>> s[0,1][0]
+        (2877158.0203663893+0j)
+
+        """
         BaseAnalyzer.__init__(self,input)
 
         self.method=method
         
         if self.method is None:
-            self.method = {}
-
+            self.method = {'this_method':'mlab',
+                           'Fs':self.input.sampling_rate}
     @desc.setattr_on_read
     def output(self):
-        """The standard output for this analyzer is the spectrum and
-        cross-spectra, computed using mlab csd"""
+        """
+        The standard output for this analyzer is a tuple f,s, where: f is the
+        frequency bands associated with the discrete spectral components
+        and s is the PSD calculated using :func:`mlab.psd`.
+    
+        """
         data = self.input.data
         sampling_rate = self.input.sampling_rate
         
@@ -118,7 +173,16 @@ class SpectralAnalyzer(BaseAnalyzer):
 
     @desc.setattr_on_read
     def spectrum_fourier(self):
-        """ Simply the non-normalized Fourier transform for a real signal"""
+        """
+
+        This is the spectrum estimated as the FFT of the time-series
+
+        Returns
+        -------
+        (f,spectrum): f is an array with the frequencies and spectrum is the
+        complex-valued FFT. 
+        
+        """
 
         data = self.input.data
         sampling_rate = self.input.sampling_rate
@@ -130,7 +194,16 @@ class SpectralAnalyzer(BaseAnalyzer):
     
     @desc.setattr_on_read
     def spectrum_multi_taper(self):
-        """The spectrum and cross-spectra, computed using multi-tapered csd """
+        """
+
+        The spectrum and cross-spectra, computed using
+        :func:`multi_taper_csd'
+
+        XXX This method needs to be improved to include a clever way of
+        figuring out how many tapers to generate and a way to extract the
+        estimate of error based on the tapers. 
+
+        """
         data = self.input.data
         sampling_rate = self.input.sampling_rate
         self.multi_taper_method = self.method
@@ -142,8 +215,56 @@ class SpectralAnalyzer(BaseAnalyzer):
     
 ##Bivariate methods:  
 class CoherenceAnalyzer(BaseAnalyzer):
+    """Analyzer object for coherence/coherency analysis """
+    
     def __init__(self,input=None,method=None):
+        """
 
+        Parameters
+        ----------
+
+        input: TimeSeries object
+
+        method: dict, optional, see :func:`get_spectra` documentation for
+        details.
+
+
+        Examples
+        --------
+
+        >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),sampling_rate=np.pi)
+        >>> c1 = ta.CoherenceAnalyzer(t1)
+        >>> c1.method['Fs']
+        3.14159265359 Hz
+        >>> c1.method['this_method']
+        'mlab'
+        >>> c1[0,1]
+        array([ 0.94993377+0.j        ,  0.94950254-0.03322532j,
+                0.86963629-0.4570688j ,  0.89177679-0.3847649j ,
+                0.90987709-0.31906821j,  0.92173682-0.26785455j,
+                0.92944359-0.22848318j,  0.93460158-0.19774838j,
+                0.93817683-0.17323391j,  0.94073760-0.15325746j,
+                0.94262536-0.13665662j,  0.94405195-0.12261778j,
+                0.94515318-0.11056055j,  0.94601882-0.10006254j,
+                0.94670992-0.09081034j,  0.94726903-0.08256727j,
+                0.94772646-0.07515169j,  0.94810425-0.06842227j,
+                0.94841870-0.06226777j,  0.94868206-0.0565999j ,
+                0.94890362-0.05134834j,  0.94909057-0.0464573j ,
+                0.94924845-0.04188344j,  0.94938163-0.03759492j,
+                0.94949349-0.033572j  ,  0.94958665-0.02980985j,
+                0.94966305-0.02632586j,  0.94972394-0.02317706j,
+                0.94976954-0.0205051j ,  0.94979758-0.01867258j,
+                0.94979557-0.01880992j,  0.94965655-0.02664024j,  1.00000000+0.j        ])
+        >>> c1.phase[0,1]
+        array([ 0.        , -0.03497807, -0.4839064 , -0.40732853, -0.33727315,
+               -0.28280862, -0.24104816, -0.20851049, -0.18259287, -0.16149329,
+               -0.14397143, -0.12916149, -0.11644712, -0.10538042, -0.09562945,
+               -0.08694374, -0.07913123, -0.07204255, -0.06556021, -0.05959097,
+               -0.0540606 , -0.04891024, -0.04409413, -0.0395787 , -0.03534307,
+               -0.03138214, -0.02771417, -0.02439915, -0.0215862 , -0.019657  ,
+               -0.01980159, -0.02804515,  0.        ])
+
+        """ 
         BaseAnalyzer.__init__(self,input)
         
         #Set the variables for spectral estimation (can also be entered by user):
@@ -180,17 +301,39 @@ class CoherenceAnalyzer(BaseAnalyzer):
 
     @desc.setattr_on_read
     def spectrum(self):
+        """
+
+        The spectra of each of the channels and cross-spectra between
+        different channles  in the input TimeSeries object
+
+        """
         f,spectrum = tsa.get_spectra(self.input.data,method=self.method)
         return spectrum
 
     @desc.setattr_on_read
     def frequencies(self):
+        """
+
+        The central frequencies in the bands
+        
+        """
+
+        #XXX Use NFFT in the method in order to calculate these, without having
+        #to calculate the spectrum: 
         f,spectrum = tsa.get_spectra(self.input.data,method=self.method)
         return f
     
     @desc.setattr_on_read
     def coherence(self):
+        """
+        The coherence between the different channels in the input TimeSeries
+        object
 
+        """
+
+        #XXX Calculate this from the standard output, instead of recalculating
+        #the coherence:
+        
         tseries_length = self.input.data.shape[0]
         spectrum_length = self.spectrum.shape[-1]
         coherence=np.zeros((tseries_length,
@@ -213,6 +356,9 @@ class CoherenceAnalyzer(BaseAnalyzer):
     def phase(self):
         """ The frequency-dependent phase relationship between all the pairwise
         combinations of time-series in the data"""
+
+        #XXX calcluate this from the standard output, instead of recalculating:
+
         tseries_length = self.input.data.shape[0]
         spectrum_length = self.spectrum.shape[-1]
 
@@ -307,7 +453,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
 
         method: optional, dict
 
-         The method for spectral estimation (see `func`:algorithms.get_spectra:)
+        The method for spectral estimation (see :func:`algorithms.get_spectra`)
 
         """
         
@@ -424,7 +570,9 @@ class CorrelationAnalyzer(BaseAnalyzer):
          
         for i in xrange(tseries_length): 
             for j in xrange(i,tseries_length):
-                xcorr[i][j] = tsu.xcorr(self.input.data[i],self.input.data[j])
+                xcorr[i][j] = tsu.crosscov(
+                    self.input.data[i],self.input.data[j],all_lags=True
+                    )
 
         idx = tsu.tril_indices(tseries_length,-1)
         xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
@@ -453,7 +601,9 @@ class CorrelationAnalyzer(BaseAnalyzer):
          
         for i in xrange(tseries_length): 
             for j in xrange(i,tseries_length):
-                xcorr[i,j] = tsu.xcorr(self.input.data[i],self.input.data[j])
+                xcorr[i,j] = tsu.crosscov(
+                    self.input.data[i],self.input.data[j],all_lags=True
+                    )
                 xcorr[i,j] /= (xcorr[i,j,t_points])
                 xcorr[i,j] *= self.output[i,j]
 
@@ -941,12 +1091,12 @@ class NormalizationAnalyzer(BaseAnalyzer):
     producing the renormalized versions of the time-series"""
 
     def __init__(self,input=None):
-        """Constructor function for the Hilbert analyzer class.
+        """Constructor function for the Normalization analyzer class.
 
         Parameters
         ----------
         
-        input: TimeSeries
+        input: TimeSeries object
 
         """
         BaseAnalyzer.__init__(self,input)

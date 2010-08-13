@@ -4,6 +4,11 @@ import sys
 
 from nitime import  __version__, __doc__
 
+## Apply the matthew-monkey patch
+from build_helpers import generate_a_pyrex_source
+from numpy.distutils.command import build_src
+build_src.build_src.generate_a_pyrex_source = generate_a_pyrex_source
+
 def configuration(parent_package='',top_path=None):
     from numpy.distutils.misc_util import Configuration
 
@@ -20,8 +25,6 @@ def configuration(parent_package='',top_path=None):
 
     config.get_version('nitime/version.py') # sets config.version
 
-    config.add_subpackage('nitime', 'nitime')
-
     return config
 
 
@@ -34,6 +37,10 @@ def main():
            author_email = 'nipy-devel@neuroimaging.scipy.org',
            url = 'http://neuroimaging.scipy.org',
            long_description = __doc__,
+           packages = ['nitime',
+                       'nitime.fmri', 'nitime.fmri.tests',
+                       'nitime.fixes',
+                       'nitime.tests'],
            configuration = configuration)
 
 

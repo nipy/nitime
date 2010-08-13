@@ -702,56 +702,6 @@ class TimeSeriesBase(object):
         
 class TimeSeries(TimeSeriesBase):
     """Represent data collected at uniform intervals.
-    
-    Examples 
-    --------
-
-    The minimal specication of data and sampling interval:
-
-    >>> ts = TimeSeries([1,2,3],sampling_interval=0.25)
-    >>> ts.time
-    UniformTime([ 0.  ,  0.25,  0.5 ], time_unit='s')
-    >>> ts.t0
-    0.0 s
-    >>> ts.sampling_rate
-    4.0 Hz
-
-    Or data and sampling rate:
-    >>> ts = TimeSeries([1,2,3],sampling_rate=2)
-    >>> ts.time
-    UniformTime([ 0. ,  0.5,  1. ], time_unit='s')
-    >>> ts.t0
-    0.0 s
-    >>> ts.sampling_interval
-    0.5 s
-
-    A time series where we specify the start time and sampling interval:
-    >>> ts = TimeSeries([1,2,3],t0=4.25,sampling_interval=0.5)
-    >>> ts.data
-    array([1, 2, 3])
-    >>> ts.time
-    UniformTime([ 4.25,  4.75,  5.25], time_unit='s')
-    >>> ts.t0
-    4.25 s
-    >>> ts.sampling_interval
-    0.5 s
-    >>> ts.sampling_rate
-    2.0 Hz
-
-    >>> ts = TimeSeries([1,2,3],t0=4.25,sampling_rate=2.0)
-    >>> ts.data
-    array([1, 2, 3])
-    >>> ts.time
-    UniformTime([ 4.25,  4.75,  5.25], time_unit='s')
-    >>> ts.t0
-    4.25 s
-    >>> ts.sampl
-    ts.sampling_interval  ts.sampling_rate      
-    >>> ts.sampling_interval
-    0.5 s
-    >>> ts.sampling_rate
-    2.0 Hz
-
     """
 
     @desc.setattr_on_read
@@ -809,6 +759,56 @@ class TimeSeries(TimeSeriesBase):
         
         time_unit :  string
           The unit of time.
+
+        Examples 
+        --------
+
+        The minimal specification of data and sampling interval:
+
+        >>> ts = TimeSeries([1,2,3],sampling_interval=0.25)
+        >>> ts.time
+        UniformTime([ 0.  ,  0.25,  0.5 ], time_unit='s')
+        >>> ts.t0
+        0.0 s
+        >>> ts.sampling_rate
+        4.0 Hz
+
+        Or data and sampling rate:
+        >>> ts = TimeSeries([1,2,3],sampling_rate=2)
+        >>> ts.time
+        UniformTime([ 0. ,  0.5,  1. ], time_unit='s')
+        >>> ts.t0
+        0.0 s
+        >>> ts.sampling_interval
+        0.5 s
+
+        A time series where we specify the start time and sampling interval:
+        >>> ts = TimeSeries([1,2,3],t0=4.25,sampling_interval=0.5)
+        >>> ts.data
+        array([1, 2, 3])
+        >>> ts.time
+        UniformTime([ 4.25,  4.75,  5.25], time_unit='s')
+        >>> ts.t0
+        4.25 s
+        >>> ts.sampling_interval
+        0.5 s
+        >>> ts.sampling_rate
+        2.0 Hz
+
+        >>> ts = TimeSeries([1,2,3],t0=4.25,sampling_rate=2.0)
+        >>> ts.data
+        array([1, 2, 3])
+        >>> ts.time
+        UniformTime([ 4.25,  4.75,  5.25], time_unit='s')
+        >>> ts.t0
+        4.25 s
+        >>> ts.sampl
+        ts.sampling_interval  ts.sampling_rate      
+        >>> ts.sampling_interval
+        0.5 s
+        >>> ts.sampling_rate
+        2.0 Hz
+
         """
 
         #If a UniformTime object was provided as input: 
