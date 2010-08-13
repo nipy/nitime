@@ -127,16 +127,13 @@ def coherency_calculate(fxy, fxx, fyy):
 
     return fxy / np.sqrt(fxx*fyy)
 
-def coherence(time_series,csd_method=None):
-    r"""Compute the coherence between the spectra of an n-tuple of time_series. 
+def coherence(time_series, csd_method=None):
+    r"""Compute the coherence between the spectra of an n-tuple of time_series.
 
     Parameters of this function are in the time domain.
 
     Parameters
     ----------
-    time_series: n*t float array
-       an array of n different time series of length t each
-
     time_series: n*t float array
        an array of n different time series of length t each
 
@@ -169,7 +166,7 @@ def coherence(time_series,csd_method=None):
     See also
     --------
     :func:`coherence_calculate`
-         
+
     """
     if csd_method is None:
         csd_method = {'this_method':'mlab'} #The default
@@ -181,15 +178,15 @@ def coherence(time_series,csd_method=None):
     c=np.zeros((time_series.shape[0],
                time_series.shape[0],
                f.shape[0]))
-    
-    for i in xrange(time_series.shape[0]): 
+
+    for i in xrange(time_series.shape[0]):
         for j in xrange(i,time_series.shape[0]):
-            c[i][j] = coherence_calculate(fxy[i][j], fxy[i][i], fxy[j][j])  
+            c[i][j] = coherence_calculate(fxy[i][j], fxy[i][i], fxy[j][j])
 
     idx = ut.tril_indices(time_series.shape[0],-1)
     c[idx[0],idx[1],...] = c[idx[1],idx[0],...].conj() #Make it symmetric
 
-    return f,c 
+    return f,c
 
 def coherence_calculate(fxy, fxx, fyy):
     r"""
@@ -1297,8 +1294,8 @@ def get_spectra(time_series,method=None):
     See also
     --------
 
-    :func: `periodogram_csd`
-    :func: `multi_taper_csd`
+    :func:`periodogram_csd`
+    :func:`multi_taper_csd`
 
     """
     
