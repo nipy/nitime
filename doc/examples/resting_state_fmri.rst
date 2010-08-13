@@ -35,7 +35,7 @@ anddisplays the correlation matrix with the ROIs labeled.
 We notice that the left caudate nucleus (labeled 'lcau') has an interesting
 pattern of correlations. It has a high correlation with both the left putamen
 ('lput', which is located nearby) and also with the right caudate nucleus
-('lcau'), which is the homologours region in the other hemisphere. Are these
+('lcau'), which is the homologous region in the other hemisphere. Are these
 two correlation values related to each other? The right caudate and left
 putamen seem to have a moderately low correlation value. One way to examine
 this question is by looking at the temporal structure of the cross-correlation
@@ -62,9 +62,9 @@ the chosen combinations of series:
 
    
 Note that the correlation is normalized, so that the the value of the
-cross-correation functions at the zero-lag point (time = 0 sec) is equal to the
-pearson correlation between the two time-series.  We observe that there are
-correlations larger than the zero-lag correlation occuring at other time-points
+cross-correlation functions at the zero-lag point (time = 0 sec) is equal to the
+Pearson correlation between the two time-series.  We observe that there are
+correlations larger than the zero-lag correlation occurring at other time-points
 preceding and following the zero-lag. This could arise because of a more complex
 interplay of activity between two areas, which is not captured by the
 correlation and can also arise because of differences in the characteristics of
@@ -86,14 +86,14 @@ quantities. First, the magnitude of this number, also referred to as
    Coh_{xy}(\lambda) = |{R_{xy}(\lambda)}|^2 =
         \frac{|{f_{xy}(\lambda)}|^2}{f_{xx}(\lambda) \cdot f_{yy}(\lambda)}
 
-This is a measure of the parwise coupling between the two time-series. It can
+This is a measure of the pairwise coupling between the two time-series. It can
 vary between 0 and 1, with 0 being complete independence and 1 being complete
 coupling. A time-series would have a coherence of 1 with itself, but not only:
 since this measure is independent of the relative phase of the two time-series,
 the coherence between a time-series and any phase-shifted version of itself
 will also be equal to 1.
 
-However, the relative phase is another quantitiy which can be derived from this
+However, the relative phase is another quantity which can be derived from this
 computation:
 
 .. math::
@@ -114,8 +114,8 @@ object. The spectral resolution of this representation is the same one used in
 the computation of the coherence. The :attr:`C.coherence` attribute is an
 :class:`ndarray` of dimensions $n_{ROI}$ by $n_{ROI}$ by
 $n_{frequencies}$. Since the fMRI BOLD data contains data in frequencies which
-are not physilogically relevant (presumably due to machine noise and
-fluctuations in physilogical measures unrelated to neural activity), we focus
+are not physiologically relevant (presumably due to machine noise and
+fluctuations in physiological measures unrelated to neural activity), we focus
 our analysis on a band of frequencies between 0.02 and 0.15 Hz. This is easily
 achieved by determining the values of the indices in :attr:`C.frequencies` and
 using those indices in accessing the data in :attr:`C.coherence`. The coherence
@@ -191,7 +191,7 @@ between the right caudate and the left caudate, there is a rather low coherence
 between the time-series in these two regions, in this frequency range.
 
 Note that the connectivity described by coherency (and other measures of
-functional connectivity could arise because of neural connectivity between the
+functional connectivity) could arise because of neural connectivity between the
 two regions, but also due to a common blood supply, or common fluctuations in
 other physiological measures which affect the BOLD signal measured in both
 regions. In order to be able to differentiate these two options, we would have
@@ -202,7 +202,7 @@ of these issues, see [Silver2010]_). In this case, we will simply assume that
 the connectivity matrix presented represents the actual neural connectivity
 between these two brain regions.
 
-We notice that there is indeed a stronger coherence betwen left putamen and the
+We notice that there is indeed a stronger coherence between left putamen and the
 left caudate than between the left caudate and the right caudate. Next, we
 might ask whether the moderate coherence between the left putamen and the right
 caudate can be accounted for by the coherence these two time-series share with
