@@ -139,8 +139,11 @@ def parametric(func):
         # staticmethod doesn't have the proper structure of a real instance
         # method, which the rest of nose/unittest will need later.  So a simple
         # pass-through test() method that just calls func() is sufficient.
+        # This method must pump the iterator from the original function, since
+        # it must also be a generator.
         def test(self):
-            func()
+            for t in func():
+                yield t
 
     Tester.__name__ = func.func_name
 
