@@ -23,8 +23,8 @@ def test_TimeArray_init_int64():
     npt.assert_equal(time.__repr__(), '1.0 s')
 
     pass
-                                           
-@decotest.ipdoctest    
+
+
 def test_TimeArray_repr():
     """
 >>> a = ts.TimeArray([1.1,2,3])
@@ -84,7 +84,7 @@ def test_TimeArray_bool():
     yield npt.assert_equal(bool_arr,time1==time2)
     yield nt.assert_not_equal(type(time1==time2),ts.TimeArray)
 
-@decotest.ipdoctest    
+
 def test_TimeArray_convert_unit():
     """
     >>> a = ts.TimeArray([1,2,3,4])
@@ -270,7 +270,7 @@ def test_UniformTime():
 
     yield npt.assert_equal(b.sampling_interval,a.sampling_interval)
 
-@decotest.ipdoctest    
+
 def test_UniformTime_repr():
     """
     >>> time1 = ts.UniformTime(sampling_rate=1000,time_unit='ms',length=3)
@@ -285,28 +285,27 @@ def test_UniformTime_repr():
     >>> time2
     UniformTime([ 0.   ,  0.001,  0.002], time_unit='s')
 
-    In [85]: a = ts.UniformTime(length=5,sampling_rate=1,time_unit='ms')
+    >>> a = ts.UniformTime(length=5,sampling_rate=1,time_unit='ms')
 
-    In [86]: b = ts.UniformTime(a)
+    >>> b = ts.UniformTime(a)
 
-    In [87]: b
-    Out[87]: UniformTime([    0.,  1000.,  2000.,  3000.,  4000.], time_unit='ms')
+    >>> b
+    UniformTime([    0.,  1000.,  2000.,  3000.,  4000.], time_unit='ms')
 
-    In [88]: a
-    Out[88]: UniformTime([    0.,  1000.,  2000.,  3000.,  4000.], time_unit='ms')
+    >>> a
+    UniformTime([    0.,  1000.,  2000.,  3000.,  4000.], time_unit='ms')
 
-    In [89]: b = ts.UniformTime(a,time_unit='s')
+    >>> b = ts.UniformTime(a,time_unit='s')
 
-    In [90]: b
-    Out[90]: UniformTime([ 0.,  1.,  2.,  3.,  4.], time_unit='s')
+    >>> b
+    UniformTime([ 0.,  1.,  2.,  3.,  4.], time_unit='s')
 
-    In [445]: a = ts.UniformTime(length=1,sampling_rate=2)
+    >>> a = ts.UniformTime(length=1,sampling_rate=2)
 
-    In [446]: b = ts.UniformTime(length=10,sampling_interval=a.sampling_interval)
+    >>> b = ts.UniformTime(length=10,sampling_interval=a.sampling_interval)
 
-    In [447]: b.sampling_rate
-    Out[447]: 2.0 Hz
-
+    >>> b.sampling_rate
+    2.0 Hz
     """
 
 @decotest.parametric
@@ -380,7 +379,6 @@ def test_TimeSeries():
     yield npt.assert_raises(ValueError,
                           ts.TimeSeries,dict(data=data,time=t))
     
-@decotest.ipdoctest    
 def test_TimeSeries_repr():
 
     """
@@ -397,21 +395,20 @@ def test_TimeSeries_repr():
     3.0 Hz
     >>> tseries1.sampling_interval
     0.33333333333300003 s
-    In [435]: a = ts.UniformTime(length=1,sampling_rate=2)
+    >>> a = ts.UniformTime(length=1,sampling_rate=2)
 
-    In [436]: b = ts.TimeSeries(data=[1,2,3],sampling_interval=a.sampling_interval)
+    >>> b = ts.TimeSeries(data=[1,2,3],sampling_interval=a.sampling_interval)
 
-    In [437]: b.sampling_rate
-    Out[437]: 2.0 Hz
+    >>> b.sampling_rate
+    2.0 Hz
 
 
-    In [361]: a = ts.UniformTime(length=1,sampling_rate=1)
+    >>> a = ts.UniformTime(length=1,sampling_rate=1)
 
-    In [362]: b = ts.TimeSeries(data=[1,2,3],sampling_interval=a.sampling_interval)
+    >>> b = ts.TimeSeries(data=[1,2,3],sampling_interval=a.sampling_interval)
 
-    In [363]: b.sampling_rate
-    Out[363]: 1.0 Hz
-
+    >>> b.sampling_rate
+    1.0 Hz
     """ 
     
 @decotest.parametric
