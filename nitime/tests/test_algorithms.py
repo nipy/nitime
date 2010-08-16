@@ -128,6 +128,8 @@ def test_coherency_cached():
     npt.assert_array_almost_equal(c1[1,0],c2[1,0])
     npt.assert_array_almost_equal(c1[0,1],c2[0,1])
 
+
+# XXX FIXME: http://github.com/nipy/nitime/issues/issue/1
 @npt.dec.knownfailureif(True) 
 def test_coherence_linear_dependence():
     """
