@@ -130,7 +130,7 @@ def test_coherency_cached():
 
 
 # XXX FIXME: http://github.com/nipy/nitime/issues/issue/1
-@npt.dec.knownfailureif(True) 
+@npt.dec.skipif(True) 
 def test_coherence_linear_dependence():
     """
     Tests that the coherence between two linearly dependent time-series
@@ -280,3 +280,27 @@ def test_get_spectra():
     npt.assert_equal(f_mlab[0].shape[0],NFFT/2+1)
     npt.assert_equal(f_periodogram[0].shape[0],N/2+1)
     npt.assert_equal(f_multi_taper[0].shape[0],N/2+1)
+
+def test_psd_matlab():
+
+    """ Test the results of mlab csd/psd against saved results from Matlab"""
+
+    from matplotlib import mlab
+
+    ts = np.loadtxt('tseries12.txt')
+
+    #Complex signal! 
+    ts0 = ts[1] + ts[0]*np.complex(0,1) 
+
+    NFFT = 256;
+    Fs = 1.0;
+    noverlap = NFFT/2
+
+    fxx, f = mlab.psd(ts0,NFFT=NFFT,Fs=Fs,noverlap=noverlap,
+                      scale_by_freq=True)
+
+    fxx_mlab = np.fft.fftshift(fxx).squeeze()
+
+    fxx_matlab = np.loadtxt('fxx_matlab.txt')
+
+    npt.assert_almost_equal(fxx_mlab,fxx_matlab,decimal=5)
