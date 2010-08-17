@@ -43,7 +43,7 @@ L = n_samples/2 + 1
 #L = n_samples
 w = np.empty( (nseq, K, L) )
 for i in xrange(nseq):
-   w[i], _ = utils.adaptive_weights_cython(mag_sqr_spectra[i], eigs, L)
+   w[i], _ = utils.adaptive_weights(mag_sqr_spectra[i], eigs, L)
 
 # calculate the coherence
 csd_mat = np.zeros((nseq, nseq, L), 'D')

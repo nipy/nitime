@@ -25,9 +25,8 @@ from matplotlib import mlab
 from scipy import linalg
 import utils as ut
 from scipy.misc import factorial
-
-from nitime.fixes.fftconvolve import fftconvolve
 import nitime.utils as utils
+
 #-----------------------------------------------------------------------------
 #  Coherency 
 #-----------------------------------------------------------------------------

@@ -56,12 +56,9 @@ mlab_sdf = mlab_sdf.squeeze()
 dB(mlab_sdf, mlab_sdf)
 
 
-### Taper Bandwidth Adjustments
-NW = 4
-
 # --- Regular Multitaper Estimate
 f, sdf_mt, nu = alg.multi_taper_psd(
-    ar_seq, width=NW, adaptive=False, jackknife=False
+    ar_seq, adaptive=False, jackknife=False
     )
 dB(sdf_mt, sdf_mt)
 # OK.. grab the number of tapers used from here
@@ -70,14 +67,14 @@ Kmax = nu[0]/2
 # --- Adaptively Weighted Multitapter Estimate
 # -- Adaptive weighting from Thompson 1982, or Percival and Walden 1993
 f, adaptive_sdf_mt, nu = alg.multi_taper_psd(
-    ar_seq, width=NW, adaptive=True, jackknife=False
+    ar_seq,  adaptive=True, jackknife=False
     )
 dB(adaptive_sdf_mt, adaptive_sdf_mt)
 
 # --- Jack-knifed intervals for regular weighting-----------------------------
 # currently returns log-variance
 _, _, jk_var = alg.multi_taper_psd(
-    ar_seq, width=NW, adaptive=False, jackknife=True
+    ar_seq, adaptive=False, jackknife=True
     )
 
 # the Jackknife mean is approximately distributed about the true log-sdf
@@ -92,7 +89,7 @@ jk_limits = ( sdf_mt - jk_p, sdf_mt + jk_p )
 
 # --- Jack-knifed intervals for adaptive weighting----------------------------
 _, _, adaptive_jk_var = alg.multi_taper_psd(
-    ar_seq, width=NW, adaptive=True, jackknife=True
+    ar_seq, adaptive=True, jackknife=True
     )
 
 # find 95% confidence limits from inverse of t-dist CDF
