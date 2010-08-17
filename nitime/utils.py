@@ -596,8 +596,11 @@ def autocorr(s, **kwargs):
     return sxx
 
 def fftconvolve(in1, in2, mode="full", axis=None):
-    """Convolve two N-dimensional arrays using FFT. See convolve.
+    """ Convolve two N-dimensional arrays using FFT. See convolve.
 
+    This is a fix of scipy.signal.fftconvolve, adding an axis argument and
+    importing locally the stuff only needed for this function
+    
     """
     #Locally import stuff only required for this:
     from scipy.fftpack import fftn, fft, ifftn, ifft
@@ -609,6 +612,7 @@ def fftconvolve(in1, in2, mode="full", axis=None):
     s2 = array(in2.shape)
     complex_result = (np.issubdtype(in1.dtype, np.complex) or
                       np.issubdtype(in2.dtype, np.complex))
+
     if axis is None:
         size = s1+s2-1
         fslice = tuple([slice(0, int(sz)) for sz in size])
