@@ -1,6 +1,10 @@
+import os
+
 import numpy as np
 import numpy.testing as npt
 from scipy.signal import signaltools
+
+import nitime
 from nitime import algorithms as tsa
 from nitime import utils as ut
 
@@ -287,8 +291,10 @@ def test_psd_matlab():
 
     from matplotlib import mlab
 
-    ts = np.loadtxt('tseries12.txt')
-
+    test_dir_path = os.path.join(nitime.__path__[0],'tests')
+    
+    ts = np.loadtxt(os.path.join(test_dir_path,'tseries12.txt'))
+    
     #Complex signal! 
     ts0 = ts[1] + ts[0]*np.complex(0,1) 
 
@@ -301,14 +307,16 @@ def test_psd_matlab():
 
     fxx_mlab = np.fft.fftshift(fxx).squeeze()
 
-    fxx_matlab = np.loadtxt('fxx_matlab.txt')
+    fxx_matlab = np.loadtxt(os.path.join(test_dir_path,'fxx_matlab.txt'))
 
     npt.assert_almost_equal(fxx_mlab,fxx_matlab,decimal=5)
 
 def test_coherence_matlab():
 
     """ Test against coherence values calculated with matlab's mscohere"""
-    ts = np.loadtxt('tseries12.txt')
+    test_dir_path = os.path.join(nitime.__path__[0],'tests')
+
+    ts = np.loadtxt(os.path.join(test_dir_path,'tseries12.txt'))
 
     ts0 = ts[1]   
     ts1 = ts[0]  
@@ -321,6 +329,6 @@ def test_coherence_matlab():
 
     ttt = np.vstack([ts0,ts1])
     f,cxy_mlab = tsa.coherence(ttt,csd_method=method)
-    cxy_matlab = np.loadtxt('cxy_matlab.txt')
+    cxy_matlab = np.loadtxt(os.path.join(test_dir_path,'cxy_matlab.txt'))
 
     npt.assert_almost_equal(cxy_mlab[0][1],cxy_matlab,decimal=5)
