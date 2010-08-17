@@ -304,3 +304,23 @@ def test_psd_matlab():
     fxx_matlab = np.loadtxt('fxx_matlab.txt')
 
     npt.assert_almost_equal(fxx_mlab,fxx_matlab,decimal=5)
+
+def test_coherence_matlab():
+
+    """ Test against coherence values calculated with matlab's mscohere"""
+    ts = np.loadtxt('tseries12.txt')
+
+    ts0 = ts[1]   
+    ts1 = ts[0]  
+
+    method = {}
+    method['this_method']='mlab'
+    method['NFFT'] = 64;
+    method['Fs'] = 1.0;
+    method['noverlap'] = method['NFFT']/2
+
+    ttt = np.vstack([ts0,ts1])
+    f,cxy_mlab = tsa.coherence(ttt,csd_method=method)
+    cxy_matlab = np.loadtxt('cxy_matlab.txt')
+
+    npt.assert_almost_equal(cxy_mlab[0][1],cxy_matlab,decimal=5)
