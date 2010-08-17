@@ -70,8 +70,14 @@ class ParametricTestCase(unittest.TestCase):
     in verbose mode.
     """
     def run_parametric(self, result, testMethod):
-        # But if we have a test generator, we iterate it ourselves
+        """This replaces the run() method for test generators.
+
+        We iterate manually the test generator."""
         testgen = testMethod()
+        # We track whether the iteration finishes normally so we can adjust the
+        # number of tests run at the end (in the finally: clause).  If we don't
+        # do this, we get one more test reported as run than there really were.
+        finished_iteration = False
         while True:
             try:
                 # Initialize test
@@ -91,7 +97,8 @@ class ParametricTestCase(unittest.TestCase):
                     testgen.next()
                     ok = True
                 except StopIteration:
-                    # We stop the loop
+                    # We stop the loop and note that we finished normally
+                    finished_iteration = True
                     break
                 except self.failureException:
                     result.addFailure(self, self._exc_info())
@@ -107,19 +114,29 @@ class ParametricTestCase(unittest.TestCase):
                 except:
                     result.addError(self, self._exc_info())
                     ok = False
-                if ok: result.addSuccess(self)
+                if ok:
+                    result.addSuccess(self)
                 
             finally:
                 result.stopTest(self)
-
+                # Since the startTest() method must be called (above) before we
+                # can see the StopIteration exception, the last attempt bumps
+                # the test count by one more than there really were tests.  In
+                # this case, we must adjust the number down by one.
+                if finished_iteration:
+                    result.testsRun -= 1
+                    
     def run(self, result=None):
         if result is None:
             result = self.defaultTestResult()
         testMethod = getattr(self, self._testMethodName)
-        # For normal tests, we just call the base class and return that
+        
+        # Depending on the type of test method, either:
         if isgenerator(testMethod):
+            # For generators, we manually iterate test generators
             return self.run_parametric(result, testMethod)
         else:
+            # Or for normal tests, let the default from unittest work
             return super(ParametricTestCase, self).run(result)
 
 
