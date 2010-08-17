@@ -1297,8 +1297,7 @@ def get_spectra(time_series,method=None):
     :func:`periodogram_csd`
     :func:`multi_taper_csd`
 
-    """
-    
+    """            
     if method is None:
         method = {'this_method':'mlab'} #The default
         
@@ -1309,9 +1308,16 @@ def get_spectra(time_series,method=None):
         window = method.get('window',mlab.window_hanning)
         n_overlap = method.get('n_overlap',int(np.ceil(NFFT/2.0)))
 
+        #The length of the spectrum depends on how many sides are taken, which
+        #depends on whether or not this is a complex object:
+        if np.iscomplexobj(time_series):
+            fxy_len = NFFT
+        else:
+            fxy_len = NFFT/2.0 + 1
+        
         fxy = np.zeros((time_series.shape[0],
                         time_series.shape[0],
-                        NFFT/2.0 +1), dtype = complex) #Make sure it's complex
+                        fxy_len), dtype = complex) #Make sure it's complex
                                                       
         for i in xrange(time_series.shape[0]): 
             for j in xrange(i,time_series.shape[0]):
@@ -1320,7 +1326,7 @@ def get_spectra(time_series,method=None):
                 temp, f = mlab.csd(time_series[j],time_series[i],
                                    NFFT,Fs,detrend,window,n_overlap,
                                    scale_by_freq=True)
-                 
+                
                 fxy[i][j] = temp.squeeze() #the output of mlab.csd has a wierd
                                             #shape
     elif method['this_method'] in ('multi_taper_csd','periodogram_csd'):
