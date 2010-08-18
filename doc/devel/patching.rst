@@ -2,7 +2,7 @@
  Making a patch
 ================
 
-You've discovered a bug or something else you want to change in Nitime_ - excellent!
+You've discovered a bug or something else you want to change in nitime_ - excellent!
 
 You've worked out a way to fix it - even better!
 
@@ -27,7 +27,7 @@ Overview
    git config --global user.email you@yourdomain.example.com
    git config --global user.name "Your Name Comes Here"
    # get the repository if you don't have it
-   git clone git://github.com/fperez/nitime.git
+   git clone git://github.com/nipy/nitime.git
    # make a branch for your patching
    cd nitime
    git branch the-fix-im-thinking-of
@@ -42,7 +42,7 @@ Overview
    # make the patch files
    git format-patch -M -C master
 
-Then, send the generated patch files to the `Nitime mailing list`_ - where we will thank you warmly.
+Then, send the generated patch files to the `nitime mailing list`_ - where we will thank you warmly.
 
 In detail
 ---------
@@ -52,9 +52,9 @@ In detail
       git config --global user.email you@yourdomain.example.com
       git config --global user.name "Your Name Comes Here"
 
-#. If you don't already have one, clone a copy of the Nitime_ repository::
+#. If you don't already have one, clone a copy of the nitime_ repository::
 
-      git clone git://github.com/fperez/nitime.git
+      git clone git://github.com/nipy/nitime.git
       cd nitime
 
 #. Make a 'feature branch'.  This will be where you work on your bug
@@ -92,7 +92,7 @@ In detail
       0001-BF-added-tests-for-Funny-bug.patch
       0002-BF-added-fix-for-Funny-bug.patch
 
-   Send these files to the `Nitime mailing list`_.
+   Send these files to the `nitime mailing list`_.
 
 When you are done, to switch back to the main copy of the code, just
 return to the ``master`` branch::
@@ -106,7 +106,7 @@ If you find you have done some patches, and you have one or more feature
 branches, you will probably want to switch to development mode.  You can
 do this with the repository you have.
 
-Fork the Nitime_ repository on github_ - :ref:`forking`.  Then::
+Fork the nitime_ repository on github_ - :ref:`forking`.  Then::
 
    # checkout and refresh master branch from main repo
    git checkout master
@@ -120,4 +120,4 @@ Fork the Nitime_ repository on github_ - :ref:`forking`.  Then::
 
 Then you can, if you want, follow the :ref:`development-workflow`.
 
-.. include:: git_links.txt
+.. include:: git_links.inc

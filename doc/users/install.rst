@@ -41,12 +41,28 @@ Networkx_
 Getting the latest release
 --------------------------
 
-The code is here: http://github.com/fperez/nitime
+Grab the latest release of the source-code at this page_ 
 
-You can grab a copy of the code by using the following command (assuming you
-have git installed)::
+.. _page: gh-download_
 
-	git clone git://github.com/fperez/nitime.git
+Or, at the cheeseshop_
+
+.. _cheeseshop: nitime-pypi_
+
+You can also download and install by issuing::
+
+    easy_install nitime
+
+If you have easy_install installed.
+
+If you want to download the source-code as it is being developed (pre-release),
+follow the instructions here: :ref:`following-latest`
+
+Or, if you just want to look at the current development, without using our
+source version-control system, go here_
+
+.. _here: gh-archive_
+
 
 Building from source
 --------------------

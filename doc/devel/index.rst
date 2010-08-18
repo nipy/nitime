@@ -1,6 +1,6 @@
 .. _using-git:
 
-Working with *Nitime* source code
+Working with *nitime* source code
 ======================================
 
 Contents:

@@ -4,7 +4,7 @@
 Development workflow
 ====================
 
-You already have your own forked copy of the Nitime_ repository, by
+You already have your own forked copy of the nitime_ repository, by
 following :ref:`forking`, :ref:`set-up-fork`, and you have configured
 git_ by following :ref:`configure-git`.
 
@@ -12,8 +12,8 @@ Workflow summary
 ================
 
 * Keep your ``master`` branch clean of edits that have not been merged
-  to the main Nitime_ development repo.  Your ``master`` then will follow
-  the main Nitime_ repository.
+  to the main nitime_ development repo.  Your ``master`` then will follow
+  the main nitime_ repository.
 * Start a new *feature branch* for each set of edits that you do.
 * If you can avoid it, try not to merge other branches into your feature
   branch while you are working.
@@ -33,7 +33,7 @@ Making a new feature branch
    git checkout my-new-feature
 
 Generally, you will want to keep this also on your public github_ fork
-of Nitime_.  To do this, you `git push`_ this new branch up to your github_
+of nitime_.  To do this, you `git push`_ this new branch up to your github_
 repo.  Generally (if you followed the instructions in these pages, and
 by default), git will have a link to your github_ repo, called
 ``origin``.  You push up to your own repo on github_ with::
@@ -104,7 +104,7 @@ Asking for code review
    compare.  Usually these will be ``master`` and ``my-new-feature``
    (where that is your feature branch name).
 #. At this point you should get a nice summary of the changes.  Copy the
-   URL for this, and post it to the `Nitime mailing list`_, asking for
+   URL for this, and post it to the `nitime mailing list`_, asking for
    review.  The URL will look something like:
    ``http://github.com/your-user-name/nitime/compare/master...my-new-feature``.
    There's an example at
@@ -130,14 +130,14 @@ When you are ready to ask for the merge of your code:
 
    .. image:: pull_button.png
 
-   Enter a message; we suggest you select only ``Nitime`` as the
-   recipient.  The message will go to the `Nitime mailing list`_.  Please
+   Enter a message; we suggest you select only ``nitime`` as the
+   recipient.  The message will go to the `nitime mailing list`_.  Please
    feel free to add others from the list as you like.
 
 Merging from trunk
 ==================
 
-This updates your code from the upstream `Nitime github`_  repo. 
+This updates your code from the upstream `nitime github`_  repo. 
 
 Overview
 --------
@@ -149,7 +149,7 @@ Overview
    # pull changes from github
    git fetch upstream
    # merge from upstream
-   git merge upstream master
+   git merge upstream/master
 
 In detail
 ---------
@@ -192,7 +192,7 @@ If you want to work on some stuff with other people, where you are all
 committing into the same repository, or even the same branch, then just
 share it via github_.
 
-First fork Nitime into your account, as from :ref:`forking`.
+First fork nitime into your account, as from :ref:`forking`.
 
 Then, go to your forked repository github page, say
 ``http://github.com/your-user-name/nitime``
@@ -230,4 +230,4 @@ To see a linear list of commits for this branch::
 You can also look at the `network graph visualizer`_ for your github_
 repo.
 
-.. include:: git_links.txt
+.. include:: git_links.inc

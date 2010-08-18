@@ -5,7 +5,7 @@
 =============================
 
 These are the instructions if you just want to follow the latest
-*Nitime* source, but you don't need to do any development for now.
+*nitime* source, but you don't need to do any development for now.
 
 The steps are:
 
@@ -18,7 +18,7 @@ Get the local copy of the code
 
 From the command line::
 
-   git clone git://github.com/fperez/nitime.git
+   git clone git://github.com/nipy/nitime.git
 
 You now have a copy of the code tree in the new ``nitime`` directory.
 
@@ -33,4 +33,4 @@ From time to time you may want to pull down the latest code.  Do this with::
 The tree in ``nitime`` will now have the latest changes from the initial
 repository.
 
-.. include:: git_links.txt
+.. include:: git_links.inc
