@@ -2,56 +2,40 @@
  Nitime: timeseries analysis for neuroscience data
 ===================================================
 
-Nitime contains a core of numerical algorithms for time-series analysis both in
-the time and spectral domains, a set of container objects to represent
-time-series, and auxiliary objects that expose a high level interface to the
-numerical machinery and make common analysis tasks easy to express with compact
-and semantically clear code.
+Documentation
+-------------
 
+Please see the ``doc/README.txt`` document for information on our
+documentation.
 
 Website
-=======
+-------
 
 Current information can always be found at the NIPY website is located
 here::
 
-    http://nipy.org
-
-  
-Code
-====
-
-You can find our sources and single-click downloads:
-
-* `Main repository`_ on Github.
-* Documentation_ for all releases and current development tree.
-* Download as a tar/zip file the `current trunk`_.
-* Downloads of all `available releases`_.
-
-.. _main repository: http://github.com/nipy/nitime
-.. _Documentation: http://nipy.org/nitime
-.. _current trunk: http://github.com/nipy/nitime/archives/master
-.. _available releases: http://github.com/nipy/nitime/downloads
-
+    http://neuroimaging.scipy.org/
 
 Mailing Lists
-=============
+-------------
 
 Please see the developer's list here::
        
        http://projects.scipy.org/mailman/listinfo/nipy-devel
 
 License information
-===================
+-------------------
 
-Nitime is licensed under the terms of the Simplified BSD License.  See the file
-"LICENSE" for information on the history of this software, terms & conditions
-for usage, and a DISCLAIMER OF ALL WARRANTIES.
+See the file "LICENSE" for information on the history of this
+software, terms & conditions for usage, and a DISCLAIMER OF ALL
+WARRANTIES.
 
-This distribution contains no GNU General Public Licensed (GPLed) code so it
-may be used in proprietary projects.
+This NIPY distribution contains no GNU General Public Licensed
+(GPLed) code so it may be used in proprietary projects.  There
+are interfaces to some GNU code but these are entirely optional.
 
-All trademarks referenced herein are property of their respective holders.
+All trademarks referenced herein are property of their respective
+holders.
 
-Copyright (c) 2006-2010, NIPY Developers
+Copyright (c) 2006-2009, NIPY Developers
 All rights reserved.
