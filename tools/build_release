@@ -28,4 +28,4 @@ sh('python2.6 ./setup_egg.py bdist_egg')
 sh("python setup.py bdist_wininst")
 
 # Change name so retarded Vista runs the installer correctly
-sh("rename 's/linux-i686/win32-setup/' dist/*.exe")
+#sh("rename 's/linux-i686/win32-setup/' dist/*.exe")

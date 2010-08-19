@@ -18,7 +18,7 @@ print "Releasing Nitime version %s" % __version__
 print
 
 # Build release files
-sh('./build_release')
+sh('tools/build_release')
 
 # Register with the Python Package Index (PyPI)
 print "Registering with PyPI..."
