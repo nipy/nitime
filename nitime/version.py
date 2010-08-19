@@ -1,6 +1,6 @@
 """nitime version/release information"""
 
-ISRELEASED = False
+ISRELEASED = True
 
 # Format expected by setup.py and doc/source/conf.py: string of form "X.Y.Z"
 _version_major = 0
@@ -42,6 +42,6 @@ MINOR               = _version_minor
 MICRO               = _version_micro
 VERSION             = __version__
 PACKAGES            = ['nitime', 'nitime.fmri', 'nitime.fmri.tests',
-                       'nitime.fixes', 'nitime.tests']
+                       'nitime.tests']
 PACKAGE_DATA        = {"nitime": ["LICENSE", "tests/*.txt"]}
 REQUIRES            = ["numpy", "matplotlib", "scipy"]
