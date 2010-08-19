@@ -1,48 +1,42 @@
 #!/usr/bin/env python
-from os.path import join
+"""Setup file for the Python nitime package."""
+
+import os
+
+# BEFORE importing distutils, remove MANIFEST. distutils doesn't properly
+# update it when the contents of directories change.
+if os.path.exists('MANIFEST'): os.remove('MANIFEST')
+
+from distutils.core import setup
+
+# Get version and release info, which is all stored in nitime/version.py
+ver_file = os.path.join('nitime', 'version.py')
+execfile(ver_file)
+
+opts = dict(name=NAME,
+            maintainer=MAINTAINER,
+            maintainer_email=MAINTAINER_EMAIL,
+            description=DESCRIPTION,
+            long_description=LONG_DESCRIPTION,
+            url=URL,
+            download_url=DOWNLOAD_URL,
+            license=LICENSE,
+            classifiers=CLASSIFIERS,
+            author=AUTHOR,
+            author_email=AUTHOR_EMAIL,
+            platforms=PLATFORMS,
+            version=VERSION,
+            packages=PACKAGES,
+            package_data=PACKAGE_DATA,
+            requires=REQUIRES,
+            )
+
+# Only add setuptools-specific flags if the user called for setuptools, but
+# otherwise leave it alone
 import sys
+if 'setuptools' in sys.modules:
+    opts['zip_safe'] = False
 
-from nitime import  __version__, __doc__
-
-## Apply the matthew-monkey patch
-from build_helpers import generate_a_pyrex_source
-from numpy.distutils.command import build_src
-build_src.build_src.generate_a_pyrex_source = generate_a_pyrex_source
-
-def configuration(parent_package='',top_path=None):
-    from numpy.distutils.misc_util import Configuration
-
-    config = Configuration(None, parent_package, top_path)
-    config.set_options(ignore_setup_xxx_py=True,
-                       assume_default_configuration=True,
-                       delegate_options_to_subpackages=True,
-                       quiet=True)
-    # The quiet=True option will silence all of the name setting warnings:
-    # Ignoring attempt to set 'name' (from 'nitime.core' to 
-    #    'nitime.core.image')
-    # Robert Kern recommends setting quiet=True on the numpy list, stating
-    # these messages are probably only used in debugging numpy distutils.
-
-    config.get_version('nitime/version.py') # sets config.version
-
-    return config
-
-
-def main():
-    from numpy.distutils.core import setup
-    
-    setup( name = 'nitime',
-           description = 'Nitime: timeseries analysis for neuroscience data',
-           author = 'Various',
-           author_email = 'nipy-devel@neuroimaging.scipy.org',
-           url = 'http://neuroimaging.scipy.org',
-           long_description = __doc__,
-           packages = ['nitime',
-                       'nitime.fmri', 'nitime.fmri.tests',
-                       'nitime.fixes',
-                       'nitime.tests'],
-           configuration = configuration)
-
-
-if __name__ == "__main__":
-    main()
+# Now call the actual setup function
+if __name__ == '__main__':
+    setup(**opts)

@@ -1,5 +1,17 @@
 include *.txt *.py
 include THANKS
 include LICENSE
+include INSTALL
+
+graft nitime
 graft doc
-global-exclude *~ *.swp
+
+# docs subdirs we want to skip
+prune doc/_build
+prune doc/api/generated
+
+global-exclude *~
+global-exclude *.flc
+global-exclude *.pyc
+global-exclude .dircopy.log
+global-exclude .git
