@@ -43,5 +43,5 @@ MICRO               = _version_micro
 VERSION             = __version__
 PACKAGES            = ['nitime', 'nitime.fmri', 'nitime.fmri.tests',
                        'nitime.fixes', 'nitime.tests']
-PACKAGE_DATA        = {"nitime": ["LICENSE"]}
+PACKAGE_DATA        = {"nitime": ["LICENSE", "tests/*.txt"]}
 REQUIRES            = ["numpy", "matplotlib", "scipy"]
