@@ -21,7 +21,7 @@ have all of these things at their fingertips.
 
 __docformat__ = 'restructuredtext'
 
-from version import version as __version__
+from version import  __version__
 __status__   = 'alpha'
 __url__     = 'http://neuroimaging.scipy.org'
 
