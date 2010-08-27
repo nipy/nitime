@@ -154,4 +154,3 @@ plot_estimate(ax, freqs, (adaptive_sdf_mt, ),
               adaptive_jk_limits,
               elabels=('(a)MT with JK 5% interval',))
 f.text(.5, .9, '%d Tapers'%Kmax)
-pp.show()

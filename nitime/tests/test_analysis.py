@@ -241,4 +241,21 @@ def test_MorletWaveletAnalyzer():
     npt.assert_almost_equal(np.sin(H.phase.data[10:-10]),np.sin(W.phase.data[10:-10]),decimal=0)
     npt.assert_almost_equal(np.sin(HL.phase.data[10:-10]),np.sin(WL.phase.data[10:-10]),decimal=0)
 
-#def test_EventTriggeredAnalyzer():
+
+def test_CoherenceMTAnalyzer():
+
+    """ Testing the multi-taper coherence analysis. See also comparison in doc/examples/multi_taper_coh.py""" 
+
+    
+    Fs = np.pi
+    t = np.arange(100)
+    x = np.sin(10*t) + np.random.rand(t.shape[-1])
+    y = np.sin(10*t) + np.random.rand(t.shape[-1])
+    T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
+    C = nta.CoherenceMTAnalyzer(T)
+
+    #Coherence symmetry:
+    npt.assert_equal(C.coherence[0,1],C.coherence[1,0])
+
+    #Test that it runs through (it will trivially be equal to itself):
+    npt.assert_equal(C.confidence_interval,C.confidence_interval)

@@ -1986,7 +1986,7 @@ def multi_taper_csd(s, Fs=2*np.pi, BW=None, low_bias=True,
             ti = tapered_spectra[i]
             tj = tapered_spectra[j]
             csdfs[i,j] = mtm_cross_spectrum(ti, tj, (wi, wj), sides=sides)
-    
+
     upper_idc = ut.triu_indices(M,k=1)
     lower_idc = ut.tril_indices(M,k=-1)
     csdfs[upper_idc] = csdfs[lower_idc].conj()

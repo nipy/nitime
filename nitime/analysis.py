@@ -33,6 +33,8 @@ import numpy as np
 import scipy
 import scipy.signal as signal
 import scipy.stats as stats
+import scipy.stats.distributions as dist
+
 from nitime import descriptors as desc
 from nitime import utils as tsu
 from nitime import algorithms as tsa
@@ -228,7 +230,6 @@ class CoherenceAnalyzer(BaseAnalyzer):
         method: dict, optional, see :func:`get_spectra` documentation for
         details.
 
-
         Examples
         --------
 
@@ -276,7 +277,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
         #If an input is provided, get the sampling rate from there, if you want
         #to over-ride that, input a method with a 'Fs' field specified: 
         self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
-
+        
     @desc.setattr_on_read
     def output(self):
         """The standard output for this kind of analyzer is the coherency """
@@ -420,7 +421,162 @@ class CoherenceAnalyzer(BaseAnalyzer):
         p_coherence[idx[0],idx[1],...] = p_coherence[idx[1],idx[0],...].conj()
 
         return p_coherence        
+    
+class CoherenceMTAnalyzer(BaseAnalyzer):
+
+    def __init__(self,input=None,BW=None,alpha=0.05):
+
+        """
+        Parameters
+        ----------
+
+        input: TimeSeries object
+
+        BW: float,
+           The bandwidth of the windowing function will determine the
+           number tapers to use. This parameters represents trade-off between
+           frequency resolution (lower main lobe BW for the taper) and variance
+           reduction (higher BW and number of averaged estimates). Per default
+           will be set to 4 times the fundamental frequency, such that NW=4
+
+        alpha: float, default =0.05
+            This is the alpha used to construct a confidence interval around
+            the multi-taper csd estimate, based on a jack-knife estimate of the
+            variance [Thompson2005]_
+
+            .. [Thompson2007] Thompson, DJ Jackknifing multitaper spectrum
+            estimates. IEEE Signal Processing Magazing. 24: 20-30
+
+        """
+
+        BaseAnalyzer.__init__(self,input)
+
+        if input is not None:
+            N = input.shape[-1]
+            Fs = self.input.sampling_rate
+            if BW is not None:
+                self.NW = BW/(2*Fs) * N
+            else:
+                self.NW = 4
+                self.BW = self.NW * (2*Fs) / N
+        else:
+            self.NW = 4
+            self.BW = None
+
+        self.alpha = alpha
+        self._L = self.input.data.shape[-1]/2 + 1
+
+    @desc.setattr_on_read
+    def tapers(self):
+        tapers, eigs = tsa.DPSS_windows(self.input.shape[-1], self.NW,
+                                        2*self.NW-1)
+        return tapers
+    
+    @desc.setattr_on_read
+    def eigs(self):
+        tapers, eigs = tsa.DPSS_windows(self.input.shape[-1], self.NW,
+                                      2*self.NW-1)
+        return eigs
+    @desc.setattr_on_read
+    def df(self):
+        #The degrees of freedom: 
+        df = 2*self.NW-1
+        return df
+
+    @desc.setattr_on_read
+    def spectra(self):
+        tdata = self.tapers[None,:,:] *self.input.data[:,None,:]
+        tspectra = np.fft.fft(tdata)
+        return tspectra
+
+    @desc.setattr_on_read
+    def mag_sqr_spectra(self):
+        mag_sqr_spectra = np.abs(self.spectra)
+        np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
+        return mag_sqr_spectra
+
+    @desc.setattr_on_read
+    def weights(self):
+        w = np.empty( (self.input.data.shape[0], self.df,
+                       self._L) )
+        for i in xrange(self.input.data.shape[0]):
+           w[i], _ = tsu.adaptive_weights(self.mag_sqr_spectra[i],
+                                          self.eigs,
+                                          self._L)
+        return w
+
+    @desc.setattr_on_read
+    def coherence(self):
+        csd_mat = np.zeros((self.input.data.shape[0],
+                            self.input.data.shape[0],
+                            self._L), 'D')
+
+        psd_mat = np.zeros((2, self.input.data.shape[0],
+                            self.input.data.shape[0],
+                            self._L), 'd')
+
+        coh_mat = np.zeros((self.input.data.shape[0],
+                            self.input.data.shape[0],
+                            self._L), 'd')
+
+        for i in xrange(self.input.data.shape[0]):
+           for j in xrange(i):
+              sxy = tsa.mtm_cross_spectrum(self.spectra[i],self.spectra[j],
+                                           (self.weights[i],self.weights[j]),
+                                           sides='onesided')
+
+              sxx = tsa.mtm_cross_spectrum(self.spectra[i],self.spectra[i],
+                                           (self.weights[i], self.weights[i]),
+                                           sides='onesided').real
+              
+              syy = tsa.mtm_cross_spectrum(self.spectra[j], self.spectra[j],
+                                           (self.weights[i], self.weights[j]),
+                                           sides='onesided').real
+              psd_mat[0,i,j] = sxx
+              psd_mat[1,i,j] = syy
+              coh_mat[i,j] = np.abs(sxy)**2
+              coh_mat[i,j] /= (sxx * syy)
+              csd_mat[i,j] = sxy
+
+        idx = tsu.triu_indices(self.input.data.shape[0],1)
+        coh_mat[idx[0],idx[1],...] = coh_mat[idx[1],idx[0],...].conj()
+
+        return coh_mat
+
+    @desc.setattr_on_read
+    def confidence_interval(self):
+        coh_var = np.zeros((self.input.data.shape[0],
+                            self.input.data.shape[0],
+                            self._L), 'd')
+        for i in xrange(self.input.data.shape[0]):
+           for j in xrange(i):
+               if i != j:
+                   coh_var[i,j] = tsu.jackknifed_coh_variance(self.spectra[i],
+                                                              self.spectra[j],
+                                weights=(self.weights[i], self.weights[j]),
+                                                        last_freq=self._L)
+                   
+        idx = tsu.triu_indices(self.input.data.shape[0],1)
+        coh_var[idx[0],idx[1],...] = coh_var[idx[1],idx[0],...].conj()
+
+        coh_mat_xform = tsu.normalize_coherence(self.coherence, 2*self.df-2)
+
+        lb = coh_mat_xform + dist.t.ppf(self.alpha/2,
+                                                self.df-1)*np.sqrt(coh_var)
+        ub = coh_mat_xform + dist.t.ppf(1-self.alpha/2,
+                                                self.df-1)*np.sqrt(coh_var)
+
+        # convert this measure with the normalizing function
+        tsu.normal_coherence_to_unit(lb, 2*self.df-2, lb)
+        tsu.normal_coherence_to_unit(ub, 2*self.df-2, ub)
+
+        return ub-lb
+
+    @desc.setattr_on_read
+    def frequencies(self):
+        return np.linspace(0, self.input.sampling_rate/2, self._L)
         
+
 class SparseCoherenceAnalyzer(BaseAnalyzer):
     """This analyzer is intended for analysis of large sets of data, in which
     possibly only a subset of combinations of time-series needs to be compared.

@@ -12,7 +12,7 @@ reload(nitime.viz)
 from nitime.viz import drawmatrix_channels
 import scipy.stats.distributions as dist
 #This time Import the coherence analyzer 
-from nitime.analysis import CoherenceAnalyzer
+from nitime.analysis import CoherenceAnalyzer,CoherenceMTAnalyzer
 
 #This part is the same as before
 TR=1.89
@@ -29,7 +29,7 @@ pdata = utils.percent_change(data)
 T = TimeSeries(pdata,sampling_interval=TR)
 T.metadata['roi'] = roi_names
 
-NW = 5
+NW = 4
 K = 2*NW-1
 tapers, eigs = alg.DPSS_windows(n_samples, NW, 2*NW-1)
 
@@ -95,20 +95,27 @@ else:
 #relevant band, see http://imaging.mrc-cbu.cam.ac.uk/imaging/DesignEfficiency:
 freq_idx = np.where((freqs>0.02) * (freqs<0.15))[0]
 
+C1 = coh_mat
 #Extract the coherence and average across these frequency bands: 
-coh = np.mean(coh_mat[:,:,freq_idx],-1) #Averaging on the last dimension 
+coh = np.mean(C1[:,:,freq_idx],-1) #Averaging on the last dimension 
 drawmatrix_channels(coh,roi_names,size=[10.,10.],color_anchor=0,
                     title='MTM Coherence')
 
-C = CoherenceAnalyzer(T)
+C2 = CoherenceAnalyzer(T)
 
-#We look only at frequencies between 0.02 and 0.15 (the physiologically
-#relevant band, see http://imaging.mrc-cbu.cam.ac.uk/imaging/DesignEfficiency:
-freq_idx = np.where((C.frequencies>0.02) * (C.frequencies<0.15))[0]
+freq_idx = np.where((C2.frequencies>0.02) * (C2.frequencies<0.15))[0]
 
 #Extract the coherence and average across these frequency bands: 
-coh = np.mean(C.coherence[:,:,freq_idx],-1) #Averaging on the last dimension 
+coh = np.mean(C2.coherence[:,:,freq_idx],-1) #Averaging on the last dimension 
 drawmatrix_channels(coh,roi_names,size=[10.,10.],color_anchor=0,
                     title='CoherenceAnalyzer')
+
+C3 = CoherenceMTAnalyzer(T)
+
+freq_idx = np.where((C3.frequencies>0.02) * (C3.frequencies<0.15))[0]
+
+coh = np.mean(C3.coherence[:,:,freq_idx],-1) #Averaging on the last dimension 
+drawmatrix_channels(coh,roi_names,size=[10.,10.],color_anchor=0,
+                    title='CoherenceMTAnalyzer')
 
 pp.show()
