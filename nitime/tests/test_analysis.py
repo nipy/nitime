@@ -252,7 +252,7 @@ def test_CoherenceMTAnalyzer():
     x = np.sin(10*t) + np.random.rand(t.shape[-1])
     y = np.sin(10*t) + np.random.rand(t.shape[-1])
     T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
-    C = nta.CoherenceMTAnalyzer(T)
+    C = nta.MTCoherenceAnalyzer(T)
 
     #Coherence symmetry:
     npt.assert_equal(C.coherence[0,1],C.coherence[1,0])

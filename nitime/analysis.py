@@ -422,22 +422,26 @@ class CoherenceAnalyzer(BaseAnalyzer):
 
         return p_coherence        
     
-class CoherenceMTAnalyzer(BaseAnalyzer):
-
-    def __init__(self,input=None,BW=None,alpha=0.05):
+class MTCoherenceAnalyzer(BaseAnalyzer):
+    """ Analyzer for multi-taper coherence analysis, including jack-knife
+    estimate of confidence interval """
+    def __init__(self, input=None, bandwidth=None, alpha=0.05):
 
         """
+        Initializer function for the MTCoherenceAnalyzer
+        
         Parameters
         ----------
 
         input: TimeSeries object
 
-        BW: float,
-           The bandwidth of the windowing function will determine the
-           number tapers to use. This parameters represents trade-off between
-           frequency resolution (lower main lobe BW for the taper) and variance
-           reduction (higher BW and number of averaged estimates). Per default
-           will be set to 4 times the fundamental frequency, such that NW=4
+        bandwidth: float,
+           The bandwidth of the windowing function will determine the number
+           tapers to use. This parameters represents trade-off between
+           frequency resolution (lower main lobe bandwidth for the taper) and
+           variance reduction (higher bandwidth and number of averaged
+           estimates). Per default will be set to 4 times the fundamental
+           frequency, such that NW=4
 
         alpha: float, default =0.05
             This is the alpha used to construct a confidence interval around
@@ -451,38 +455,35 @@ class CoherenceMTAnalyzer(BaseAnalyzer):
 
         BaseAnalyzer.__init__(self,input)
 
-        if input is not None:
+        if input is None:
+            self.NW = 4
+            self.bandwidth = None
+        else:
             N = input.shape[-1]
             Fs = self.input.sampling_rate
-            if BW is not None:
-                self.NW = BW/(2*Fs) * N
+            if bandwidth is not None:
+                self.NW = bandwidth/(2*Fs) * N
             else:
                 self.NW = 4
-                self.BW = self.NW * (2*Fs) / N
-        else:
-            self.NW = 4
-            self.BW = None
-
+                self.bandwidth = self.NW * (2*Fs) / N
+            
         self.alpha = alpha
         self._L = self.input.data.shape[-1]/2 + 1
 
     @desc.setattr_on_read
     def tapers(self):
-        tapers, eigs = tsa.DPSS_windows(self.input.shape[-1], self.NW,
-                                        2*self.NW-1)
-        return tapers
-    
+        return tsa.DPSS_windows(self.input.shape[-1], self.NW,
+                                2*self.NW-1)[0]
+        
     @desc.setattr_on_read
     def eigs(self):
-        tapers, eigs = tsa.DPSS_windows(self.input.shape[-1], self.NW,
-                                      2*self.NW-1)
-        return eigs
+        return tsa.DPSS_windows(self.input.shape[-1], self.NW,
+                                      2*self.NW-1)[1]
     @desc.setattr_on_read
     def df(self):
         #The degrees of freedom: 
-        df = 2*self.NW-1
-        return df
-
+        return 2*self.NW-1
+        
     @desc.setattr_on_read
     def spectra(self):
         tdata = self.tapers[None,:,:] *self.input.data[:,None,:]
@@ -490,34 +491,26 @@ class CoherenceMTAnalyzer(BaseAnalyzer):
         return tspectra
 
     @desc.setattr_on_read
-    def mag_sqr_spectra(self):
-        mag_sqr_spectra = np.abs(self.spectra)
-        np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
-        return mag_sqr_spectra
-
-    @desc.setattr_on_read
     def weights(self):
         w = np.empty( (self.input.data.shape[0], self.df,
                        self._L) )
+        
+        mag_sqr_spectra = np.abs(self.spectra)
+        np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
+
         for i in xrange(self.input.data.shape[0]):
-           w[i], _ = tsu.adaptive_weights(self.mag_sqr_spectra[i],
+    
+           w[i] = tsu.adaptive_weights(mag_sqr_spectra[i],
                                           self.eigs,
-                                          self._L)
+                                          self._L)[0]
         return w
 
     @desc.setattr_on_read
     def coherence(self):
-        csd_mat = np.zeros((self.input.data.shape[0],
-                            self.input.data.shape[0],
-                            self._L), 'D')
-
-        psd_mat = np.zeros((2, self.input.data.shape[0],
-                            self.input.data.shape[0],
-                            self._L), 'd')
-
-        coh_mat = np.zeros((self.input.data.shape[0],
-                            self.input.data.shape[0],
-                            self._L), 'd')
+        nrows = self.input.data.shape[0]
+        csd_mat = np.zeros((nrows,nrows,self._L), 'D')
+        psd_mat = np.zeros((2, nrows,nrows,self._L), 'd')
+        coh_mat = np.zeros((nrows,nrows,self._L), 'd')
 
         for i in xrange(self.input.data.shape[0]):
            for j in xrange(i):

@@ -2,7 +2,7 @@
 
 #Imports as before:
 import numpy as np
-import matplotlib.pyplot as pp
+import matplotlib.pyplot as plt
 from matplotlib.mlab import csv2rec
 from nitime.timeseries import TimeSeries
 from nitime import utils
@@ -12,7 +12,7 @@ reload(nitime.viz)
 from nitime.viz import drawmatrix_channels
 import scipy.stats.distributions as dist
 #This time Import the coherence analyzer 
-from nitime.analysis import CoherenceAnalyzer,CoherenceMTAnalyzer
+from nitime.analysis import CoherenceAnalyzer,MTCoherenceAnalyzer
 
 #This part is the same as before
 TR=1.89
@@ -110,12 +110,12 @@ coh = np.mean(C2.coherence[:,:,freq_idx],-1) #Averaging on the last dimension
 drawmatrix_channels(coh,roi_names,size=[10.,10.],color_anchor=0,
                     title='CoherenceAnalyzer')
 
-C3 = CoherenceMTAnalyzer(T)
+C3 = MTCoherenceAnalyzer(T)
 
 freq_idx = np.where((C3.frequencies>0.02) * (C3.frequencies<0.15))[0]
 
 coh = np.mean(C3.coherence[:,:,freq_idx],-1) #Averaging on the last dimension 
 drawmatrix_channels(coh,roi_names,size=[10.,10.],color_anchor=0,
-                    title='CoherenceMTAnalyzer')
+                    title='MTCoherenceAnalyzer')
 
-pp.show()
+plt.show()
