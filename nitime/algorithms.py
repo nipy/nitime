@@ -1188,11 +1188,7 @@ def event_related(tseries,events,Tbefore, Tafter, Fs=1):
     This will return an answer in the units it got (% signal change, z score,
     etc.)
 
-    
-    Notes
-    -----
-    Translated from Matlab code written by Lavi Secundo
-    
+        
     """
 
     fft = np.fft.fft
@@ -1208,11 +1204,7 @@ def event_related_zscored(tseries,events,Tbefore, Tafter, Fs=1):
     """
     Calculates the z-scored event related timeseries
 
-    
-    Notes
-    -----
-    Translated from Matlab code written by Lavi Secundo
-    
+        
     """
 
     fft = np.fft.fft
