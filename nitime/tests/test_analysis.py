@@ -252,10 +252,19 @@ def test_CoherenceMTAnalyzer():
     x = np.sin(10*t) + np.random.rand(t.shape[-1])
     y = np.sin(10*t) + np.random.rand(t.shape[-1])
     T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
-    C = nta.MTCoherenceAnalyzer(T)
+    C1 = nta.MTCoherenceAnalyzer(T)
 
     #Coherence symmetry:
-    npt.assert_equal(C.coherence[0,1],C.coherence[1,0])
+    npt.assert_equal(C1.coherence[0,1],C1.coherence[1,0])
 
     #Test that it runs through (it will trivially be equal to itself):
-    npt.assert_equal(C.confidence_interval,C.confidence_interval)
+    npt.assert_equal(C1.confidence_interval,C1.confidence_interval)
+
+    #Test that it works with adaptive set to False:
+    C2 = nta.MTCoherenceAnalyzer(T,adaptive=False)
+
+    #Coherence symmetry:
+    npt.assert_equal(C2.coherence[0,1],C2.coherence[1,0])
+
+    #Test that it runs through (it will trivially be equal to itself):
+    npt.assert_equal(C2.confidence_interval,C2.confidence_interval)

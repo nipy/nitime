@@ -425,7 +425,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
 class MTCoherenceAnalyzer(BaseAnalyzer):
     """ Analyzer for multi-taper coherence analysis, including jack-knife
     estimate of confidence interval """
-    def __init__(self, input=None, bandwidth=None, alpha=0.05):
+    def __init__(self, input=None, bandwidth=None, alpha=0.05, adaptive=True):
 
         """
         Initializer function for the MTCoherenceAnalyzer
@@ -446,8 +446,12 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
         alpha: float, default =0.05
             This is the alpha used to construct a confidence interval around
             the multi-taper csd estimate, based on a jack-knife estimate of the
-            variance [Thompson2005]_
+            variance [Thompson2007]_.
 
+        adaptive: bool, default to True
+            Whether to set the weights for the tapered spectra according to the
+            adaptive algorithm [Thompson2007]_.
+            
             .. [Thompson2007] Thompson, DJ Jackknifing multitaper spectrum
             estimates. IEEE Signal Processing Magazing. 24: 20-30
 
@@ -469,7 +473,8 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
             
         self.alpha = alpha
         self._L = self.input.data.shape[-1]/2 + 1
-
+        self._adaptive = adaptive
+        
     @desc.setattr_on_read
     def tapers(self):
         return tsa.DPSS_windows(self.input.shape[-1], self.NW,
@@ -492,17 +497,29 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
 
     @desc.setattr_on_read
     def weights(self):
-        w = np.empty( (self.input.data.shape[0], self.df,
-                       self._L) )
+        channel_n = self.input.data.shape[0]
+        w = np.empty( (channel_n, self.df,self._L) )
         
-        mag_sqr_spectra = np.abs(self.spectra)
-        np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
 
-        for i in xrange(self.input.data.shape[0]):
-    
-           w[i] = tsu.adaptive_weights(mag_sqr_spectra[i],
-                                          self.eigs,
-                                          self._L)[0]
+        if self._adaptive:
+            mag_sqr_spectra = np.abs(self.spectra)
+            np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
+
+            for i in xrange(channel_n):
+                w[i] = tsu.adaptive_weights(mag_sqr_spectra[i],
+                                            self.eigs,
+                                            self._L)[0]
+                
+        #Set the weights to be the square root of the eigen-values:
+        else:
+            wshape = [1] * len(self.spectra.shape)
+            wshape[0] = channel_n 
+            wshape[-2] = int(self.df)
+            pre_w = np.sqrt(self.eigs) + np.zeros( (wshape[0],
+                                                    self.eigs.shape[0]) )
+                
+            w = pre_w.reshape(*wshape)
+            
         return w
 
     @desc.setattr_on_read

@@ -134,7 +134,8 @@ class OneTimeProperty(object):
            #return func
            return self.getter
 
-       #Errors in the following line are errors in setting a OneTimeProperty:
+       #Errors in the following line are errors in setting a
+       #OneTimeProperty
        val = self.getter(obj)
 
        setattr(obj, self.name, val)
