@@ -134,8 +134,9 @@ class OneTimeProperty(object):
            #return func
            return self.getter
 
+       #Errors in the following line are errors in setting a OneTimeProperty:
        val = self.getter(obj)
-       #print "** auto_attr - loading '%s'" % self.name  # dbg
+
        setattr(obj, self.name, val)
        return val
 
