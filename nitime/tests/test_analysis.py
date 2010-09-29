@@ -134,6 +134,11 @@ def test_EventRelatedAnalyzer():
     npt.assert_almost_equal(FIR.data[0],signal[:FIR.data.shape[-1]],3)
     npt.assert_almost_equal(FIR.data[1],-1*signal[:FIR.data.shape[-1]],3)
 
+    #Same should be true for 
+    XCORR = nta.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).xcorr_eta
+    npt.assert_almost_equal(XCORR.data[0],signal[:XCORR.data.shape[-1]],3)
+    npt.assert_almost_equal(XCORR.data[1],-1*signal[:XCORR.data.shape[-1]],3)
+    
     #More dimensions: 
     T_signal = ts.TimeSeries(np.vstack([signal,signal]),sampling_rate=1)
     T_events = ts.TimeSeries(np.vstack([events,events]),sampling_rate=1)

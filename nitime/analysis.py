@@ -938,11 +938,9 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         shape[:-2] of the EventRelatedAnalyzer data, shape[-2] corresponds to
         the different kinds of events used (ordered according to the sorted
         order of the unique components in the events time-series). shape[-1]
-        corresponds to time, and has length = len_et*2 (xcorr looks both back
-        and forward for this length)
+        corresponds to time, and has length = len_et (xcorr looks both back
+        and forward for half of this length)
 
-
-        XXX code needs to be changed to use flattening (see 'eta' below)
         """
         #Make a list to put the outputs in:
         h = [0] * self._len_h
@@ -951,22 +949,19 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             data = self.data[i]
             u = np.unique(self.events[i])
             event_types = u[np.unique(self.events[i])!=0]
-            h[i] = np.empty((event_types.shape[0],self.len_et*2),dtype=complex)
+            h[i] = np.empty((event_types.shape[0],self.len_et/2),dtype=complex)
             for e_idx in xrange(event_types.shape[0]):
                 this_e = (self.events[i]==event_types[e_idx]) * 1.0
                 if self._zscore:
-                    this_h = tsa.event_related_zscored(data,
-                                            this_e,
-                                            self.len_et,
-                                            self.len_et
-                                            )
+                    this_h = tsa.freq_domain_xcorr_zscored(data,
+                                                           this_e,
+                                                           self.len_et/3,
+                                                           self.len_et/3)
                 else:
-                    this_h = tsa.event_related(data,
-                                            this_e,
-                                            self.len_et,
-                                            self.len_et
-                                            )
-                    
+                    this_h = tsa.freq_domain_xcorr(data,
+                                                   this_e,
+                                                   self.len_et/3,
+                                                   self.len_et/3)
                 h[i][e_idx] = this_h
                 
         h = np.array(h).squeeze()
