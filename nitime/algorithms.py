@@ -1594,7 +1594,7 @@ def DPSS_windows(N, NW, Kmax):
     # the main diagonal = ([N-1-2*t]/2)**2 cos(2PIW), t=[0,1,2,...,N-1]
     # and the first off-diangonal = t(N-t)/2, t=[1,2,...,N-1]
     # [see Percival and Walden, 1993]
-    Kmax=int(Kmax)
+    Kmax = int(Kmax)
     W = float(NW)/N
     ab = np.zeros((2,N), 'd')
     nidx = np.arange(N)
