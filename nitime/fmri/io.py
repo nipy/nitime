@@ -16,7 +16,7 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False):
     Parameters
     ----------
 
-    nifti_files: a string or a list of strings.
+    nifti_files: a string or a list/tuple of strings.
 
            The full path(s) to the file(s) from which the time-series is (are)
            extracted
@@ -59,41 +59,75 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False):
     if isinstance(nifti_files,str):
         im = load(nifti_files)
         data = im.get_data()
-
-        out_data = np.asarray(data[coords[0],coords[1],coords[2]])
-
-        tseries = ts.TimeSeries(out_data,sampling_interval=TR)
-
-        if normalize=='percent':
-            tseries = tsa.NormalizationAnalyzer(tseries).percent_change
-        elif normalize=='zscore':
-            tseries = tsa.NormalizationAnalyzer(tseries).z_score
-
-        if average:
-            tseries.data = np.mean(tseries.data,0)
-            
+        #If the input is the coords of several ROIs
+        if isinstance(coords,tuple) or isinstance(coords,list):
+            n_roi = len(coords)
+            out_data = [[]] * n_roi
+            tseries = [[]] * n_roi
+            for i in xrange(n_roi):
+                tseries[i] = _tseries_from_nifti_helper(coords[i],data,TR,
+                                                        normalize,average)
+            else:
+                tseries = _tseries_from_nifti_helper(coords,data,TR,
+                                                        normalize,average)
+                
     #Otherwise loop over the files and concatenate:
-    else:
+    elif isinstance(nifti_files,tuple) or isinstance(nifti_files,list):
         tseries_list = []
         for f in nifti_files:
             im = load(f)
             data = im.get_data()
+            
+            #If the input is the coords of several ROIs
+            if isinstance(coords,tuple) or isinstance(coords,list):
+                n_roi = len(coords)
+                out_data = [[]] * n_roi
+                tseries_list.append([[]] * n_roi)
+                for i in xrange(n_roi):
+                    tseries_list[-1][i] = _tseries_from_nifti_helper(coords[i],
+                                                                     data,TR,
+                                                            normalize,average)
 
-            out_data = np.asarray(data[coords[0],coords[1],coords[2]])
+                
+                
+            else:
+                tseries_list.append(_tseries_from_nifti_helper(coords,data,TR,
+                                                                   normalize,
+                                                                   average))
 
-            tseries_list.append(ts.TimeSeries(out_data,sampling_interval=TR))
-
-            if normalize=='percent':
-                tseries_list[-1] = tsa.NormalizationAnalyzer(tseries_list[-1]).percent_change
-            elif normalize=='zscore':
-                tseries_list[-1] = tsa.NormalizationAnalyzer(tseries_list[-1]).z_score
-
-            if average:
-                tseries_list[-1].data = np.mean(tseries_list[-1].data,0)
-
-        tseries = ts.concatenate_time_series(tseries_list)
+        #Concatenate the time-series from the different scans:
+                                    
+        if isinstance(coords,tuple) or isinstance(coords,list):
+            tseries = [[]] *n_roi
+            #Do this per ROI
+            for i in xrange(n_roi):
+                tseries[i] = ts.concatenate_time_series(
+                    [tseries_list[k][i] for k in xrange(len(tseries_list))])
+            
+        else:
+            tseries = ts.concatenate_time_series(tseries_list)
+                                        
     return tseries
 
+def _tseries_from_nifti_helper(coords,data,TR,normalize,average):
+    """
+
+    Helper function for the function time_series_from_nifti, which does the
+    core operations of pulling out data from a data array given coords and then
+    normalizing and averaging if needed 
+
+    """ 
+    out_data = np.asarray(data[coords[0],coords[1],coords[2]])
+    tseries = ts.TimeSeries(out_data,sampling_interval=TR)
+
+    if normalize=='percent':
+            tseries = tsa.NormalizationAnalyzer(tseries).percent_change
+    elif normalize=='zscore':
+            tseries = tsa.NormalizationAnalyzer(tseries).z_score
+    if average:
+            tseries.data = np.mean(tseries.data,0)
+
+    return tseries
 
 def nifti_from_time_series(volume,coords,time_series,nifti_path):
     """Makes a Nifti file out of a time_series object
