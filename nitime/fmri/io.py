@@ -21,9 +21,9 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False):
            The full path(s) to the file(s) from which the time-series is (are)
            extracted
      
-    coords: ndarray
-        x,y,z (inplane,inplane,slice) coordinates of the ROI from which the
-        time-series is to be derived.
+    coords: ndarray or list/tuple of ndarray
+        x,y,z (inplane,inplane,slice) coordinates of the ROI(s) from which the
+        time-series is (are) derived.
         
     TR: float, optional
         TR, if different from the one which can be extracted from the nifti
@@ -52,6 +52,7 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False):
     by the averaging. 
 
     """
+    
     if normalize is not None:
         if normalize not in ('percent','zscore'):
             raise ValueError("Normalization of fMRI time-series can only be done using 'percent' or 'zscore' as input")
@@ -65,10 +66,11 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False):
             out_data = [[]] * n_roi
             tseries = [[]] * n_roi
             for i in xrange(n_roi):
-                tseries[i] = _tseries_from_nifti_helper(coords[i],data,TR,
-                                                        normalize,average)
-            else:
-                tseries = _tseries_from_nifti_helper(coords,data,TR,
+                tseries[i] = _tseries_from_nifti_helper(coords[i].astype(int),
+                                                        data,TR,normalize,
+                                                        average)
+        else:
+            tseries = _tseries_from_nifti_helper(coords.astype(int),data,TR,
                                                         normalize,average)
                 
     #Otherwise loop over the files and concatenate:
@@ -84,16 +86,16 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False):
                 out_data = [[]] * n_roi
                 tseries_list.append([[]] * n_roi)
                 for i in xrange(n_roi):
-                    tseries_list[-1][i] = _tseries_from_nifti_helper(coords[i],
-                                                                     data,TR,
-                                                            normalize,average)
+                    tseries_list[-1][i] = _tseries_from_nifti_helper(
+                                                coords[i].astype(int),
+                                                data,TR,normalize,average)
 
                 
                 
             else:
-                tseries_list.append(_tseries_from_nifti_helper(coords,data,TR,
-                                                                   normalize,
-                                                                   average))
+                tseries_list.append(_tseries_from_nifti_helper(
+                                                 coords.astype(int),
+                                                 data,TR,normalize,average))
 
         #Concatenate the time-series from the different scans:
                                     
