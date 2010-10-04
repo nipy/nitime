@@ -1492,13 +1492,16 @@ def percent_change(time_series, axis=-1):
 
     Parameters
     ----------
+
     time_series : ndarray
         an array of time series
+        
     axis : int, optional
         the axis of time_series along which to compute means and stdevs
 
     Returns
     -------
+
     ndarray
         the renormalized time series array (in units of %)
     """
