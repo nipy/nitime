@@ -9,7 +9,8 @@ import nitime.timeseries as ts
 import nitime.analysis as tsa
 import numpy as np
 
-def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False):
+def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
+                          verbose=False):
     """ Make a time series from a Analyze file, provided coordinates into the
             file 
 
@@ -39,6 +40,7 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False):
            voxels in the ROI (assumed to be the first dimension). In which
            case, TS.data will be 1-d
 
+    verbose: Whether to report on ROI and file being read.
     
     Returns
     -------
@@ -58,6 +60,8 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False):
             raise ValueError("Normalization of fMRI time-series can only be done using 'percent' or 'zscore' as input")
     #If just one string was provided:
     if isinstance(nifti_files,str):
+        if verbose:
+            print "Reading %s"%nifti_files
         im = load(nifti_files)
         data = im.get_data()
         #If the input is the coords of several ROIs
@@ -77,6 +81,8 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False):
     elif isinstance(nifti_files,tuple) or isinstance(nifti_files,list):
         tseries_list = []
         for f in nifti_files:
+            if verbose:
+                print "Reading %s"%f
             im = load(f)
             data = im.get_data()
             
