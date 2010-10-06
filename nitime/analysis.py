@@ -219,7 +219,7 @@ class SpectralAnalyzer(BaseAnalyzer):
 class CoherenceAnalyzer(BaseAnalyzer):
     """Analyzer object for coherence/coherency analysis """
     
-    def __init__(self,input=None,method=None):
+    def __init__(self,input=None,method=None,unwrap_phases=False):
         """
 
         Parameters
@@ -229,6 +229,11 @@ class CoherenceAnalyzer(BaseAnalyzer):
 
         method: dict, optional, see :func:`get_spectra` documentation for
         details.
+
+        unwrap_phases: bool, optional (defaults to False)
+           Whether to unwrap the phases. This should be True if you
+           assume that the time-delay is the same for all the frequency bands
+           examined  
 
         Examples
         --------
@@ -273,10 +278,12 @@ class CoherenceAnalyzer(BaseAnalyzer):
             self.method = {'this_method':'mlab'}
         else:
             self.method = method
-
+        
         #If an input is provided, get the sampling rate from there, if you want
         #to over-ride that, input a method with a 'Fs' field specified: 
         self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
+
+        self._unwrap_phases = unwrap_phases
         
     @desc.setattr_on_read
     def output(self):
@@ -383,9 +390,11 @@ class CoherenceAnalyzer(BaseAnalyzer):
         delay = np.zeros(self.phase.shape)
         for i in xrange(p_shape[0]):
             for j in xrange(p_shape[1]):
-                #Calculate the delay, unwrapping the phases:
                 this_phase = self.phase[i,j]
-                this_phase = tsu.unwrap_phases(this_phase)
+                #If requested, unwrap the phases:
+                if self._unwrap_phases:
+                    this_phase = tsu.unwrap_phases(this_phase)
+
                 delay[i,j] = this_phase / (2*np.pi*self.frequencies)
                 
         return delay
@@ -555,6 +564,7 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
 
     @desc.setattr_on_read
     def confidence_interval(self):
+        """The size of the 1-alpha confidence interval"""
         coh_var = np.zeros((self.input.data.shape[0],
                             self.input.data.shape[0],
                             self._L), 'd')

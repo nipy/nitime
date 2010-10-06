@@ -324,7 +324,7 @@ def drawmatrix_channels(in_m,channel_names=None,fig=None,x_tick_rot=90,size=None
     return fig
 
 def drawgraph_channels(in_m,channel_names=None,cmap=plt.cm.RdBu_r,
-                       node_labels=None,node_shapes=None,node_colors=None,
+                       node_shapes=None,node_colors=None,
                        title=None,layout=None,threshold=None):
 
     """Draw a graph based on the matrix specified in in_m. Wrapper to
@@ -340,8 +340,6 @@ def drawgraph_channels(in_m,channel_names=None,cmap=plt.cm.RdBu_r,
 
     cmap (optional): a matplotlib colormap to be used for displaying the values
     of the connections on the graph
-
-    node_labels:
 
     node_shapes: defaults to circle
 
