@@ -854,7 +854,7 @@ def coherence_partial_bavg_calculate(f,fxy,fxx,fyy,fxr,fry,frr):
     Rry = coh(fry,fyy,frr)
 
     return (np.sum(Rxy-Rxr*Rry)/
-            np.sqrt(np.sum(1-Rxr*Rxr.conjugate)*np.sum(1-Rry*Rry.conjugate)))
+        np.sqrt(np.sum(1-Rxr*Rxr.conjugate())*np.sum(1-Rry*Rry.conjugate())))
 
 def coherency_phase_spectrum (time_series,csd_method=None):
     """
@@ -900,9 +900,9 @@ def coherency_phase_spectrum (time_series,csd_method=None):
                f.shape[0]))
     
     for i in xrange(time_series.shape[0]): 
-      for j in xrange(i,time_series.shape[0]):
-        p[i][j] = coherency_phase_spectrum_calculate(fxy[i][j])
-        p[j][i] = coherency_phase_spectrum_calculate(fxy[i][j].conjugate)
+      for j in xrange(i+1,time_series.shape[0]):
+          p[i][j] = coherency_phase_spectrum_calculate(fxy[i][j])
+          p[j][i] = coherency_phase_spectrum_calculate(fxy[i][j].conjugate())
          
     return f,p
 
@@ -2435,11 +2435,24 @@ def cache_to_psd(cache,ij):
 
 def cache_to_phase(cache,ij):
     """ From a set of cached set of windowed fft's, calculate the
-    frequency-band dependent phase for all the ij"""
+    frequency-band dependent phase for all the ij. Note that this returns the
+    absolute phases of the time-series, not the relative phases between
+    them. In order to get relative phases, use cache_to_relative_phase
 
-    #This is the way it is saved by cache_spectra:
+    Parameters
+    ----------
+    cache: a cache with fft's, created by :func:`cache_fft`
+
+    ij: all the indices for which to calculate the phases
+
+    Returns
+    -------
+
+    tuple with the phases, keys are all the i and j in ij
+
+    """
     FFT_slices=cache['FFT_slices']
-
+    
     Phase = {}
 
     all_channels = set()
@@ -2454,6 +2467,69 @@ def cache_to_phase(cache,ij):
             Phase[i] = np.mean(Phase[i],0)
     
     return Phase
+
+def cache_to_relative_phase(cache,ij):
+    """ From a set of cached set of windowed fft's, calculate the
+    frequency-band dependent relative phase for the combinations ij. 
+
+    Parameters
+    ----------
+    cache: a cache with fft's, created by :func:`cache_fft`
+
+    ij: all the indices for which to calculate the phases
+
+    Returns
+    -------
+
+    tuple with the phases, keys are all the i and j in ij
+
+    Note
+    ----
+
+    This function will give you a different result than using
+    coherency_phase_spectrum. This is because coherency_phase_spectrum
+    calculates the angle based on the average psd, whereas this function
+    calculates the average of the angles calculated on individual windows.  
+
+    """
+        
+    #This is the way it is saved by cache_spectra:
+    FFT_slices=cache['FFT_slices']
+    FFT_conj_slices=cache['FFT_conj_slices']
+    norm_val=cache['norm_val']
+
+    freqs = cache['FFT_slices'][ij[0][0]].shape[-1]
+
+    ij_array = np.array(ij)
+
+    channels_i = max(1,max(ij_array[:,0])+1)
+    channels_j = max(1,max(ij_array[:,1])+1)
+    #Pre-allocate for speed:
+    Phi_xy = np.empty((channels_i,channels_j,freqs),dtype=np.complex)
+
+    #These checks take time, so do them up front, not in every iteration:
+    if FFT_slices.items()[0][1].shape[0]>1:
+        if FFT_conj_slices:
+            for i,j in ij:
+                phi = np.angle(FFT_slices[i] * FFT_conj_slices[j])
+                Phi_xy[i,j] = np.mean(phi,0)
+                
+        else:
+            for i,j in ij:
+                phi = np.angle(FFT_slices[i] * np.conjugate(FFT_slices[j]))
+                Phi_xy[i,j] = np.mean(phi,0)
+                
+    else:
+        if FFT_conj_slices:
+            for i,j in ij:
+                Phi_xy[i,j] = np.angle(FFT_slices[i] * FFT_conj_slices[j])
+                
+        else:
+            for i,j in ij:
+              Phi_xy[i,j] = np.angle(FFT_slices[i]*np.conjugate(FFT_slices[j]))
+        
+    return Phi_xy
+
 
 def cache_to_coherency(cache,ij):
     """From a set of cached spectra, calculate the coherency
@@ -2472,17 +2548,14 @@ def cache_to_coherency(cache,ij):
     FFT_conj_slices=cache['FFT_conj_slices']
     norm_val=cache['norm_val']
 
-    Pxx = cache_to_psd(cache,ij)
-    k = Pxx.keys()[0]
-    freqs = Pxx[k].shape[-1]
+    freqs = cache['FFT_slices'][ij[0][0]].shape[-1]
     
     ij_array = np.array(ij)
 
     channels_i = max(1,max(ij_array[:,0])+1)
     channels_j = max(1,max(ij_array[:,1])+1)
-    Cxy = np.zeros((channels_i,channels_j,freqs),dtype=np.complex)
+    Cxy = np.empty((channels_i,channels_j,freqs),dtype=np.complex)
 
-    #print Cxy.shape
     #These checks take time, so do them up front, not in every iteration:
     if FFT_slices.items()[0][1].shape[0]>1:
         if FFT_conj_slices:
@@ -2490,28 +2563,48 @@ def cache_to_coherency(cache,ij):
                 #dbg:
                 #print i,j
                 Pxy = FFT_slices[i] * FFT_conj_slices[j]
+                Pxx = FFT_slices[i] * FFT_conj_slices[i]
+                Pyy = FFT_slices[j] * FFT_conj_slices[j]
+                Pxx = np.mean(Pxx,0)
+                Pyy = np.mean(Pyy,0)
                 Pxy = np.mean(Pxy,0)
                 Pxy /= norm_val
-                Cxy[i,j] = Pxy / np.sqrt(Pxx[i]*Pxx[j])
+                Pxx /= norm_val
+                Pyy /= norm_val
+                Cxy[i,j] = Pxy / np.sqrt(Pxx*Pyy)
                 
         else:
             for i,j in ij:
                 Pxy = FFT_slices[i] * np.conjugate(FFT_slices[j])
+                Pxx = FFT_slices[i] * np.conjugate(FFT_slices[i])
+                Pyy = FFT_slices[j] * np.conjugate(FFT_slices[j])
+                Pxx = np.mean(Pxx,0)
+                Pyy = np.mean(Pyy,0)
                 Pxy = np.mean(Pxy,0)
                 Pxy /= norm_val
-                Cxy[i,j] =  Pxy / np.sqrt(Pxx[i]*Pxx[j])
+                Pxx /= norm_val
+                Pyy /= norm_val
+                Cxy[i,j] =  Pxy / np.sqrt(Pxx*Pyy)
     else:
         if FFT_conj_slices:
             for i,j in ij:
                 Pxy = FFT_slices[i] * FFT_conj_slices[j]
+                Pxx = FFT_slices[i] * FFT_conj_slices[i]
+                Pyy = FFT_slices[j] * FFT_conj_slices[j]
                 Pxy /= norm_val
-                Cxy[i,j] = Pxy / np.sqrt(Pxx[i]*Pxx[j])
+                Pxx /= norm_val
+                Pyy /= norm_val
+                Cxy[i,j] = Pxy / np.sqrt(Pxx*Pyy)
                 
         else:
             for i,j in ij:
                 Pxy = FFT_slices[i] * np.conjugate(FFT_slices[j])
+                Pxx = FFT_slices[i] * np.conjugate(FFT_slices[i])
+                Pyy = FFT_slices[j] * np.conjugate(FFT_slices[j])
                 Pxy /= norm_val
-                Cxy[i,j] =  Pxy / np.sqrt(Pxx[i]*Pxx[j])
+                Pxx /= norm_val
+                Pyy /= norm_val
+                Cxy[i,j] =  Pxy / np.sqrt(Pxx*Pyy)
         
 
     return Cxy

@@ -623,7 +623,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
 
             define a frequency band of interest
 
-        prefer_speed_over_memory: Boolean, optional, default=False
+        prefer_speed_over_memory: Boolean, optional, default=True
 
             Does exactly what the name implies. If you have enough memory
 
@@ -689,19 +689,30 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         """get the spectrum for the collection of time-series in this analyzer
         """
         self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
-        spectrum = cache_to_psd(self.cache,self.ij)
+        spectrum = tsa.cache_to_psd(self.cache,self.ij)
 
         return spectrum
     
     @desc.setattr_on_read
     def phases(self):
-        """The frequency-band dependent phases of the spectra of the
-           time-series i,j in the analyzer"""
+        """The frequency-band dependent phases of the spectra of each of the
+           time -series i,j in the analyzer"""
         
-        phase= cache_to_phase(self.cache,self.ij)
+        phase = tsa.cache_to_phase(self.cache,self.ij)
 
         return phase
 
+    @desc.setattr_on_read
+    def relative_phases(self):
+        """The frequency-band dependent relative phase between the two
+        time-series """
+        return np.angle(self.output)
+       
+    @desc.setattr_on_read
+    def delay(self):
+        """ The delay in seconds between the two time series """
+        return self.relative_phases / (2*np.pi*self.frequencies)
+        
     @desc.setattr_on_read
     def frequencies(self):
         """Get the central frequencies for the frequency bands, given the

@@ -3,10 +3,14 @@ import os
 import numpy as np
 import numpy.testing as npt
 from scipy.signal import signaltools
+import matplotlib.mlab as mlab
 
 import nitime
 from nitime import algorithms as tsa
 from nitime import utils as ut
+
+#Define globally
+test_dir_path = os.path.join(nitime.__path__[0],'tests')
 
 def test_scipy_resample():
     """ Tests scipy signal's resample function
@@ -331,7 +335,6 @@ def test_psd_matlab():
 def test_coherence_matlab():
 
     """ Test against coherence values calculated with matlab's mscohere"""
-    test_dir_path = os.path.join(nitime.__path__[0],'tests')
 
     ts = np.loadtxt(os.path.join(test_dir_path,'tseries12.txt'))
 
@@ -349,3 +352,39 @@ def test_coherence_matlab():
     cxy_matlab = np.loadtxt(os.path.join(test_dir_path,'cxy_matlab.txt'))
 
     npt.assert_almost_equal(cxy_mlab[0][1],cxy_matlab,decimal=5)
+
+def test_cached_coherence():
+    """Testing the cached coherence functions """
+    NFFT = 64 #This is the default behavior
+    n_freqs = NFFT//2 + 1
+    ij = [(0,1),(1,0)]
+    ts = np.loadtxt(os.path.join(test_dir_path,'tseries12.txt'))
+    freqs,cache = tsa.cache_fft(ts,ij)
+
+    #Are the frequencies the right ones?
+    yield npt.assert_equal,freqs,ut.get_freqs(2*np.pi,NFFT)
+                     
+    #Check that the fft of the first window is what we expect:
+    hann = mlab.window_hanning(np.ones(NFFT))
+    w_ts = ts[0][:NFFT]*hann
+    w_ft = np.fft.fft(w_ts)[0:n_freqs]
+
+    #This is the result of the function:
+    first_window_fft = cache['FFT_slices'][0][0]
+    
+    yield npt.assert_equal,w_ft,first_window_fft
+    
+    coh_cached = tsa.cache_to_coherency(cache,ij)[0,1]
+    f,c = tsa.coherency(ts)
+    coh_direct = c[0,1]
+
+    yield npt.assert_almost_equal,coh_direct,coh_cached
+
+#The following test fails because these two are in fact not equal. This is
+#because one is based on calculating the angle of the averaged psd and the
+#other is based on calculating the average of the angles calculated over
+#different windows. Note that this is not the same, because the angle is not a
+#linear functions (arctan):
+##     phase_cached = tsa.cache_to_relative_phase(cache,ij)[0,1]    
+##     f,phase_direct = tsa.coherency_phase_spectrum(ts)
+##     yield npt.assert_almost_equal,phase_cached,phase_direct[0,1]

@@ -114,7 +114,7 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
             
         else:
             tseries = ts.concatenate_time_series(tseries_list)
-                                        
+
     return tseries
 
 def _tseries_from_nifti_helper(coords,data,TR,normalize,average):
