@@ -742,8 +742,12 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
     """
 
     def __init__(self,seed_time_series=None,target_time_series=None,
-                 method=None,lb=0,ub=None,prefer_speed_over_memory=True):
-        """The constructor for the SeedCoherenceAnalyzer
+                 method=None,lb=0,ub=None,prefer_speed_over_memory=True,
+                 scale_by_freq=True):
+        
+        """
+
+        The constructor for the SeedCoherenceAnalyzer
 
         Parameters
         ----------
@@ -758,11 +762,12 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
 
         prefer_speed_over_memory: Boolean, optional, default=True
 
-            Does exactly what the name implies. If you have enough memory
+            Makes things go a bit faster, if you have enough memory
+
 
         """
         
-        BaseAnalyzer.__init__(self,time_series)
+        BaseAnalyzer.__init__(self,seed_time_series)
 
         self.seed = seed_time_series
         self.target = target_time_series
@@ -798,8 +803,102 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
         
         return freqs[lb_idx:ub_idx]
 
+    @desc.setattr_on_read
+    def target_cache(self):
+        data = self.target.data
+
+        #Make a cache with all the fft windows for each of the channels in the
+        #target.
+
+        #This is the kind of input that cache_fft expects: 
+        ij = zip(np.arange(data.shape[0]),np.arange(data.shape[0]))
+        
+        f,cache = tsa.cache_fft(data,ij,lb=self.lb,ub=self.ub,
+                        method=self.method,
+                        prefer_speed_over_memory=self.prefer_speed_over_memory,
+                        scale_by_freq=self.scale_by_freq)
+
+        return cache
 
 
+    @desc.setattr_on_read
+    def coherency(self):
+
+        #Pre-allocate the final result:
+        if len(self.seed.shape)>1:
+            Cxy = np.empty((self.seed.data.shape[0],
+                            self.target.data.shape[0],
+                            self.frequencies.shape[0]),dtype=np.complex)
+        else:
+            Cxy = np.empty((self.target.data.shape[0],
+                            self.frequencies.shape[0]),dtype=np.complex)
+
+        #Get the fft window cache for the target time-series: 
+        cache = self.target_cache
+
+        #A list of indices for the target:
+        target_chan_idx = np.arange(self.target.data.shape[0])
+
+        #This is a list of indices into the cached fft window libraries,
+        #setting the index of the seed to be -1, so that it is easily
+        #distinguished from the target indices: 
+        ij = zip(np.ones_like(target_chan_idx)*-1,target_chan_idx)
+
+        #If there is more than one channel in the seed time-series:
+        if len(self.seed.shape)>1:
+            for seed_idx,this_seed in enumerate(self.seed.data):
+                #Here ij is 0, because it is just one channel and we stack the
+                #channel onto itself in order for the input to the function to
+                #make sense:
+                f,seed_cache = tsa.cache_fft(np.vstack([this_seed,this_seed]),
+                        [(0,0)],
+                        lb=self.lb,ub=self.ub,
+                        method=self.method,
+                        prefer_speed_over_memory=self.prefer_speed_over_memory,
+                        scale_by_freq=self.scale_by_freq)
+
+                #Insert the seed_cache into the target_cache:
+                cache['FFT_slices'][-1]=seed_cache['FFT_slices'][0] 
+
+                #If this is true, the cache contains both FFT_slices and
+                #FFT_conj_slices:
+                if self.prefer_speed_over_memory:
+                    cache['FFT_conj_slices'][-1]=\
+                                            seed_cache['FFT_conj_slices'][0] 
+                
+                #This performs the caclulation for this seed:    
+                Cxy[seed_idx] = tsa.cache_to_coherency(cache,ij)
+                
+        #In the case where there is only one channel in the seed time-series:
+        else:
+            f,seed_cache = tsa.cache_fft(np.vstack([self.seed.data,
+                                                    self.seed.data]),
+                        [(0,0)],
+                        lb=self.lb,ub=self.ub,
+                        method=self.method,
+                        prefer_speed_over_memory=self.prefer_speed_over_memory,
+                        scale_by_freq=self.scale_by_freq)
+
+            cache['FFT_slices'][-1]=seed_cache['FFT_slices'][0]
+
+            if self.prefer_speed_over_memory:
+                cache['FFT_conj_slices'][-1]=\
+                                            seed_cache['FFT_conj_slices'][0] 
+
+            Cxy=tsa.cache_to_coherency(cache,ij)
+
+        return Cxy.squeeze()
+
+    @desc.setattr_on_read
+    def relative_phases(self):
+        """The frequency-band dependent relative phase between the two
+        time-series """
+        return np.angle(self.output)
+       
+    @desc.setattr_on_read
+    def delay(self):
+        """ The delay in seconds between the two time series """
+        return self.relative_phases / (2*np.pi*self.frequencies)
 
 class CorrelationAnalyzer(BaseAnalyzer):
     """Analyzer object for correlation analysis. Has the same API as the

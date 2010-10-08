@@ -2264,9 +2264,9 @@ def boxcar_filter(time_series,lb=0,ub=1,n_iterations=2):
 
     return time_series.squeeze()
 
-#--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #Coherency calculated using cached spectra
-#--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 """The idea behind this set of functions is to keep a cache of the windowed fft
 calculations of each time-series in a massive collection of time-series, so
 that this calculation doesn't have to be repeated each time a cross-spectrum is
