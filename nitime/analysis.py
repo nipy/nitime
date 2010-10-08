@@ -726,6 +726,81 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         
         return freqs[lb_idx:ub_idx]
         
+class SeedCoherenceAnalyzer(BaseAnalyzer):
+    """
+    This analyzer takes two time-series. The first is designated as a
+    time-series of seeds. The other is designated as a time-series of targets.
+    The analyzer performs a coherence analysis between each of the channels in
+    the seed time-series and *all* of the channels in the target time-series.
+
+    Note
+    ----
+
+    This is a convenience class, which provides a convenient-to-use interface
+    to the SparseCoherenceAnalyzer
+
+    """
+
+    def __init__(self,seed_time_series=None,target_time_series=None,
+                 method=None,lb=0,ub=None,prefer_speed_over_memory=True):
+        """The constructor for the SeedCoherenceAnalyzer
+
+        Parameters
+        ----------
+
+        seed_time_series: a time-series object
+
+        target_time_series: a time-series object
+            
+        lb,ub: float,optional, default: lb=0, ub=None (max frequency)
+
+            define a frequency band of interest
+
+        prefer_speed_over_memory: Boolean, optional, default=True
+
+            Does exactly what the name implies. If you have enough memory
+
+        """
+        
+        BaseAnalyzer.__init__(self,time_series)
+
+        self.seed = seed_time_series
+        self.target = target_time_series
+
+        #Set the variables for spectral estimation (can also be entered by
+        #user): 
+        if method is None:
+            self.method = {'this_method':'mlab'}
+
+        else:
+            self.method = method
+
+        if self.method['this_method']!='mlab':
+            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be mlab")
+            
+
+        #Additional parameters for the coherency estimation: 
+        self.lb = lb
+        self.ub = ub
+        self.prefer_speed_over_memory = prefer_speed_over_memory
+        self.scale_by_freq = scale_by_freq
+
+    @desc.setattr_on_read
+    def frequencies(self):
+        """Get the central frequencies for the frequency bands, given the
+           method of estimating the spectrum """
+
+        self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
+        NFFT = self.method.get('NFFT',64)
+        Fs = self.method.get('Fs')
+        freqs = tsu.get_freqs(Fs,NFFT)
+        lb_idx,ub_idx = tsu.get_bounds(freqs,self.lb,self.ub)
+        
+        return freqs[lb_idx:ub_idx]
+
+
+
+
 class CorrelationAnalyzer(BaseAnalyzer):
     """Analyzer object for correlation analysis. Has the same API as the
     CoherenceAnalyzer"""
