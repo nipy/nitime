@@ -804,6 +804,9 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
         correct_baseline: a flag to correct the baseline according to the first
         point in the event-triggered average (where possible)
+
+        offset: the offset of the beginning of the event-related time-series,
+        relative to the event occurence 
         
         """ 
         #XXX Change so that the offset and length of the eta can be given in
@@ -954,14 +957,15 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                 this_e = (self.events[i]==event_types[e_idx]) * 1.0
                 if self._zscore:
                     this_h = tsa.freq_domain_xcorr_zscored(data,
-                                                           this_e,
-                                                           self.len_et/3,
-                                                           self.len_et/3)
+                                                    this_e,
+                                                    -self.offset+1,
+                                                    self.len_et-self.offset-2)
                 else:
                     this_h = tsa.freq_domain_xcorr(data,
                                                    this_e,
-                                                   self.len_et/3,
-                                                   self.len_et/3)
+                                                   -self.offset+1,
+                                                   self.len_et-self.offset-2)
+                print this_h.shape
                 h[i][e_idx] = this_h
                 
         h = np.array(h).squeeze()
