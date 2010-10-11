@@ -1180,52 +1180,90 @@ def fir(timeseries,design):
     h = np.array(linalg.pinv(X.T*X) * X.T*y.T)
     return h   
 
-def event_related(tseries,events,Tbefore, Tafter, Fs=1):
+def freq_domain_xcorr(tseries,events,t_before,t_after,Fs=1):
     """
     Calculates the  event related timeseries, using a cross-correlation in the
-    frequency domain
-
-    This will return an answer in the units it got (% signal change, z score,
-    etc.)
+    frequency domain.
 
     
-    Notes
-    -----
-    Translated from Matlab code written by Lavi Secundo
+    Parameters
+    ----------
+    tseries: float array
+       Time series data with time as the last dimension
+
+    events: float array
+       An array with time-resolved events, at the same sampling rate as tseries
+
+    t_before: float
+       Time before the event to include
+
+    t_after: float
+       Time after the event to include 
+
+    Fs: float
+       Sampling rate of the time-series (in Hz)
+    
+    Returns
+    -------
+    xcorr: the correlation function between the tseries and the events. Can be
+    interperted as a linear filter from events to responses (the time-series)
+    of an LTI. 
     
     """
-
+    
     fft = np.fft.fft
     ifft = np.fft.ifft
     fftshift = np.fft.fftshift
 
-    E = fftshift ( ifft ( fft(tseries) * fft(np.fliplr([events]) ) ) )
+    xcorr = np.real(fftshift ( ifft ( fft(tseries) * fft(np.fliplr([events]) )
+    ) ) )
                      
-    return E[0][ np.ceil(len(E[0])/2)-Tbefore*Fs :
-                    np.ceil(len(E[0])/2)+Tafter*Fs ]
+    return xcorr[0][ np.ceil(len(xcorr[0])/2)-t_before*Fs :
+                    np.ceil(len(xcorr[0])/2)+t_after/2*Fs ]/np.sum(events)
 
-def event_related_zscored(tseries,events,Tbefore, Tafter, Fs=1):
+
+def freq_domain_xcorr_zscored(tseries,events,t_before,t_after,Fs=1):
     """
-    Calculates the z-scored event related timeseries
+    Calculates the z-scored event related timeseries, using a cross-correlation
+    in the frequency domain.
 
     
-    Notes
-    -----
-    Translated from Matlab code written by Lavi Secundo
+    Parameters
+    ----------
+    tseries: float array
+       Time series data with time as the last dimension
+
+    events: float array
+       An array with time-resolved events, at the same sampling rate as tseries
+
+    t_before: float
+       Time before the event to include
+
+    t_after: float
+       Time after the event to include 
+
+    Fs: float
+       Sampling rate of the time-series (in Hz)
+    
+    Returns
+    -------
+    xcorr: the correlation function between the tseries and the events. Can be
+    interperted as a linear filter from events to responses (the time-series)
+    of an LTI. 
     
     """
-
+        
     fft = np.fft.fft
     ifft = np.fft.ifft
     fftshift = np.fft.fftshift
 
-    E = fftshift ( ifft ( fft(tseries) * fft(np.fliplr([events]) ) ) )
-    meanSurr = np.mean(E)
-    stdSurr = np.std(E)
+    xcorr = np.real( fftshift ( ifft ( fft(tseries) * fft(np.fliplr([events]) )
+    ) ) )
+    meanSurr = np.mean(xcorr)
+    stdSurr = np.std(xcorr)
     
-    
-    return ( ( (E[0][ np.ceil(len(E[0])/2)-Tbefore*Fs :
-                    np.ceil(len(E[0])/2)+Tafter*Fs ])
+    return ( ( (xcorr[0][ np.ceil(len(xcorr[0])/2)-Tbefore*Fs :
+                    np.ceil(len(xcorr[0])/2)+Tafter*Fs ])
              - meanSurr)
              / stdSurr )
 
@@ -1249,7 +1287,7 @@ def get_spectra(time_series,method=None):
            order to calculate the psd/csd, in which case, additional optional
            inputs (and default values) are:
 
-           NFFT=256
+           NFFT=64
            Fs=2pi
            detrend=mlab.detrend_none
            window=mlab.window_hanning

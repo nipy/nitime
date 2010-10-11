@@ -231,7 +231,7 @@ def test_DPSS_matlab():
     
     """
     a,_ = tsa.DPSS_windows(100,2,4)
-    b = np.loadtxt('dpss_matlab.txt')
+    b = np.loadtxt(os.path.join(test_dir_path,'dpss_matlab.txt'))
     npt.assert_almost_equal(a,b.T)
         
 def test_yule_walker_AR():
