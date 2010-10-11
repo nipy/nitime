@@ -55,7 +55,7 @@ def test_CoherenceAnalyzer():
 
 def test_SparseCoherenceAnalyzer():
     Fs = np.pi
-    t = np.arange(10)
+    t = np.arange(256)
     x = np.sin(10*t) + np.random.rand(t.shape[-1])
     y = np.sin(10*t) + np.random.rand(t.shape[-1])
     T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
@@ -66,9 +66,11 @@ def test_SparseCoherenceAnalyzer():
 
     #Make sure you get the same answers as you would from the standard
     #CoherenceAnalyzer: 
-    C2 = nta.CoherenceAnalyzer (T)
-    
-    
+    C2 = nta.CoherenceAnalyzer(T)
+
+    yield npt.assert_almost_equal, C2[0,1],C1[0,1]
+    yield npt.assert_almost_equal, C2.coherence[0,1],C1.coherence[0,1]
+
 def test_CorrelationAnalyzer():
 
     Fs = np.pi

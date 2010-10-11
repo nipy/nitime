@@ -534,7 +534,6 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def coherence(self):
         nrows = self.input.data.shape[0]
-        csd_mat = np.zeros((nrows,nrows,self._L), 'D')
         psd_mat = np.zeros((2, nrows,nrows,self._L), 'd')
         coh_mat = np.zeros((nrows,nrows,self._L), 'd')
 
@@ -555,7 +554,6 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
               psd_mat[1,i,j] = syy
               coh_mat[i,j] = np.abs(sxy)**2
               coh_mat[i,j] /= (sxx * syy)
-              csd_mat[i,j] = sxy
 
         idx = tsu.triu_indices(self.input.data.shape[0],1)
         coh_mat[idx[0],idx[1],...] = coh_mat[idx[1],idx[0],...].conj()
@@ -666,7 +664,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def coherence(self):
         """ The coherence values for the output"""
-        coherence = np.abs(self.output)
+        coherence = np.abs(self.output**2)
        
         return coherence
 
