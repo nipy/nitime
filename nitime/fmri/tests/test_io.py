@@ -11,9 +11,19 @@ import numpy.testing as npt
 import nitime
 import nitime.fmri.io as io
 
+#Skip the tests if you can't import nibabel:
+try:
+    import nibabel
+    no_nibabel = False
+except ImportError:
+    no_nibabel = True
+
 test_dir_path = os.path.join(nitime.__path__[0],'fmri/tests')
 
+@npt.dec.skipif(no_nibabel)
 def test_time_series_from_file():
+
+    """Testing reading of data from nifti files, using nibabel"""
     
     TR = 1.35 
     ts_ff = io.time_series_from_file
