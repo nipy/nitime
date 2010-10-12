@@ -534,7 +534,6 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def coherence(self):
         nrows = self.input.data.shape[0]
-        csd_mat = np.zeros((nrows,nrows,self._L), 'D')
         psd_mat = np.zeros((2, nrows,nrows,self._L), 'd')
         coh_mat = np.zeros((nrows,nrows,self._L), 'd')
 
@@ -555,7 +554,6 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
               psd_mat[1,i,j] = syy
               coh_mat[i,j] = np.abs(sxy)**2
               coh_mat[i,j] /= (sxx * syy)
-              csd_mat[i,j] = sxy
 
         idx = tsu.triu_indices(self.input.data.shape[0],1)
         coh_mat[idx[0],idx[1],...] = coh_mat[idx[1],idx[0],...].conj()
@@ -666,7 +664,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def coherence(self):
         """ The coherence values for the output"""
-        coherence = np.abs(self.output)
+        coherence = np.abs(self.output**2)
        
         return coherence
 
@@ -726,6 +724,180 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         
         return freqs[lb_idx:ub_idx]
         
+class SeedCoherenceAnalyzer(BaseAnalyzer):
+    """
+    This analyzer takes two time-series. The first is designated as a
+    time-series of seeds. The other is designated as a time-series of targets.
+    The analyzer performs a coherence analysis between each of the channels in
+    the seed time-series and *all* of the channels in the target time-series.
+
+    Note
+    ----
+
+    This is a convenience class, which provides a convenient-to-use interface
+    to the SparseCoherenceAnalyzer
+
+    """
+
+    def __init__(self,seed_time_series=None,target_time_series=None,
+                 method=None,lb=0,ub=None,prefer_speed_over_memory=True,
+                 scale_by_freq=True):
+        
+        """
+
+        The constructor for the SeedCoherenceAnalyzer
+
+        Parameters
+        ----------
+
+        seed_time_series: a time-series object
+
+        target_time_series: a time-series object
+            
+        lb,ub: float,optional, default: lb=0, ub=None (max frequency)
+
+            define a frequency band of interest
+
+        prefer_speed_over_memory: Boolean, optional, default=True
+
+            Makes things go a bit faster, if you have enough memory
+
+
+        """
+        
+        BaseAnalyzer.__init__(self,seed_time_series)
+
+        self.seed = seed_time_series
+        self.target = target_time_series
+
+        #Set the variables for spectral estimation (can also be entered by
+        #user): 
+        if method is None:
+            self.method = {'this_method':'mlab'}
+
+        else:
+            self.method = method
+
+        if self.method['this_method']!='mlab':
+            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be mlab")
+            
+
+        #Additional parameters for the coherency estimation: 
+        self.lb = lb
+        self.ub = ub
+        self.prefer_speed_over_memory = prefer_speed_over_memory
+        self.scale_by_freq = scale_by_freq
+
+    @desc.setattr_on_read
+    def frequencies(self):
+        """Get the central frequencies for the frequency bands, given the
+           method of estimating the spectrum """
+
+        self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
+        NFFT = self.method.get('NFFT',64)
+        Fs = self.method.get('Fs')
+        freqs = tsu.get_freqs(Fs,NFFT)
+        lb_idx,ub_idx = tsu.get_bounds(freqs,self.lb,self.ub)
+        
+        return freqs[lb_idx:ub_idx]
+
+    @desc.setattr_on_read
+    def target_cache(self):
+        data = self.target.data
+
+        #Make a cache with all the fft windows for each of the channels in the
+        #target.
+
+        #This is the kind of input that cache_fft expects: 
+        ij = zip(np.arange(data.shape[0]),np.arange(data.shape[0]))
+        
+        f,cache = tsa.cache_fft(data,ij,lb=self.lb,ub=self.ub,
+                        method=self.method,
+                        prefer_speed_over_memory=self.prefer_speed_over_memory,
+                        scale_by_freq=self.scale_by_freq)
+
+        return cache
+
+
+    @desc.setattr_on_read
+    def coherency(self):
+
+        #Pre-allocate the final result:
+        if len(self.seed.shape)>1:
+            Cxy = np.empty((self.seed.data.shape[0],
+                            self.target.data.shape[0],
+                            self.frequencies.shape[0]),dtype=np.complex)
+        else:
+            Cxy = np.empty((self.target.data.shape[0],
+                            self.frequencies.shape[0]),dtype=np.complex)
+
+        #Get the fft window cache for the target time-series: 
+        cache = self.target_cache
+
+        #A list of indices for the target:
+        target_chan_idx = np.arange(self.target.data.shape[0])
+
+        #This is a list of indices into the cached fft window libraries,
+        #setting the index of the seed to be -1, so that it is easily
+        #distinguished from the target indices: 
+        ij = zip(np.ones_like(target_chan_idx)*-1,target_chan_idx)
+
+        #If there is more than one channel in the seed time-series:
+        if len(self.seed.shape)>1:
+            for seed_idx,this_seed in enumerate(self.seed.data):
+                #Here ij is 0, because it is just one channel and we stack the
+                #channel onto itself in order for the input to the function to
+                #make sense:
+                f,seed_cache = tsa.cache_fft(np.vstack([this_seed,this_seed]),
+                        [(0,0)],
+                        lb=self.lb,ub=self.ub,
+                        method=self.method,
+                        prefer_speed_over_memory=self.prefer_speed_over_memory,
+                        scale_by_freq=self.scale_by_freq)
+
+                #Insert the seed_cache into the target_cache:
+                cache['FFT_slices'][-1]=seed_cache['FFT_slices'][0] 
+
+                #If this is true, the cache contains both FFT_slices and
+                #FFT_conj_slices:
+                if self.prefer_speed_over_memory:
+                    cache['FFT_conj_slices'][-1]=\
+                                            seed_cache['FFT_conj_slices'][0] 
+                
+                #This performs the caclulation for this seed:    
+                Cxy[seed_idx] = tsa.cache_to_coherency(cache,ij)
+                
+        #In the case where there is only one channel in the seed time-series:
+        else:
+            f,seed_cache = tsa.cache_fft(np.vstack([self.seed.data,
+                                                    self.seed.data]),
+                        [(0,0)],
+                        lb=self.lb,ub=self.ub,
+                        method=self.method,
+                        prefer_speed_over_memory=self.prefer_speed_over_memory,
+                        scale_by_freq=self.scale_by_freq)
+
+            cache['FFT_slices'][-1]=seed_cache['FFT_slices'][0]
+
+            if self.prefer_speed_over_memory:
+                cache['FFT_conj_slices'][-1]=\
+                                            seed_cache['FFT_conj_slices'][0] 
+
+            Cxy=tsa.cache_to_coherency(cache,ij)
+
+        return Cxy.squeeze()
+
+    @desc.setattr_on_read
+    def relative_phases(self):
+        """The frequency-band dependent relative phase between the two
+        time-series """
+        return np.angle(self.output)
+       
+    @desc.setattr_on_read
+    def delay(self):
+        """ The delay in seconds between the two time series """
+        return self.relative_phases / (2*np.pi*self.frequencies)
+
 class CorrelationAnalyzer(BaseAnalyzer):
     """Analyzer object for correlation analysis. Has the same API as the
     CoherenceAnalyzer"""

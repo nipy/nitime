@@ -55,7 +55,7 @@ def test_CoherenceAnalyzer():
 
 def test_SparseCoherenceAnalyzer():
     Fs = np.pi
-    t = np.arange(10)
+    t = np.arange(256)
     x = np.sin(10*t) + np.random.rand(t.shape[-1])
     y = np.sin(10*t) + np.random.rand(t.shape[-1])
     T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
@@ -66,9 +66,11 @@ def test_SparseCoherenceAnalyzer():
 
     #Make sure you get the same answers as you would from the standard
     #CoherenceAnalyzer: 
-    C2 = nta.CoherenceAnalyzer (T)
-    
-    
+    C2 = nta.CoherenceAnalyzer(T)
+
+    yield npt.assert_almost_equal, C2[0,1],C1[0,1]
+    yield npt.assert_almost_equal, C2.coherence[0,1],C1.coherence[0,1]
+
 def test_CorrelationAnalyzer():
 
     Fs = np.pi
@@ -278,3 +280,27 @@ def test_CoherenceMTAnalyzer():
 
     #Test that it runs through (it will trivially be equal to itself):
     npt.assert_equal(C2.confidence_interval,C2.confidence_interval)
+
+    print 'woot'
+    
+def test_SeedCoherenceAnalyzer():
+    Fs = np.pi
+    t = np.arange(256)
+    x = np.sin(10*t) + np.random.rand(t.shape[-1])
+    y = np.sin(10*t) + np.random.rand(t.shape[-1])
+    T1 = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
+
+    z = y = np.sin(10*t) + np.random.rand(t.shape[-1])
+
+    T2 = ts.TimeSeries(z,sampling_rate=Fs)
+    
+    C1 = nta.SeedCoherenceAnalyzer(T2, T1)
+
+    T3 = ts.TimeSeries(np.vstack([x,y,z]),sampling_rate=Fs)
+
+    #Make sure you get the same answers as you would from the standard
+    #CoherenceAnalyzer: 
+    C2 = nta.CoherenceAnalyzer(T3)
+
+    npt.assert_almost_equal(C2[2,0],C1.coherency[0])
+
