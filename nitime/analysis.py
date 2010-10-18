@@ -44,23 +44,14 @@ from nitime import timeseries as ts
 # imported at module level? 
 from inspect import getargspec
 
-    
 class BaseAnalyzer(desc.ResetMixin):
-    """Analyzer that implements the default data flow.
+    """
+    Analyzer that implements the default data flow.
 
-       All analyzers inherit from this class at least have to
-       * implement a __init__ function to set parameters
-       * define the 'output' property
+    All analyzers inherit from this class at least have to
+    * implement a __init__ function to set parameters
+    * define the 'output' property
 
-       >>> A = BaseAnalyzer()
-       >>> A
-       BaseAnalyzer(sample_parameter='default value')
-       >>> A('data')
-       'data'
-       >>> A('new data')
-       'new data'
-       >>> A[2]
-       'w'
     """
 
     @desc.setattr_on_read
@@ -239,7 +230,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
         --------
 
         >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),sampling_rate=np.pi)
-        >>> c1 = ta.CoherenceAnalyzer(t1)
+        >>> c1 = CoherenceAnalyzer(t1)
         >>> c1.method['Fs']
         3.14159265359 Hz
         >>> c1.method['this_method']

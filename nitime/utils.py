@@ -113,8 +113,9 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
 
     Examples
     --------
-    
-    >>> ar_seq, nz, alpha = utils.ar_generator()
+
+    >>> import nitime.algorithms as alg
+    >>> ar_seq, nz, alpha = ar_generator()
     >>> fgrid, hz = alg.my_freqz(1.0, a=np.r_[1, -alpha])
     >>> sdf_ar = (hz*hz.conj()).real
 
@@ -1574,11 +1575,11 @@ def noise_covariance_matrix(x,y):
     
     >>> x = np.matrix([[1,2,3],[1,2,3],[1,2,3]])
     >>> y = np.matrix([[1,2,3],[1,1,1],[3,3,3]])
-    >>> a = ut.noise_covariance_matrix(x,y)
+    >>> a = noise_covariance_matrix(x,y)
     >>> a
-    array([[ 0.,  0.,  0.],
-           [ 0.,  1.,  1.],
-           [ 0.,  1.,  1.]])
+    matrix([[ 0.,  0.,  0.],
+            [ 0.,  1.,  1.],
+            [ 0.,  1.,  1.]])
 
     """
     e = x-y
