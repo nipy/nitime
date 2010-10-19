@@ -383,7 +383,10 @@ def drawgraph_channels(in_m,channel_names=None,cmap=plt.cm.RdBu_r,
 
     #m[np.where(np.isnan(m))] = 0
     if threshold is None:
-        G = mkgraph(m,threshold=vrange[0],threshold2=None)
+        #If there happens to be an off-diagnoal edge in the adjacency matrix
+        #which is just as small as the minimum, we don't want to drop that one:
+        eps = 10**-10
+        G = mkgraph(m,threshold=vrange[0]-eps,threshold2=None)
     else:
         G = mkgraph(m,threshold=threshold[0],threshold2=threshold[1])
     fig = draw_graph(G,
