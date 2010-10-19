@@ -1337,8 +1337,11 @@ def get_spectra(time_series,method=None):
     """            
     if method is None:
         method = {'this_method':'mlab'} #The default
-        
-    if method['this_method'] == 'mlab':
+    #If no choice of method was explicitely set, but other parameters were
+    #passed, assume that the method is mlab:
+    this_method = method.get('this_method','mlab')
+
+    if this_method == 'mlab':
         NFFT = method.get('NFFT',64)
         Fs = method.get('Fs',2*np.pi)
         detrend = method.get('detrend',mlab.detrend_none)
@@ -1366,7 +1369,7 @@ def get_spectra(time_series,method=None):
                 
                 fxy[i][j] = temp.squeeze() #the output of mlab.csd has a wierd
                                             #shape
-    elif method['this_method'] in ('multi_taper_csd','periodogram_csd'):
+    elif this_method in ('multi_taper_csd','periodogram_csd'):
         # these methods should work with similar signatures
         mdict = method.copy()
         func = eval(mdict.pop('this_method'))
