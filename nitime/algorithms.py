@@ -7,22 +7,21 @@ between time-series.
 
 :func:`get_spectra`, :func:`get_spectra_bi`, :func:`periodogram`,
 :func:`periodogram_csd`, :func:`DPSS_windows`, :func:`multi_taper_psd`,
-:func:`multi_taper_csd`, :func:`mtm_cross_spectrum`, :func:``
+:func:`multi_taper_csd`, :func:`mtm_cross_spectrum`
 
 2. Coherency: calculate the pairwise correlation between time-series in the
 frequency domain and related quantities.
 
 :func:`coherency`, :func:`coherence`, :func:`coherence_regularized`,
-:func:`coherency_regularized, :func:`coherency_bavg`, :func:`coherence_bavg`,
-:func:`coherence_partial`, :func:`coherency_partial`,
-:func:`coherence_partial_bavg`, :func:`coherency_partial_bavg`,
+:func:`coherency_regularized`, :func:`coherency_bavg`, :func:`coherence_bavg`,
+:func:`coherence_partial`, :func:`coherence_partial_bavg`, 
 :func:`coherency_phase_spectrum`, :func:`coherency_phase_delay`,
 :func:`coherency_phase_delay_bavg`, :func:`correlation_spectrum`
 
 3. Event-related analysis: calculate the correlation between time-series and
 external events.
 
-:func:`freq_domain_xcorr`,:func:`freq_domain_xcorr_zscored`, :func:`fir'
+:func:`freq_domain_xcorr`, :func:`freq_domain_xcorr_zscored`, :func:`fir`
 
 4. Cached coherency: A set of special functions for quickly calculating
 coherency in large data-sets, where the calculation is done over only a subset
@@ -63,10 +62,6 @@ import nitime.utils as utils
 #  Coherency 
 #-----------------------------------------------------------------------------
 
-"""
-XXX write a docstring for this part.
-"""
-
 def coherency(time_series,csd_method= None):
     r"""
     Compute the coherency between the spectra of n-tuple of time series.
@@ -74,6 +69,7 @@ def coherency(time_series,csd_method= None):
 
     Parameters
     ----------
+
     time_series: n*t float array
        an array of n different time series of length t each
 
@@ -82,6 +78,7 @@ def coherency(time_series,csd_method= None):
 
     Returns
     -------
+    
     f: float array
     The central frequencies for the frequency
     bands for which the spectra are estimated
@@ -90,11 +87,20 @@ def coherency(time_series,csd_method= None):
     signals. The coherency of signal i and signal j is in f[i][j]. Note that
     f[i][j] = f[j][i].conj()
 
-    See also
-    --------
+    Notes
+    -----
     
-    :func:`coherency_calculate`
-    
+    This is an implementation of equation (1) of [Sun2005]_: 
+
+    .. math::
+
+        R_{xy} (\lambda) = \frac{f_{xy}(\lambda)}
+        {\sqrt{f_{xx} (\lambda) \cdot f_{yy}(\lambda)}}
+
+    .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
+        temporal dynamics of functional networks using phase spectrum of fMRI
+        data. Neuroimage, 28: 227-37.
+
     """
     if csd_method is None:
         csd_method = {'this_method':'mlab'} #The default
@@ -136,20 +142,6 @@ def coherency_calculate(fxy, fxx, fyy):
     
     complex array 
         the frequency-band-dependent coherency
-
-    Notes
-    -----
-    
-    This is an implementation of equation (1) of Sun et al. (2005) [Sun2005]_: 
-
-    .. math::
-
-        R_{xy} (\lambda) = \frac{f_{xy}(\lambda)}
-        {\sqrt{f_{xx} (\lambda) \cdot f_{yy}(\lambda)}}
-
-    .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
-        temporal dynamics of functional networks using phase spectrum of fMRI
-        data. Neuroimage, 28: 227-37.
 
     See also
     --------
@@ -237,24 +229,9 @@ def coherence_calculate(fxy, fxx, fyy):
     Returns 
     -------
     
-    float
-        a frequency-band-dependent measure of the linear association between
-        the two time series
+    float : a frequency-band-dependent measure of the linear association
+        between the two time series
          
-    Notes
-    -----
-    
-    This is an implementation of equation (2) of Sun et al. (2005) [Sun2005]_:
-
-    .. math::
-
-        Coh_{xy}(\lambda) = |{R_{xy}(\lambda)}|^2 = 
-        \frac{|{f_{xy}(\lambda)}|^2}{f_{xx}(\lambda) \cdot f_{yy}(\lambda)}
-
-    .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
-        temporal dynamics of functional networks using phase spectrum of fMRI
-        data.  Neuroimage, 28: 227-37.
-
     See also
     --------
     :func:`coherence`
@@ -263,7 +240,6 @@ def coherence_calculate(fxy, fxx, fyy):
 
     c = (np.abs(fxy))**2 / (fxx * fyy)
 
-#    c = ((np.abs(coherency_calculate(fxy,fxx,fyy)))**2)
     return c  
 
 def coherency_regularized(time_series,epsilon,alpha,csd_method=None):
@@ -412,6 +388,7 @@ def coherence_regularized(time_series,epsilon,alpha,csd_method=None):
     The regularization scheme is as follows:
 
     ..math::
+    
         coherence(x,y) =
         \frac{(alpha*fxx + epsilon) ^2}{alpha^{2}*((fxx+epsilon)*(fyy+epsilon))}
     
