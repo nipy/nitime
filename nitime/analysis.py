@@ -123,7 +123,7 @@ class SpectralAnalyzer(BaseAnalyzer):
         >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),sampling_rate=np.pi)
         >>> s1 = SpectralAnalyzer(t1)
         >>> s1.method['this_method']
-        'mlab'
+        'welch'
         >>> s1.method['Fs']
         3.14159265359 Hz
         >>> f,s = s1.output
@@ -144,7 +144,7 @@ class SpectralAnalyzer(BaseAnalyzer):
         self.method=method
         
         if self.method is None:
-            self.method = {'this_method':'mlab',
+            self.method = {'this_method':'welch',
                            'Fs':self.input.sampling_rate}
     @desc.setattr_on_read
     def output(self):
@@ -157,12 +157,12 @@ class SpectralAnalyzer(BaseAnalyzer):
         data = self.input.data
         sampling_rate = self.input.sampling_rate
         
-        self.mlab_method = self.method
-        self.mlab_method['this_method'] = 'mlab'
-        self.mlab_method['Fs'] = sampling_rate
-        f,spectrum_mlab = tsa.get_spectra(data,method=self.mlab_method)
+        self.welch_method = self.method
+        self.welch_method['this_method'] = 'welch'
+        self.welch_method['Fs'] = sampling_rate
+        f,spectrum_welch = tsa.get_spectra(data,method=self.welch_method)
 
-        return f,spectrum_mlab
+        return f,spectrum_welch
 
     @desc.setattr_on_read
     def spectrum_fourier(self):
@@ -234,7 +234,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
         >>> c1.method['Fs']
         3.14159265359 Hz
         >>> c1.method['this_method']
-        'mlab'
+        'welch'
         >>> c1[0,1]
         array([ 0.94993377+0.j        ,  0.94950254-0.03322532j,
                 0.86963629-0.4570688j ,  0.89177679-0.3847649j ,
@@ -266,7 +266,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
         
         #Set the variables for spectral estimation (can also be entered by user):
         if method is None:
-            self.method = {'this_method':'mlab'}
+            self.method = {'this_method':'welch'}
         else:
             self.method = method
         
@@ -629,13 +629,13 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         #Set the variables for spectral estimation (can also be entered by
         #user): 
         if method is None:
-            self.method = {'this_method':'mlab'}
+            self.method = {'this_method':'welch'}
 
         else:
             self.method = method
 
-        if self.method['this_method']!='mlab':
-            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be mlab")
+        if self.method['this_method']!='welch':
+            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be welch")
             
 
         #Additional parameters for the coherency estimation: 
@@ -764,13 +764,13 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
         #Set the variables for spectral estimation (can also be entered by
         #user): 
         if method is None:
-            self.method = {'this_method':'mlab'}
+            self.method = {'this_method':'welch'}
 
         else:
             self.method = method
 
-        if self.method['this_method']!='mlab':
-            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be mlab")
+        if self.method['this_method']!='welch':
+            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be welch")
             
 
         #Additional parameters for the coherency estimation: 

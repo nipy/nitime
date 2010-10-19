@@ -103,7 +103,7 @@ def coherency(time_series,csd_method= None):
 
     """
     if csd_method is None:
-        csd_method = {'this_method':'mlab'} #The default
+        csd_method = {'this_method':'welch'} #The default
   
     f,fxy = get_spectra(time_series,csd_method)
 
@@ -192,7 +192,7 @@ def coherence(time_series, csd_method=None):
 
     """
     if csd_method is None:
-        csd_method = {'this_method':'mlab'} #The default
+        csd_method = {'this_method':'welch'} #The default
 
     f,fxy = get_spectra(time_series,csd_method)
 
@@ -289,7 +289,7 @@ def coherency_regularized(time_series,epsilon,alpha,csd_method=None):
 
     """
     if csd_method is None:
-        csd_method = {'this_method':'mlab'} #The default
+        csd_method = {'this_method':'welch'} #The default
 
     f,fxy = get_spectra(time_series,csd_method)
 
@@ -398,7 +398,7 @@ def coherence_regularized(time_series,epsilon,alpha,csd_method=None):
 
     """
     if csd_method is None:
-        csd_method = {'this_method':'mlab'} #The default
+        csd_method = {'this_method':'welch'} #The default
 
     f,fxy = get_spectra(time_series,csd_method)
 
@@ -506,7 +506,7 @@ def coherency_bavg(time_series,lb=0,ub=None,csd_method=None):
 
     """
     if csd_method is None:
-        csd_method = {'this_method':'mlab'} #The default
+        csd_method = {'this_method':'welch'} #The default
 
     f,fxy = get_spectra(time_series,csd_method)
 
@@ -610,7 +610,7 @@ def coherence_bavg (time_series,lb=0,ub=None,csd_method=None):
     """
 
     if csd_method is None:
-        csd_method = {'this_method':'mlab'} #The default
+        csd_method = {'this_method':'welch'} #The default
 
     f,fxy = get_spectra(time_series,csd_method)
     
@@ -714,7 +714,7 @@ def coherence_partial(time_series,r,csd_method=None):
     """
     
     if csd_method is None:
-        csd_method = {'this_method':'mlab'} #The default
+        csd_method = {'this_method':'welch'} #The default
 
     f,fxy = get_spectra(time_series,csd_method)
 
@@ -793,7 +793,7 @@ def coherence_partial_bavg(x,y,r,csd_method=None,lb=0,ub=None):
     
     """ 
     if csd_method is None:
-        csd_method = {'this_method':'mlab'} #The default
+        csd_method = {'this_method':'welch'} #The default
 
     f,fxy = get_spectra(time_series,csd_method)
 
@@ -900,7 +900,7 @@ def coherency_phase_spectrum (time_series,csd_method=None):
         data.  Neuroimage, 28: 227-37.
     """
     if csd_method is None:
-        csd_method = {'this_method':'mlab'} #The default
+        csd_method = {'this_method':'welch'} #The default
          
     f,fxy = get_spectra(time_series,csd_method)
 
@@ -956,7 +956,7 @@ def coherency_phase_delay(time_series,lb=0,ub=None,csd_method=None):
     XXX write docstring
     """
     if csd_method is None:
-        csd_method = {'this_method':'mlab'} #The default
+        csd_method = {'this_method':'welch'} #The default
 
     f,fxy = get_spectra(time_series,csd_method)
 
@@ -1016,7 +1016,7 @@ def coherency_phase_delay_bavg(time_series,lb=0,ub=None,csd_method=None):
     """ XXX write doc string"""
 
     if csd_method is None:
-        csd_method = {'this_method':'mlab'} #The default
+        csd_method = {'this_method':'welch'} #The default
 
     f,fxy = get_spectra(time_series,csd_method)
 
@@ -1291,7 +1291,7 @@ def get_spectra(time_series,method=None):
 
     method: dict, optional
 
-        contains: this_method:'mlab'
+        contains: this_method:'welch'
            indicates that :func:`mlab.psd` will be used in
            order to calculate the psd/csd, in which case, additional optional
            inputs (and default values) are:
@@ -1345,12 +1345,12 @@ def get_spectra(time_series,method=None):
 
     """            
     if method is None:
-        method = {'this_method':'mlab'} #The default
+        method = {'this_method':'welch'} #The default
     #If no choice of method was explicitely set, but other parameters were
     #passed, assume that the method is mlab:
-    this_method = method.get('this_method','mlab')
+    this_method = method.get('this_method','welch')
 
-    if this_method == 'mlab':
+    if this_method == 'welch':
         NFFT = method.get('NFFT',64)
         Fs = method.get('Fs',2*np.pi)
         detrend = method.get('detrend',mlab.detrend_none)
@@ -2236,23 +2236,20 @@ def boxcar_filter(time_series,lb=0,ub=1,n_iterations=2):
 
     time_series: float array
        the signal
-
-
-      ub: float
-      the cut-off frequency for the low-pass filtering as a proportion of the
+    ub : float, optional
+      The cut-off frequency for the low-pass filtering as a proportion of the
       sampling rate. Default to 1
 
-      lb: float
-      the cut-off frequency for the high-pass filtering as a proportion of the
+    lb : float, optional
+      The cut-off frequency for the high-pass filtering as a proportion of the
       sampling rate. Default to 0
-
- 
-      n_iterations: int, optional
-      how many rounds of smoothing to do (defaults to 2)
+    n_iterations: int, optional
+      how many rounds of smoothing to do. Default to 2.
 
     Returns
     -------
-    float array: the signal, filtered  
+    float array:
+      The signal, filtered  
     """
 
     n = time_series.shape[-1]
@@ -2335,35 +2332,44 @@ def cache_fft(time_series,ij,lb=0,ub=None,
     Parameters
     ----------
 
-    time_series: an ndarray with time-series, where time is the last dimension
+    time_series : float array
+       An ndarray with time-series, where time is the last dimension
 
-    ij: a list of tuples, each containing a pair of indices. The resulting
-    cache will contain the fft of time-series in the rows indexed by the unique
-    elements of the union of i and j
+    ij: list of tuples
+      Each tuple in this variable should contain a pair of
+      indices. The resulting cache will contain the fft of time-series in the
+      rows indexed by the unique elements of the union of i and j
     
-    lb,ub: defines a frequency band of interest
+    lb,ub: float
+       Define a frequency band of interest, for which the fft will be cached
 
-    method: optional, dict
+    method: dict, optional
+        See :func:`get_spectra` for details on how this is used. For this set
+        of functions, 'this_method' has to be 'welch' 
+    
 
     Returns
     -------
     freqs, cache
 
-    where: cache = {'FFT_slices':FFT_slices,'FFT_conj_slices':FFT_conj_slices,
+        where: cache =
+             {'FFT_slices':FFT_slices,'FFT_conj_slices':FFT_conj_slices,
              'norm_val':norm_val}
 
-    
     Notes
-    ----
-    - For now, the only method implemented is 'mlab'
-    - Notice that detrending the input is not an option here, in order to save
-    time on an empty function call!
+    -----
+
+    - For these functions, only the Welch windowed periodogram ('welch') is
+    available. 
+
+    Detrending the input is not an option here, in order to save
+    time on an empty function call.
     
     """
     if method is None:
-        method = {'this_method':'mlab'} #The default
+        method = {'this_method':'welch'} #The default
         
-    if method['this_method'] == 'mlab':
+    if method['this_method'] == 'welch':
         NFFT = method.get('NFFT',64)
         Fs = method.get('Fs',2*np.pi)
         window = method.get('window',mlab.window_hanning)
