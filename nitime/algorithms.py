@@ -79,13 +79,14 @@ def coherency(time_series,csd_method= None):
     Returns
     -------
     
-    f: float array
-    The central frequencies for the frequency
-    bands for which the spectra are estimated
+    f : float array
+        The central frequencies for the frequency bands for which the spectra
+        are estimated 
 
-    c: n-d array This is a symmetric matrix with the coherencys of the
-    signals. The coherency of signal i and signal j is in f[i][j]. Note that
-    f[i][j] = f[j][i].conj()
+    c : float array
+        This is a symmetric matrix with the coherencys of the signals. The
+        coherency of signal i and signal j is in f[i][j]. Note that f[i][j] =
+        f[j][i].conj() 
 
     Notes
     -----
@@ -157,25 +158,26 @@ def coherence(time_series, csd_method=None):
 
     Parameters
     ----------
-    time_series: n*t float array
-       an array of n different time series of length t each
+    time_series: float array
+       an array of different time series with time as the last dimension
 
-    csd_method: dict, optional.
+    csd_method: dict, optional
        See :func:`get_spectra` documentation for details
 
     Returns
     -------
-    f: float array
-    The central frequencies for the frequency
-    bands for which the spectra are estimated
+    f : float array
+        The central frequencies for the frequency bands for which the spectra are
+        estimated 
 
-    c: n-d array This is a symmetric matrix with the coherencys of the
-    signals. The coherency of signal i and signal j is in f[i][j].
+    c : float array
+        This is a symmetric matrix with the coherencys of the signals. The
+        coherency of signal i and signal j is in f[i][j].  
     
     Notes
     -----
     
-    This is an implementation of equation (2) of Sun et al. (2005) [Sun2005]_:
+    This is an implementation of equation (2) of [Sun2005]_:
 
     .. math::
 
@@ -244,48 +246,48 @@ def coherence_calculate(fxy, fxx, fyy):
 
 def coherency_regularized(time_series,epsilon,alpha,csd_method=None):
     r"""
-    Same as coherence, except regularized in order to overcome numerical
-    imprecisions
+    Compute a regularized measure of the coherence.
+
+    Regularization may be needed in order to overcome numerical imprecisions
 
     Parameters
     ----------
     
-    time_series: n-d float array
-    The time series data for which the regularized coherence is calculated 
+    time_series: float array
+        The time series data for which the regularized coherence is
+        calculated. Time as the last dimension.  
 
     epsilon: float
-    small regularization parameter
+        Small regularization parameter. Should be much smaller than any
+        meaningful value of coherence you might encounter
 
     alpha: float
-    large regularization parameter
+        Large regularization parameter. Should be much larger than any meaningful
+        value of coherence you might encounter (preferably much larger than 1).
 
     csd_method: dict, optional.
-       See :func:`get_spectra` documentation for details
+        See :func:`get_spectra` documentation for details
 
     Returns
     -------
     f: float array
-    The central frequencies for the frequency
-    bands for which the spectra are estimated
+        The central frequencies for the frequency bands for which the spectra
+        are estimated 
 
-    c: n-d array This is a symmetric matrix with the coherencys of the
-    signals. The coherency of signal i and signal j is in f[i][j]. Note that
-    f[i][j] = f[j][i].conj()
+    c: float array
+        This is a symmetric matrix with the coherencys of the signals. The
+        coherency of signal i and signal j is in f[i][j]. Note that f[i][j] =
+        f[j][i].conj() 
 
-
-    frequencies, coherence
 
     Notes
     -----
     The regularization scheme is as follows:
 
     .. math::
-        Coh_{xy}^R = \frac{(\alpha f_{xx} + \epsilon) ^2}
-        {\alpha^{2}(f_{xx}+\epsilon)(f_{yy}+\epsilon)}
 
-    See also
-    --------
-    :func:`coherency_regularized_calculate`
+        Coh_{xy}^R = \frac{(\alpha f_{xx} + \epsilon) ^2}{\alpha^{2}(f_{xx}+\epsilon)(f_{yy}+\epsilon)}
+
 
     """
     if csd_method is None:
@@ -311,7 +313,8 @@ def coherency_regularized(time_series,epsilon,alpha,csd_method=None):
 
 def coherency_reqularized_calculate(fxy, fxx, fyy, epsilon, alpha):
 
-    r"""A regularized version of the calculation of coherency, which is more
+    r"""
+    A regularized version of the calculation of coherency, which is more
     robust to numerical noise than the standard calculation
 
     Input to this function is in the frequency domain.
@@ -320,29 +323,22 @@ def coherency_reqularized_calculate(fxy, fxx, fyy, epsilon, alpha):
     ----------
 
     fxy, fxx, fyy: float arrays
-    The cross- and power-spectral densities of the two signals x and y
+        The cross- and power-spectral densities of the two signals x and y
 
     epsilon: float
-    First regularization parameter. Should be much smaller than any
-    meaningful value of coherence you might encounter
+        First regularization parameter. Should be much smaller than any
+        meaningful value of coherence you might encounter
 
     alpha: float
-    Second regularization parameter. Should be much larger than any meaningful
-    value of coherence you might encounter (preferably much larger than 1)
+        Second regularization parameter. Should be much larger than any
+        meaningful value of coherence you might encounter (preferably much
+        larger than 1). 
 
     Returns
     -------
     float array
-    The coherence values
+        The coherence values
 
-    Notes
-    -----
-
-    The regularization scheme used is as follows:
-
-    .. math::
-        Coh_{xy}^R = \frac{(\alpha f_{xx} + \epsilon) ^2}
-        {\alpha^{2}(f_{xx}+\epsilon)(f_{yy}+\epsilon)}
     """
     
     return ( ( (alpha*fxy + epsilon) ) /
@@ -360,11 +356,12 @@ def coherence_regularized(time_series,epsilon,alpha,csd_method=None):
        The time series data for which the regularized coherence is calculated 
 
     epsilon: float
-       small regularization parameter
+       Small regularization parameter. Should be much smaller than any
+       meaningful value of coherence you might encounter 
 
     alpha: float
-       large regularization parameter
-
+       large regularization parameter. Should be much larger than any meaningful
+       value of coherence you might encounter (preferably much larger than 1).
 
     csd_method: dict, optional.
        See :func:`get_spectra` documentation for details
@@ -372,12 +369,12 @@ def coherence_regularized(time_series,epsilon,alpha,csd_method=None):
     Returns
     -------
     f: float array
-       The central frequencies for the frequency
-       bands for which the spectra are estimated
+       The central frequencies for the frequency bands for which the spectra
+       are estimated 
 
     c: n-d array
-       This is a symmetric matrix with the coherencys of the
-       signals. The coherency of signal i and signal j is in f[i][j].
+       This is a symmetric matrix with the coherencys of the signals. The
+       coherency of signal i and signal j is in f[i][j]. 
     
     Returns
     -------
@@ -387,15 +384,10 @@ def coherence_regularized(time_series,epsilon,alpha,csd_method=None):
     -----
     The regularization scheme is as follows:
 
-    ..math::
+    .. math::
     
-        coherence(x,y) =
-        \frac{(alpha*fxx + epsilon) ^2}{alpha^{2}*((fxx+epsilon)*(fyy+epsilon))}
-    
-    See also
-    --------
-    :func:`coherence_regularized_calculate`
-
+        C_{x,y} = \frac{(\alpha f_{xx} + \epsilon)^2}{\alpha^{2}((f_{xx}+\epsilon)(f_{yy}+\epsilon))}
+        
     """
     if csd_method is None:
         csd_method = {'this_method':'welch'} #The default
@@ -430,30 +422,21 @@ def coherence_reqularized_calculate(fxy, fxx, fyy, epsilon, alpha):
     ----------
 
     fxy, fxx, fyy: float arrays
-    The cross- and power-spectral densities of the two signals x and y
+        The cross- and power-spectral densities of the two signals x and y
 
     epsilon: float
-    First regularization parameter. Should be much smaller than any
-    meaningful value of coherence you might encounter
+        First regularization parameter. Should be much smaller than any
+        meaningful value of coherence you might encounter
 
     alpha: float
-    Second regularization parameter. Should be much larger than any meaningful
-    value of coherence you might encounter (preferably much larger than 1)
+        Second regularization parameter. Should be much larger than any
+        meaningful value of coherence you might encounter (preferably much
+        larger than 1) 
 
     Returns
     -------
     float array
-    The coherence values
-
-    Notes
-    -----
-
-    The regularization scheme used is as follows:
-
-    ..math::
-    
-     coherence(x,y) = \frac{(alpha*fxx + epsilon)^2}
-                      {alpha^{2}*((fxx+epsilon)*(fyy+epsilon))}
+       The coherence values
 
 """
     
@@ -480,15 +463,14 @@ def coherency_bavg(time_series,lb=0,ub=None,csd_method=None):
 
     Returns 
     -------
-    c: n*n array float array
-
-    This is an upper-diagonal array, where c[i][j] is the band-averaged
-    coherency between time_series[i] and time_series[j]
+    c: float array
+        This is an upper-diagonal array, where c[i][j] is the band-averaged
+        coherency between time_series[i] and time_series[j]
     
     Notes
     -----
     
-    This is an implementation of equation (A4) of Sun et al. (2005) [Sun2005]_: 
+    This is an implementation of equation (A4) of [Sun2005]_: 
 
     .. math::
 
@@ -499,11 +481,7 @@ def coherency_bavg(time_series,lb=0,ub=None,csd_method=None):
     .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
         temporal dynamics of functional networks using phase spectrum of fMRI
         data. Neuroimage, 28: 227-37.
-
-    See also
-    --------
-    coherency, coherence
-
+        
     """
     if csd_method is None:
         csd_method = {'this_method':'welch'} #The default
@@ -543,11 +521,6 @@ def coherency_bavg_calculate(fxy, fxx, fyy):
     
     fyy,fxx : float array
          The spectra of the signals
-    
-    See also
-    --------
-    coherency, coherence
-
  
     Returns 
     -------
@@ -558,7 +531,7 @@ def coherency_bavg_calculate(fxy, fxx, fyy):
     Notes
     -----
     
-    This is an implementation of equation (A4) of Sun et al. (2005) [Sun2005]_: 
+    This is an implementation of equation (A4) of [Sun2005]_: 
 
     .. math::
 
@@ -591,11 +564,11 @@ def coherence_bavg (time_series,lb=0,ub=None,csd_method=None):
 
     Parameters
     ----------
-    time_series: n*t float array
-       an array of n different time series of length t each
+    time_series : float array
+       An array of time series, time as the last dimension.
 
     lb, ub: float, optional
-       the upper and lower bound on the frequency band to be used in averaging
+       The upper and lower bound on the frequency band to be used in averaging
        defaults to 1,max(f)
 
     csd_method: dict, optional.
@@ -603,10 +576,9 @@ def coherence_bavg (time_series,lb=0,ub=None,csd_method=None):
 
     Returns 
     -------
-    c: n*n array float array
-
-    This is an upper-diagonal array, where c[i][j] is the band-averaged
-    coherency between time_series[i] and time_series[j]
+    c : float 
+       This is an upper-diagonal array, where c[i][j] is the band-averaged
+       coherency between time_series[i] and time_series[j]
     """
 
     if csd_method is None:
@@ -646,16 +618,11 @@ def coherence_bavg_calculate(fxy, fxx, fyy):
     
     fyy,fxx : float array
          The spectra of the signals
-    
-    See also
-    --------
-    coherency, coherence
-
  
     Returns 
     -------
     
-    float:
+    float :
         the band-averaged coherence
     """
 
@@ -675,33 +642,30 @@ def coherence_partial(time_series,r,csd_method=None):
     Parameters
     ----------
 
-    time_series: n*t float array
-       an array of n different time series of length t each
+    time_series: float array
+       An array of time-series, with time as the last dimension.
     
-    r: the temporal sequence of the common cause, sampled at the same rate as
-    time_series
+    r: float array
+        This array represents the temporal sequence of the common cause to be
+        partialed out, sampled at the same rate as time_series
 
-    csd_method: dict, optional.
+    csd_method: dict, optional
        See :func:`get_spectra` documentation for details
 
 
     Returns 
     -------
-    returns the tuple (f,c), where
-
-    f: array, the frequencies
-    c: n*n*len(f) array, with the frequency dependent partial coherence between
-    time_series i and time_series j in c[i][j] and in c[j][i]
+    f: array,
+        The mid-frequencies of the frequency bands in the spectral decomposition
+    c: float array
+       The frequency dependent partial coherence between time_series i and
+       time_series j in c[i][j] and in c[j][i], with r partialed out 
      
-        
-    See also
-    --------
-    coherency, coherence 
 
     Notes
     -----
     
-    This is an implementation of equation (2) of Sun et al. (2004) [Sun2004]_: 
+    This is an implementation of equation (2) of [Sun2004]_: 
 
     .. math::
 
@@ -739,11 +703,8 @@ def coherence_partial(time_series,r,csd_method=None):
 def coherence_partial_calculate(fxy,fxx,fyy,fxr,fry,frr): 
     r"""
     Compute the band-specific partial coherence between the spectra of
-    two time series.
+    two time series. See :func:`partial_coherence`. 
 
-    The partial coherence is the part of the coherence between x and
-    y, which cannot be attributed to a common cause, r. 
-    
     Input to this function is in the frequency domain.
 
     Parameters
@@ -762,22 +723,6 @@ def coherence_partial_calculate(fxy,fxx,fyy,fxr,fry,frr):
     float
         the band-averaged coherency
 
-    See also
-    --------
-    coherency, coherence 
-
-    Notes
-    -----
-    This is an implementation of equation (2) of Sun et al. (2004) [Sun2004]_: 
-
-    .. math::
-
-        Coh_{xy|r} = \frac{|{R_{xy}(\lambda) - R_{xr}(\lambda)
-        R_{ry}(\lambda)}|^2}{(1-|{R_{xr}}|^2)(1-|{R_{ry}}|^2)}
-
-    .. [Sun2004] F.T. Sun and L.M. Miller and M. D'Esposito(2004). Measuring
-    interregional functional connectivity using coherence and partial coherence
-    analyses of fMRI data Neuroimage, 21: 647-58.
     """
     abs = np.abs
     coh = coherency_calculate
@@ -788,9 +733,37 @@ def coherence_partial_calculate(fxy,fxx,fyy,fxr,fry,frr):
     return (( (np.abs(Rxy-Rxr*Rry))**2 ) /
            ( (1-((np.abs(Rxr))**2)) * (1-((np.abs(Rry))**2)) ) )
 
-def coherence_partial_bavg(x,y,r,csd_method=None,lb=0,ub=None):
-    r""" Band-averaged partial coherence
-    
+def coherence_partial_bavg(time_series,r,csd_method=None,lb=0,ub=None):
+    r"""
+    Compute the band-averaged partial coherence between the spectra of two time
+    series. See :func:`coherence_partial`.  
+
+    Input to this function is in the time domain.
+
+    Parameters
+    ----------
+    time_series : float array
+         Time series data with the time on the last dimension
+         
+    r : float array
+         Cause to be partialed out
+         
+    csd_method: dict, optional
+       See :func:`get_spectra` for details
+
+    lb: float, optional
+        The lower bound frequency (in Hz) of the range over which the average
+        is calculated. Default: 0
+
+    ub: float, optional
+        The upper bound frequency (in Hz) of the range over which the average
+        is calculated. Defaults to the Nyquist frequency  
+
+    Returns 
+    -------
+    c: float
+        the band-averaged coherency
+   
     """ 
     if csd_method is None:
         csd_method = {'this_method':'welch'} #The default
@@ -953,7 +926,29 @@ def coherency_phase_spectrum_calculate(fxy):
 
 def coherency_phase_delay(time_series,lb=0,ub=None,csd_method=None):
     """
-    XXX write docstring
+    The temporal delay calculated from the coherency phase spectrum.
+
+    Parameters
+    ----------
+
+    time_series: float array
+       The time-series data for which the delay is calculated.
+
+    lb, ub: float
+       Frequency boundaries (in Hz), for the domain over which the delays are
+       calculated. Defaults to 0-max(f)
+
+    csd_method : dict, optional.
+       See :func:`get_spectra`
+
+    Returns
+    -------
+    f : float array
+       The mid-frequencies for the frequency bands over which the calculation
+       is done. 
+    p : float array
+       Pairwise temporal delays between time-series (in seconds).    
+    
     """
     if csd_method is None:
         csd_method = {'this_method':'welch'} #The default
@@ -980,7 +975,8 @@ def coherency_phase_delay(time_series,lb=0,ub=None,csd_method=None):
 
 def coherency_phase_delay_calculate(f,fxy):
     r"""
-    Compute the phase delay between the spectra of two signals 
+    Compute the phase delay between the spectra of two signals. The input to
+    this function is in the frequency domain. 
 
     Parameters
     ----------
@@ -997,12 +993,6 @@ def coherency_phase_delay_calculate(f,fxy):
     float array
         the phase delay (in sec) for each frequency band.
         
-    See also
-    --------
-    coherency, coherence, coherenecy_phase_spectrum_calculate
-
-    Notes
-    -----
     """
 
     phi = coherency_phase_spectrum_calculate(fxy)
@@ -1013,7 +1003,25 @@ def coherency_phase_delay_calculate(f,fxy):
 
 
 def coherency_phase_delay_bavg(time_series,lb=0,ub=None,csd_method=None):
-    """ XXX write doc string"""
+    """
+    Band-averaged phase delay between time-series
+
+    Parameters
+    ----------
+
+    time_series: float array
+       The time-series data
+
+    lb,ub : float, optional
+       Lower and upper bounds on the frequency range over which the phase delay
+       is averaged
+
+    Returns
+    -------
+    p : float array
+       The pairwise band-averaged phase-delays between the time-series. 
+    
+    """
 
     if csd_method is None:
         csd_method = {'this_method':'welch'} #The default
@@ -1055,60 +1063,40 @@ def coherency_phase_delay_bavg_calculate(f,fxy):
     
     float
         the phase delay (in sec)
-        
-    See also
-    --------
-    coherency, coherence, coherenecy_phase_spectrum
-
-    Notes
-    -----
-    
-    This is an implementation of equation (8) of Sun et al. (2005) [Sun2005]_: 
-
-    .. math::
-
-    XXX Write down the equation
-
-    .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
-        temporal dynamics of functional networks using phase spectrum of fMRI
-        data. Neuroimage, 28: 227-37.
-   
+           
     """
     return np.mean(coherency_phase_spectrum (fxy)/(2*np.pi*f))
     
 #XXX def coherence_partial_phase()
 
 def correlation_spectrum(x1,x2, Fs=2, norm=False):
-    """Calculate the spectral decomposition of the correlation
-
+    """Calculate the spectral decomposition of the correlation.
+    
     Parameters
     ----------
     x1,x2: ndarray
-    Two arrays to be correlated. Same dimensions
+       Two arrays to be correlated. Same dimensions
 
     Fs: float, optional
-    Sampling rate in Hz. If provided, an array of
-    frequencies will be returned.Defaults to 2
+       Sampling rate in Hz. If provided, an array of
+       frequencies will be returned.Defaults to 2
 
     norm: bool, optional
-    When this is true, the spectrum is normalized to sum to 1
+       When this is true, the spectrum is normalized to sum to 1
     
     Returns
     -------
     ccn: ndarray
-    The spectral decomposition of the correlation
+       The spectral decomposition of the correlation
 
-    f: ndarray, optional
-    ndarray with the frequencies
+    f: ndarray
+       ndarray with the frequencies
     
     Notes
     -----
-    Equation 15 of Cordes et al (2000) [Cordes2000]_:
 
-    .. math::
-
-    XXX write down the equation
-
+    This method is described in full in [Cordes2000]_
+    
     .. [Cordes2000] D Cordes, V M Haughton, K Arfanakis, G J Wendt, P A Turski,
     C H Moritz, M A Quigley, M E Meyerand (2000). Mapping functionally related
     regions of brain with functional connectivity MR imaging. AJNR American
@@ -1140,7 +1128,8 @@ def correlation_spectrum(x1,x2, Fs=2, norm=False):
 #-----------------------------------------------------------------------------
 
 def fir(timeseries,design):
-    """Calculate the FIR (finite impulse response) HRF, according to [Burock2000]_
+    """
+    Calculate the FIR (finite impulse response) HRF, according to [Burock2000]_
     
     
     Parameters
@@ -1165,9 +1154,11 @@ def fir(timeseries,design):
     Returns 
     -------
 
-    float array 
+    HRF: float array 
         HRF is a numpy array of 1X(length of HRF * number of conditions)
-        with the HRFs for the different conditions concatenated.
+        with the HRFs for the different conditions concatenated. This is an
+        estimate of the linear filters between the time-series and the events
+        described in design.
 
     Notes
     -----
@@ -1214,9 +1205,10 @@ def freq_domain_xcorr(tseries,events,t_before,t_after,Fs=1):
     
     Returns
     -------
-    xcorr: the correlation function between the tseries and the events. Can be
-    interperted as a linear filter from events to responses (the time-series)
-    of an LTI. 
+    xcorr: float array
+        The correlation function between the tseries and the events. Can be
+        interperted as a linear filter from events to responses (the time-series)
+        of an LTI.  
     
     """
     
@@ -1256,9 +1248,12 @@ def freq_domain_xcorr_zscored(tseries,events,t_before,t_after,Fs=1):
     
     Returns
     -------
-    xcorr: the correlation function between the tseries and the events. Can be
+    xcorr: float array
+    The correlation function between the tseries and the events. Can be
     interperted as a linear filter from events to responses (the time-series)
-    of an LTI. 
+    of an LTI. Because it is normalized to its own mean and variance, it can be
+    interperted as measuring statistical significance relative to all
+    time-shifted versions of the events. 
     
     """
         
@@ -1286,8 +1281,8 @@ def get_spectra(time_series,method=None):
 
     Parameters
     ----------
-    time_series: n*t float array
-    The time-series, where t (time) is the last dimension
+    time_series: float array
+        The time-series, where time is the last dimension
 
     method: dict, optional
 
@@ -1296,52 +1291,55 @@ def get_spectra(time_series,method=None):
            order to calculate the psd/csd, in which case, additional optional
            inputs (and default values) are:
 
-           NFFT=64
-           Fs=2pi
-           detrend=mlab.detrend_none
-           window=mlab.window_hanning
-           n_overlap=0
+               NFFT=64
+
+               Fs=2pi
+
+               detrend=mlab.detrend_none
+
+               window=mlab.window_hanning
+
+               n_overlap=0
 
         this_method:'periodogram_csd'
            indicates that :func:`periodogram` will
            be used in order to calculate the psd/csd, in which case, additional
            optional inputs (and default values) are:
 
-           Skx=None
-           Sky=None
-           N=None
-           sides='onesided'
-           normalize=True
-           Fs=2pi
+               Skx=None
+
+               Sky=None
+
+               N=None
+
+               sides='onesided'
+
+               normalize=True
+
+               Fs=2pi
 
         this_method:'multi_taper_csd'
            indicates that :func:`multi_taper_psd` used in order to calculate
            psd/csd, in which case additional optional inputs (and default
            values) are:
 
-           BW=0.01
-           Fs=2pi
-           sides = 'onesided'
+               BW=0.01
+
+               Fs=2pi
+
+               sides = 'onesided'
 
     Returns
     -------
     
     f: float array
+        The central frequencies for the frequency bands for which the spectra
+        are estimated 
 
-    The central frequencies for the frequency bands for which
-    the spectra are estimated
-
-    fxy: n-d array
-
-    A semi-filled matrix with the cross-spectra of the signals. The csd of
-    signal i and signal j is in f[j][i], but not in f[i][j] (which will be
-    filled with zeros). For i=j fxy[i][j] is the psd of signal i.
-
-    See also
-    --------
-
-    :func:`periodogram_csd`
-    :func:`multi_taper_csd`
+    fxy: float array
+        A semi-filled matrix with the cross-spectra of the signals. The csd of
+        signal i and signal j is in f[j][i], but not in f[i][j] (which will be
+        filled with zeros). For i=j fxy[i][j] is the psd of signal i. 
 
     """            
     if method is None:
@@ -1398,7 +1396,7 @@ def get_spectra_bi(x,y,method = None):
     ----------
 
     x,y : float arrays
-    time series data
+        Time-series data
 
     method: dict, optional
        See :func:`get_spectra` documentation for details
@@ -1415,10 +1413,6 @@ def get_spectra_bi(x,y,method = None):
     fxy: float array
         The cross-spectral density of the two signals
 
-    See also
-    --------
-    :func:`get_spectra`
-    
     """
     f, fij = get_spectra(np.vstack((x,y)), method=method)
     fxx = fij[0,0].real
@@ -1680,6 +1674,9 @@ def DPSS_windows(N, NW, Kmax):
 
 def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
     r"""
+
+    The cross-spectrum between two tapered time-series, derived from a
+    multi-taper spectral estimation.
 
     Parameters
     ----------
@@ -2226,10 +2223,13 @@ def LD_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
 
 
 def boxcar_filter(time_series,lb=0,ub=1,n_iterations=2):
-    """ detrend_tseries: For each of the two bounds, a low-passed version is
-    created by convolving with a box-car and then the low-passed version for
-    the upper bound is added to the low-passed version for the lower bound
-    subtracted from the signal, resulting in a band-passed version
+    """
+    Filters data into a frequency range. 
+
+    For each of the two bounds, a low-passed version is created by convolving
+    with a box-car and then the low-passed version for the upper bound is added
+    to the low-passed version for the lower bound subtracted from the signal,
+    resulting in a band-passed version 
 
     Parameters
     ----------
@@ -2239,7 +2239,6 @@ def boxcar_filter(time_series,lb=0,ub=1,n_iterations=2):
     ub : float, optional
       The cut-off frequency for the low-pass filtering as a proportion of the
       sampling rate. Default to 1
-
     lb : float, optional
       The cut-off frequency for the high-pass filtering as a proportion of the
       sampling rate. Default to 0
@@ -2337,8 +2336,9 @@ def cache_fft(time_series,ij,lb=0,ub=None,
 
     ij: list of tuples
       Each tuple in this variable should contain a pair of
-      indices. The resulting cache will contain the fft of time-series in the
-      rows indexed by the unique elements of the union of i and j
+      indices of the form (i,j). The resulting cache will contain the fft of
+      time-series in the rows indexed by the unique elements of the union of i
+      and j 
     
     lb,ub: float
        Define a frequency band of interest, for which the fft will be cached
@@ -2360,10 +2360,10 @@ def cache_fft(time_series,ij,lb=0,ub=None,
     -----
 
     - For these functions, only the Welch windowed periodogram ('welch') is
-    available. 
+      available. 
 
-    Detrending the input is not an option here, in order to save
-    time on an empty function call.
+    - Detrending the input is not an option here, in order to save
+      time on an empty function call.
     
     """
     if method is None:
@@ -2456,8 +2456,24 @@ def cache_fft(time_series,ij,lb=0,ub=None,
     return freqs,cache
 
 def cache_to_psd(cache,ij):
-    """ From a set of cached set of windowed fft's, calculate the psd
-    for all the ij"""
+    """
+    From a set of cached windowed fft, calculate the psd
+
+    Parameters
+    ----------
+    cache : dict
+        Return value from :func:`cache_fft`
+
+    ij : list
+        A list of tuples of the form (i,j).
+
+    Returns
+    -------
+    Pxx : dict
+        The phases for the intersection of (time_series[i],time_series[j]). The
+        keys are the intersection of i,j values in the parameter ij 
+
+    """
 
     #This is the way it is saved by cache_spectra:
     FFT_slices=cache['FFT_slices']
@@ -2491,20 +2507,27 @@ def cache_to_psd(cache,ij):
 
 def cache_to_phase(cache,ij):
     """ From a set of cached set of windowed fft's, calculate the
-    frequency-band dependent phase for all the ij. Note that this returns the
-    absolute phases of the time-series, not the relative phases between
-    them. In order to get relative phases, use cache_to_relative_phase
+    frequency-band dependent phase for each of the channels in ij.
+    Note that this returns the absolute phases of the time-series, not the
+    relative phases between them. In order to get relative phases, use
+    cache_to_relative_phase 
 
     Parameters
     ----------
-    cache: a cache with fft's, created by :func:`cache_fft`
+    cache : dict
+         The return value of  :func:`cache_fft`
 
-    ij: all the indices for which to calculate the phases
+    ij: list
+       A list of tuples of the form (i,j) for all the indices for which to
+       calculate the phases 
 
     Returns
     -------
 
-    tuple with the phases, keys are all the i and j in ij
+    Phase : dict
+         The individual phases, keys are all the i and j in ij, such that
+         Phase[i] gives you the phase for the time-series i in the input to
+         :func:`cache_fft` 
 
     """
     FFT_slices=cache['FFT_slices']
@@ -2530,22 +2553,28 @@ def cache_to_relative_phase(cache,ij):
 
     Parameters
     ----------
-    cache: a cache with fft's, created by :func:`cache_fft`
+    cache: dict
+        The return value from :func:`cache_fft`
 
-    ij: all the indices for which to calculate the phases
+    ij: list
+       A list of tuples of the form (i,j), all the pairs of indices for which to
+       calculate the relative phases 
 
     Returns
     -------
 
-    tuple with the phases, keys are all the i and j in ij
+    Phi_xy : dict
+        The relative phases between the time-series i and j. Such that
+        Phi_xy[i,j] is the phase from time_series[i] to time_series[j]. 
 
     Note
     ----
 
     This function will give you a different result than using
-    coherency_phase_spectrum. This is because coherency_phase_spectrum
-    calculates the angle based on the average psd, whereas this function
-    calculates the average of the angles calculated on individual windows.  
+    :func:`coherency_phase_spectrum`. This is because
+    :func:`coherency_phase_spectrum` calculates the angle based on the average
+    psd, whereas this function calculates the average of the angles calculated
+    on individual windows.   
 
     """
         
@@ -2593,10 +2622,21 @@ def cache_to_coherency(cache,ij):
 
     Parameters
     ----------
-    cache: a cache with fft's, created by :func:`cache_fft`
+    cache: dict
+        the return value from :func:`cache_fft`
 
-    ij: the pairs of indices for which the cross-coherency is to be calculated
-        
+    ij: list
+      a list of (i,j) tuples, the pairs of indices for which the
+      cross-coherency is to be calculated 
+
+    Returns
+    -------
+    Cxy: dict
+       coherence values between the time-series ij. Indexing into this dict
+       takes the form Cxy[i,j] in order to extract the coherency between
+       time-series i and time-series j in the original input to
+       :func:`cache_fft`
+    
     """
         
     #This is the way it is saved by cache_spectra:
@@ -2666,12 +2706,6 @@ def cache_to_coherency(cache,ij):
     return Cxy
 
 
-#--------------------------------------------------------------------------------
-# Granger causality
-#--------------------------------------------------------------------------------
-
-"""XXX docstring for Granger causality algorithms """
-
 
 #-----------------------------------------------------------------------------
 # Signal generation
@@ -2705,7 +2739,8 @@ def wfmorlet_fft(f0,sd,samplingrate,ns=5,nt=None):
     """
     returns a complex morlet wavelet in the frequency domain
 
-    :Parameters:
+    Parameters
+    ----------
         f0 : center frequency
         sd : standard deviation of center frequency
         sampling_rate : samplingrate
@@ -2725,7 +2760,8 @@ def wmorlet(f0,sd,sampling_rate,ns=5,normed='area'):
     """
     returns a complex morlet wavelet in the time domain
 
-    :Parameters:
+    Parameters
+    ----------
         f0 : center frequency
         sd : standard deviation of frequency
         sampling_rate : samplingrate
@@ -2748,7 +2784,8 @@ def wlogmorlet_fft(f0,sd,sampling_rate,ns=5,nt=None):
     """
     returns a complex log morlet wavelet in the frequency domain
 
-    :Parameters:
+    Parameters
+    ----------
         f0 : center frequency
         sd : standard deviation
         sampling_rate : samplingrate
@@ -2770,7 +2807,8 @@ def wlogmorlet(f0,sd,sampling_rate,ns=5,normed='area'):
     """
     returns a complex log morlet wavelet in the time domain
 
-    :Parameters:
+    Parameters
+    ----------
         f0 : center frequency
         sd : standard deviation of frequency
         sampling_rate : samplingrate
