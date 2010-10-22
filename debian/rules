@@ -9,10 +9,10 @@ override_dh_auto_build:
 ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
 	# and docs
 	PYTHONPATH=$$(/bin/ls -d $$PWD/build/lib.*-*-*) $(MAKE) -C doc html
-	-rm build/html/_static/jquery.js
-	-rm -r build/html/_sources
+	-rm doc/_build/html/_static/jquery.js
+	-rm -r doc/_build/html/_sources
 	# objects inventory is of no use for the package
-	-rm build/html/objects.inv
+	-rm doc/_build/html/objects.inv
 endif
 
 # enable when we believe that the tests should pass

@@ -6,6 +6,7 @@ Uploaders: Yaroslav Halchenko <debian@onerussian.com>, Michael Hanke <michael.ha
 Build-Depends: debhelper (>= 7.0.50~), python-all, python-support,
 			   python-numpy,
 			   python-scipy,
+			   python-matplotlib,
 			   python-sphinx,
 			   python-nose
 Standards-Version: 3.9.1
