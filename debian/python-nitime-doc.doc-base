@@ -1,0 +1,9 @@
+Document: nitime
+Title: NiTime Manual
+Author: NiPy Developers
+Abstract: This manual provides Nitime user guide, examples, and developers reference.
+Section: python
+
+Format: HTML
+Index: /usr/share/doc/python-nitime-doc/html/index.html
+Files: /usr/share/doc/python-nitime-doc/html/*.html
