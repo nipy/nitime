@@ -21,6 +21,7 @@ ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 	for buildver in $(shell pyversions -vr); do \
 		echo "I: Running NiTime unittests using python$$buildver"; \
 		PYTHONPATH=$$(/bin/ls -d $$PWD/build/lib.*-$$buildver) \
+		MPLCONFIGDIR=/tmp/ \
 			python$$buildver /usr/bin/nosetests -v -s nitime || exit 1 ;\
 	done
 endif
