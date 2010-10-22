@@ -1,13 +1,31 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Sample debian/rules that uses debhelper.
-# This file was originally written by Joey Hess and Craig Small.
-# As a special exception, when this file is copied by dh-make into a
-# dh-make output file, you may use that output file without restriction.
-# This special exception was added by Craig Small in version 0.37 of dh-make.
-
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
 
 %:
 	dh $@ 
+
+override_dh_auto_build:
+	dh_auto_build
+ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
+	# and docs
+	PYTHONPATH=$$(/bin/ls -d $$PWD/build/lib.*-*-*) $(MAKE) -C doc html
+	-rm build/html/_static/jquery.js
+	-rm -r build/html/_sources
+	# objects inventory is of no use for the package
+	-rm build/html/objects.inv
+endif
+
+# enable when we believe that the tests should pass
+override_dh_auto_test:
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+	for buildver in $(shell pyversions -vr); do \
+		echo "I: Running NiTime unittests using python$$buildver"; \
+		PYTHONPATH=$$(/bin/ls -d $$PWD/build/lib.*-$$buildver) \
+			python$$buildver /usr/bin/nosetests -v -s nitime || exit 1 ;\
+	done
+endif
+
+## immediately useable documentation
+## and exemplar data (they are small excerpts anyway)
+override_dh_compress:
+	dh_compress -X.py -X.html -X.css -X.jpg -X.txt -X.js -X.json -X.rtc -X.par -X.bin

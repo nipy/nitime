@@ -1,15 +1,41 @@
 Source: nitime
-Section: unknown
+Section: python
 Priority: extra
 Maintainer: NeuroDebian Team <team@neuro.debian.net>
-Build-Depends: debhelper (>= 7.0.50~)
-Standards-Version: 3.8.4
-Homepage: <insert the upstream URL, if relevant>
-#Vcs-Git: git://git.debian.org/collab-maint/nitime.git
-#Vcs-Browser: http://git.debian.org/?p=collab-maint/nitime.git;a=summary
+Uploaders: Yaroslav Halchenko <debian@onerussian.com>, Michael Hanke <michael.hanke@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~), python-all, python-support,
+			   python-numpy,
+			   python-scipy,
+			   python-sphinx,
+			   python-nose
+Standards-Version: 3.9.1
+Homepage: http://nipy.org/nitime
+Vcs-Git: git://github.com/yarikoptic/nitime.git
+Vcs-Browser: http://github.com/yarikoptic/nitime
 
-Package: nitime
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Package: python-nitime
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends},
+		 python-numpy, python-scipy
+Recommends: python-matplotlib,
+			python-nose,
+			python-nibabel,
+			python-networkx
+Description: timeseries analysis for neuroscience data
+ Nitime is a Python module for time-series analysis of data from
+ neuroscience experiments.  It contains a core of numerical algorithms
+ for time-series analysis both in the time and spectral domains, a set
+ of container objects to represent time-series, and auxiliary objects
+ that expose a high level interface to the numerical machinery and
+ make common analysis tasks easy to express with compact and
+ semantically clear code.
+
+Package: python-nitime-doc
+Architecture: all
+Section: doc
+Depends: ${misc:Depends}, libjs-jquery
+Description: documentation for Nitime
+ Nitime is a Python module for time-series analysis of data from
+ neuroscience experiments.
+ .
+ This package provides the documentation in HTML format.

@@ -1,5 +1,5 @@
-nitime (0.1-33-g8f90904-1) unstable; urgency=low
+nitime (0.1-33-g8f90904-1) UNRELEASED; urgency=low
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Initial release (Closes: #600714)
 
- -- NeuroDebian Team <team@neuro.debian.net>  Fri, 22 Oct 2010 14:15:27 -0400
+ -- Yaroslav Halchenko <debian@onerussian.com>  Fri, 22 Oct 2010 14:32:15 -0400
