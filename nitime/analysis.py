@@ -217,14 +217,17 @@ class CoherenceAnalyzer(BaseAnalyzer):
         ----------
 
         input: TimeSeries object
+           Containing the data to analyze.
+           
+        method: dict, optional,
+            This is the method used for spectral analysis of the signal for the
+            coherence caclulation. See :func:`algorithms.get_spectra`
+            documentation for details.  
 
-        method: dict, optional, see :func:`get_spectra` documentation for
-        details.
-
-        unwrap_phases: bool, optional (defaults to False)
-           Whether to unwrap the phases. This should be True if you
-           assume that the time-delay is the same for all the frequency bands
-           examined  
+        unwrap_phases: bool, optional
+           Whether to unwrap the phases. This should be True if you assume that
+           the time-delay is the same for all the frequency bands. See
+           _[Sun2005] for details. Default : False   
 
         Examples
         --------
@@ -894,6 +897,27 @@ class CorrelationAnalyzer(BaseAnalyzer):
     CoherenceAnalyzer"""
 
     def __init__(self,input=None):
+        """
+        Parameters
+        ----------
+
+        input: TimeSeries object
+           Containing the data to analyze.
+
+        Examples
+        --------
+        >>> c1 = ta.CorrelationAnalyzer(t1)
+        >>> t1 = ts.TimeSeries(data = np.sin(np.arange(0,10*pi,10*pi/100)).reshape(2,50),sampling_rate=np.pi)
+        >>> c1 = ta.CorrelationAnalyzer(t1)>>> c1.output
+        array([[ 1., -1.],
+               [-1.,  1.]])
+        >>> c1.xcorr.sampling_rate
+        3.1415926536 Hz
+        >>> c1.xcorr.t0
+        -15.915494309150001 s
+        
+        """ 
+
         BaseAnalyzer.__init__(self,input)
 
     @desc.setattr_on_read
@@ -911,7 +935,9 @@ class CorrelationAnalyzer(BaseAnalyzer):
         -------
 
         TimeSeries: the time-dependent cross-correlation, with zero-lag
-        at time=0"""
+        at time=0
+
+        """
         tseries_length = self.input.data.shape[0]
         t_points = self.input.data.shape[-1]
         xcorr = np.zeros((tseries_length,
@@ -940,8 +966,10 @@ class CorrelationAnalyzer(BaseAnalyzer):
         Returns
         -------
 
-        TimeSeries: the time-dependent cross-correlation, with zero-lag
-        at time=0"""
+        TimeSeries: A TimeSeries object
+            the time-dependent cross-correlation, with zero-lag at time=0
+
+        """
 
         tseries_length = self.input.data.shape[0]
         t_points = self.input.data.shape[-1]
