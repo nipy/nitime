@@ -1429,7 +1429,7 @@ def get_spectra_bi(x,y,method = None):
 # sxx(0) = Expected-Value{s(n)s*(n)} = Expected-Value{ Var(s) },
 # which is estimated simply as (s*s.conj()).mean()
 
-def periodogram(s, Sk=None, N=None, sides='default', normalize=True):
+def periodogram(s, Fs=2*np.pi, Sk=None, N=None, sides='default', normalize=True):
     """Takes an N-point periodogram estimate of the PSD function. The
     number of points N, or a precomputed FFT Sk may be provided. By default,
     the PSD function returned is normalized so that the integral of the PSD
@@ -1440,6 +1440,9 @@ def periodogram(s, Sk=None, N=None, sides='default', normalize=True):
     s : ndarray
         Signal(s) for which to estimate the PSD, time dimension in the last axis
 
+    Fs: float (optional)
+       The sampling rate. Defaults to 2*pi
+       
     Sk : ndarray (optional)
         Precomputed FFT of s
 
@@ -1456,7 +1459,9 @@ def periodogram(s, Sk=None, N=None, sides='default', normalize=True):
 
     Returns
     -------
-    PSD estimate for each row of s
+    (f, psd): tuple
+       f: The central frequencies for the frequency bands  
+       PSD estimate for each row of s
 
     Notes
     -----
@@ -1485,14 +1490,14 @@ def periodogram(s, Sk=None, N=None, sides='default', normalize=True):
         Fl = (N+1)/2
         pshape[-1] = Fn
         P = np.zeros(pshape, 'd')
-        freqs = np.linspace(0, np.pi, Fn)
+        freqs = np.linspace(0, Fs/2, Fn)
         P[...,0] = (Sk[...,0]*Sk[...,0].conj())
         P[...,1:Fl] = 2 * (Sk[...,1:Fl]*Sk[...,1:Fl].conj())
         if Fn > Fl:
             P[...,Fn-1] = (Sk[...,Fn-1]*Sk[...,Fn-1].conj())
     else:
         P = (Sk*Sk.conj()).real
-        freqs = np.linspace(0, 2*np.pi, N, endpoint=False)
+        freqs = np.linspace(0, Fs, N, endpoint=False)
     if normalize:
         P /= norm
     return freqs, P

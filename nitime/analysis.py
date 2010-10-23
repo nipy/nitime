@@ -165,6 +165,21 @@ class SpectralAnalyzer(BaseAnalyzer):
         return f,spectrum_welch
 
     @desc.setattr_on_read
+    def periodogram(self):
+        """
+
+        This is the spectrum estimated as the FFT of the time-series
+
+        Returns
+        -------
+        (f,spectrum): f is an array with the frequencies and spectrum is the
+        complex-valued FFT. 
+        
+        """
+
+        return tsa.periodogram(self.input.data,Fs=self.input.sampling_rate)
+
+    @desc.setattr_on_read
     def spectrum_fourier(self):
         """
 

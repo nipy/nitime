@@ -33,6 +33,11 @@ def test_SpectralAnalyzer():
     npt.assert_equal(f.shape,(t.shape[0]/2+1,))
     npt.assert_equal(c.shape,(2,2,t.shape[0]/2+1))
 
+    f,c = C.periodogram
+
+    npt.assert_equal(f.shape,(t.shape[0]/2+1,))
+    npt.assert_equal(c.shape,(2,t.shape[0]/2+1))
+
 def test_CoherenceAnalyzer():
     Fs = np.pi
     t = np.arange(10)
