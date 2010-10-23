@@ -11,7 +11,7 @@ Magazine, 2007, pp. 20-30.
 """
 
 import numpy as np
-import matplotlib.pyplot as pp
+import matplotlib.pyplot as plt
 import scipy.stats.distributions as dist
 
 import nitime.algorithms as alg
@@ -23,6 +23,21 @@ def dB(x, out=None):
     else:
         np.log10(x, out)
         np.multiply(out, 10, out)
+
+def plot_estimate(ax, f, sdf_ests, limits=None, elabels=()):
+    ax.plot(f, sdf, 'c', label='True S(f)')
+    if not elabels:
+        elabels = ('',) * len(sdf_ests)
+    colors = 'bgkmy'
+    for e, l, c in zip(sdf_ests, elabels, colors):
+        ax.plot(f, e, color=c, linewidth=2, label=l)
+
+    if limits is not None:
+        ax.fill_between(f, limits[0], y2=limits[1], color=(1,0,0,.3))
+    ax.set_ylim(ax_limits)
+    ax.figure.set_size_inches([8,6])
+    ax.legend()
+    
 
 ### Log-to-dB conversion factor ###
 ln2db = dB(np.e)
@@ -49,23 +64,50 @@ dB(sdf, sdf)
 freqs, d_sdf = alg.periodogram(ar_seq)
 dB(d_sdf, d_sdf)
 
-# --- Welch's Overlapping Periodogram Method via mlab
-mlab_sdf, mlab_freqs = pp.mlab.psd(ar_seq, NFFT=N)
-mlab_freqs *= (np.pi/mlab_freqs.max())
-mlab_sdf = mlab_sdf.squeeze()
-dB(mlab_sdf, mlab_sdf)
+#For plotting: 
+ax_limits = 2*sdf.min(), 1.25*sdf.max()
 
+f = plt.figure()
+ax = f.add_subplot(1,1,1)
+plot_estimate(ax, freqs, (d_sdf,), elabels=("Periodogram",))
+
+
+# --- Welch's Overlapping Periodogram Method via mlab
+welch_sdf, welch_freqs = plt.mlab.psd(ar_seq, NFFT=N)
+welch_freqs *= (np.pi/welch_freqs.max())
+welch_sdf = welch_sdf.squeeze()
+dB(welch_sdf, welch_sdf)
+
+f = plt.figure()
+ax = f.add_subplot(1,1,1)
+plot_estimate(ax, freqs, (welch_sdf,), elabels=("Welch",))
 
 # --- Regular Multitaper Estimate
 f, sdf_mt, nu = alg.multi_taper_psd(
     ar_seq, adaptive=False, jackknife=False
     )
 dB(sdf_mt, sdf_mt)
-# OK.. grab the number of tapers used from here
+
+# Get the number of tapers used from here
 Kmax = nu[0]/2
 
+# --- Hypothetical intervals with chi2(2Kmax) --------------------------------
+# from Percival and Walden eq 258
+p975 = dist.chi2.ppf(.975, 2*Kmax)
+p025 = dist.chi2.ppf(.025, 2*Kmax)
+
+l1 = ln2db * np.log(2*Kmax/p975)
+l2 = ln2db * np.log(2*Kmax/p025)
+
+hyp_limits = ( sdf_mt + l1, sdf_mt + l2 )
+
+f = plt.figure()
+ax = f.add_subplot(1,1,1)
+plot_estimate(ax, freqs, (sdf_mt,), hyp_limits,
+              elabels=('MT with hypothetical 5% interval',))
+
 # --- Adaptively Weighted Multitapter Estimate
-# -- Adaptive weighting from Thompson 1982, or Percival and Walden 1993
+# -- Adaptive weighting from Thomson 1982, or Percival and Walden 1993
 f, adaptive_sdf_mt, nu = alg.multi_taper_psd(
     ar_seq,  adaptive=True, jackknife=False
     )
@@ -80,12 +122,20 @@ _, _, jk_var = alg.multi_taper_psd(
 # the Jackknife mean is approximately distributed about the true log-sdf
 # as a Student's t distribution with variance jk_var ... but in
 # fact the jackknifed variance better describes the normal
-# multitaper estimator < have ref for this >
+# multitaper estimator [Thomson2007]
 
 # find 95% confidence limits from inverse of t-dist CDF
 jk_p = (dist.t.ppf(.975, Kmax-1) * np.sqrt(jk_var)) * ln2db
 
 jk_limits = ( sdf_mt - jk_p, sdf_mt + jk_p )
+
+
+f = plt.figure()
+ax = f.add_subplot(1,1,1)
+plot_estimate(ax, freqs, (sdf_mt,),
+              jk_limits,
+              elabels=('MT with JK 5% interval',))
+
 
 # --- Jack-knifed intervals for adaptive weighting----------------------------
 _, _, adaptive_jk_var = alg.multi_taper_psd(
@@ -97,60 +147,9 @@ jk_p = (dist.t.ppf(.975, Kmax-1)*np.sqrt(adaptive_jk_var)) * ln2db
 
 adaptive_jk_limits = ( adaptive_sdf_mt - jk_p, adaptive_sdf_mt + jk_p )
 
-# --- Hypothetical intervals with chi2(2Kmax) --------------------------------
-# from Percival and Walden eq 258
-p975 = dist.chi2.ppf(.975, 2*Kmax)
-p025 = dist.chi2.ppf(.025, 2*Kmax)
 
-l1 = ln2db * np.log(2*Kmax/p975)
-l2 = ln2db * np.log(2*Kmax/p025)
-
-hyp_limits = ( sdf_mt + l1, sdf_mt + l2 )
-
-# --- Hypothetical intervals with chi2(nu(f)) --------------------------------
-
-## p975 = dist.chi2.ppf(.975, nu_f)
-## p025 = dist.chi2.ppf(.025, nu_f)
-
-## l1 = ln2db * np.log(nu_f/p975)
-## l2 = ln2db * np.log(nu_f/p025)
-
-## adaptive_hyp_limits = ( adaptive_sdf_mt + l1, adaptive_sdf_mt + l2 )
-
-# --- Plotting ---------------------------------------------------------------
-ax_limits = 2*sdf.min(), 1.25*sdf.max()
-
-def plot_estimate(ax, f, sdf_ests, limits=None, elabels=()):
-    ax.plot(f, sdf, 'c', label='True S(f)')
-    if not elabels:
-        elabels = ('',) * len(sdf_ests)
-    colors = 'bgkmy'
-    for e, l, c in zip(sdf_ests, elabels, colors):
-        ax.plot(f, e, color=c, linewidth=2, label=l)
-
-    if limits is not None:
-        ax.fill_between(f, limits[0], y2=limits[1], color=(1,0,0,.3))
-    ax.set_ylim(ax_limits)
-    ax.legend()
-
-f = pp.figure()
-ax = f.add_subplot(611)
-plot_estimate(ax, freqs, (d_sdf,), elabels=("Periodogram",))
-ax = f.add_subplot(612)
-plot_estimate(ax, mlab_freqs, (mlab_sdf,), elabels=("Welch's method",))
-ax = f.add_subplot(613)
-plot_estimate(ax, freqs, (sdf_mt,), hyp_limits,
-              elabels=('MT with hypothetical 5% interval',))
-ax = f.add_subplot(614)
-plot_estimate(ax, freqs, (sdf_mt,),
-              jk_limits,
-              elabels=('MT with JK 5% interval',))
-ax = f.add_subplot(615)
-## plot_estimate(ax, freqs, (adaptive_sdf_mt,),
-##               adaptive_hyp_limits,
-##               elabels=('(a)MT with hypothetical 5% interval',))
-## ax = f.add_subplot(616)
+f = plt.figure()
+ax = f.add_subplot(1,1,1)
 plot_estimate(ax, freqs, (adaptive_sdf_mt, ),
               adaptive_jk_limits,
               elabels=('(a)MT with JK 5% interval',))
-f.text(.5, .9, '%d Tapers'%Kmax)
