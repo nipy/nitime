@@ -44,15 +44,18 @@ ln2db = dB(np.e)
 
 N = 512
 import os
+#Load AR process from file:
 if os.path.exists('example_arrs.npz'):
     foo = np.load('example_arrs.npz')
     ar_seq = foo['arr_0']
     nz = foo['arr_1']
     alpha = foo['arr_2']
+#Otherwise, generate AR process:
 else:
     ar_seq, nz, alpha = utils.ar_generator(N=N, drop_transients=10)
     ar_seq -= ar_seq.mean()
     np.savez('example_arrs', ar_seq, nz, alpha)
+
 # --- True SDF
 fgrid, hz = alg.my_freqz(1.0, a=np.r_[1, -alpha], Nfreqs=N)
 sdf = (hz*hz.conj()).real
