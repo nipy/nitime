@@ -1487,17 +1487,17 @@ def zscore(time_series, axis=-1):
     zt /= st[sl]
     return zt
 
-def percent_change(time_series, axis=-1):
+def percent_change(ts, ax=-1):
     """Returns the % signal change of each point of the times series
     along a given axis of the array time_series
 
     Parameters
     ----------
 
-    time_series : ndarray
+    ts : ndarray
         an array of time series
         
-    axis : int, optional
+    ax : int, optional (default to -1)
         the axis of time_series along which to compute means and stdevs
 
     Returns
@@ -1505,10 +1505,28 @@ def percent_change(time_series, axis=-1):
 
     ndarray
         the renormalized time series array (in units of %)
-    """
-    time_series = np.asarray(time_series)
+
+    Examples
+    --------
+
+    >>> ts = np.arange(4*5).reshape(4,5)
+    >>> ax = 0
+    >>> percent_change(ts,ax)
+    array([[-100.    ,  -88.2353,  -78.9474,  -71.4286,  -65.2174],
+           [ -33.3333,  -29.4118,  -26.3158,  -23.8095,  -21.7391],
+           [  33.3333,   29.4118,   26.3158,   23.8095,   21.7391],
+           [ 100.    ,   88.2353,   78.9474,   71.4286,   65.2174]])
+    >>> ax = 1
+    >>> percent_change(ts,ax)
+    array([[-100.    ,  -50.    ,    0.    ,   50.    ,  100.    ],
+           [ -28.5714,  -14.2857,    0.    ,   14.2857,   28.5714],
+           [ -16.6667,   -8.3333,    0.    ,    8.3333,   16.6667],
+           [ -11.7647,   -5.8824,    0.    ,    5.8824,   11.7647]])
+"""
+    ts = np.asarray(ts)
+
+    return (ts/np.expand_dims(np.mean(ts, ax), ax) - 1)*100
     
-    return ((time_series.T/np.mean(time_series,axis) - 1).T)*100
     
 
 #----------Event-related analysis utils ----------------------------------------
