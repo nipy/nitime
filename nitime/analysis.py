@@ -906,9 +906,10 @@ class CorrelationAnalyzer(BaseAnalyzer):
 
         Examples
         --------
-        >>> c1 = ta.CorrelationAnalyzer(t1)
-        >>> t1 = ts.TimeSeries(data = np.sin(np.arange(0,10*pi,10*pi/100)).reshape(2,50),sampling_rate=np.pi)
-        >>> c1 = ta.CorrelationAnalyzer(t1)>>> c1.output
+        >>> t1 = ts.TimeSeries(data = np.sin(np.arange(0,10*np.pi,10*np.pi/100)).reshape(2,50),sampling_rate=np.pi)
+        >>> c1 = CorrelationAnalyzer(t1)
+        >>> c1 = CorrelationAnalyzer(t1)
+        >>> c1.output
         array([[ 1., -1.],
                [-1.,  1.]])
         >>> c1.xcorr.sampling_rate
