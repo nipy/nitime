@@ -34,6 +34,7 @@ def plot_estimate(ax, f, sdf_ests, limits=None, elabels=()):
 
     if limits is not None:
         ax.fill_between(f, limits[0], y2=limits[1], color=(1,0,0,.3))
+        
     ax.set_ylim(ax_limits)
     ax.figure.set_size_inches([8,6])
     ax.legend()
