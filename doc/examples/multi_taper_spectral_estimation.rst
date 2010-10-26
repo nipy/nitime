@@ -72,39 +72,66 @@ leakage) they are all superior in both of these respects to the boxcar window
 used in the naive periodogram. 
 
 
+However, this approach trades off the reliability of the measurement without
+leakage for the resolution of measurement, which is lost due to the smaller
+window size. Another approach is to instead multiply the entire signal segment
+by a taper function. Similar to the window functions, these functions start at
+0 and end at 0. The entire signal is multiplied by a taper function. In
+addition, these functions can be constructed to be orthogonal to each other,
+constructing maximally independent samples at the length of the signal. As we
+will see below, this makes this construction useful for statistical estimation
+of the distribution of the spectrum.
 
-However, this approach trades off reliability for the resolution of measurement
-and for different windows induce different sets of bias, limiting the
-comparison between different windowing function. Another approach is to instead
-multiply the entire signal segment by a taper function. Some of these can
-look. Multi-taper (MT) spectral estimation methods provide a solution to this
-problem, by designing windowing functions that optimally balance between very
-low leakage, while keeping the resolution of the signal. In addition, discrete
-prolate spheroidal sequences (also known as Slepian sequences) are orthogonal
-sequences, which optimally concentrate the power in the signal within a given
-bandwidth. The fact that these tapers are orthogonal allows using the estimates
-based on each window as a pseudo-indpendent sample for the purposes of
-statistical estimation. Thus, using a jack-knifing procedure [Thomson2007]_,
+Discrete prolate spheroidal sequences (also known as Slepian sequences)
+[Slepian1978]_ are a class of taper functions which are constructed as a
+solution to the problem of concentrating the spectrum to within a pre-specified
+bandwidth. These tapers can be constructed using
+:func:`algorithms.DPSS_windows`, but for the purpose of spectral estimation, it
+is sufficient to specify the bandwidth desired as an input to the function, or
+rely on the these tapers are orthogonal allows using the estimates based on
+each window as a pseudo-indpendent sample for the purposes of statistical
+estimation. Thus, in addition to estimating the spectrum itself, an estimate of
+the confidence interval of the spectrum can be generated using a jack-knifing
+procedure [Thomson2007]_.
+
+Let us define the following:
+
+| **simple sample estimate**
+| :math:`\hat{\theta} = \dfrac{1}{n}\sum_i Y_i`
+
+This is the estimate of the parameter estimate averaged from all the samples in
+the distribution (all the tapered spectra).
+
+| **leave-one-out measurement**
+| :math:`\hat{\theta}_{-i} = \dfrac{1}{n-1}\sum_{k \neq i}Y_k`
+
+This defines a group of estimates, where each sample is based on leaving one
+measurement (one tapered spectrum) out.
+
+| **pseudovalues**
+| :math:`\hat{\theta}_i = n\hat{\theta} - (n-1)\hat{\theta}_{-i}`
+
+The jackknifed esimator is computed as:
+
+:math:`\tilde{\theta} = \dfrac{1}{n}\sum_i \hat{\theta}_i = n\hat{\theta} - \dfrac{n-1}{n}\sum_i \hat{\theta}_{-i}`
+
+This estimator is known [Thomson2007]_ to be distributed about the true parameter \theta approximately as a Student's t distribution, with standard error defined as:
+
+:math:`s^{2} = \dfrac{n-1}{n}\sum_i \left(\hat{\theta}_i - \tilde{\theta}\right)^{2}`
+
+
 the power spectrum can be estimated, in addition to a confidence interval on
-the values of the spectrum. In addition, iterative methods allow estimation of
-the bias in the signal and allow for removal of the bias.
+the values of the spectrum. In addition, if the 'adaptive' flag is set to True,
+an iterative adaptive method is used in order to correct bias in the spectrum.
+
 
 .. plot:: examples/multi_taper_sdf.py
    :include-source:
 
 
-
 .. [NR2007] W.H. Press, S.A. Teukolsky, W.T Vetterling and B.P. Flannery (2007)
    	    Numerical Recipes: The Art of Scientific Computing. Cambridge:
    	    Cambridge University Press. 3rd Ed.
-
-.. [PercivalWalden] Percival, D.B., and A.T. Walden. Spectral Analysis for
-   		    Physical Applications: Multitaper and Conventional
-   		    Univariate Techniques, Cambridge: Cambridge University
-   		    Press, 1993.
-
-.. [Thomson1982] D. Thomson, Spectrum estimation and harmonic analysis,
-   		 Proceedings of the IEEE, vol. 70, 1982.
 
 .. [Thomson2007] D.J. Thomson, Jackknifing Multitaper Spectrum Estimates, IEEE
    		 Signal Processing Magazine, 2007, pp. 20-30.
@@ -113,3 +140,7 @@ the bias in the signal and allow for removal of the bias.
    	       estimation of power spectra: a method based on time averaging
    	       over short modified periodograms. IEEE Transcations on Audio and
    	       Electroacoustics.
+
+.. [Slepian1978] Slepian, D. Prolate spheroidal wave functions, Fourier
+		 analysis, and uncertainty V: The discrete case. Bell System
+		 Technical Journal, Volume 57 (1978), 1371430
