@@ -14,6 +14,39 @@
 import sys, os
 import warnings
 
+# Declare here the things that our documentation build will depend on here, so
+# that if they are not present the build fails immediately rather than
+# producing possibly obscure errors later on.
+
+# Documentation dependency format: each dep is a pair of two entries, the first
+# is a string that should be a valid (possibly dotted) package name, and the
+# second a list (possibly empty) of names to import from that package.
+doc_deps = [['networkx', []],
+            ['mpl_toolkits.axes_grid',  ['make_axes_locatable'] ],
+            ]
+
+# Analyze the dependencies, and fail if  any is unmet, with a hopefully
+# reasonable error
+failed_deps = []
+for package, parts in doc_deps:
+    try:
+        __import__(package, fromlist=parts)
+    except ImportError:
+        failed_deps.append([package, parts])
+
+if failed_deps:
+    print
+    print "*** ERROR IN DOCUMENTATION BUILD ***"
+    print "The documentation build is missing these dependencies:"
+    for pak, parts in failed_deps:
+        if parts:
+            print "Package: %s, parts: %s" % (pak, parts)
+        else:
+            print "Package: %s" % pak
+
+    raise RuntimeError('Unmet dependencies for documentation build')
+
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
