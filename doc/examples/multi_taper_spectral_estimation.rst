@@ -71,6 +71,13 @@ attenuation of leakage from frequency bands near the frequency of interest
 leakage) they are all superior in both of these respects to the boxcar window
 used in the naive periodogram. 
 
+The inefficiency problem can be solved by treating different parts of the
+signal as different samples from the same distribution. In this method, a
+shorter sliding window is applied to different parts of the signal and the
+windowed spectrum is averaged from these different samples. This is sometimes
+referred to as Welch's periodogram [Welch1967]_ and it is the default method
+used in :func:`algorithms.get_spectra` (with the hanning window as the window
+function used and no overlap between the windows).
 
 However, this approach trades off the reliability of the measurement without
 leakage for the resolution of measurement, which is lost due to the smaller
