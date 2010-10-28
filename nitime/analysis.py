@@ -135,8 +135,8 @@ class SpectralAnalyzer(BaseAnalyzer):
                 0.9817477 ,  1.03083509,  1.07992247,  1.12900986,  1.17809725,
                 1.22718463,  1.27627202,  1.3253594 ,  1.37444679,  1.42353417,
                 1.47262156,  1.52170894,  1.57079633])
-        >>> s[0,1][0]                   #doctest: +ELLIPSIS
-        (2877158.02036638...+0j)
+        >>> s[0][0]
+        1128276.9253836011
 
         """
         BaseAnalyzer.__init__(self,input)
@@ -148,19 +148,63 @@ class SpectralAnalyzer(BaseAnalyzer):
                            'Fs':self.input.sampling_rate}
     @desc.setattr_on_read
     def output(self):
+    
         """
         The standard output for this analyzer is a tuple f,s, where: f is the
         frequency bands associated with the discrete spectral components
         and s is the PSD calculated using :func:`mlab.psd`.
     
         """
-        data = self.input.data
-        sampling_rate = self.input.sampling_rate
         
+        NFFT = self.method.get('NFFT',64)
+        Fs = self.method.get('Fs',2*np.pi)
+        detrend = self.method.get('detrend',tsa.mlab.detrend_none)
+        window = self.method.get('window',tsa.mlab.window_hanning)
+        n_overlap = self.method.get('n_overlap',int(np.ceil(NFFT/2.0)))
+
+        if np.iscomplexobj(self.input.data):
+            psd_len = NFFT
+            dt = complex
+        else:
+            psd_len = NFFT/2.0 + 1
+            dt = float
+            
+        psd = np.empty((self.input.shape[0],
+                       psd_len),dtype=dt)
+
+        for i in xrange(self.input.data.shape[0]):
+            temp,f =  tsa.mlab.psd(self.input.data[i],
+                        NFFT=NFFT,
+                        Fs=Fs,
+                        detrend=detrend,
+                        window=window,
+                        noverlap=n_overlap)
+            psd[i] = temp.squeeze()
+
+        return f,psd
+    
+    @desc.setattr_on_read
+    def cpsd(self):
+
+        """
+        This outputs both the PSD and the CSD calculated using
+        :func:`algorithms.get_spectra`.
+
+        Returns
+        -------
+
+        (f,s): tuple
+           f: Frequency bands over which the psd/csd are calculated and
+           s: the n by n by len(f) matrix of PSD (on the main diagonal) and CSD
+           (off diagonal)
+           
+        """
+            
         self.welch_method = self.method
         self.welch_method['this_method'] = 'welch'
-        self.welch_method['Fs'] = sampling_rate
-        f,spectrum_welch = tsa.get_spectra(data,method=self.welch_method)
+        self.welch_method['Fs'] = self.input.sampling_rate
+        f,spectrum_welch = tsa.get_spectra(self.input.data,
+                                           method=self.welch_method)
 
         return f,spectrum_welch
 
