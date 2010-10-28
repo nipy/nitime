@@ -157,7 +157,7 @@ class SpectralAnalyzer(BaseAnalyzer):
         """
         
         NFFT = self.method.get('NFFT',64)
-        Fs = self.method.get('Fs',2*np.pi)
+        Fs = self.input.sampling_rate
         detrend = self.method.get('detrend',tsa.mlab.detrend_none)
         window = self.method.get('window',tsa.mlab.window_hanning)
         n_overlap = self.method.get('n_overlap',int(np.ceil(NFFT/2.0)))
