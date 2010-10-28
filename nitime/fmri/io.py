@@ -10,7 +10,7 @@ import nitime.analysis as tsa
 import numpy as np
 
 def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
-                          verbose=False):
+                          filter=None,verbose=False):
     """ Make a time series from a Analyze file, provided coordinates into the
             file 
 
@@ -18,27 +18,35 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
     ----------
 
     nifti_files: a string or a list/tuple of strings.
-
-           The full path(s) to the file(s) from which the time-series is (are)
-           extracted
+        The full path(s) to the file(s) from which the time-series is (are)
+        extracted
      
     coords: ndarray or list/tuple of ndarray
         x,y,z (inplane,inplane,slice) coordinates of the ROI(s) from which the
         time-series is (are) derived.
         
     TR: float, optional
-        TR, if different from the one which can be extracted from the nifti
-        file header
+        The TR of the fmri measurement
 
-    normalize: Whether to normalize the activity in each voxel, defaults to
+    normalize: bool, optional
+        Whether to normalize the activity in each voxel, defaults to
         None, in which case the original fMRI signal is used. Other options
         are: 'percent': the activity in each voxel is converted to percent
         change, relative to this scan. 'zscore': the activity is converted to a
         zscore relative to the mean and std in this voxel in this scan.
 
     average: bool, optional whether to average the time-series across the
-           voxels in the ROI (assumed to be the first dimension). In which
-           case, TS.data will be 1-d
+        voxels in the ROI (assumed to be the first dimension). In which
+        case, TS.data will be 1-d
+
+    filter: dict, optional
+       If provided with a dict of the form:
+
+       {'lb':float or 0, 'ub':float or None, 'method':'fourier' or 'boxcar' }
+
+       each voxel's data will be filtered into the frequency range [lb,ub] with
+       nitime.analysis.FilterAnalyzer, using either the fourier or the boxcar
+       method provided by that analyzer
 
     verbose: Whether to report on ROI and file being read.
     
@@ -71,11 +79,13 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
             tseries = [[]] * n_roi
             for i in xrange(n_roi):
                 tseries[i] = _tseries_from_nifti_helper(coords[i].astype(int),
-                                                        data,TR,normalize,
+                                                        data,TR,
+                                                        filter,
+                                                        normalize,
                                                         average)
         else:
             tseries = _tseries_from_nifti_helper(coords.astype(int),data,TR,
-                                                        normalize,average)
+                                                 filter,normalize,average)
                 
     #Otherwise loop over the files and concatenate:
     elif isinstance(nifti_files,tuple) or isinstance(nifti_files,list):
@@ -94,14 +104,15 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
                 for i in xrange(n_roi):
                     tseries_list[-1][i] = _tseries_from_nifti_helper(
                                                 coords[i].astype(int),
-                                                data,TR,normalize,average)
+                                                data,TR,filter,normalize,average)
 
                 
                 
             else:
                 tseries_list.append(_tseries_from_nifti_helper(
-                                                 coords.astype(int),
-                                                 data,TR,normalize,average))
+                                                       coords.astype(int),
+                                                       data,TR,
+                                                       filter,normalize,average))
 
         #Concatenate the time-series from the different scans:
                                     
@@ -117,7 +128,7 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
 
     return tseries
 
-def _tseries_from_nifti_helper(coords,data,TR,normalize,average):
+def _tseries_from_nifti_helper(coords,data,TR,filter,normalize,average):
     """
 
     Helper function for the function time_series_from_nifti, which does the
@@ -127,6 +138,14 @@ def _tseries_from_nifti_helper(coords,data,TR,normalize,average):
     """ 
     out_data = np.asarray(data[coords[0],coords[1],coords[2]])
     tseries = ts.TimeSeries(out_data,sampling_interval=TR)
+
+    if filter is not None:
+        if filter['method'] not in ('boxcar','fourier'):
+           raise ValueError("Filter method %s is not recognized"%filter['method'])
+        if filter['method'] == 'boxcar':
+           tseries=tsa.FilterAnalyzer(tseries,lb=filter['lb'],ub=filter['ub']).filtered_boxcar
+        elif filter['method'] == 'fourier':
+           tseries = tsa.FilterAnalyzer(tseries,lb=filter['lb'],ub=filter['ub']).filtered_fourier
 
     if normalize=='percent':
             tseries = tsa.NormalizationAnalyzer(tseries).percent_change
