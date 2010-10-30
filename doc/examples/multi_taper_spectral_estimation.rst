@@ -7,8 +7,30 @@ power spectrum (or PSD, for power spectral density) can be estimated using
 variants of the discrete Fourier transform (DFT). The naive estimate of the
 power spectrum, based on the values of the DFT estimated directly from the
 signal, using the fast Fourier transform algorithm (FFT) is referred to as a
-periodogram (see :func:`algorithms.periodogram`). This estimate suffers from several
-problems [NR2007]_: 
+periodogram (see :func:`algorithms.periodogram`). This estimate suffers from
+several problems [NR2007]_:
+
+- Inefficiency: In most estimation problems, additional samples, or a denser
+  sampling grid would usually lead to a better estimate (smaller variance of
+  the estimate, given a constant level of noise). However, this is not the case
+  for the periodogram. Even as we add more samples to our signal, or increase
+  our sampling rate, our estimate at frequency $f_k$ does not improve. This is
+  because of the effects these kinds of changes have on spectral
+  estimates. Adding additional samples, will improve the frequency domain
+  resolution of our estimate and sampling at a finer rate will change the
+  Nyquist frequency, the highest frequency for which the spectrum can be
+  estimated. Thus, these changes do not improve the estimate at frequency
+  $f_k$.  
+
+The inefficiency problem can be solved by treating different parts of the
+signal as different samples from the same distribution, while assuming
+stationarity of the signal. In this method, a shorter sliding window is applied
+to different parts of the signal and the windowed spectrum is averaged from
+these different samples. This is sometimes referred to as Welch's periodogram
+[Welch1967]_ and it is the default method used in
+:func:`algorithms.get_spectra` (with the hanning window as the window function
+used and no overlap between the windows).  However, it leads to the following
+problem:
 
 - Spectral leakage and bias: Spectral leakage refers to the fact that the
   estimate of the spectrum at any given frequency bin is contaminated with the
@@ -28,24 +50,14 @@ problems [NR2007]_:
    :include-source:
 
    The figure on the left shows a boxcar window and the figure on the right
-   shows the spectrum of the boxcar function (in units of  
+   shows the spectrum of the boxcar function (in dB units, relative to the
+   frequency band of interest).  
    
-- Inefficiency: In most estimation problems, additional samples, or a denser
-  sampling grid would usually lead to a better estimate (smaller variance of
-  the estimate, given a constant level of noise). Howver, this is not the case
-  for the periodogram. Even as we add more samples to our signal, or increase our
-  sampling rate, our estimate at frequency $f_k$ does not improve. This is
-  because of the effects these kinds of changes have on spectral
-  estimates. Adding additional samples, will improve the frequency domain
-  resolution of our estimate and sampling at a finer rate will change the
-  Nyquist frequencu. That is, the highest frequency for which the spectrum can
-  be estimated. 
-
-These two problems can be mitigated through the use of windowed spectral
-estimates. The idea behind this method is that instead of implicitly using the
+These two problems can together be mitigated through the use of windowed
+spectral estimates. The idea behind this method is that instead of using the
 boxcar window, one can design windows whose effect on spectral leakage is less
-deleterious. The following example demostrates the spectral leakage for several
-different windows (including the boxcar): 
+deleterious. The following example demonstrates the spectral leakage for several
+different windows (including the boxcar):
 
 .. plot:: examples/window_compare.py
    :include-source:
@@ -59,13 +71,6 @@ attenuation of leakage from frequency bands near the frequency of interest
 leakage) they are all superior in both of these respects to the boxcar window
 used in the naive periodogram. 
 
-The inefficiency problem can be solved by treating different parts of the
-signal as different samples from the same distribution. In this method, a
-shorter sliding window is applied to different parts of the signal and the
-windowed spectrum is averaged from these different samples. This is sometimes
-referred to as Welch's periodogram [Welch1967]_ and it is the default method
-used in :func:`algorithms.get_spectra` (with the hanning window as the window
-function used and no overlap between the windows).
 
 
 However, this approach trades off reliability for the resolution of measurement
