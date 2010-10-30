@@ -31,7 +31,8 @@ except ImportError:
 
 def plot_tseries(time_series,fig=None,axis=0,
                  xticks=None,xunits=None,yticks=None,yunits=None,xlabel=None,
-                 ylabel=None,yerror=None,time_unit=None):
+                 ylabel=None,yerror=None,error_alpha=0.1,time_unit=None,
+                 **kwargs):
 
     """plot a timeseries object
 
@@ -81,7 +82,7 @@ def plot_tseries(time_series,fig=None,axis=0,
         conv_fac = time_series.time._conversion_factor
         
     this_time = time_series.time/float(conv_fac)
-    ax.plot(this_time,time_series.data.T)
+    ax.plot(this_time,time_series.data.T,**kwargs)
         
     if xlabel is None:
         ax.set_xlabel('Time (%s)' %tu) 
@@ -92,11 +93,15 @@ def plot_tseries(time_series,fig=None,axis=0,
         ax.set_ylabel(ylabel)
 
     if yerror is not None:
-        delta = yerror.data/2.
+        if len(yerror.data.shape)==1:
+            this_e = yerror.data[np.newaxis,:]
+        else:
+            this_e = yerror.data
+        delta = this_e
         e_u = time_series.data + delta
         e_d = time_series.data - delta
         for i in xrange(e_u.shape[0]):
-            ax.fill_between(this_time,e_d[i],e_u[i],alpha=0.1) 
+            ax.fill_between(this_time,e_d[i],e_u[i],alpha=error_alpha) 
     
     return fig
 
