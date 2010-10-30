@@ -28,6 +28,11 @@ def test_SpectralAnalyzer():
                                     #(window-length of 64)
     npt.assert_equal(c.shape,(2,2,33))
 
+    f,c = C.cpsd
+    npt.assert_equal(f.shape,(33,)) #This is the setting for this analyzer
+                                    #(window-length of 64)
+    npt.assert_equal(c.shape,(2,2,33))
+    
     f,c = C.spectrum_fourier
 
     npt.assert_equal(f.shape,(t.shape[0]/2+1,))
@@ -60,7 +65,7 @@ def test_CoherenceAnalyzer():
                                         #is a nan
 
     #Calculation of the spectrum is the same as in the default spectral
-    #analyzer:
+    #analyzer: 
     S = nta.SpectralAnalyzer(T)
     npt.assert_equal(S.cpsd,(C.frequencies,C.spectrum))
 

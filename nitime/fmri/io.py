@@ -27,8 +27,8 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
         
     TR: float, optional
         The TR of the fmri measurement
-
-    normalize: bool, optional
+        
+    normalize: bool, optional 
         Whether to normalize the activity in each voxel, defaults to
         None, in which case the original fMRI signal is used. Other options
         are: 'percent': the activity in each voxel is converted to percent
@@ -43,11 +43,11 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
        If provided with a dict of the form:
 
        {'lb':float or 0, 'ub':float or None, 'method':'fourier' or 'boxcar' }
-
+       
        each voxel's data will be filtered into the frequency range [lb,ub] with
        nitime.analysis.FilterAnalyzer, using either the fourier or the boxcar
        method provided by that analyzer
-
+       
     verbose: Whether to report on ROI and file being read.
     
     Returns

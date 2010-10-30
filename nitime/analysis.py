@@ -148,7 +148,6 @@ class SpectralAnalyzer(BaseAnalyzer):
                            'Fs':self.input.sampling_rate}
     @desc.setattr_on_read
     def output(self):
-
         """
         The standard output for this analyzer is a tuple f,s, where: f is the
         frequency bands associated with the discrete spectral components
@@ -168,7 +167,6 @@ class SpectralAnalyzer(BaseAnalyzer):
         else:
             psd_len = NFFT/2.0 + 1
             dt = float
-
         psd = np.empty((self.input.shape[0],
                        psd_len),dtype=dt)
 
@@ -182,7 +180,6 @@ class SpectralAnalyzer(BaseAnalyzer):
             psd[i] = temp.squeeze()
 
         return f,psd
-
     @desc.setattr_on_read
     def cpsd(self):
 
@@ -197,9 +194,9 @@ class SpectralAnalyzer(BaseAnalyzer):
            f: Frequency bands over which the psd/csd are calculated and
            s: the n by n by len(f) matrix of PSD (on the main diagonal) and CSD
            (off diagonal)
-
+           
         """
-
+            
         self.welch_method = self.method
         self.welch_method['this_method'] = 'welch'
         self.welch_method['Fs'] = self.input.sampling_rate
