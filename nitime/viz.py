@@ -12,7 +12,9 @@ import matplotlib.colors as colors
 from mpl_toolkits.axes_grid import make_axes_locatable
 
 from nitime import timeseries as ts
+import nitime.utils as tsu
 from nitime.utils import threshold_arr,minmax_norm,rescale_arr
+import nitime.analysis as nta
 
 # triu_indices was only added to numpy in v1.4, so we carry it here in the
 # meantime to allow numpy 1.3-compatibility.
@@ -1048,3 +1050,204 @@ def mkgraph(cmat,threshold=0.0,threshold2=None):
                       vals_norm = normed_values,
                       )
     return G
+
+
+def plot_snr(tseries,lb=0,ub=None,fig=None):
+    """
+    Show the coherence, snr and information of an SNRAnalyzer
+
+    Parameters
+    ----------
+    tseries: nitime TimeSeries object
+       Multi-trial data in response to one stimulus/protocol with the dims:
+       (n_channels,n_repetitions,time)
+       
+    lb,ub: float 
+       Lower and upper bounds on the frequency range over which to
+       calculate (default to [0,Nyquist]).
+
+    Returns
+    -------
+
+    A tuple containing:
+
+    fig: a matplotlib figure object
+        This figure displays:
+        1. Coherence 
+        2. SNR
+        3. Information
+        
+    """
+
+    if fig is None: 
+        fig = plt.figure()
+
+    ax_spectra = fig.add_subplot(1,2,1)
+    ax_snr_info = fig.add_subplot(1,2,2)
+    
+    A = []
+    info = []
+    s_n_r = []
+    coh = []
+    noise_spectra = []
+    signal_spectra = []
+    #If you only have one channel, make sure that everything still works by
+    #adding an axis
+    if len(tseries.data.shape)<3:
+        this = tseries.data[np.newaxis,:,:]
+    else:
+        this = tseries.data
+        
+    for i in xrange(this.shape[0]):
+        A.append(nta.SNRAnalyzer(ts.TimeSeries(this[i],
+                                    sampling_rate=tseries.sampling_rate)))
+        info.append(A[-1].mt_information)
+        s_n_r.append(A[-1].mt_snr)
+        coh.append(A[-1].mt_coherence)
+        noise_spectra.append(A[-1].mt_noise_psd)
+        signal_spectra.append(A[-1].mt_signal_psd)
+        
+    freqs = A[-1].mt_frequencies
+
+    lb_idx,ub_idx = tsu.get_bounds(freqs,lb,ub)
+    freqs = freqs[lb_idx:ub_idx]
+
+    coh_mean = np.mean(coh,0)
+    snr_mean = np.mean(s_n_r,0)
+    info_mean = np.mean(info,0)
+    n_spec_mean = np.mean(noise_spectra,0)
+    s_spec_mean = np.mean(signal_spectra,0)
+
+    ax_spectra.plot(freqs,np.log(s_spec_mean[lb_idx:ub_idx]))
+    ax_spectra.plot(freqs,np.log(n_spec_mean[lb_idx:ub_idx]))
+    ax_spectra.set_xlabel('Frequency (Hz)')
+    ax_spectra.set_ylabel('Spectral power (dB)')
+        
+    ax_snr_info.plot(freqs, snr_mean[lb_idx:ub_idx])
+    ax_snr_info.set_ylabel('SNR')
+    ax_snr_info.set_xlabel('Frequency (Hz)')
+    ax_info = ax_snr_info.twinx()
+    ax_info.plot(freqs,np.cumsum(info_mean[lb_idx:ub_idx]),'r')
+    ax_info.set_ylabel('Cumulative information rate (bits/sec)')
+    return fig
+
+def plot_snr_diff(tseries1,tseries2,lb=0,ub=None,fig=None,
+                  ts_names = ['1','2'],
+                  bandwidth=None,adaptive=False,low_bias=True):
+
+    """
+    Show distributions of differences between two time-series in the
+    amount of snr (freq band by freq band) and information. For example,
+    for comparing two stimulus conditions 
+
+    Parameters
+    ----------
+    tseries1, tseries2 : nitime TimeSeries objects
+       These are the time-series to compare, with each of them having the
+       dims: (n_channels, n_reps, time), where n_channels1 = n_channels2
+
+    lb,ub: float 
+       Lower and upper bounds on the frequency range over which to
+       calculate the information rate (default to [0,Nyquist]).
+
+    fig: matplotlib figure object
+       If you want to do this on already existing figure. Otherwise, a new
+       figure object will be generated.
+    
+    ts_names: list of str  
+       Labels for the two inputs, to be used in plotting (defaults to
+       ['1','2'])
+
+    bandwidth, adaptive, low_bias: See :func:`nta.SNRAnalyzer` for details
+
+
+    Returns
+    -------
+
+    A tuple containing:
+
+    fig: a matplotlib figure object
+        This figure displays:
+        1. The histogram of the information differences between the two
+        time-series 
+        2. The frequency-dependent SNR for the two time-series 
+
+    info1, info2: float arrays
+        The frequency-dependent information rates (in bits/sec)
+
+    s_n_r1, s_n_r2: float arrays
+         The frequncy-dependent signal-to-noise ratios
+
+    """
+    if fig is None: 
+        fig = plt.figure()
+    ax_scatter = fig.add_subplot(1,2,1)
+    ax_snr = fig.add_subplot(1,2,2)
+
+    SNR1 = []
+    s_n_r1 = [] 
+    info1 = []
+    SNR2 = []
+    info2 = []
+    s_n_r2 = []
+
+
+    #If you only have one channel, make sure that everything still works by
+    #adding an axis
+    if len(tseries1.data.shape)<3:
+        this1 = tseries1.data[np.newaxis,:,:]
+        this2 = tseries2.data[np.newaxis,:,:]
+    else:
+        this1 = tseries1.data
+        this2 = tseries2.data
+
+
+    for i in xrange(this1.shape[0]):
+        SNR1.append(nta.SNRAnalyzer(ts.TimeSeries(this1[i],
+                                    sampling_rate=tseries1.sampling_rate),
+                                bandwidth=bandwidth,
+                                adaptive=adaptive,
+                                low_bias=low_bias))
+        info1.append(SNR1[-1].mt_information)
+        s_n_r1.append(SNR1[-1].mt_snr)
+
+        SNR2.append(nta.SNRAnalyzer(ts.TimeSeries(this2[i],
+                                    sampling_rate=tseries2.sampling_rate),
+                                bandwidth=bandwidth,
+                                adaptive=adaptive,
+                                low_bias=low_bias))
+        
+        info2.append(SNR2[-1].mt_information)
+        s_n_r2.append(SNR2[-1].mt_snr)
+
+    freqs = SNR1[-1].mt_frequencies
+
+    lb_idx,ub_idx = tsu.get_bounds(freqs,lb,ub)
+    freqs = freqs[lb_idx:ub_idx]
+
+    info1 = np.array(info1)
+    info_sum1 = np.sum(info1[:,lb_idx:ub_idx],-1)
+    info2 = np.array(info2)
+    info_sum2 = np.sum(info2[:,lb_idx:ub_idx],-1)
+
+    ax_scatter.scatter(info_sum1,info_sum2)
+    ax_scatter.errorbar(np.mean(info_sum1),np.mean(info_sum2),
+                 yerr=np.std(info_sum2),
+                 xerr=np.std(info_sum1))
+    
+    plot_min = min(min(info_sum1),min(info_sum2))
+    plot_max = max(max(info_sum1),max(info_sum2))
+    ax_scatter.plot([plot_min,plot_max],[plot_min,plot_max],'k--')
+    ax_scatter.set_xlabel('Information %s (bits/sec)'%ts_names[0])
+    ax_scatter.set_ylabel('Information %s (bits/sec)'%ts_names[1])
+
+    snr_mean1 = np.mean(s_n_r1,0)
+    snr_mean2 = np.mean(s_n_r2,0)
+
+    ax_snr.plot(freqs, snr_mean1[lb_idx:ub_idx],label = ts_names[0])
+    ax_snr.plot(freqs, snr_mean2[lb_idx:ub_idx],label = ts_names[1])
+    ax_snr.legend()
+    ax_snr.set_xlabel('Frequency (Hz)')
+    ax_snr.set_ylabel('SNR')
+
+    return fig,info1,info2,s_n_r1,s_n_r2
