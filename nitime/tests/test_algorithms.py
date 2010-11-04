@@ -291,8 +291,21 @@ def test_boxcar_filter():
 
 def test_get_spectra():
     """Testing get_spectra"""
-    t = np.linspace(0,16*np.pi,2**14)
+    t = np.linspace(0,16*np.pi,2**10)
     x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + 0.1 *np.random.rand(t.shape[-1])
+
+    #First test for 1-d data:
+    NFFT = 64
+    N = x.shape[-1]
+    f_welch=tsa.get_spectra(x,method={'this_method':'welch','NFFT':NFFT})
+    f_periodogram=tsa.get_spectra(x,method={'this_method':'periodogram_csd'})
+    f_multi_taper=tsa.get_spectra(x,method={'this_method':'multi_taper_csd'})
+
+    npt.assert_equal(f_welch[0].shape,(NFFT/2+1,))
+    npt.assert_equal(f_periodogram[0].shape,(N/2+1,))
+    npt.assert_equal(f_multi_taper[0].shape,(N/2+1,))
+
+    #Test for multi-channel data
     x = np.reshape(x,(2,x.shape[-1]/2))
     N = x.shape[-1]
 

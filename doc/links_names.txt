@@ -11,6 +11,7 @@
 .. _nipy: http://nipy.sourceforge.net/nipy
 .. _`NIPY developer resources`: http://nipy.sourceforge.net/devel
 .. _`Brain Imaging Center`: http://bic.berkeley.edu/
+.. _`Nibabel`: http://nipy.org/nibabel
 
 .. _gh-download: http://github.com/nipy/nitime/downloads
 .. _gh-archive: http://github.com/nipy/nitime/archives/master

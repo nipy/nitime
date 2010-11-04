@@ -1361,21 +1361,30 @@ def get_spectra(time_series,method=None):
             fxy_len = NFFT
         else:
             fxy_len = NFFT/2.0 + 1
-        
-        fxy = np.zeros((time_series.shape[0],
-                        time_series.shape[0],
-                        fxy_len), dtype = complex) #Make sure it's complex
-                                                      
-        for i in xrange(time_series.shape[0]): 
-            for j in xrange(i,time_series.shape[0]):
-                #Notice funny indexing, in order to conform to the conventions
-                #of the other methods:
-                temp, f = mlab.csd(time_series[j],time_series[i],
-                                   NFFT,Fs,detrend,window,n_overlap,
-                                   scale_by_freq=True)
-                
-                fxy[i][j] = temp.squeeze() #the output of mlab.csd has a wierd
-                                            #shape
+
+        #If there is only 1 channel in the time-series:
+        if len(time_series.shape)==1 or time_series.shape[0] == 1:
+            temp, f = mlab.csd(time_series,time_series,
+                               NFFT,Fs,detrend,window,n_overlap,
+                               scale_by_freq=True)
+
+            fxy = temp.squeeze()#the output of mlab.csd has a weird
+                                        #shape
+        else:
+            fxy = np.zeros((time_series.shape[0],
+                            time_series.shape[0],
+                            fxy_len), dtype = complex) #Make sure it's complex
+
+            for i in xrange(time_series.shape[0]):
+                for j in xrange(i,time_series.shape[0]):
+                    #Notice funny indexing, in order to conform to the
+                    #conventions of the other methods:
+                    temp, f = mlab.csd(time_series[j],time_series[i],
+                                       NFFT,Fs,detrend,window,n_overlap,
+                                       scale_by_freq=True)
+
+                    fxy[i][j] = temp.squeeze() #the output of mlab.csd has a
+                                               #wierd shape
     elif this_method in ('multi_taper_csd','periodogram_csd'):
         # these methods should work with similar signatures
         mdict = method.copy()
@@ -1979,7 +1988,7 @@ def multi_taper_csd(s, Fs=2*np.pi, BW=None, low_bias=True,
     # de-mean this sucker
     s = utils.remove_bias(s, axis=-1)
 
-    #Get the number of tapers from the sampoing rate and the bandwidth:
+    #Get the number of tapers from the sampling rate and the bandwidth:
     if BW is not None:
         NW = BW/(2*Fs) * N
     else:

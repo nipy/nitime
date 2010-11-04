@@ -10,11 +10,8 @@
 .. toctree::
    :maxdepth: 2
 
-   overview
    install
+   overview
    tutorial
 
-.. todo::
-
-    Add brief overview of the timeseries code.
 

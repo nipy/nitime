@@ -67,7 +67,7 @@ You can find our sources and single-click downloads:
 License information
 ===================
 
-Nitime is licensed under the terms of the simplified BSD license. See the file
+Nitime is licensed under the terms of the new BSD license. See the file
 "LICENSE" for information on the history of this software, terms & conditions
 for usage, and a DISCLAIMER OF ALL WARRANTIES.
 
