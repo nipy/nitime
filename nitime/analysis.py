@@ -819,7 +819,7 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
 
         self.seed = seed_time_series
         self.target = target_time_series
-
+        
         #Set the variables for spectral estimation (can also be entered by
         #user): 
         if method is None:
@@ -828,7 +828,8 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
         else:
             self.method = method
 
-        if self.method['this_method']!='welch':
+        
+        if self.method.has_key('this_method') and self.method['this_method']!='welch':
             raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be welch")
             
 
@@ -838,6 +839,14 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
         self.prefer_speed_over_memory = prefer_speed_over_memory
         self.scale_by_freq = scale_by_freq
 
+    @desc.setattr_on_read
+    def output(self):
+        """This function currently does nothing and
+            is meant to be overwritten by the specific
+            analyzer sub-class.
+        """
+        return np.abs(self.coherency)**2
+    
     @desc.setattr_on_read
     def frequencies(self):
         """Get the central frequencies for the frequency bands, given the

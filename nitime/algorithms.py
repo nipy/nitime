@@ -2373,13 +2373,16 @@ def cache_fft(time_series,ij,lb=0,ub=None,
     """
     if method is None:
         method = {'this_method':'welch'} #The default
-        
-    if method['this_method'] == 'welch':
+    
+    this_method = method.get('this_method','welch')
+
+    if this_method == 'welch':
         NFFT = method.get('NFFT',64)
         Fs = method.get('Fs',2*np.pi)
         window = method.get('window',mlab.window_hanning)
         n_overlap = method.get('n_overlap',int(np.ceil(NFFT/2.0)))
-        
+    else:
+        raise ValueError("For cache_fft, spectral estimation method must be welch")
     time_series = ut.zero_pad(time_series,NFFT)
     
     #The shape of the zero-padded version:
