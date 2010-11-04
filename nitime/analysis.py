@@ -65,38 +65,16 @@ class BaseAnalyzer(desc.ResetMixin):
     def parameters(self):
         return dict([(p,getattr(self,p,'MISSING')) for p in self.parameterlist])
 
-    def __init__(self,input=None):
+    def __init__(self, input=None):
         self.input = input
-      
-    @desc.setattr_on_read
-    def output(self):
-        """This function currently does nothing and
-            is meant to be overwritten by the specific
-            analyzer sub-class.
-        """
-        return None
 
-    def __call__(self,input=None):
-        """This fuction runs the analysis on new input
-           data and returns the output data.
-        """
-        if input is None:
-            if self.input is None:
-                raise ValueError('There is no data to analyze')
-            else:
-                return self.output
-            
-        
+    def set_input(self, input):
+        """Set the input of the analyzer, if you want to reuse the analyzer
+        with a different input than the original """
+
         self.reset()
         self.input = input
-        return self.output
-
-    def __getitem__(self,key):
-        try:
-            return self.output[key]
-        except TypeError:
-            raise NotImplementedError, 'This analyzer does not support getitem'
-
+        
     def __repr__(self):
         params = ', '.join(['%s=%r'%(p,getattr(self,p,'MISSING'))
                                     for p in self.parameterlist])
@@ -126,7 +104,7 @@ class SpectralAnalyzer(BaseAnalyzer):
         'welch'
         >>> s1.method['Fs']
         3.14159265359 Hz
-        >>> f,s = s1.output
+        >>> f,s = s1.psd
         >>> f
         array([ 0.        ,  0.04908739,  0.09817477,  0.14726216,  0.19634954,
                 0.24543693,  0.29452431,  0.3436117 ,  0.39269908,  0.44178647,
@@ -147,7 +125,7 @@ class SpectralAnalyzer(BaseAnalyzer):
             self.method = {'this_method':'welch',
                            'Fs':self.input.sampling_rate}
     @desc.setattr_on_read
-    def output(self):
+    def psd(self):
         """
         The standard output for this analyzer is a tuple f,s, where: f is the
         frequency bands associated with the discrete spectral components
@@ -294,7 +272,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
         3.14159265359 Hz
         >>> c1.method['this_method']
         'welch'
-        >>> c1[0,1]
+        >>> c1.coherency[0,1]
         array([ 0.94993377+0.j        ,  0.94950254-0.03322532j,
                 0.86963629-0.4570688j ,  0.89177679-0.3847649j ,
                 0.90987709-0.31906821j,  0.92173682-0.26785455j,
@@ -336,7 +314,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
         self._unwrap_phases = unwrap_phases
         
     @desc.setattr_on_read
-    def output(self):
+    def coherency(self):
         """The standard output for this kind of analyzer is the coherency """
         data = self.input.data
         tseries_length = data.shape[0]
@@ -704,7 +682,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         self.scale_by_freq = scale_by_freq
 
     @desc.setattr_on_read
-    def output(self):
+    def coherency(self):
         """ The default behavior is to calculate the cache, extract it and then
         output the coherency""" 
         coherency = tsa.cache_to_coherency(self.cache,self.ij)
@@ -714,7 +692,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def coherence(self):
         """ The coherence values for the output"""
-        coherence = np.abs(self.output**2)
+        coherence = np.abs(self.coherency**2)
        
         return coherence
 
@@ -754,7 +732,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     def relative_phases(self):
         """The frequency-band dependent relative phase between the two
         time-series """
-        return np.angle(self.output)
+        return np.angle(self.coherency)
        
     @desc.setattr_on_read
     def delay(self):
@@ -840,10 +818,11 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
         self.scale_by_freq = scale_by_freq
 
     @desc.setattr_on_read
-    def output(self):
-        """This function currently does nothing and
-            is meant to be overwritten by the specific
-            analyzer sub-class.
+    def coherence(self):
+        """
+        The coherence between each of the channels of the seed time series and
+        all the channels of the target time-series. 
+
         """
         return np.abs(self.coherency)**2
     
@@ -950,7 +929,7 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
     def relative_phases(self):
         """The frequency-band dependent relative phase between the two
         time-series """
-        return np.angle(self.output)
+        return np.angle(self.coherency)
        
     @desc.setattr_on_read
     def delay(self):
@@ -974,7 +953,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
         >>> t1 = ts.TimeSeries(data = np.sin(np.arange(0,10*np.pi,10*np.pi/100)).reshape(2,50),sampling_rate=np.pi)
         >>> c1 = CorrelationAnalyzer(t1)
         >>> c1 = CorrelationAnalyzer(t1)
-        >>> c1.output
+        >>> c1.corrcoef
         array([[ 1., -1.],
                [-1.,  1.]])
         >>> c1.xcorr.sampling_rate
@@ -987,7 +966,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
         BaseAnalyzer.__init__(self,input)
 
     @desc.setattr_on_read
-    def output(self):
+    def corrcoef(self):
         """The correlation coefficient between every pairwise combination of
         time-series contained in the object""" 
         return np.corrcoef(self.input.data)  
@@ -1049,7 +1028,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
                     self.input.data[i],self.input.data[j],all_lags=True
                     )
                 xcorr[i,j] /= (xcorr[i,j,t_points])
-                xcorr[i,j] *= self.output[i,j]
+                xcorr[i,j] *= self.corrcoef[i,j]
 
         idx = tsu.tril_indices(tseries_length,-1)
         xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
@@ -1427,7 +1406,7 @@ class HilbertAnalyzer(BaseAnalyzer):
         BaseAnalyzer.__init__(self,input)
         
     @desc.setattr_on_read
-    def output(self):
+    def analytic(self):
         """The natural output for this analyzer is the analytic signal """ 
         data = self.input.data
         sampling_rate = self.input.sampling_rate
@@ -1442,23 +1421,23 @@ class HilbertAnalyzer(BaseAnalyzer):
         
     @desc.setattr_on_read
     def amplitude(self):
-        return ts.TimeSeries(data=np.abs(self.output.data),
-                                 sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=np.abs(self.analytic.data),
+                                 sampling_rate=self.analytic.sampling_rate)
                                  
     @desc.setattr_on_read
     def phase(self):
-        return ts.TimeSeries(data=np.angle(self.output.data),
-                                 sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=np.angle(self.analytic.data),
+                                 sampling_rate=self.analytic.sampling_rate)
 
     @desc.setattr_on_read
     def real(self):
-        return ts.TimeSeries(data=self.output.data.real,
-                                    sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=self.analytic.data.real,
+                                    sampling_rate=self.analytic.sampling_rate)
     
     @desc.setattr_on_read
     def imag(self):
-        return ts.TimeSeries(data=self.output.data.imag,
-                                    sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=self.analytic.data.imag,
+                                    sampling_rate=self.analytic.sampling_rate)
 
 
 class FilterAnalyzer(desc.ResetMixin):
@@ -1627,7 +1606,7 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
             self.sd = self.freqs*self.sd_rel
 
     @desc.setattr_on_read
-    def output(self):
+    def analytic(self):
         """The natural output for this analyzer is the analytic signal"""
         data = self.input.data
         sampling_rate = self.input.sampling_rate
@@ -1655,22 +1634,22 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
 
     @desc.setattr_on_read
     def amplitude(self):
-        return ts.TimeSeries(data=np.abs(self.output.data),
-                                    sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=np.abs(self.analytic.data),
+                                    sampling_rate=self.analytic.sampling_rate)
                                  
     @desc.setattr_on_read
     def phase(self):
-        return ts.TimeSeries(data=np.angle(self.output.data),
-                                    sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=np.angle(self.analytic.data),
+                                    sampling_rate=self.analytic.sampling_rate)
 
     @desc.setattr_on_read
     def real(self):
-        return ts.TimeSeries(data=self.output.data.real,
-                                    sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=self.analytic.data.real,
+                                    sampling_rate=self.analytic.sampling_rate)
     
     @desc.setattr_on_read
     def imag(self):
-        return ts.TimeSeries(data=self.output.data.imag,
-                                    sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=self.analytic.data.imag,
+                                    sampling_rate=self.analytic.sampling_rate)
 
 

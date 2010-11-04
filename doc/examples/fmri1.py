@@ -43,5 +43,5 @@ T.metadata['roi'] = roi_names
 C = CorrelationAnalyzer(T)
 
 #Display the correlation matrix
-drawmatrix_channels(C(),roi_names,size=[10.,10.],color_anchor=0)
+drawmatrix_channels(C.corrcoef,roi_names,size=[10.,10.],color_anchor=0)
 
