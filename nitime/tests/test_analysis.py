@@ -17,7 +17,7 @@ def test_SpectralAnalyzer():
 
     C = nta.SpectralAnalyzer(T)
 
-    f,c = C()
+    f,c = C.psd
 
     npt.assert_equal(f.shape,(33,)) #This is the setting for this analyzer
                                     #(window-length of 64)
@@ -56,7 +56,7 @@ def test_CoherenceAnalyzer():
     T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
     C = nta.CoherenceAnalyzer(T)
 
-    npt.assert_equal(C().shape,(2,2,33)) #Default mlab_method
+    npt.assert_equal(C.coherence.shape,(2,2,33)) #Default mlab_method
     #Coherence symmetry:
     npt.assert_equal(C.coherence[0,1],C.coherence[1,0])
     #Phase/delay asymmetry:
@@ -78,13 +78,13 @@ def test_SparseCoherenceAnalyzer():
     C1 = nta.SparseCoherenceAnalyzer(T,ij=((0,1),(1,0)))
 
     #Coherence symmetry:
-    npt.assert_equal(np.abs(C1[0,1]),np.abs(C1[1,0]))
+    npt.assert_equal(np.abs(C1.coherence[0,1]),np.abs(C1.coherence[1,0]))
 
     #Make sure you get the same answers as you would from the standard
     #CoherenceAnalyzer: 
     C2 = nta.CoherenceAnalyzer(T)
 
-    yield npt.assert_almost_equal, C2[0,1],C1[0,1]
+    yield npt.assert_almost_equal, C2.coherence[0,1],C1.coherence[0,1]
     yield npt.assert_almost_equal, C2.coherence[0,1],C1.coherence[0,1]
 
 def test_CorrelationAnalyzer():
@@ -99,10 +99,10 @@ def test_CorrelationAnalyzer():
     C = nta.CorrelationAnalyzer(T)
 
     #Test the symmetry: correlation(x,y)==correlation(y,x) 
-    npt.assert_equal(C[0,1],C[1,0])
+    npt.assert_equal(C.corrcoef[0,1],C.corrcoef[1,0])
     #Test the self-sameness: correlation(x,x)==1
-    npt.assert_equal(C[0,0],1)
-    npt.assert_equal(C[1,1],1)
+    npt.assert_equal(C.corrcoef[0,0],1)
+    npt.assert_equal(C.corrcoef[1,1],1)
 
     #Test the cross-correlation:
     #First the symmetry:
@@ -111,7 +111,7 @@ def test_CorrelationAnalyzer():
     #Test the normalized cross-correlation
     #The cross-correlation should be equal to the correlation at time-lag 0
     npt.assert_equal(C.xcorr_norm.data[0,1,C.xcorr_norm.time==0]
-                            ,C[0,1])
+                            ,C.corrcoef[0,1])
 
     #And the auto-correlation should be equal to 1 at 0 time-lag:
     npt.assert_equal(C.xcorr_norm.data[0,0,C.xcorr_norm.time==0],1)
@@ -127,7 +127,7 @@ def test_CorrelationAnalyzer():
     C = nta.CorrelationAnalyzer(T)
     
     npt.assert_equal(C.xcorr_norm.data[0,1,C.xcorr_norm.time==0]
-                            ,C[0,1])
+                            ,C.corrcoef[0,1])
 
 def test_EventRelatedAnalyzer():
 
@@ -318,5 +318,5 @@ def test_SeedCoherenceAnalyzer():
     #CoherenceAnalyzer: 
     C2 = nta.CoherenceAnalyzer(T3)
 
-    npt.assert_almost_equal(C2[2,0],C1.coherency[0])
+    npt.assert_almost_equal(C2.coherency[2,0],C1.coherency[0])
 
