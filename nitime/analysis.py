@@ -1239,7 +1239,6 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                                                    this_e,
                                                    -self.offset+1,
                                                    self.len_et-self.offset-2)
-                print this_h.shape
                 h[i][e_idx] = this_h
                 
         h = np.array(h).squeeze()

@@ -1266,8 +1266,8 @@ def freq_domain_xcorr_zscored(tseries,events,t_before,t_after,Fs=1):
     meanSurr = np.mean(xcorr)
     stdSurr = np.std(xcorr)
     
-    return ( ( (xcorr[0][ np.ceil(len(xcorr[0])/2)-Tbefore*Fs :
-                    np.ceil(len(xcorr[0])/2)+Tafter*Fs ])
+    return ( ( (xcorr[0][ np.ceil(len(xcorr[0])/2)-t_before*Fs :
+                    np.ceil(len(xcorr[0])/2)+t_after*Fs ])
              - meanSurr)
              / stdSurr )
 

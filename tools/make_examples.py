@@ -37,6 +37,7 @@ Here are a couple of examples:
 
 .. toctree::
    :maxdepth: 2
+   
 """
 #-----------------------------------------------------------------------------
 # Function defintions
@@ -73,7 +74,9 @@ sh('../../tools/ex2rst --project Nitime --outdir . .')
 with open('index.rst', 'w') as index:
     index.write(examples_header)
     for name in [os.path.splitext(f)[0] for f in glob('*.rst')]:
-        index.write('   %s\n' % name)
+        #Don't add the index in there to avoid sphinx errors:
+        if name!='index':
+            index.write('   %s\n' % name)
 
 # Execute each python script in the directory.
 if not os.path.isdir('fig'):

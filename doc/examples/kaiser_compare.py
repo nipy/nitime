@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from winspect import winspect #nitime/doc/examples/winspect.py
+from nitime.viz import winspect
 import scipy.signal as sig
 
 #Define a helper function to inspect the kaiser windows:

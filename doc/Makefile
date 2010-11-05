@@ -29,6 +29,8 @@ help:
 clean:
 	-rm -rf _build/* *~ api/generated
 	-rm -rf build/* 
+	-rm examples/*.rst
+	-rm examples/fig/*
 htmlonly:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
 	@echo
@@ -38,7 +40,7 @@ api:
 	python ../tools/build_modref_templates.py
 	@echo "Build API docs finished."
 
-html: api htmlonly rstexamples
+html: rstexamples api htmlonly 
 	@echo "Build HTML and API finished."
 
 latex: api

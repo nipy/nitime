@@ -46,15 +46,21 @@ following problem:
   time-domain is equivalent (due to the convolution theorem) to convolving it
   in the frequency domain with the spectrum of the boxcar window. The spectral
   leakage induced by this operation is demonstrated in the following example:
+
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
-from winspect import winspect
+from nitime.viz import winspect
 import scipy.signal as sig
 
-f = plt.figure()
-# Window size
+"""
+For demonstration, we will use a window of 128 points:
+"""
+
 npts = 128
+
+fig01 = plt.figure()
 
 # Boxcar with zeroed out fraction
 b = sig.boxcar(npts)
@@ -62,11 +68,13 @@ zfrac = 0.15
 zi = int(npts*zfrac)
 b[:zi] = b[-zi:] = 0
 name = 'Boxcar - zero fraction=%.2f' % zfrac
-winspect(b, f, name)
+winspect(b, fig01, name)
 
-f.set_size_inches([12,8])
+fig01.set_size_inches([12,8])
+
 
 """
+
    The figure on the left shows a boxcar window and the figure on the right
    shows the spectrum of the boxcar function (in dB units, relative to the
    frequency band of interest).
@@ -78,9 +86,7 @@ example demonstrates the spectral leakage for several different windows
 (including the boxcar):
 """
 
-f = plt.figure()
-# Window size
-npts = 128
+fig02 = plt.figure()
 
 # Boxcar with zeroed out fraction
 b = sig.boxcar(npts)
@@ -88,11 +94,11 @@ zfrac = 0.15
 zi = int(npts*zfrac)
 b[:zi] = b[-zi:] = 0
 name = 'Boxcar - zero fraction=%.2f' % zfrac
-winspect(b, f, name)
+winspect(b, fig02, name)
 
-winspect(sig.hanning(npts), f, 'Hanning')
-winspect(sig.bartlett(npts), f, 'Bartlett')
-winspect(sig.barthann(npts), f, 'Modified Bartlett-Hann')
+winspect(sig.hanning(npts), fig02, 'Hanning')
+winspect(sig.bartlett(npts), fig02, 'Bartlett')
+winspect(sig.barthann(npts), fig02, 'Modified Bartlett-Hann')
 
 """ 
 As before, the left figure displays the windowing function in the temporal
@@ -159,10 +165,20 @@ is derived.
 In addition, if the 'adaptive' flag is set to True, an iterative adaptive
 method is used in order to correct bias in the spectrum. 
 """
+
 import scipy.stats.distributions as dist
 
-#nitime/doc/examples/spectral_examples_helper.py
-from spectral_examples_helper import plot_estimate,dB,ln2db
+from nitime.viz import plot_spectral_estimate
+
+def dB(x, out=None):
+    if out is None:
+        return 10 * np.log10(x)
+    else:
+        np.log10(x, out)
+        np.multiply(out, 10, out)
+
+### Log-to-dB conversion factor ###
+ln2db = dB(np.e)
 
 #Generate a sequence with known spectral properties:
 N = 512
@@ -181,7 +197,7 @@ dB(sdf, sdf)
 freqs, d_sdf = alg.periodogram(ar_seq)
 dB(d_sdf, d_sdf)
 
-plot_estimate(freqs, sdf, (d_sdf,), elabels=("Periodogram",))
+plot_spectral_estimate(freqs, sdf, (d_sdf,), elabels=("Periodogram",))
 
 # --- Welch's Overlapping Periodogram Method:
 welch_freqs, welch_sdf = alg.get_spectra(ar_seq,
@@ -190,7 +206,7 @@ welch_freqs *= (np.pi/welch_freqs.max())
 welch_sdf = welch_sdf.squeeze()
 dB(welch_sdf, welch_sdf)
 
-plot_estimate(freqs, sdf, (welch_sdf,), elabels=("Welch",))
+plot_spectral_estimate(freqs, sdf, (welch_sdf,), elabels=("Welch",))
 
 # --- Regular Multitaper Estimate
 f, sdf_mt, nu = alg.multi_taper_psd(
@@ -211,7 +227,7 @@ l2 = ln2db * np.log(2*Kmax/p025)
 
 hyp_limits = (sdf_mt + l1, sdf_mt + l2 )
 
-plot_estimate(freqs, sdf, (sdf_mt,), hyp_limits,
+plot_spectral_estimate(freqs, sdf, (sdf_mt,), hyp_limits,
               elabels=('MT with hypothetical 5% interval',))
 
 # --- Adaptively Weighted Multitapter Estimate
@@ -238,7 +254,7 @@ jk_p = (dist.t.ppf(.975, Kmax-1) * np.sqrt(jk_var)) * ln2db
 jk_limits = ( sdf_mt - jk_p, sdf_mt + jk_p )
 
 
-plot_estimate(freqs, sdf, (sdf_mt,),
+plot_spectral_estimate(freqs, sdf, (sdf_mt,),
               jk_limits,
               elabels=('MT with JK 5% interval',))
 
@@ -253,9 +269,12 @@ jk_p = (dist.t.ppf(.975, Kmax-1)*np.sqrt(adaptive_jk_var)) * ln2db
 
 adaptive_jk_limits = ( adaptive_sdf_mt - jk_p, adaptive_sdf_mt + jk_p )
 
-plot_estimate(freqs, sdf,(adaptive_sdf_mt, ),
+plot_spectral_estimate(freqs, sdf,(adaptive_sdf_mt, ),
               adaptive_jk_limits,
               elabels=('adaptive-MT with JK 5% interval',))
+
+
+plt.show()
 
 """
 References

@@ -42,8 +42,7 @@ from nitime.timeseries import TimeSeries
 from nitime.analysis import CorrelationAnalyzer
 #Import utility functions:
 from nitime.utils import percent_change
-import nitime.viz
-reload(nitime.viz)
+import nitime.viz as viz
 from nitime.viz import drawmatrix_channels,drawgraph_channels
 
 #This information (the sampling rate) has to be known in advance:
@@ -126,7 +125,7 @@ idx_lcau = np.where(roi_names=='lcau')[0]
 idx_rcau = np.where(roi_names=='rcau')[0]
 idx_lput = np.where(roi_names=='lput')[0]
 
-plot_xcorr(xc,((idx_lcau,idx_rcau),(idx_lcau,idx_lput)),
+viz.plot_xcorr(xc,((idx_lcau,idx_rcau),(idx_lcau,idx_lput)),
                line_labels = ['rcau','lput'])
 
 """

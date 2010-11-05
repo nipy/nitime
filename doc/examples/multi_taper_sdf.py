@@ -6,7 +6,17 @@ import nitime.algorithms as alg
 import nitime.utils as utils
 
 #nitime/doc/examples/spectral_examples_helper.py
-from spectral_examples_helper import plot_estimate,dB,ln2db
+from nitime.viz import plot_spectral_estimate
+
+def dB(x, out=None):
+    if out is None:
+        return 10 * np.log10(x)
+    else:
+        np.log10(x, out)
+        np.multiply(out, 10, out)
+
+### Log-to-dB conversion factor ###
+ln2db = dB(np.e)
 
 #Generate a sequence with known spectral properties:
 N = 512
@@ -25,7 +35,7 @@ dB(sdf, sdf)
 freqs, d_sdf = alg.periodogram(ar_seq)
 dB(d_sdf, d_sdf)
 
-plot_estimate(freqs, sdf, (d_sdf,), elabels=("Periodogram",))
+plot_spectral_estimate(freqs, sdf, (d_sdf,), elabels=("Periodogram",))
 
 # --- Welch's Overlapping Periodogram Method:
 welch_freqs, welch_sdf = alg.get_spectra(ar_seq,
@@ -34,7 +44,7 @@ welch_freqs *= (np.pi/welch_freqs.max())
 welch_sdf = welch_sdf.squeeze()
 dB(welch_sdf, welch_sdf)
 
-plot_estimate(freqs, sdf, (welch_sdf,), elabels=("Welch",))
+plot_spectral_estimate(freqs, sdf, (welch_sdf,), elabels=("Welch",))
 
 # --- Regular Multitaper Estimate
 f, sdf_mt, nu = alg.multi_taper_psd(
@@ -55,7 +65,7 @@ l2 = ln2db * np.log(2*Kmax/p025)
 
 hyp_limits = (sdf_mt + l1, sdf_mt + l2 )
 
-plot_estimate(freqs, sdf, (sdf_mt,), hyp_limits,
+plot_spectral_estimate(freqs, sdf, (sdf_mt,), hyp_limits,
               elabels=('MT with hypothetical 5% interval',))
 
 # --- Adaptively Weighted Multitapter Estimate
@@ -82,7 +92,7 @@ jk_p = (dist.t.ppf(.975, Kmax-1) * np.sqrt(jk_var)) * ln2db
 jk_limits = ( sdf_mt - jk_p, sdf_mt + jk_p )
 
 
-plot_estimate(freqs, sdf, (sdf_mt,),
+plot_spectral_estimate(freqs, sdf, (sdf_mt,),
               jk_limits,
               elabels=('MT with JK 5% interval',))
 
@@ -97,6 +107,6 @@ jk_p = (dist.t.ppf(.975, Kmax-1)*np.sqrt(adaptive_jk_var)) * ln2db
 
 adaptive_jk_limits = ( adaptive_sdf_mt - jk_p, adaptive_sdf_mt + jk_p )
 
-plot_estimate(freqs, sdf,(adaptive_sdf_mt, ),
+plot_spectral_estimate(freqs, sdf,(adaptive_sdf_mt, ),
               adaptive_jk_limits,
               elabels=('adaptive-MT with JK 5% interval',))

@@ -14,8 +14,8 @@ stimuli.
 """
 
 import nitime.timeseries as ts
-import nitime.analysis as ta
-import nitime.viz as tv
+import nitime.analysis as nta
+import nitime.viz as viz
 from matplotlib.mlab import csv2rec
 
 #Load the data from file:
@@ -24,9 +24,9 @@ data =csv2rec('data/event_related_fmri.csv')
 t1 = ts.TimeSeries(data.bold,sampling_interval=2)
 t2 = ts.TimeSeries(data.events,sampling_interval=2)
 #Initialized the event-related analyzer with the two time-series:
-E = ta.EventRelatedAnalyzer(t1,t2,15,offset=-5)
+E = nta.EventRelatedAnalyzer(t1,t2,15,offset=-5)
 #Visualize the results:
-fig = tv.plot_tseries(E.eta,ylabel='BOLD (% signal change)',yerror=E.ets)
+fig = viz.plot_tseries(E.eta,ylabel='BOLD (% signal change)',yerror=E.ets)
 
 """
 The example uses the EventRelated analyzer (also used in the grasshopper
@@ -43,12 +43,10 @@ standard error of the mean (where the degrees of freedom are set by the number
 of trials). Note that you can also extract the event-triggered data itself as a
 list, by referring instead to :attr:`E.et_data`.
 
-In the following example two alternative approaches are taken to calculating
-the event-related activity. The first is based on the finite impulse-response
-model (see [Burock2000]_ for details) and the other is based on a
-cross-correlation method (thanks to Lavi Secundo for providing a previous
-implementation of this idea):
-"""
+In the following examplea an alternative approache is taken to calculating
+the event-related activity, based on the finite impulse-response
+model (see [Burock2000]_ for details) """ 
+
 
 #Load the data from file:
 data =csv2rec('data/event_related_fmri.csv')
@@ -56,16 +54,18 @@ data =csv2rec('data/event_related_fmri.csv')
 t1 = ts.TimeSeries(data.bold,sampling_interval=2)
 t2 = ts.TimeSeries(data.events,sampling_interval=2)
 #Initialized the event-related analyzer with the two time-series:
-E = ta.EventRelatedAnalyzer(t1,t2,15,offset=-5)
+E = nta.EventRelatedAnalyzer(t1,t2,15,offset=-5)
 #Visualize the results:
-tv.plot_tseries(E.FIR,ylabel='BOLD (% signal change)')
+viz.plot_tseries(E.FIR,ylabel='BOLD (% signal change)')
 
-tv.plot_tseries(E.xcorr_eta,ylabel='BOLD (% signal change)')
+""" Yet another method is based on a cross-correlation method (thanks to Lavi
+Secundo for providing a previous implementation of this idea):
 
-#Now do the same, this time: with the zscore flag set to True:
-E = ta.EventRelatedAnalyzer(t1,t2,15,offset=-5,zscore=True)
+"""
 
-fig = tv.plot_tseries(E.xcorr_eta,ylabel='BOLD (% signal change)')
+E = nta.EventRelatedAnalyzer(t1,t2,15,zscore=False)
+
+fig = viz.plot_tseries(E.xcorr_eta,ylabel='BOLD (% signal change)')
 
 """
 As you can see, the cross-correlation method can be applied directly to the %
