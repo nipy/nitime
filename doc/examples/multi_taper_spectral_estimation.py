@@ -75,9 +75,11 @@ fig01.set_size_inches([12,8])
 
 """
 
-   The figure on the left shows a boxcar window and the figure on the right
-   shows the spectrum of the boxcar function (in dB units, relative to the
-   frequency band of interest).
+.. image:: fig/multi_taper_spectral_estimation_01.png
+
+The figure on the left shows a boxcar window and the figure on the right
+shows the spectrum of the boxcar function (in dB units, relative to the
+frequency band of interest).
 
 These two problems can together be mitigated through the use of other
 windows. Other windows have been designed in order to optimize the amount of

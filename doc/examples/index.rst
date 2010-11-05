@@ -18,4 +18,3 @@ Here are a couple of examples:
    seed_coherence_example
    simple_ar
    snr_example
-   winspect
