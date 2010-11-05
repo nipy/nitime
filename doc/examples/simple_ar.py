@@ -1,6 +1,9 @@
-#!/usr/bin/env python
 """
-This example demonstrates simple AR(p) fitting.
+=================
+Simple AR fitting 
+=================
+
+This example demonstrates simple AR(p) fitting with the Yule Walker equations. 
 
 We start off with imports from numpy, matplotlib and get :mod:`nitime.utils` as
 well as :mod:`nitime.algorithms:` 

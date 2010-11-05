@@ -1,3 +1,11 @@
+"""
+
+=================
+The Kaiser window
+=================
+
+
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 from nitime.viz import winspect

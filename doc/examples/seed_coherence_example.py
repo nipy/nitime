@@ -1,3 +1,11 @@
+"""
+
+=============================
+Seed coherence with fMRI data
+=============================
+
+"""
+
 import os
 
 import numpy as np

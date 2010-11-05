@@ -1,6 +1,10 @@
-#!/usr/bin/python
+"""
+================================
+Multi-taper coherence estimation 
+================================
 
-#Imports as before:
+""" 
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.mlab import csv2rec

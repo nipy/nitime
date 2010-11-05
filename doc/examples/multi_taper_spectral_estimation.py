@@ -70,7 +70,7 @@ b[:zi] = b[-zi:] = 0
 name = 'Boxcar - zero fraction=%.2f' % zfrac
 winspect(b, fig01, name)
 
-fig01.set_size_inches([12,8])
+fig01.set_size_inches([10,6])
 
 
 """
