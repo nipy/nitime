@@ -16,7 +16,7 @@ several problems [NR2007]_:
   for the periodogram. Even as we add more samples to our signal, or increase
   our sampling rate, our estimate at frequency $f_k$ does not improve. This is
   because of the effects these kinds of changes have on spectral
-  estimates. Adding additional samples, will improve the frequency domain
+  estimates. Adding additional samples will improve the frequency domain
   resolution of our estimate and sampling at a finer rate will change the
   Nyquist frequency, the highest frequency for which the spectrum can be
   estimated. Thus, these changes do not improve the estimate at frequency
@@ -24,13 +24,13 @@ several problems [NR2007]_:
 
 The inefficiency problem can be solved by treating different parts of the
 signal as different samples from the same distribution, while assuming
-stationarity of the signal. In this method, a shorter sliding window is applied
-to different parts of the signal and the windowed spectrum is averaged from
-these different samples. This is sometimes referred to as Welch's periodogram
+stationarity of the signal. In this method, a sliding window is applied to
+different parts of the signal and the windowed spectrum is averaged from these
+different samples. This is sometimes referred to as Welch's periodogram
 [Welch1967]_ and it is the default method used in
 :func:`algorithms.get_spectra` (with the hanning window as the window function
-used and no overlap between the windows).  However, it leads to the following
-problem:
+used and no overlap between the windows).  However, it may lead to the
+following problem:
 
 - Spectral leakage and bias: Spectral leakage refers to the fact that the
   estimate of the spectrum at any given frequency bin is contaminated with the
@@ -53,11 +53,11 @@ problem:
    shows the spectrum of the boxcar function (in dB units, relative to the
    frequency band of interest).  
    
-These two problems can together be mitigated through the use of windowed
-spectral estimates. The idea behind this method is that instead of using the
-boxcar window, one can design windows whose effect on spectral leakage is less
-deleterious. The following example demonstrates the spectral leakage for several
-different windows (including the boxcar):
+These two problems can together be mitigated through the use of other
+windows. Other windows have been designed in order to optimize the amount of
+spectral leakage and limit it to certain parts of the spectrum. The following
+example demonstrates the spectral leakage for several different windows
+(including the boxcar):
 
 .. plot:: examples/window_compare.py
    :include-source:
@@ -71,43 +71,37 @@ attenuation of leakage from frequency bands near the frequency of interest
 leakage) they are all superior in both of these respects to the boxcar window
 used in the naive periodogram. 
 
-The inefficiency problem can be solved by treating different parts of the
-signal as different samples from the same distribution. In this method, a
-shorter sliding window is applied to different parts of the signal and the
-windowed spectrum is averaged from these different samples. This is sometimes
-referred to as Welch's periodogram [Welch1967]_ and it is the default method
-used in :func:`algorithms.get_spectra` (with the hanning window as the window
-function used and no overlap between the windows).
 
-However, this approach trades off the reliability of the measurement without
-leakage for the resolution of measurement, which is lost due to the smaller
-window size. Another approach is to instead multiply the entire signal segment
-by a taper function. Similar to the window functions, these functions start at
-0 and end at 0. The entire signal is multiplied by a taper function. In
-addition, these functions can be constructed to be orthogonal to each other,
+Another approach which deals with both the inefficiency problem and with the
+spectral leakage problem is the use of taper functions. In this approach, the
+entire signal is multiplied by a time-varying function. Several of these
+functions may be used in order to emphasize and de-emphasize different parts of
+the signal and these can be constructed to be orthogonal to each other,
 constructing maximally independent samples at the length of the signal. As we
-will see below, this makes this construction useful for statistical estimation
-of the distribution of the spectrum.
+will see below, this allows for statistical estimation of the distribution of
+the spectrum.
 
 Discrete prolate spheroidal sequences (also known as Slepian sequences)
 [Slepian1978]_ are a class of taper functions which are constructed as a
 solution to the problem of concentrating the spectrum to within a pre-specified
 bandwidth. These tapers can be constructed using
 :func:`algorithms.DPSS_windows`, but for the purpose of spectral estimation, it
-is sufficient to specify the bandwidth desired as an input to the function, or
-rely on the these tapers are orthogonal allows using the estimates based on
-each window as a pseudo-indpendent sample for the purposes of statistical
-estimation. Thus, in addition to estimating the spectrum itself, an estimate of
-the confidence interval of the spectrum can be generated using a jack-knifing
-procedure [Thomson2007]_.
+is sufficient to specify the bandwidth (which defines the boundary between
+narrow-band and broad-band leakage) as an input to
+:func:`algorithms.mutli_taper_psd` and this function will then construct the
+appropriate windows, calculate the tapered spectra and average them. 
+
+As metioned above, in addition to estimating the spectrum itself, an estimate
+of the confidence interval of the spectrum can be generated using a
+jack-knifing procedure [Thomson2007]_.
 
 Let us define the following:
 
 | **simple sample estimate**
 | :math:`\hat{\theta} = \dfrac{1}{n}\sum_i Y_i`
 
-This is the estimate of the parameter estimate averaged from all the samples in
-the distribution (all the tapered spectra).
+This is the parameter estimate averaged from all the samples in the
+distribution (all the tapered spectra).
 
 | **leave-one-out measurement**
 | :math:`\hat{\theta}_{-i} = \dfrac{1}{n-1}\sum_{k \neq i}Y_k`
@@ -126,11 +120,11 @@ This estimator is known [Thomson2007]_ to be distributed about the true paramete
 
 :math:`s^{2} = \dfrac{n-1}{n}\sum_i \left(\hat{\theta}_i - \tilde{\theta}\right)^{2}`
 
+And degrees of freedom which depend on the number of tapers used. This number
+is derived. 
 
-the power spectrum can be estimated, in addition to a confidence interval on
-the values of the spectrum. In addition, if the 'adaptive' flag is set to True,
-an iterative adaptive method is used in order to correct bias in the spectrum.
-
+In addition, if the 'adaptive' flag is set to True, an iterative adaptive
+method is used in order to correct bias in the spectrum. 
 
 .. plot:: examples/multi_taper_sdf.py
    :include-source:
