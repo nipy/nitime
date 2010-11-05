@@ -1251,3 +1251,73 @@ def plot_snr_diff(tseries1,tseries2,lb=0,ub=None,fig=None,
     ax_snr.set_ylabel('SNR')
 
     return fig,info1,info2,s_n_r1,s_n_r2
+
+def plot_corr_diff(tseries1,tseries2,fig=None,
+                  ts_names = ['1','2'],):
+    """
+    Show the differences in *Fischer-transformed* snr correlations for two
+    time-series  
+
+    Parameters
+    ----------
+    tseries1, tseries2 : nitime TimeSeries objects
+       These are the time-series to compare, with each of them having the
+       dims: (n_channels, n_reps, time), where n_channels1 = n_channels2
+
+    lb,ub: float 
+       Lower and upper bounds on the frequency range over which to
+       calculate the information rate (default to [0,Nyquist]).
+
+    fig: matplotlib figure object
+       If you want to do this on already existing figure. Otherwise, a new
+       figure object will be generated.
+    
+    ts_names: list of str  
+       Labels for the two inputs, to be used in plotting (defaults to
+       ['1','2'])
+
+    bandwidth, adaptive, low_bias: See :func:`SNRAnalyzer` for details
+
+
+    Returns
+    -------
+
+    fig: a matplotlib figure object
+    """
+
+    if fig is None: 
+        fig = plt.figure()
+
+    ax = fig.add_subplot(1,1,1)
+
+    SNR1 = []
+    SNR2 = []
+    corr1 = []
+    corr2 = []
+    corr_e1 = []
+    corr_e2 = []
+    
+    for i in xrange(tseries1.shape[0]):
+        SNR1.append(nta.SNRAnalyzer(ts.TimeSeries(tseries1.data[i],
+                                    sampling_rate=tseries1.sampling_rate)))
+                                
+        corr1.append(SNR1[-1].correlation[0])
+        corr_e1.append(SNR1[-1].correlation[1])
+        
+        SNR2.append(nta.SNRAnalyzer(ts.TimeSeries(tseries2.data[i],
+                                    sampling_rate=tseries2.sampling_rate)))
+        
+        corr2.append(np.arctanh(np.abs(SNR2[-1].correlation[0])))
+        corr_e2.append(SNR1[-1].correlation[1])
+
+    ax.scatter(np.array(corr1),np.array(corr2))
+    ax.errorbar(np.mean(corr1),np.mean(corr2),
+                 yerr=np.std(corr2),
+                 xerr=np.std(corr1))
+    plot_min = min(min(corr1),min(corr2))
+    plot_max = max(max(corr1),max(corr2))
+    ax.plot([plot_min,plot_max],[plot_min,plot_max],'k--')
+    ax.set_xlabel('Correlation (Fischer Z) %s'%ts_names[0])
+    ax.set_ylabel('Correlation (Fischer Z)%s'%ts_names[1])
+
+    return fig

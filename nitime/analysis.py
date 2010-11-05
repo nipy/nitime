@@ -1766,3 +1766,21 @@ class SNRAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def mt_snr(self):
         return self.mt_signal_psd/self.mt_noise_psd
+
+    @desc.setattr_on_read
+    def correlation(self):
+        """
+        The correlation between all combinations of trials
+
+        Returns
+        -------
+        (r,e) : tuple
+           r is the mean correlation and e is the mean error of the correlation
+           (with df = n_trials - 1)
+        
+        """
+
+        c = np.corrcoef(self.input.data)
+        c = c[np.tril_indices_from(c,-1)]
+
+        return np.mean(c), stats.sem(c)
