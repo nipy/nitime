@@ -1,3 +1,4 @@
+"""
 =======================================
 fMRI data from resting state experiment
 =======================================
@@ -28,10 +29,53 @@ function.
 First, we examine the correlations between the time-series extracted from
 different parts of the brain. The following script extracts the data (using
 anddisplays the correlation matrix with the ROIs labeled.   
+"""
 
-.. plot:: examples/fmri1.py
-   :include-source:
+#Import from other libraries:
+import numpy as np
+from matplotlib.pyplot import figure
+from matplotlib.mlab import csv2rec
 
+#Import the time-series objects: 
+from nitime.timeseries import TimeSeries 
+#Import the correlation analyis object
+from nitime.analysis import CorrelationAnalyzer
+#Import utility functions:
+from nitime.utils import percent_change
+import nitime.viz
+reload(nitime.viz)
+from nitime.viz import drawmatrix_channels,drawgraph_channels
+
+#This information (the sampling rate) has to be known in advance:
+TR=1.89
+
+#Load the data from the csv file:
+data_rec = csv2rec('data/fmri_timeseries.csv')
+
+#Extract information:
+roi_names= np.array(data_rec.dtype.names)
+n_samples = data_rec.shape[0]
+
+
+#Make an empty container for the data
+data = np.zeros((len(roi_names),n_samples))
+
+for n_idx, roi in enumerate(roi_names):
+   data[n_idx] = data_rec[roi]
+
+#Normalize the data:
+data = percent_change(data)
+
+#Initialize the time-series from the normalized data:
+T = TimeSeries(data,sampling_interval=TR)
+T.metadata['roi'] = roi_names 
+
+#Initialize the correlation analyzer
+C = CorrelationAnalyzer(T)
+
+#Display the correlation matrix
+drawmatrix_channels(C.corrcoef,roi_names,size=[10.,10.],color_anchor=0)
+"""
 We notice that the left caudate nucleus (labeled 'lcau') has an interesting
 pattern of correlations. It has a high correlation with both the left putamen
 ('lput', which is located nearby) and also with the right caudate nucleus
@@ -58,9 +102,34 @@ the chosen combinations of series:
     plot_xcorr(xc,((idx_lcau,idx_rcau),(idx_lcau,idx_lput)),
 			           line_labels = ['rcau','lput'])
 
-.. plot:: examples/fmri2.py
+"""
 
-   
+#This part is the same as before
+TR=1.89
+data_rec = csv2rec('data/fmri_timeseries.csv')
+roi_names= np.array(data_rec.dtype.names)
+n_samples = data_rec.shape[0]
+data = np.zeros((len(roi_names),n_samples))
+
+for n_idx, roi in enumerate(roi_names):
+   data[n_idx] = data_rec[roi]
+
+data = percent_change(data)
+T = TimeSeries(data,sampling_interval=TR)
+T.metadata['roi'] = roi_names 
+C = CorrelationAnalyzer(T)
+
+#Extract the cross-correlation:
+xc = C.xcorr_norm
+
+idx_lcau = np.where(roi_names=='lcau')[0]
+idx_rcau = np.where(roi_names=='rcau')[0]
+idx_lput = np.where(roi_names=='lput')[0]
+
+plot_xcorr(xc,((idx_lcau,idx_rcau),(idx_lcau,idx_lput)),
+               line_labels = ['rcau','lput'])
+
+"""
 Note that the correlation is normalized, so that the the value of the
 cross-correlation functions at the zero-lag point (time = 0 sec) is equal to the
 Pearson correlation between the two time-series.  We observe that there are
@@ -153,9 +222,32 @@ matrix:
 .. code-block:: python
 
    drawmatrix_channels(coh,roi_names,size=[10.,10.])
+"""
 
-.. plot:: examples/fmri3.py
+#This part is the same as before
+TR=1.89
+data_rec = csv2rec('data/fmri_timeseries.csv')
+roi_names= np.array(data_rec.dtype.names)
+n_samples = data_rec.shape[0]
+data = np.zeros((len(roi_names),n_samples))
 
+for n_idx, roi in enumerate(roi_names):
+   data[n_idx] = data_rec[roi]
+
+data = percent_change(data)
+T = TimeSeries(data,sampling_interval=TR)
+T.metadata['roi'] = roi_names 
+C = CoherenceAnalyzer(T)
+
+#We look only at frequencies between 0.02 and 0.15 (the physiologically
+#relevant band, see http://imaging.mrc-cbu.cam.ac.uk/imaging/DesignEfficiency:
+freq_idx = np.where((C.frequencies>0.02) * (C.frequencies<0.15))[0]
+
+#Extract the coherence and average across these frequency bands: 
+coh = np.mean(C.coherence[:,:,freq_idx],-1) #Averaging on the last dimension 
+drawmatrix_channels(coh,roi_names,size=[10.,10.],color_anchor=0)
+
+"""
 We can also focus in on the ROIs we were interested in. This requires a little
 bit more manipulation of the indices into the coherence matrix:
 
@@ -181,9 +273,40 @@ graph of these ROIs (this is done by using the function
 .. code-block:: python
 
    drawgraph_channels(coh,roi_names[idx])
+"""
 
-.. plot:: examples/fmri4.py
+#This part is the same as before
+TR=1.89
+data_rec = csv2rec('data/fmri_timeseries.csv')
+roi_names= np.array(data_rec.dtype.names)
+n_samples = data_rec.shape[0]
+data = np.zeros((len(roi_names),n_samples))
 
+for n_idx, roi in enumerate(roi_names):
+   data[n_idx] = data_rec[roi]
+
+data = percent_change(data)
+T = TimeSeries(data,sampling_interval=TR)
+T.metadata['roi'] = roi_names 
+C = CoherenceAnalyzer(T)
+freq_idx = np.where((C.frequencies>0.02) * (C.frequencies<0.15))[0]
+
+idx_lcau = np.where(roi_names=='lcau')[0]
+idx_rcau = np.where(roi_names=='rcau')[0]
+idx_lput = np.where(roi_names=='lput')[0]
+idx_rput = np.where(roi_names=='rput')[0]
+
+idx = np.hstack([idx_lcau,idx_rcau,idx_lput,idx_rput])
+idx1 = np.vstack([[idx[i]]*4 for i in range(4)]).ravel()
+idx2 = np.hstack(4*[idx])
+
+#Extract the coherence and average across these frequency bands: 
+coh = C.coherence[idx1,idx2].reshape(4,4,C.frequencies.shape[0])
+coh = np.mean(coh[:,:,freq_idx],2) #Averaging on the last dimension
+
+drawgraph_channels(coh,roi_names[idx])
+
+"""
 This shows us that there is a stronger connectivity between the left putamen and
 the left caudate than between the homologous regions in the other
 hemisphere. In particular, in contrast to the relatively high correlation
@@ -230,9 +353,40 @@ between time-series $x$ and time-series $y$, *given* time series $r$):
 
 Again, we visualize the result, using both the :func:`viz.drawgraph_channels`
 and the :func:`drawmatrix_channels` functions:
+"""
 
-.. plot:: examples/fmri5.py
+#This part is the same as before
+TR=1.89
+data_rec = csv2rec('data/fmri_timeseries.csv')
+roi_names= np.array(data_rec.dtype.names)
+n_samples = data_rec.shape[0]
+data = np.zeros((len(roi_names),n_samples))
+for n_idx, roi in enumerate(roi_names):
+   data[n_idx] = data_rec[roi]
+data = percent_change(data)
+T = TimeSeries(data,sampling_interval=TR)
+T.metadata['roi'] = roi_names 
+C = CoherenceAnalyzer(T)
+freq_idx = np.where((C.frequencies>0.02) * (C.frequencies<0.15))[0]
+idx_lcau = np.where(roi_names=='lcau')[0]
+idx_rcau = np.where(roi_names=='rcau')[0]
+idx_lput = np.where(roi_names=='lput')[0]
+idx_rput = np.where(roi_names=='rput')[0]
+idx = np.hstack([idx_lcau,idx_rcau,idx_lput,idx_rput])
+idx1 = np.vstack([[idx[i]]*4 for i in range(4)]).ravel()
+idx2 = np.hstack(4*[idx])
 
+#For the third dimension, take always the index of the left caudate:
+idx3 = np.hstack(16*[idx_lcau])
+
+#Extract the partial coherence and average across the frequency bands: 
+coh = C.coherence_partial[idx1,idx2,idx3].reshape(4,4,C.frequencies.shape[0])
+coh = np.mean(coh[:,:,freq_idx],-1) #Averaging on the last dimension
+
+drawgraph_channels(coh,roi_names[idx])
+drawmatrix_channels(coh,roi_names[idx],color_anchor=0)
+
+"""
 As can be seen, the resulting partial coherence between left putamen and right
 caudate, given the activity in the left caudate is smaller than the coherence
 between these two areas, suggesting that part of this coherence can be
@@ -252,4 +406,4 @@ temporal delay between time-series.
    with a specific cognitive process, in Human Vision and Electronic Imaging
    XV, edited by B.E. Rogowitz and T.N. Pappas, Proceedings of SPIE, Volume
    7527, pp. 75270B-1 to 75270B-9
-
+"""

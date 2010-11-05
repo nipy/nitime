@@ -1,12 +1,16 @@
 #!/usr/bin/env python
-# emacs: -*- mode: python; py-indent-offset: 4; indent-tabs-mode: nil -*-
-# vi: set ft=python sts=4 ts=4 sw=4 et:
+#
+# Note: this file is copied (possibly with minor modifications) from the
+# sources of the PyMVPA project - http://pymvpa.org.  It remains licensed as
+# the rest of PyMVPA (MIT license as of October 2010).
+#
 ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
 #
 #   See COPYING file distributed along with the PyMVPA package for the
 #   copyright and license terms.
 #
 ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
+
 """Helper to automagically generate ReST versions of examples"""
 
 __docformat__ = 'restructuredtext'
