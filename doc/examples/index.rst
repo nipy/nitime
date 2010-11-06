@@ -1,4 +1,7 @@
 
+
+.. _examples:
+
 ========
 Examples
 ========
@@ -8,6 +11,7 @@ Here are a couple of examples:
 .. toctree::
    :maxdepth: 2
    
+   note_about_examples
    event_related_fmri
    grasshopper
    kaiser_compare

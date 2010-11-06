@@ -1,4 +1,4 @@
-.. _users-guide-index:
+.. _users-guide:
 
 ============
  User Guide

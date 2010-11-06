@@ -1282,7 +1282,7 @@ def winspect(win, f,name=None):
     ax2.set_ylabel('Relative attenuation (log scale)')
     ax2.grid()
     ax2.legend(loc=4)
-    f.set_size_inches([12,8])
+    f.set_size_inches([10,6])
 
 def plot_spectral_estimate(f, sdf, sdf_ests, limits=None, elabels=()):
     """
@@ -1309,6 +1309,5 @@ def plot_spectral_estimate(f, sdf, sdf_ests, limits=None, elabels=()):
                         alpha=0.5)
 
     ax.set_ylim(ax_limits)
-    ax.figure.set_size_inches([8,6])
     ax.legend()
     return fig

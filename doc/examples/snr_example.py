@@ -1,5 +1,4 @@
 """
-
 ==============================================
 Caclulation of Signal to noise and information 
 ==============================================
@@ -110,22 +109,18 @@ for idx,noise in enumerate([1,10,50,100]):
     ax.set_ylabel('Amplitude')
 
     """
+    
     We present this at different levels of noise. With low noise, the estimate
     of the signal and also the response of the system at different repetitions
     is very similar to the original signal.
 
-        .. image:: fig/snr_example01.png
-
+    .. image:: fig/snr_example_01.png
 
     A special visualization function :func:`viz.plot_snr` is used in order to
     display the signal power (blue) and the noise power (green), both in the left
     sub-plot. In addition, the SNR (blue) and the cumulative information (as a
     function of frequency bands, starting from low frequencies, in red) are
     dislplayed in the right subplot. 
-
-
-        .. image:: fig/snr_example02.png
-
     
     """ 
 
@@ -134,41 +129,37 @@ for idx,noise in enumerate([1,10,50,100]):
 
 """
 
+.. image:: fig/snr_example_02.png
+
 With more added noise, the estimate of the signal deviates further from the
-signal
+signal.
 
-.. image:: fig/snr_example03.png
+.. image:: fig/snr_example_03.png
 
-The signal power remains rather similar, but the noise power increases (across
-all bands). As a consequence, the signal to noise ratio decreases and the
+The signal power remains rather similar, but the noise power increases
+(across all bands). As a consequence, the signal to noise ratio decreases and the
 accumulated information decreases
 
-.. image:: fig/snr_example04.png
-
+.. image:: fig/snr_example_04.png
 
 This becomes even more apparent with more noise:
 
-
-.. image:: fig/snr_example05.png
-
+.. image:: fig/snr_example_05.png
 
 
-.. image:: fig/snr_example06.png
+.. image:: fig/snr_example_06.png
 
 
-Until, with 100% noise, the signal power is completely overwhelmed with noise:
+Until, with the largest amplitued of noise, the signal power is almost completely
+overwhelmed with noise:
 
+.. image:: fig/snr_example_07.png
 
-..image:: fig/snr_example07.png
-
-
-..image:: fig/snr_example08.png
-
+.. image:: fig/snr_example_08.png
 
 Finally, we use :func:`plot_snr_diff` in order to compare information
 transmission (on the left) and the signal to noise ratio (on the right) between
 the two last noise levels:
-
 """
 
 ts1 = ts.TimeSeries(sample[-1],sampling_rate=1.)
@@ -178,13 +169,10 @@ plt.show()
 
 """
 
-This results in the following figure:
+.. image:: fig/snr_example_09.png
 
-.. image:: fig/snr_example09.png
 
-    
 References 
-----------
 
     .. [Hsu2004] Hsu A, Borst A and Theunissen, FE (2004) Quantifying
     variability in neural responses ans its application for the validation of
@@ -192,6 +180,7 @@ References
 
     .. [Borst1999] Borst A and Theunissen FE (1999) Information theory and
     neural coding. Nat Neurosci 2:947-957
+
 
 """
 

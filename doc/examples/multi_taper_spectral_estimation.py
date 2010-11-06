@@ -45,14 +45,22 @@ following problem:
   one sampling window. Multiplying the signal with a boxcar window in the
   time-domain is equivalent (due to the convolution theorem) to convolving it
   in the frequency domain with the spectrum of the boxcar window. The spectral
-  leakage induced by this operation is demonstrated in the following example:
+  leakage induced by this operation is demonstrated in the following example.
+
+
+We start by importing the modules/functions we will need in this example 
+
 
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
-from nitime.viz import winspect
 import scipy.signal as sig
+import scipy.stats.distributions as dist
+
+import nitime.algorithms as tsa
+from nitime.viz import winspect
+from nitime.viz import plot_spectral_estimate
 
 """
 For demonstration, we will use a window of 128 points:
@@ -69,9 +77,6 @@ zi = int(npts*zfrac)
 b[:zi] = b[-zi:] = 0
 name = 'Boxcar - zero fraction=%.2f' % zfrac
 winspect(b, fig01, name)
-
-fig01.set_size_inches([10,6])
-
 
 """
 
@@ -103,6 +108,9 @@ winspect(sig.bartlett(npts), fig02, 'Bartlett')
 winspect(sig.barthann(npts), fig02, 'Modified Bartlett-Hann')
 
 """ 
+
+.. image:: fig/multi_taper_spectral_estimation_02.png
+
 As before, the left figure displays the windowing function in the temporal
 domain and the figure on the left displays the attentuation of spectral leakage
 in the other frequency bands in the spectrum. Notice that though different
@@ -111,7 +119,6 @@ attenuation of leakage from frequency bands near the frequency of interest
 (narrow-band leakage) with leakage from faraway frequency bands (broad-band
 leakage) they are all superior in both of these respects to the boxcar window
 used in the naive periodogram. 
-
 
 Another approach which deals with both the inefficiency problem and with the
 spectral leakage problem is the use of taper functions. In this approach, the
@@ -122,7 +129,7 @@ constructing maximally independent samples at the length of the signal. As we
 will see below, this allows for statistical estimation of the distribution of
 the spectrum.
 
-Discrete prolate spheroidal sequences (also known as Slepian sequences)
+Discrete prolate spheroidal sequences (DPSS, also known as Slepian sequences)
 [Slepian1978]_ are a class of taper functions which are constructed as a
 solution to the problem of concentrating the spectrum to within a pre-specified
 bandwidth. These tapers can be constructed using
@@ -131,6 +138,161 @@ is sufficient to specify the bandwidth (which defines the boundary between
 narrow-band and broad-band leakage) as an input to
 :func:`algorithms.mutli_taper_psd` and this function will then construct the
 appropriate windows, calculate the tapered spectra and average them. 
+
+We will demonstrate the use of DPSS in spectral estimation on a time-series
+with known spectral properties generated from an auto-regressive process.
+
+We start by defining a function which will be used throughout this example: 
+
+"""
+
+def dB(x, out=None):
+    if out is None:
+        return 10 * np.log10(x)
+    else:
+        np.log10(x, out)
+        np.multiply(out, 10, out)
+
+
+"""
+
+And the conversion factor from ln to dB: 
+
+"""
+
+ln2db = dB(np.e)
+
+
+"""
+
+Next, we generate a sequence with known spectral properties:
+
+"""
+
+N = 512
+ar_seq, nz, alpha = utils.ar_generator(N=N, drop_transients=10)
+ar_seq -= ar_seq.mean()
+
+"""
+
+This is the true PSD for this sequence: 
+
+"""
+
+fgrid, hz = tsa.my_freqz(1.0, a=np.r_[1, -alpha], Nfreqs=N)
+psd = (hz*hz.conj()).real
+
+"""
+
+This is a one-sided spectrum, so we double the power:
+
+"""
+
+psd *= 2
+dB(psd, psd)
+
+
+"""
+
+We begin by using the naive periodogram function (:func:`tsa.periodogram` in
+order to calculate the PSD and compare that to the true PSD calculated above.
+
+
+"""
+
+freqs, d_psd = tsa.periodogram(ar_seq)
+dB(d_psd, d_psd)
+
+fig03 = plot_spectral_estimate(freqs, psd, (d_psd,), elabels=("Periodogram",))
+
+"""
+
+.. image:: fig/multi_taper_spectral_estimation_03.png
+
+
+Next, we use Welch's periodogram, by applying :func:`tsa.get_spectra`. Note
+that we explicitely provide the function with a 'method' dict, which specifies
+the method used in order to calculate the PSD, but the default method is 'welch'.
+
+
+"""
+
+welch_freqs, welch_psd = tsa.get_spectra(ar_seq,
+                                         method=dict(this_method='welch',NFFT=N))
+welch_freqs *= (np.pi/welch_freqs.max())
+welch_psd = welch_psd.squeeze()
+dB(welch_psd, welch_psd)
+
+fig04 = plot_spectral_estimate(freqs, psd, (welch_psd,), elabels=("Welch",))
+
+
+""" 
+
+.. image:: fig/multi_taper_spectral_estimation_04.png
+
+
+Next, we use the multi-taper estimation method. We estimate the spectrum:
+
+"""
+
+f, psd_mt, nu = tsa.multi_taper_psd(
+    ar_seq, adaptive=False, jackknife=False
+    )
+dB(psd_mt, psd_mt)
+
+
+"""
+
+And get the number of tapers from here: 
+
+"""
+
+Kmax = nu[0]/2
+
+
+"""
+
+We calculate a hypothetical 5% confidence interval from a chi-square distribution
+with 2*Kmax degrees of freedom (see [Percival1993]_ eq 258) 
+
+
+"""
+
+p975 = dist.chi2.ppf(.975, 2*Kmax)
+p025 = dist.chi2.ppf(.025, 2*Kmax)
+
+l1 = ln2db * np.log(2*Kmax/p975)
+l2 = ln2db * np.log(2*Kmax/p025)
+
+hyp_limits = (psd_mt + l1, psd_mt + l2 )
+
+fig05 = plot_spectral_estimate(freqs, psd, (psd_mt,), hyp_limits,
+              elabels=('MT with hypothetical 5% interval',))
+
+"""
+
+.. image:: fig/multi_taper_spectral_estimation_05.png
+
+
+An iterative method ([Thomson2007]_) can be used in order to adaptively set the
+weighting of the different tapers, according to the actual spectral
+concentration in the given signal (and not only the theoretical spectral
+concentration calculated per default).
+
+"""
+
+f, adaptive_psd_mt, nu = tsa.multi_taper_psd(
+    ar_seq,  adaptive=True, jackknife=False
+    )
+dB(adaptive_psd_mt, adaptive_psd_mt)
+
+fig06 = plot_spectral_estimate(freqs, psd, (psd_mt,),
+                       elabels=('MT with adaptive weighting',))
+
+
+"""
+
+.. image:: fig/multi_taper_spectral_estimation_06.png
 
 As metioned above, in addition to estimating the spectrum itself, an estimate
 of the confidence interval of the spectrum can be generated using a
@@ -161,124 +323,61 @@ This estimator is known [Thomson2007]_ to be distributed about the true paramete
 
 :math:`s^{2} = \dfrac{n-1}{n}\sum_i \left(\hat{\theta}_i - \tilde{\theta}\right)^{2}`
 
-And degrees of freedom which depend on the number of tapers used. This number
-is derived. 
+And degrees of freedom which depend on the number of tapers used (Kmax-1):
+
+"""
+
+_, _, jk_var = tsa.multi_taper_psd(ar_seq, adaptive=False, jackknife=True)
+
+jk_p = (dist.t.ppf(.975, Kmax-1) * np.sqrt(jk_var)) * ln2db
+
+jk_limits = ( psd_mt - jk_p, psd_mt + jk_p )
+
+
+fig07 = plot_spectral_estimate(freqs, psd, (psd_mt,),
+                               jk_limits,
+                               elabels=('MT with JK 5% interval',))
+
+
+"""
+
+.. image:: fig/multi_taper_spectral_estimation_07.png
 
 In addition, if the 'adaptive' flag is set to True, an iterative adaptive
 method is used in order to correct bias in the spectrum. 
+
+Finally, we combine the adaptive estimation of the weights with the
+jack-knifing procedure.
+
 """
 
-import scipy.stats.distributions as dist
 
-from nitime.viz import plot_spectral_estimate
-
-def dB(x, out=None):
-    if out is None:
-        return 10 * np.log10(x)
-    else:
-        np.log10(x, out)
-        np.multiply(out, 10, out)
-
-### Log-to-dB conversion factor ###
-ln2db = dB(np.e)
-
-#Generate a sequence with known spectral properties:
-N = 512
-ar_seq, nz, alpha = utils.ar_generator(N=N, drop_transients=10)
-ar_seq -= ar_seq.mean()
-
-# --- True SDF
-fgrid, hz = alg.my_freqz(1.0, a=np.r_[1, -alpha], Nfreqs=N)
-sdf = (hz*hz.conj()).real
-
-# onesided spectrum, so double the power
-sdf *= 2
-dB(sdf, sdf)
-
-# --- Direct Spectral Estimator
-freqs, d_sdf = alg.periodogram(ar_seq)
-dB(d_sdf, d_sdf)
-
-plot_spectral_estimate(freqs, sdf, (d_sdf,), elabels=("Periodogram",))
-
-# --- Welch's Overlapping Periodogram Method:
-welch_freqs, welch_sdf = alg.get_spectra(ar_seq,
-                                         method=dict(this_method='welch',NFFT=N))
-welch_freqs *= (np.pi/welch_freqs.max())
-welch_sdf = welch_sdf.squeeze()
-dB(welch_sdf, welch_sdf)
-
-plot_spectral_estimate(freqs, sdf, (welch_sdf,), elabels=("Welch",))
-
-# --- Regular Multitaper Estimate
-f, sdf_mt, nu = alg.multi_taper_psd(
-    ar_seq, adaptive=False, jackknife=False
-    )
-dB(sdf_mt, sdf_mt)
-
-# Get the number of tapers used from here
-Kmax = nu[0]/2
-
-# --- Hypothetical intervals with chi2(2Kmax) --------------------------------
-# from Percival and Walden eq 258
-p975 = dist.chi2.ppf(.975, 2*Kmax)
-p025 = dist.chi2.ppf(.025, 2*Kmax)
-
-l1 = ln2db * np.log(2*Kmax/p975)
-l2 = ln2db * np.log(2*Kmax/p025)
-
-hyp_limits = (sdf_mt + l1, sdf_mt + l2 )
-
-plot_spectral_estimate(freqs, sdf, (sdf_mt,), hyp_limits,
-              elabels=('MT with hypothetical 5% interval',))
-
-# --- Adaptively Weighted Multitapter Estimate
-# -- Adaptive weighting from Thomson 1982, or Percival and Walden 1993
-f, adaptive_sdf_mt, nu = alg.multi_taper_psd(
-    ar_seq,  adaptive=True, jackknife=False
-    )
-dB(adaptive_sdf_mt, adaptive_sdf_mt)
-
-# --- Jack-knifed intervals for regular weighting-----------------------------
-# currently returns log-variance
-_, _, jk_var = alg.multi_taper_psd(
-    ar_seq, adaptive=False, jackknife=True
-    )
-
-# the Jackknife mean is approximately distributed about the true log-sdf
-# as a Student's t distribution with variance jk_var ... but in
-# fact the jackknifed variance better describes the normal
-# multitaper estimator [Thomson2007]
-
-# find 95% confidence limits from inverse of t-dist CDF
-jk_p = (dist.t.ppf(.975, Kmax-1) * np.sqrt(jk_var)) * ln2db
-
-jk_limits = ( sdf_mt - jk_p, sdf_mt + jk_p )
-
-
-plot_spectral_estimate(freqs, sdf, (sdf_mt,),
-              jk_limits,
-              elabels=('MT with JK 5% interval',))
-
-
-# --- Jack-knifed intervals for adaptive weighting----------------------------
-_, _, adaptive_jk_var = alg.multi_taper_psd(
+_, _, adaptive_jk_var = tsa.multi_taper_psd(
     ar_seq, adaptive=True, jackknife=True
     )
 
 # find 95% confidence limits from inverse of t-dist CDF
 jk_p = (dist.t.ppf(.975, Kmax-1)*np.sqrt(adaptive_jk_var)) * ln2db
 
-adaptive_jk_limits = ( adaptive_sdf_mt - jk_p, adaptive_sdf_mt + jk_p )
+adaptive_jk_limits = ( adaptive_psd_mt - jk_p, adaptive_psd_mt + jk_p )
 
-plot_spectral_estimate(freqs, sdf,(adaptive_sdf_mt, ),
+fig08 = plot_spectral_estimate(freqs, psd,(adaptive_psd_mt, ),
               adaptive_jk_limits,
               elabels=('adaptive-MT with JK 5% interval',))
 
 
+"""
+
+.. image:: fig/multi_taper_spectral_estimation_08.png
+
+We call plt.show() in order to show all the figures:
+
+""" 
+
 plt.show()
 
 """
+
 References
 
 .. [NR2007] W.H. Press, S.A. Teukolsky, W.T Vetterling and B.P. Flannery (2007)
@@ -296,4 +395,9 @@ References
 .. [Slepian1978] Slepian, D. Prolate spheroidal wave functions, Fourier
 		 analysis, and uncertainty V: The discrete case. Bell System
 		 Technical Journal, Volume 57 (1978), 1371430
+
+.. [Percival1993] Percival D.B. and Walden A.T. (1993) Spectral Analysis for
+                  Physical Applications: Multitaper and Conventional Univariate
+                  Techniques. Cambridge University Press  
+
 """

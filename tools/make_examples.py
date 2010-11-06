@@ -29,6 +29,9 @@ from toollib import *
 #-----------------------------------------------------------------------------
 
 examples_header = """
+
+.. _examples:
+
 ========
 Examples
 ========
@@ -38,6 +41,7 @@ Here are a couple of examples:
 .. toctree::
    :maxdepth: 2
    
+   note_about_examples
 """
 #-----------------------------------------------------------------------------
 # Function defintions
@@ -74,8 +78,9 @@ sh('../../tools/ex2rst --project Nitime --outdir . .')
 with open('index.rst', 'w') as index:
     index.write(examples_header)
     for name in [os.path.splitext(f)[0] for f in glob('*.rst')]:
-        #Don't add the index in there to avoid sphinx errors:
-        if name!='index':
+        #Don't add the index in there to avoid sphinx errors and don't add the
+        #note_about examples again (because it was added at the top):
+        if name not in(['index','note_about_examples']):
             index.write('   %s\n' % name)
 
 # Execute each python script in the directory.

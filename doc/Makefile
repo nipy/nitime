@@ -29,7 +29,6 @@ help:
 clean:
 	-rm -rf _build/* *~ api/generated
 	-rm -rf build/* 
-	-rm examples/*.rst
 	-rm examples/fig/*
 htmlonly:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
