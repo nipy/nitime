@@ -1,4 +1,7 @@
 """
+
+.. _multi-taper-psd:
+
 ===============================
 Multi-taper spectral estimation
 ===============================

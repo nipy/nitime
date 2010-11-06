@@ -1,4 +1,7 @@
 """
+
+.. _resting-state:
+
 =======================================
 fMRI data from resting state experiment
 =======================================
