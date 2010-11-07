@@ -96,7 +96,7 @@ fig01 = viz.plot_tseries(E.eta,ylabel='BOLD (% signal change)',yerror=E.ets)
 .. image:: fig/event_related_fmri_01.png
 
 
-In the following examplea an alternative approach is taken to calculating
+In the following example an alternative approach is taken to calculating
 the event-related activity, based on the finite impulse-response
 model (see [Burock2000]_ for details)
 
