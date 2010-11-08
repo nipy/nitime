@@ -1319,6 +1319,6 @@ def plot_corr_diff(tseries1,tseries2,fig=None,
     plot_max = max(max(corr1),max(corr2))
     ax.plot([plot_min,plot_max],[plot_min,plot_max],'k--')
     ax.set_xlabel('Correlation (Fischer Z) %s'%ts_names[0])
-    ax.set_ylabel('Correlation (Fischer Z)%s'%ts_names[1])
+    ax.set_ylabel('Correlation (Fischer Z) %s'%ts_names[1])
 
-    return fig
+    return fig,corr1,corr2
