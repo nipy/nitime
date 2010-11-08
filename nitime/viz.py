@@ -1118,12 +1118,13 @@ def plot_snr(tseries,lb=0,ub=None,fig=None):
     n_spec_mean = np.mean(noise_spectra,0)
     s_spec_mean = np.mean(signal_spectra,0)
 
-    ax_spectra.plot(freqs,np.log(s_spec_mean[lb_idx:ub_idx]))
-    ax_spectra.plot(freqs,np.log(n_spec_mean[lb_idx:ub_idx]))
+    ax_spectra.plot(freqs,np.log(s_spec_mean[lb_idx:ub_idx]),label='Signal')
+    ax_spectra.plot(freqs,np.log(n_spec_mean[lb_idx:ub_idx]),label='Noise')
     ax_spectra.set_xlabel('Frequency (Hz)')
     ax_spectra.set_ylabel('Spectral power (dB)')
         
-    ax_snr_info.plot(freqs, snr_mean[lb_idx:ub_idx])
+    ax_snr_info.plot(freqs, snr_mean[lb_idx:ub_idx],label='SNR')
+    ax_snr_info.plot(np.nan, np.nan, 'r', label='Info')
     ax_snr_info.set_ylabel('SNR')
     ax_snr_info.set_xlabel('Frequency (Hz)')
     ax_info = ax_snr_info.twinx()
