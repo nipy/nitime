@@ -10,7 +10,10 @@ nitime, you can quickly get up and running, by following these 3 steps:
   academics):
   http://www.enthought.com/products/getepd.php  
 
-- Use 'easy install' to get nitime. Simply open a terminal window and enter
-  'easy_install nitime' at the prompt
+- Use *easy install* to get nitime: Open a terminal window and enter::
+
+
+      easy_install --user nitime
+
 
 - Look at the :ref:`examples`.
