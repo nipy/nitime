@@ -1322,3 +1322,62 @@ def plot_corr_diff(tseries1,tseries2,fig=None,
     ax.set_ylabel('Correlation (Fischer Z) %s'%ts_names[1])
 
     return fig,corr1,corr2
+
+
+def winspect(win, f,name=None):
+    """
+    
+    Inspect a window by showing it and its spectrum
+
+    Utility file used in building the documentation
+    
+    """
+    npts = len(win)
+    ax1,ax2 = f.add_subplot(1,2,1),f.add_subplot(1,2,2)
+    ax1.plot(win)
+    ax1.set_xlabel('Time')
+    ax1.set_ylabel('Window amplitude')
+    ax1.set_ylim(-0.1,1.1)
+    ax1.set_xlim(0, npts)
+    wf = np.fft.fft(win)
+    ax1.set_xticks(np.arange(npts/8.,npts,npts/8.))
+    toplot = np.abs(np.fft.fftshift(wf).real)
+    toplot /= np.max(toplot)
+    toplot = np.log(toplot)
+    ax2.plot(toplot,label=name)
+    ax2.set_xlim(0, npts)
+    ax2.set_xticks(np.arange(npts/8.,npts,npts/8.))
+    ax2.set_xticklabels(np.arange((-1/2.+1/8.),1/2.,1/8.))
+    ax2.set_xlabel('Relative frequency')
+    ax2.set_ylabel('Relative attenuation (log scale)')
+    ax2.grid()
+    ax2.legend(loc=4)
+    f.set_size_inches([10,6])
+
+def plot_spectral_estimate(f, sdf, sdf_ests, limits=None, elabels=()):
+    """
+
+    Plot an estimate of a spectral transform agains the ground truth.
+
+    Utility file used in building the documentation
+    
+    """
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1)
+    ax_limits = 2*sdf.min(), 1.25*sdf.max()
+    ax.plot(f, sdf, 'c', label='True S(f)')
+
+    if not elabels:
+        elabels = ('',) * len(sdf_ests)
+    colors = 'bgkmy'
+    for e, l, c in zip(sdf_ests, elabels, colors):
+        ax.plot(f, e, color=c, linewidth=2, label=l)
+
+    if limits is not None:
+        ax.fill_between(f, limits[0], y2=limits[1], color=(1,0,0,.3),
+                        alpha=0.5)
+
+    ax.set_ylim(ax_limits)
+    ax.legend()
+    return fig

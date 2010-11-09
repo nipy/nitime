@@ -1,3 +1,7 @@
+
+
+.. _examples:
+
 ========
 Examples
 ========
@@ -6,7 +10,13 @@ Here are a couple of examples:
 
 .. toctree::
    :maxdepth: 2
-
-   grasshopper
-   resting_state_fmri
+   
+   note_about_examples
    event_related_fmri
+   grasshopper
+   multi_taper_coh
+   multi_taper_spectral_estimation
+   resting_state_fmri
+   seed_coherence_example
+   simple_ar
+   snr_example

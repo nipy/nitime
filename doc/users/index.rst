@@ -1,4 +1,4 @@
-.. _users-guide-index:
+.. _users-guide:
 
 ============
  User Guide
@@ -10,6 +10,7 @@
 .. toctree::
    :maxdepth: 2
 
+   quickstart
    install
    overview
    tutorial
