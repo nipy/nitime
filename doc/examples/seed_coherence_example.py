@@ -34,7 +34,7 @@ informative error if not:
 try: 
     from nibabel import load
 except ImportError:
-    print 'You need nibabel (http:/nipy.org/nibabel/) in order to run this example' 
+    raise ImportError('You need nibabel (http:/nipy.org/nibabel/) in order to run this example')
 
 """
 

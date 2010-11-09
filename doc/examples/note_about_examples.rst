@@ -5,7 +5,7 @@ A note about the examples
 The examples provided here are possible usages of the analysis and
 visualization functionality of nitime, with example data from actual
 neuroscience experiments, or with synthetic data, which is generated as part of
-the example, in order to demonstrate .   
+the example.
 
 All the examples presented in the documentation are generated from *fully
 functioning* python scripts, which are available as part of the source

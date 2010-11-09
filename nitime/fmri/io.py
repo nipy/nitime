@@ -3,7 +3,7 @@
 try:
     from nibabel import load
 except ImportError: 
-        print "nibabel required for fmri I/O"
+        raise ImportError("nibabel required for fmri I/O. See http://nipy.org/nibabel")
 
 import nitime.timeseries as ts 
 import nitime.analysis as tsa
