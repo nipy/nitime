@@ -128,21 +128,21 @@ coordinates in the data file:
 
 #Make the seed time series:
 time_series_seed = io.time_series_from_file(fmri_file,
-                                           coords_seeds,
-                                           TR=TR,
-                                           normalize='percent',
-                                           filter=dict(lb=f_lb,
-                                                       ub=f_ub,
-                                                       method='boxcar'))
+                                coords_seeds,
+                                TR=TR,
+                                normalize='percent',
+                                filter=dict(lb=f_lb,
+                                            ub=f_ub,
+                                            method='boxcar'))
 
 #Make the target time series: 
 time_series_target = io.time_series_from_file(fmri_file,
-                                              coords_target,
-                                              TR=TR,
-                                              normalize='percent',
-                                              filter=dict(lb=f_lb,
-                                                          ub=f_ub,
-                                                          method='boxcar'))
+                                          coords_target,
+                                          TR=TR,
+                                          normalize='percent',
+                                          filter=dict(lb=f_lb,
+                                                      ub=f_ub,
+                                                    method='boxcar'))
 
 
 """
