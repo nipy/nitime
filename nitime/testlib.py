@@ -8,6 +8,7 @@
 import sys
 
 # Third-party
+import numpy as np
 import nose
 from nose.core import TestProgram
 
@@ -18,6 +19,11 @@ from nose.core import TestProgram
 def test(doctests=False):
     """Run the nitime test suite using nose.
     """
+    #Make sure that you only change the print options during the testing of
+    #nitime and don't affect the user session after that: 
+    opt_dict = np.get_printoptions()
+    np.set_printoptions(precision=4)
+        
     # We construct our own argv manually, so we must set argv[0] ourselves
     argv = [ 'nosetests',
              # Name the package to actually test, in this case nitime
@@ -38,8 +44,10 @@ def test(doctests=False):
         argv.append('--with-doctest')
 
     # Now nose can run
-    TestProgram(argv=argv, exit=False)
-
+    try:
+        TestProgram(argv=argv, exit=False)
+    finally:
+        np.set_printoptions(**opt_dict)
 
 # Tell nose that the test() function itself isn't a test, otherwise we get a
 # recursive loop inside nose.
