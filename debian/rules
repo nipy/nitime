@@ -1,28 +1,42 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-%:
-	dh $@ 
+PACKAGE_NAME = python-nitime
+PACKAGE_ROOT_DIR = debian/${PACKAGE_NAME}
+INSTALL_PATH = $(CURDIR)/debian/tmp
 
-override_dh_auto_build:
-	dh_auto_build
+# default Python
+PYTHON=$(shell pyversions -d)
+
+%:
+	dh $@
+
+override_dh_auto_test:
+	: # Do not test just after build, lets install and then test
+
+override_dh_auto_install:
+	dh_auto_install
+	: # Prune duplicate LICENSE file
+	find debian/ -name LICENSE -delete
+	: # Only now lets build docs
 ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
-	# and docs
-	PYTHONPATH=$$(/bin/ls -d $$PWD/build/lib.*-*-*) $(MAKE) -C doc html
+	export PYTHONPATH=$$(/bin/ls -d $(INSTALL_PATH)/usr/lib/$(PYTHON)/*-packages); \
+	$(MAKE) -C doc html
 	-rm doc/_build/html/_static/jquery.js
 	-rm -r doc/_build/html/_sources
-	# objects inventory is of no use for the package
+	: # objects inventory is of no use for the package
 	-rm doc/_build/html/objects.inv
 endif
 
-# enable when we believe that the tests should pass
-override_dh_auto_test:
+# All tests later on
+# cd build to prevent use of local/not-built source tree
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
-	for buildver in $(shell pyversions -vr); do \
-		echo "I: Running NiTime unittests using python$$buildver"; \
-		PYTHONPATH=$$(/bin/ls -d $$PWD/build/lib.*-$$buildver) \
+	cd build; \
+	for PYTHON in $(shell pyversions -r); do \
+		echo "I: Running NiTime unittests using $$PYTHON"; \
+		PYTHONPATH=$$(/bin/ls -d $(INSTALL_PATH)/usr/lib/$$PYTHON/*-packages) \
 		MPLCONFIGDIR=/tmp/ \
-			python$$buildver /usr/bin/nosetests -v -s nitime || exit 1 ;\
+			$$PYTHON /usr/bin/nosetests -v -s -P nitime; \
 	done
 endif
 
