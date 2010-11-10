@@ -17,13 +17,13 @@ Vcs-Browser: http://github.com/yarikoptic/nitime
 
 Package: python-nitime
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends},
+Depends: ${Python:depends}, ${shlibs:Depends}, ${misc:Depends},
 		 python-numpy, python-scipy
 Recommends: python-matplotlib,
 			python-nose,
 			python-nibabel,
 			python-networkx
-Description: timeseries analysis for neuroscience data
+Description: timeseries analysis for neuroscience data (nitime)
  Nitime is a Python module for time-series analysis of data from
  neuroscience experiments.  It contains a core of numerical algorithms
  for time-series analysis both in the time and spectral domains, a set
@@ -36,7 +36,8 @@ Package: python-nitime-doc
 Architecture: all
 Section: doc
 Depends: ${misc:Depends}, libjs-jquery
-Description: documentation for Nitime
+Suggests: python-nitime
+Description: timeseries analysis for neuroscience data (nitime) -- documentation
  Nitime is a Python module for time-series analysis of data from
  neuroscience experiments.
  .
