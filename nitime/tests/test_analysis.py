@@ -297,7 +297,7 @@ def test_CoherenceMTAnalyzer():
     #Test that it runs through (it will trivially be equal to itself):
     npt.assert_equal(C2.confidence_interval,C2.confidence_interval)
 
-    print 'woot'
+    #print 'woot'
     
 def test_SeedCoherenceAnalyzer():
     Fs = np.pi

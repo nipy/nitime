@@ -92,7 +92,11 @@ MAJOR               = _version_major
 MINOR               = _version_minor
 MICRO               = _version_micro
 VERSION             = __version__
-PACKAGES            = ['nitime', 'nitime.fmri', 'nitime.fmri.tests',
-                       'nitime.tests']
-PACKAGE_DATA        = {"nitime": ["LICENSE", "tests/*.txt"]}
+PACKAGES            = ['nitime',
+                       'nitime.tests',
+                       'nitime.fmri',
+                       'nitime.fmri.tests'
+                       ]
+PACKAGE_DATA        = {"nitime": ["LICENSE", "tests/*.txt",
+                                  "fmri/tests/*.nii.gz"]}
 REQUIRES            = ["numpy", "matplotlib", "scipy"]

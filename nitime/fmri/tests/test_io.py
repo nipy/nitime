@@ -29,8 +29,8 @@ def test_time_series_from_file():
     ts_ff = io.time_series_from_file
 
     #File names:
-    fmri_file1 = os.path.join(test_dir_path,'data/fmri1.nii.gz')
-    fmri_file2 = os.path.join(test_dir_path,'data/fmri2.nii.gz')
+    fmri_file1 = os.path.join(test_dir_path,'fmri1.nii.gz')
+    fmri_file2 = os.path.join(test_dir_path,'fmri2.nii.gz')
 
     #Spatial coordinates into the volumes: 
     coords1 = np.array([[5,5,5,5],[5,5,5,5],[1,2,3,4]])
