@@ -32,9 +32,6 @@ def test(doctests=False):
              # here.  This has been discussed on the distutils list and the
              # setuptools devs refuse to fix this problem!
              '--exe',
-
-             # dbg
-             '--pdb',
              ]
 
     if doctests:
