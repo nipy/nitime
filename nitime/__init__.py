@@ -30,6 +30,4 @@ import utils, algorithms, descriptors, timeseries, viz, analysis
 
 from timeseries import *
 
-from numpy.testing import Tester
-test = Tester().test
-bench = Tester().bench
+from .testlib import test

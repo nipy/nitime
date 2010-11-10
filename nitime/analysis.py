@@ -98,7 +98,8 @@ class SpectralAnalyzer(BaseAnalyzer):
         Examples
         --------
 
-        >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),sampling_rate=np.pi)
+        >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),
+        ... sampling_rate=np.pi)
         >>> s1 = SpectralAnalyzer(t1)
         >>> s1.method['this_method']
         'welch'
@@ -113,9 +114,8 @@ class SpectralAnalyzer(BaseAnalyzer):
                 0.9817477 ,  1.03083509,  1.07992247,  1.12900986,  1.17809725,
                 1.22718463,  1.27627202,  1.3253594 ,  1.37444679,  1.42353417,
                 1.47262156,  1.52170894,  1.57079633])
-        >>> s[0][0]
-        1128276.9253836011
-
+        >>> s[0,0]   # doctest: +ELLIPSIS
+        1128276.92538360...
         """
         BaseAnalyzer.__init__(self,input)
 
@@ -1144,7 +1144,9 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                 #No need to do that for the Events object:
                 self.events = events
         else:
-            raise ValueError("Input 'events' to EventRelatedAnalyzer must be of type Events or of type TimeSeries")
+            err = ("Input 'events' to EventRelatedAnalyzer must be of type "
+                   "Events or of type TimeSeries, %r given" % events )
+            raise ValueError(err)
    
         self.sampling_rate = time_series.sampling_rate
         self.sampling_interval = time_series.sampling_interval
