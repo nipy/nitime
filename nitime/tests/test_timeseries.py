@@ -390,7 +390,7 @@ def test_TimeSeries_repr():
     3.0 Hz
     >>> tseries1 = ts.TimeSeries(data=[3,5,8],sampling_rate=3)
     >>> tseries1.time
-    UniformTime([ 0.        ,  0.33333333,  0.66666667], time_unit='s')
+    UniformTime([ 0.    ,  0.3333,  0.6667], time_unit='s')
     >>> tseries1.sampling_rate
     3.0 Hz
     >>> tseries1.sampling_interval

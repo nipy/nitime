@@ -5,8 +5,8 @@
 ======================
 
 This page covers the necessary steps to install nitime.  Below is a
-list of required dependencies, along with additional software
-recommendations.
+list of required dependencies, and some additional recommended software, which
+are dependencies for some particular functionality.
 
 Dependencies
 ------------
@@ -25,18 +25,19 @@ Matplotlib_
   Python plotting library. In particular, :mod:`Nitime` makes use of the
   :mod:`matplotlib.mlab` module for some implementation of numerical algorithms
 
-Strong Recommandations
-~~~~~~~~~~~~~~~~~~~~~~
-
-IPython_ 0.10
-  Interactive python environment. This is necessary for the parallel
-  components of the pipeline engine.
+Recommended/optional
+~~~~~~~~~~~~~~~~~~~~
 
 Sphinx_
   Required for building the documentation
 
 Networkx_
-  Used for some visualization functions
+  Used for some visualization functions; required in order to build the
+  documentation.
+
+Nibabel_
+  Used for reading in data from fMRI data files; required in order to build the
+  documentation.
 
 Getting the latest release
 --------------------------

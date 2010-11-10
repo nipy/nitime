@@ -34,8 +34,8 @@ def test_scipy_resample():
     t_dn2 = signaltools.resample(tst, 48)
     npt.assert_array_almost_equal(t_dn2, dn_samp_ana)
 
-def test_coherency_mlab():
-    """Tests that the coherency algorithm runs smoothly, using the mlab csd
+def test_coherency_welch():
+    """Tests that the coherency algorithm runs smoothly, using the welch csd
     routine, that the resulting matrix is symmetric and that the frequency bands
     in the output make sense"""
     
@@ -43,7 +43,7 @@ def test_coherency_mlab():
     x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + np.random.rand(t.shape[-1])
     y = x + np.random.rand(t.shape[-1])
 
-    method = {"this_method":'mlab',
+    method = {"this_method":'welch',
               "NFFT":256,
               "Fs":2*np.pi}
 
@@ -70,14 +70,14 @@ def test_coherency_multi_taper():
     npt.assert_array_almost_equal(c[0,1],c[1,0].conjugate())
     npt.assert_array_almost_equal(c[0,0],np.ones(f.shape))
 
-def test_coherence_mlab():
+def test_coherence_welch():
     """Tests that the code runs and that the resulting matrix is symmetric """  
 
     t = np.linspace(0,16*np.pi,1024)
     x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + np.random.rand(t.shape[-1])
     y = x + np.random.rand(t.shape[-1])
 
-    method = {"this_method":'mlab',
+    method = {"this_method":'welch',
               "NFFT":256,
               "Fs":2*np.pi}
     
@@ -108,7 +108,7 @@ def test_coherence_partial():
     y = x + np.random.rand(t.shape[-1])
     z = x + np.random.rand(t.shape[-1])
 
-    method = {"this_method":'mlab',
+    method = {"this_method":'welch',
               "NFFT":256,
               "Fs":2*np.pi}
     f,c = tsa.coherence_partial(np.vstack([x,y]),z,csd_method=method)
@@ -170,7 +170,7 @@ def test_coherence_linear_dependence():
 
     c_t = ( 1/( 1 + ( f_noise/( f_x*(alpha**2)) ) ) )
 
-    method = {"this_method":'mlab',
+    method = {"this_method":'welch',
               "NFFT":2048,
               "Fs":2*np.pi}
 
@@ -291,18 +291,31 @@ def test_boxcar_filter():
 
 def test_get_spectra():
     """Testing get_spectra"""
-    t = np.linspace(0,16*np.pi,2**14)
+    t = np.linspace(0,16*np.pi,2**10)
     x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + 0.1 *np.random.rand(t.shape[-1])
+
+    #First test for 1-d data:
+    NFFT = 64
+    N = x.shape[-1]
+    f_welch=tsa.get_spectra(x,method={'this_method':'welch','NFFT':NFFT})
+    f_periodogram=tsa.get_spectra(x,method={'this_method':'periodogram_csd'})
+    f_multi_taper=tsa.get_spectra(x,method={'this_method':'multi_taper_csd'})
+
+    npt.assert_equal(f_welch[0].shape,(NFFT/2+1,))
+    npt.assert_equal(f_periodogram[0].shape,(N/2+1,))
+    npt.assert_equal(f_multi_taper[0].shape,(N/2+1,))
+
+    #Test for multi-channel data
     x = np.reshape(x,(2,x.shape[-1]/2))
     N = x.shape[-1]
 
     #Make sure you get back the expected shape for different spectra: 
     NFFT = 64
-    f_mlab=tsa.get_spectra(x,method={'this_method':'mlab','NFFT':NFFT})
+    f_welch=tsa.get_spectra(x,method={'this_method':'welch','NFFT':NFFT})
     f_periodogram=tsa.get_spectra(x,method={'this_method':'periodogram_csd'})
     f_multi_taper=tsa.get_spectra(x,method={'this_method':'multi_taper_csd'})
 
-    npt.assert_equal(f_mlab[0].shape[0],NFFT/2+1)
+    npt.assert_equal(f_welch[0].shape[0],NFFT/2+1)
     npt.assert_equal(f_periodogram[0].shape[0],N/2+1)
     npt.assert_equal(f_multi_taper[0].shape[0],N/2+1)
 
@@ -342,7 +355,7 @@ def test_coherence_matlab():
     ts1 = ts[0]  
 
     method = {}
-    method['this_method']='mlab'
+    method['this_method']='welch'
     method['NFFT'] = 64;
     method['Fs'] = 1.0;
     method['noverlap'] = method['NFFT']/2

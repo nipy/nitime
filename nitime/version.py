@@ -5,9 +5,18 @@ ISRELEASED = False
 # Format expected by setup.py and doc/source/conf.py: string of form "X.Y.Z"
 _version_major = 0
 _version_minor = 2
-_version_micro = 'dev'
-__version__ = "%s.%s.%s" % (_version_major, _version_minor, _version_micro)
+_version_micro = '' # use '' for first of series, number for 1 and above
+_version_extra = 'dev'
+_version_extra = '' # Uncomment this for full releases
 
+# Construct full version string from these.
+_ver = [_version_major, _version_minor]
+if _version_micro:
+    _ver.append(_version_micro)
+if _version_extra:
+    _ver.append(_version_extra)
+
+__version__ = '.'.join(map(str, _ver))
 
 CLASSIFIERS = ["Development Status :: 3 - Alpha",
                "Environment :: Console",
@@ -67,7 +76,7 @@ You can find our sources and single-click downloads:
 License information
 ===================
 
-Nitime is licensed under the terms of the simplified BSD license. See the file
+Nitime is licensed under the terms of the new BSD license. See the file
 "LICENSE" for information on the history of this software, terms & conditions
 for usage, and a DISCLAIMER OF ALL WARRANTIES.
 
@@ -92,7 +101,11 @@ MAJOR               = _version_major
 MINOR               = _version_minor
 MICRO               = _version_micro
 VERSION             = __version__
-PACKAGES            = ['nitime', 'nitime.fmri', 'nitime.fmri.tests',
-                       'nitime.tests']
-PACKAGE_DATA        = {"nitime": ["LICENSE", "tests/*.txt"]}
+PACKAGES            = ['nitime',
+                       'nitime.tests',
+                       'nitime.fmri',
+                       'nitime.fmri.tests',
+                       ]
+PACKAGE_DATA        = {"nitime": ["LICENSE", "tests/*.txt",
+                                  "fmri/tests/*.nii.gz"]}
 REQUIRES            = ["numpy", "matplotlib", "scipy"]

@@ -44,23 +44,14 @@ from nitime import timeseries as ts
 # imported at module level? 
 from inspect import getargspec
 
-    
 class BaseAnalyzer(desc.ResetMixin):
-    """Analyzer that implements the default data flow.
+    """
+    Analyzer that implements the default data flow.
 
-       All analyzers inherit from this class at least have to
-       * implement a __init__ function to set parameters
-       * define the 'output' property
+    All analyzers inherit from this class at least have to
+    * implement a __init__ function to set parameters
+    * define the 'output' property
 
-       >>> A = BaseAnalyzer()
-       >>> A
-       BaseAnalyzer(sample_parameter='default value')
-       >>> A('data')
-       'data'
-       >>> A('new data')
-       'new data'
-       >>> A[2]
-       'w'
     """
 
     @desc.setattr_on_read
@@ -74,38 +65,16 @@ class BaseAnalyzer(desc.ResetMixin):
     def parameters(self):
         return dict([(p,getattr(self,p,'MISSING')) for p in self.parameterlist])
 
-    def __init__(self,input=None):
+    def __init__(self, input=None):
         self.input = input
-      
-    @desc.setattr_on_read
-    def output(self):
-        """This function currently does nothing and
-            is meant to be overwritten by the specific
-            analyzer sub-class.
-        """
-        return None
 
-    def __call__(self,input=None):
-        """This fuction runs the analysis on new input
-           data and returns the output data.
-        """
-        if input is None:
-            if self.input is None:
-                raise ValueError('There is no data to analyze')
-            else:
-                return self.output
-            
-        
+    def set_input(self, input):
+        """Set the input of the analyzer, if you want to reuse the analyzer
+        with a different input than the original """
+
         self.reset()
         self.input = input
-        return self.output
-
-    def __getitem__(self,key):
-        try:
-            return self.output[key]
-        except TypeError:
-            raise NotImplementedError, 'This analyzer does not support getitem'
-
+        
     def __repr__(self):
         params = ', '.join(['%s=%r'%(p,getattr(self,p,'MISSING'))
                                     for p in self.parameterlist])
@@ -129,49 +98,103 @@ class SpectralAnalyzer(BaseAnalyzer):
         Examples
         --------
 
-        >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),sampling_rate=np.pi)
+        >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),
+        ... sampling_rate=np.pi)
         >>> s1 = SpectralAnalyzer(t1)
         >>> s1.method['this_method']
-        'mlab'
+        'welch'
         >>> s1.method['Fs']
         3.14159265359 Hz
-        >>> f,s = s1.output
+        >>> f,s = s1.psd
         >>> f
-        array([ 0.        ,  0.04908739,  0.09817477,  0.14726216,  0.19634954,
-                0.24543693,  0.29452431,  0.3436117 ,  0.39269908,  0.44178647,
-                0.49087385,  0.53996124,  0.58904862,  0.63813601,  0.68722339,
-                0.73631078,  0.78539816,  0.83448555,  0.88357293,  0.93266032,
-                0.9817477 ,  1.03083509,  1.07992247,  1.12900986,  1.17809725,
-                1.22718463,  1.27627202,  1.3253594 ,  1.37444679,  1.42353417,
-                1.47262156,  1.52170894,  1.57079633])
-        >>> s[0,1][0]
-        (2877158.0203663893+0j)
-
+        array([ 0.    ,  0.0491,  0.0982,  0.1473,  0.1963,  0.2454,  0.2945,
+                0.3436,  0.3927,  0.4418,  0.4909,  0.54  ,  0.589 ,  0.6381,
+                0.6872,  0.7363,  0.7854,  0.8345,  0.8836,  0.9327,  0.9817,
+                1.0308,  1.0799,  1.129 ,  1.1781,  1.2272,  1.2763,  1.3254,
+                1.3744,  1.4235,  1.4726,  1.5217,  1.5708])
+        >>> s[0,0]   # doctest: +ELLIPSIS
+        1128276.92538360...
         """
         BaseAnalyzer.__init__(self,input)
 
         self.method=method
         
         if self.method is None:
-            self.method = {'this_method':'mlab',
+            self.method = {'this_method':'welch',
                            'Fs':self.input.sampling_rate}
     @desc.setattr_on_read
-    def output(self):
+    def psd(self):
         """
         The standard output for this analyzer is a tuple f,s, where: f is the
         frequency bands associated with the discrete spectral components
         and s is the PSD calculated using :func:`mlab.psd`.
     
         """
-        data = self.input.data
-        sampling_rate = self.input.sampling_rate
         
-        self.mlab_method = self.method
-        self.mlab_method['this_method'] = 'mlab'
-        self.mlab_method['Fs'] = sampling_rate
-        f,spectrum_mlab = tsa.get_spectra(data,method=self.mlab_method)
+        NFFT = self.method.get('NFFT',64)
+        Fs = self.input.sampling_rate
+        detrend = self.method.get('detrend',tsa.mlab.detrend_none)
+        window = self.method.get('window',tsa.mlab.window_hanning)
+        n_overlap = self.method.get('n_overlap',int(np.ceil(NFFT/2.0)))
 
-        return f,spectrum_mlab
+        if np.iscomplexobj(self.input.data):
+            psd_len = NFFT
+            dt = complex
+        else:
+            psd_len = NFFT/2.0 + 1
+            dt = float
+        psd = np.empty((self.input.shape[0],
+                       psd_len),dtype=dt)
+
+        for i in xrange(self.input.data.shape[0]):
+            temp,f =  tsa.mlab.psd(self.input.data[i],
+                        NFFT=NFFT,
+                        Fs=Fs,
+                        detrend=detrend,
+                        window=window,
+                        noverlap=n_overlap)
+            psd[i] = temp.squeeze()
+
+        return f,psd
+    @desc.setattr_on_read
+    def cpsd(self):
+
+        """
+        This outputs both the PSD and the CSD calculated using
+        :func:`algorithms.get_spectra`.
+
+        Returns
+        -------
+
+        (f,s): tuple
+           f: Frequency bands over which the psd/csd are calculated and
+           s: the n by n by len(f) matrix of PSD (on the main diagonal) and CSD
+           (off diagonal)
+           
+        """
+            
+        self.welch_method = self.method
+        self.welch_method['this_method'] = 'welch'
+        self.welch_method['Fs'] = self.input.sampling_rate
+        f,spectrum_welch = tsa.get_spectra(self.input.data,
+                                           method=self.welch_method)
+
+        return f,spectrum_welch
+
+    @desc.setattr_on_read
+    def periodogram(self):
+        """
+
+        This is the spectrum estimated as the FFT of the time-series
+
+        Returns
+        -------
+        (f,spectrum): f is an array with the frequencies and spectrum is the
+        complex-valued FFT. 
+        
+        """
+
+        return tsa.periodogram(self.input.data,Fs=self.input.sampling_rate)
 
     @desc.setattr_on_read
     def spectrum_fourier(self):
@@ -226,56 +249,51 @@ class CoherenceAnalyzer(BaseAnalyzer):
         ----------
 
         input: TimeSeries object
+           Containing the data to analyze.
+           
+        method: dict, optional,
+            This is the method used for spectral analysis of the signal for the
+            coherence caclulation. See :func:`algorithms.get_spectra`
+            documentation for details.  
 
-        method: dict, optional, see :func:`get_spectra` documentation for
-        details.
-
-        unwrap_phases: bool, optional (defaults to False)
-           Whether to unwrap the phases. This should be True if you
-           assume that the time-delay is the same for all the frequency bands
-           examined  
+        unwrap_phases: bool, optional
+           Whether to unwrap the phases. This should be True if you assume that
+           the time-delay is the same for all the frequency bands. See
+           _[Sun2005] for details. Default : False   
 
         Examples
         --------
 
         >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),sampling_rate=np.pi)
-        >>> c1 = ta.CoherenceAnalyzer(t1)
+        >>> c1 = CoherenceAnalyzer(t1)
         >>> c1.method['Fs']
         3.14159265359 Hz
         >>> c1.method['this_method']
-        'mlab'
-        >>> c1[0,1]
-        array([ 0.94993377+0.j        ,  0.94950254-0.03322532j,
-                0.86963629-0.4570688j ,  0.89177679-0.3847649j ,
-                0.90987709-0.31906821j,  0.92173682-0.26785455j,
-                0.92944359-0.22848318j,  0.93460158-0.19774838j,
-                0.93817683-0.17323391j,  0.94073760-0.15325746j,
-                0.94262536-0.13665662j,  0.94405195-0.12261778j,
-                0.94515318-0.11056055j,  0.94601882-0.10006254j,
-                0.94670992-0.09081034j,  0.94726903-0.08256727j,
-                0.94772646-0.07515169j,  0.94810425-0.06842227j,
-                0.94841870-0.06226777j,  0.94868206-0.0565999j ,
-                0.94890362-0.05134834j,  0.94909057-0.0464573j ,
-                0.94924845-0.04188344j,  0.94938163-0.03759492j,
-                0.94949349-0.033572j  ,  0.94958665-0.02980985j,
-                0.94966305-0.02632586j,  0.94972394-0.02317706j,
-                0.94976954-0.0205051j ,  0.94979758-0.01867258j,
-                0.94979557-0.01880992j,  0.94965655-0.02664024j,  1.00000000+0.j        ])
+        'welch'
+        >>> c1.coherency[0,1]
+        array([ 0.9499+0.j    ,  0.9495-0.0332j,  0.8696-0.4571j,  0.8918-0.3848j,
+                0.9099-0.3191j,  0.9217-0.2679j,  0.9294-0.2285j,  0.9346-0.1977j,
+                0.9382-0.1732j,  0.9407-0.1533j,  0.9426-0.1367j,  0.9441-0.1226j,
+                0.9452-0.1106j,  0.9460-0.1001j,  0.9467-0.0908j,  0.9473-0.0826j,
+                0.9477-0.0752j,  0.9481-0.0684j,  0.9484-0.0623j,  0.9487-0.0566j,
+                0.9489-0.0513j,  0.9491-0.0465j,  0.9492-0.0419j,  0.9494-0.0376j,
+                0.9495-0.0336j,  0.9496-0.0298j,  0.9497-0.0263j,  0.9497-0.0232j,
+                0.9498-0.0205j,  0.9498-0.0187j,  0.9498-0.0188j,  0.9497-0.0266j,
+                1.0000+0.j    ])
+
         >>> c1.phase[0,1]
-        array([ 0.        , -0.03497807, -0.4839064 , -0.40732853, -0.33727315,
-               -0.28280862, -0.24104816, -0.20851049, -0.18259287, -0.16149329,
-               -0.14397143, -0.12916149, -0.11644712, -0.10538042, -0.09562945,
-               -0.08694374, -0.07913123, -0.07204255, -0.06556021, -0.05959097,
-               -0.0540606 , -0.04891024, -0.04409413, -0.0395787 , -0.03534307,
-               -0.03138214, -0.02771417, -0.02439915, -0.0215862 , -0.019657  ,
-               -0.01980159, -0.02804515,  0.        ])
+        array([ 0.    , -0.035 , -0.4839, -0.4073, -0.3373, -0.2828, -0.241 ,
+               -0.2085, -0.1826, -0.1615, -0.144 , -0.1292, -0.1164, -0.1054,
+               -0.0956, -0.0869, -0.0791, -0.072 , -0.0656, -0.0596, -0.0541,
+               -0.0489, -0.0441, -0.0396, -0.0353, -0.0314, -0.0277, -0.0244,
+               -0.0216, -0.0197, -0.0198, -0.028 ,  0.    ])
 
         """ 
         BaseAnalyzer.__init__(self,input)
         
         #Set the variables for spectral estimation (can also be entered by user):
         if method is None:
-            self.method = {'this_method':'mlab'}
+            self.method = {'this_method':'welch'}
         else:
             self.method = method
         
@@ -286,7 +304,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
         self._unwrap_phases = unwrap_phases
         
     @desc.setattr_on_read
-    def output(self):
+    def coherency(self):
         """The standard output for this kind of analyzer is the coherency """
         data = self.input.data
         tseries_length = data.shape[0]
@@ -638,13 +656,13 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         #Set the variables for spectral estimation (can also be entered by
         #user): 
         if method is None:
-            self.method = {'this_method':'mlab'}
+            self.method = {'this_method':'welch'}
 
         else:
             self.method = method
 
-        if self.method['this_method']!='mlab':
-            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be mlab")
+        if self.method['this_method']!='welch':
+            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be welch")
             
 
         #Additional parameters for the coherency estimation: 
@@ -654,7 +672,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         self.scale_by_freq = scale_by_freq
 
     @desc.setattr_on_read
-    def output(self):
+    def coherency(self):
         """ The default behavior is to calculate the cache, extract it and then
         output the coherency""" 
         coherency = tsa.cache_to_coherency(self.cache,self.ij)
@@ -664,7 +682,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def coherence(self):
         """ The coherence values for the output"""
-        coherence = np.abs(self.output**2)
+        coherence = np.abs(self.coherency**2)
        
         return coherence
 
@@ -704,7 +722,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     def relative_phases(self):
         """The frequency-band dependent relative phase between the two
         time-series """
-        return np.angle(self.output)
+        return np.angle(self.coherency)
        
     @desc.setattr_on_read
     def delay(self):
@@ -769,17 +787,18 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
 
         self.seed = seed_time_series
         self.target = target_time_series
-
+        
         #Set the variables for spectral estimation (can also be entered by
         #user): 
         if method is None:
-            self.method = {'this_method':'mlab'}
+            self.method = {'this_method':'welch'}
 
         else:
             self.method = method
 
-        if self.method['this_method']!='mlab':
-            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be mlab")
+        
+        if self.method.has_key('this_method') and self.method['this_method']!='welch':
+            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be welch")
             
 
         #Additional parameters for the coherency estimation: 
@@ -788,6 +807,15 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
         self.prefer_speed_over_memory = prefer_speed_over_memory
         self.scale_by_freq = scale_by_freq
 
+    @desc.setattr_on_read
+    def coherence(self):
+        """
+        The coherence between each of the channels of the seed time series and
+        all the channels of the target time-series. 
+
+        """
+        return np.abs(self.coherency)**2
+    
     @desc.setattr_on_read
     def frequencies(self):
         """Get the central frequencies for the frequency bands, given the
@@ -891,7 +919,7 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
     def relative_phases(self):
         """The frequency-band dependent relative phase between the two
         time-series """
-        return np.angle(self.output)
+        return np.angle(self.coherency)
        
     @desc.setattr_on_read
     def delay(self):
@@ -903,10 +931,32 @@ class CorrelationAnalyzer(BaseAnalyzer):
     CoherenceAnalyzer"""
 
     def __init__(self,input=None):
+        """
+        Parameters
+        ----------
+
+        input: TimeSeries object
+           Containing the data to analyze.
+
+        Examples
+        --------
+        >>> t1 = ts.TimeSeries(data = np.sin(np.arange(0,10*np.pi,10*np.pi/100)).reshape(2,50),sampling_rate=np.pi)
+        >>> c1 = CorrelationAnalyzer(t1)
+        >>> c1 = CorrelationAnalyzer(t1)
+        >>> c1.corrcoef
+        array([[ 1., -1.],
+               [-1.,  1.]])
+        >>> c1.xcorr.sampling_rate
+        3.1415926536 Hz
+        >>> c1.xcorr.t0
+        -15.915494309150001 s
+        
+        """ 
+
         BaseAnalyzer.__init__(self,input)
 
     @desc.setattr_on_read
-    def output(self):
+    def corrcoef(self):
         """The correlation coefficient between every pairwise combination of
         time-series contained in the object""" 
         return np.corrcoef(self.input.data)  
@@ -920,7 +970,9 @@ class CorrelationAnalyzer(BaseAnalyzer):
         -------
 
         TimeSeries: the time-dependent cross-correlation, with zero-lag
-        at time=0"""
+        at time=0
+
+        """
         tseries_length = self.input.data.shape[0]
         t_points = self.input.data.shape[-1]
         xcorr = np.zeros((tseries_length,
@@ -949,8 +1001,10 @@ class CorrelationAnalyzer(BaseAnalyzer):
         Returns
         -------
 
-        TimeSeries: the time-dependent cross-correlation, with zero-lag
-        at time=0"""
+        TimeSeries: A TimeSeries object
+            the time-dependent cross-correlation, with zero-lag at time=0
+
+        """
 
         tseries_length = self.input.data.shape[0]
         t_points = self.input.data.shape[-1]
@@ -964,7 +1018,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
                     self.input.data[i],self.input.data[j],all_lags=True
                     )
                 xcorr[i,j] /= (xcorr[i,j,t_points])
-                xcorr[i,j] *= self.output[i,j]
+                xcorr[i,j] *= self.corrcoef[i,j]
 
         idx = tsu.tril_indices(tseries_length,-1)
         xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
@@ -1080,7 +1134,9 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                 #No need to do that for the Events object:
                 self.events = events
         else:
-            raise ValueError("Input 'events' to EventRelatedAnalyzer must be of type Events or of type TimeSeries")
+            err = ("Input 'events' to EventRelatedAnalyzer must be of type "
+                   "Events or of type TimeSeries, %r given" % events )
+            raise ValueError(err)
    
         self.sampling_rate = time_series.sampling_rate
         self.sampling_interval = time_series.sampling_interval
@@ -1175,7 +1231,6 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                                                    this_e,
                                                    -self.offset+1,
                                                    self.len_et-self.offset-2)
-                print this_h.shape
                 h[i][e_idx] = this_h
                 
         h = np.array(h).squeeze()
@@ -1342,7 +1397,7 @@ class HilbertAnalyzer(BaseAnalyzer):
         BaseAnalyzer.__init__(self,input)
         
     @desc.setattr_on_read
-    def output(self):
+    def analytic(self):
         """The natural output for this analyzer is the analytic signal """ 
         data = self.input.data
         sampling_rate = self.input.sampling_rate
@@ -1357,23 +1412,23 @@ class HilbertAnalyzer(BaseAnalyzer):
         
     @desc.setattr_on_read
     def amplitude(self):
-        return ts.TimeSeries(data=np.abs(self.output.data),
-                                 sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=np.abs(self.analytic.data),
+                                 sampling_rate=self.analytic.sampling_rate)
                                  
     @desc.setattr_on_read
     def phase(self):
-        return ts.TimeSeries(data=np.angle(self.output.data),
-                                 sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=np.angle(self.analytic.data),
+                                 sampling_rate=self.analytic.sampling_rate)
 
     @desc.setattr_on_read
     def real(self):
-        return ts.TimeSeries(data=self.output.data.real,
-                                    sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=self.analytic.data.real,
+                                    sampling_rate=self.analytic.sampling_rate)
     
     @desc.setattr_on_read
     def imag(self):
-        return ts.TimeSeries(data=self.output.data.imag,
-                                    sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=self.analytic.data.imag,
+                                    sampling_rate=self.analytic.sampling_rate)
 
 
 class FilterAnalyzer(desc.ResetMixin):
@@ -1542,7 +1597,7 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
             self.sd = self.freqs*self.sd_rel
 
     @desc.setattr_on_read
-    def output(self):
+    def analytic(self):
         """The natural output for this analyzer is the analytic signal"""
         data = self.input.data
         sampling_rate = self.input.sampling_rate
@@ -1570,22 +1625,153 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
 
     @desc.setattr_on_read
     def amplitude(self):
-        return ts.TimeSeries(data=np.abs(self.output.data),
-                                    sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=np.abs(self.analytic.data),
+                                    sampling_rate=self.analytic.sampling_rate)
                                  
     @desc.setattr_on_read
     def phase(self):
-        return ts.TimeSeries(data=np.angle(self.output.data),
-                                    sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=np.angle(self.analytic.data),
+                                    sampling_rate=self.analytic.sampling_rate)
 
     @desc.setattr_on_read
     def real(self):
-        return ts.TimeSeries(data=self.output.data.real,
-                                    sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=self.analytic.data.real,
+                                    sampling_rate=self.analytic.sampling_rate)
     
     @desc.setattr_on_read
     def imag(self):
-        return ts.TimeSeries(data=self.output.data.imag,
-                                    sampling_rate=self.output.sampling_rate)
+        return ts.TimeSeries(data=self.analytic.data.imag,
+                                    sampling_rate=self.analytic.sampling_rate)
 
 
+def signal_noise(response):
+    """
+    Signal and noise as defined in Borst and Theunissen 1999, Figure 2
+
+    Parameters
+    ----------
+
+    response: nitime TimeSeries object
+       The data here are individual responses of a single unit to the same
+       stimulus, with repetitions being the first dimension and time as the
+       last dimension 
+    
+    """
+
+    signal = np.mean(response.data,0) #The estimate of the signal is the average
+                                 #response
+                                 
+    noise =  response.data - signal #Noise is the individual
+                               #repetition's deviation from the
+                               #estimate of the signal
+
+    #Return TimeSeries objects with the sampling rate of the input: 
+    return  (ts.TimeSeries(signal,sampling_rate=response.sampling_rate),
+             ts.TimeSeries(noise,sampling_rate=response.sampling_rate))
+    
+class SNRAnalyzer(BaseAnalyzer):
+    """
+    Calculate SNR for a response to repetitions of the same stimulus, according
+    to [Borst1999]_ (Figure 2) and [Hsu2004]_.
+
+    .. [Hsu2004] Hsu A, Borst A and Theunissen, FE (2004) Quantifying
+    variability in neural responses ans its application for the validation of
+    model predictions. Network: Comput Neural Syst 15:91-109
+
+    .. [Borst1999] Borst A and Theunissen FE (1999) Information theory and
+    neural coding. Nat Neurosci 2:947-957
+    
+    """
+
+    def __init__(self,input=None,bandwidth=None,adaptive=False,low_bias=False):
+        """
+        Initializer for the multi_taper_SNR object
+
+        Parameters
+        ----------
+        input: TimeSeries object
+
+        bandwidth: float,
+           The bandwidth of the windowing function will determine the number
+           tapers to use. This parameters represents trade-off between
+           frequency resolution (lower main lobe bandwidth for the taper) and
+           variance reduction (higher bandwidth and number of averaged
+           estimates). Per default will be set to 4 times the fundamental
+           frequency, such that NW=4
+
+        adaptive: bool, default to False
+            Whether to set the weights for the tapered spectra according to the
+            adaptive algorithm [Thompson2007]_.
+
+        low_bias : bool, default to False
+            Rather than use 2NW tapers, only use the tapers that have better
+            than 90% spectral concentration within the bandwidth (still using a
+            maximum of 2NW tapers)  
+
+            .. [Thompson2007] Thompson, DJ Jackknifing multitaper spectrum
+            estimates. IEEE Signal Processing Magazing. 24: 20-30
+
+        """
+        self.input = input
+        self.signal,self.noise = signal_noise(input) 
+        self.bandwidth = bandwidth
+        self.adaptive = adaptive
+        self.low_bias = low_bias
+
+    @desc.setattr_on_read
+    def mt_frequencies(self):
+        return np.linspace(0, self.input.sampling_rate/2,
+                           self.input.data.shape[-1]/2 + 1)
+
+    @desc.setattr_on_read
+    def mt_signal_psd(self):
+        _,p,_ = tsa.multi_taper_psd(self.signal.data,
+                                    Fs=self.input.sampling_rate,
+                                    BW=self.bandwidth,adaptive=self.adaptive,
+                                    low_bias=self.low_bias)
+        return p
+    
+    @desc.setattr_on_read
+    def mt_noise_psd(self):
+        p = np.empty((self.noise.data.shape[0],
+                     self.noise.data.shape[-1]/2+1))
+        
+        for i in xrange(p.shape[0]):
+            _,p[i],_ = tsa.multi_taper_psd(self.noise.data[i],
+                                    Fs=self.input.sampling_rate,
+                                    BW=self.bandwidth,adaptive=self.adaptive,
+                                    low_bias=self.low_bias)
+        return np.mean(p,0)
+    
+    @desc.setattr_on_read
+    def mt_coherence(self):
+        """ """
+        return self.mt_signal_psd/(self.mt_signal_psd + self.mt_noise_psd)
+    
+    @desc.setattr_on_read
+    def mt_information(self):
+        return -1*np.log2(1-self.mt_coherence)
+        #These two formulations should be equivalent
+        #return np.log2(1+self.mt_snr)
+    
+    @desc.setattr_on_read
+    def mt_snr(self):
+        return self.mt_signal_psd/self.mt_noise_psd
+
+    @desc.setattr_on_read
+    def correlation(self):
+        """
+        The correlation between all combinations of trials
+
+        Returns
+        -------
+        (r,e) : tuple
+           r is the mean correlation and e is the mean error of the correlation
+           (with df = n_trials - 1)
+        
+        """
+
+        c = np.corrcoef(self.input.data)
+        c = c[np.tril_indices_from(c,-1)]
+
+        return np.mean(c), stats.sem(c)

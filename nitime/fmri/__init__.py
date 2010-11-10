@@ -7,4 +7,4 @@ This includes:
 
 """
 
-import io,hrf
+import io,hrf,tests

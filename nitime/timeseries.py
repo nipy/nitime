@@ -802,8 +802,6 @@ class TimeSeries(TimeSeriesBase):
         UniformTime([ 4.25,  4.75,  5.25], time_unit='s')
         >>> ts.t0
         4.25 s
-        >>> ts.sampl
-        ts.sampling_interval  ts.sampling_rate      
         >>> ts.sampling_interval
         0.5 s
         >>> ts.sampling_rate

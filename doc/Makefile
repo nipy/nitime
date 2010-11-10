@@ -29,6 +29,7 @@ help:
 clean:
 	-rm -rf _build/* *~ api/generated
 	-rm -rf build/* 
+	-rm examples/fig/*
 htmlonly:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
 	@echo
@@ -38,7 +39,7 @@ api:
 	python ../tools/build_modref_templates.py
 	@echo "Build API docs finished."
 
-html: api htmlonly
+html: rstexamples api htmlonly 
 	@echo "Build HTML and API finished."
 
 latex: api
@@ -67,6 +68,10 @@ doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) _build/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in _build/doctest/output.txt."
+
+
+rstexamples:
+	../tools/make_examples.py
 
 # Sourceforge doesn't appear to have a way of copying the files
 # without specifying a username.  So we'll probably have one target

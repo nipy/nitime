@@ -5,6 +5,7 @@ include INSTALL
 
 graft nitime
 graft doc
+graft tools
 
 # docs subdirs we want to skip
 prune doc/_build

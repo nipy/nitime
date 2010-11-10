@@ -22,8 +22,6 @@ have all of these things at their fingertips.
 __docformat__ = 'restructuredtext'
 
 from version import  __version__
-__status__   = 'alpha'
-__url__     = 'http://neuroimaging.scipy.org'
 
 #The order of the following is important - make sure to import according to the
 #order of dependency (for example, timeseries depends on descriptors, so
@@ -32,6 +30,4 @@ import utils, algorithms, descriptors, timeseries, viz, analysis
 
 from timeseries import *
 
-from numpy.testing import Tester
-test = Tester().test
-bench = Tester().bench
+from .testlib import test

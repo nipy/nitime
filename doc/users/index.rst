@@ -1,4 +1,4 @@
-.. _users-guide-index:
+.. _users-guide:
 
 ============
  User Guide
@@ -10,11 +10,9 @@
 .. toctree::
    :maxdepth: 2
 
-   overview
+   quickstart
    install
+   overview
    tutorial
 
-.. todo::
-
-    Add brief overview of the timeseries code.
 
