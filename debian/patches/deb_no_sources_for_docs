@@ -1,0 +1,12 @@
+--- a/doc/conf.py
++++ b/doc/conf.py
+@@ -130,6 +130,9 @@ today_fmt = '%B %d, %Y, %H:%M PDT'
+ # for source files.
+ exclude_trees = ['_build']
+ 
++# If true, the reST sources are included in the HTML build as _sources/<name>.
++html_copy_source = False
++
+ # The reST default role (used for this markup: `text`) to use for all documents.
+ #default_role = None
+ 
