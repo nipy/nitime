@@ -46,8 +46,7 @@ fig_noise.suptitle('noise')
 
 """
 
-.. image:: fig/simple_ar_01.png
-
+.. image:: fig/simple_ar_01.*
 
 """
 
@@ -56,7 +55,7 @@ fig_ar.suptitle('AR signal')
 
 """
 
-.. image:: fig/simple_ar_02.png
+.. image:: fig/simple_ar_02.*
 
 Now we estimate back the model parameters:
 

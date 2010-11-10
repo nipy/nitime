@@ -43,9 +43,7 @@ def process_dollars(app, docname, source):
     # regular expression for \$
     slashdollar = re.compile(r"\\\$")
 
-    #s = dollars.sub(r":math:`\1`", s)
-    # temp fix for the reST markup the scipy conference site wants
-    s = dollars.sub(r":math:`$\1$`", s)
+    s = dollars.sub(r":math:`\1`", s)
 
     s = slashdollar.sub(r"$", s)
     # change the original {...} things in:

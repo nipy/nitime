@@ -23,6 +23,31 @@ import glob
 from optparse import OptionParser
 
 
+def auto_image(line):
+    """Automatically replace generic image markers with ones that have full
+    size (width/height) info, plus a :target: link to the original png, to be
+    used in the html docs.
+    """
+    img_re = re.compile(r'(\s*)\.\. image::\s*(.*)$')
+    m = img_re.match(line)
+    if m is None:
+        # Not an image declaration, leave the line alone and return unmodified
+        return line
+
+    # Match means it's an image spec, we rewrite it with extra tags
+    ini_space = m.group(1)
+    lines = [line,
+             ini_space + '   :width: 500\n',
+             #ini_space + '   :height: 350\n'
+             ]
+    fspec = m.group(2)
+    if fspec.endswith('.*'):
+        fspec = fspec.replace('.*', '.png')
+    fspec = fspec.replace('fig/', '../_images/')
+    lines.append(ini_space + ('   :target: %s\n' % fspec) )
+    lines.append('\n')
+    return ''.join(lines)
+
 def exfile2rst(filename):
     """Open a Python script and convert it into an ReST string.
     """
@@ -111,6 +136,8 @@ def exfile2rst(filename):
                 code2doc = False
                 s += '\n'
 
+            proc_line = auto_image(proc_line)
+            
             if proc_line:
                 s += proc_line.rstrip() + '\n'
 

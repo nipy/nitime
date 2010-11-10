@@ -36,8 +36,6 @@ examples_header = """
 Examples
 ========
 
-Here are a couple of examples:
-
 .. toctree::
    :maxdepth: 2
    
