@@ -95,7 +95,7 @@ VERSION             = __version__
 PACKAGES            = ['nitime',
                        'nitime.tests',
                        'nitime.fmri',
-                       'nitime.fmri.tests'
+                       'nitime.fmri.tests',
                        ]
 PACKAGE_DATA        = {"nitime": ["LICENSE", "tests/*.txt",
                                   "fmri/tests/*.nii.gz"]}

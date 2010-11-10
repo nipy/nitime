@@ -66,8 +66,8 @@ plt.show = show
 
 # Work in examples directory
 cd('examples')
-if not os.getcwd().endswith('nitime/doc/examples'):
-    raise OSError('This must be run from nitime/doc/examples directory')
+if not os.getcwd().endswith('doc/examples'):
+    raise OSError('This must be run from doc/examples directory')
 
 # Run the conversion from .py to rst file
 sh('../../tools/ex2rst --project Nitime --outdir . .')
