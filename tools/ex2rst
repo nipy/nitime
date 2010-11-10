@@ -175,11 +175,13 @@ def exfile2rstfile(filename, opts):
     if opts.sourceref:
         # write post example see also box
         msg = """
+        
 .. admonition:: Example source code
 
    You can download :download:`the full source code of this example <%s>`.
    This same script is also included in the %s source distribution under the
    :file:`doc/examples/` directory.
+
 """    % (filename, opts.project)
 
         dfile.write(msg)
