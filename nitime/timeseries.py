@@ -247,7 +247,9 @@ class TimeArray(np.ndarray,TimeInterface):
             return NotImplementedError, 'slicing only implemented for 1-d TimeArrays'
         i_start = self.index_at(e.start)[0].max()
         i_stop = self.index_at(e.stop)[0].min()
-        if e.stop != self[i_stop]:
+        if e.start > self[i_start]: # make sure self[i_start] is in epoch e
+            i_start += 1
+        if e.stop > self[i_stop]: # make sure to include self[i_stop]
             i_stop += 1
 
         return slice(i_start,i_stop)
@@ -457,11 +459,6 @@ class UniformTime(np.ndarray,TimeInterface):
         #XXX If data is given - the t0 should be taken from there:
         t0=TimeArray(t0,time_unit=time_unit)
         sampling_interval=TimeArray(sampling_interval,time_unit=time_unit)
-
-        # Check that the inputs are consistent, before making the array
-        # itself:
-        if duration<sampling_interval:
-            raise ValueError('length/duration too short for the sampling_interval/sampling_rate')
         
         # in order for time[-1]-time[0]==duration to be true (which it should)
         # add the samling_interval to the stop value: 
@@ -574,7 +571,9 @@ class UniformTime(np.ndarray,TimeInterface):
             return NotImplementedError, 'slicing only implemented for 1-d TimeArrays'
         i_start = self.index_at(e.start)
         i_stop = self.index_at(e.stop)
-        if e.stop != self[i_stop]:
+        if e.start > self[i_start]: # make sure self[i_start] is in epoch e
+            i_start += 1
+        if e.stop > self[i_stop]: # make sure to include self[i_stop]
             i_stop += 1
 
         return slice(i_start,i_stop)

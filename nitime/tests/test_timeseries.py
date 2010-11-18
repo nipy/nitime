@@ -466,6 +466,7 @@ def test_Epochs():
 
     # one millisecond epoch
     e1ms = ts.Epochs(0,1, time_unit='ms')
+    e09ms = ts.Epochs(0.1,1, time_unit='ms')
     msg = "Seems like a problem with copy=False in TimeArray constructor."
     yield npt.assert_equal(e1ms.duration, ts.TimeArray(1,time_unit='ms'),msg)
 
@@ -480,6 +481,9 @@ def test_Epochs():
         # the sample time arrays are all at least 1ms long, so this should
         # return a timearray that has exactly one time point in it
         yield npt.assert_equal(len(t.during(e1ms)),1)
+
+        # this time epoch should not contain any point
+        yield npt.assert_equal(len(t.during(e09ms)),0)
 
         # make sure, slicing doesn't change the class
         yield npt.assert_equal(type(t),type(t.during(e1ms)))
@@ -518,11 +522,9 @@ def test_Epochs():
 
 
         # if an epoch lies entirely between samples in the timeseries, return
-        # the previous sample. We define the bin as any time between
-        # [t,t+delta_t)
+        # return an empty array
         eshort = ts.Epochs(2.5,2.7,time_unit=t.time_unit)
-        yield npt.assert_equal(len(t[eshort].data),1)
-        yield npt.assert_equal(t[eshort].data[0],t[2])
+        yield npt.assert_equal(len(t[eshort].data),0)
 
         e1ms_outofrange = ts.Epochs(200,300,time_unit=t.time_unit)
         # assert that with the epoch moved outside of the time range of our
