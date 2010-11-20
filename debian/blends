@@ -1,0 +1,9 @@
+Format: extended
+Tasks: debian-med/imaging-dev
+Depends: python-nitime
+Language: Python
+
+Tasks: debian-med/imaging
+Recommends: python-nitime
+Why: Although listed in -dev task, it also has a strong focus on interactive
+ data analysis.
