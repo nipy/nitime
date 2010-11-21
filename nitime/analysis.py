@@ -97,7 +97,7 @@ class SpectralAnalyzer(BaseAnalyzer):
 
         Examples
         --------
-
+        >>> np.set_printoptions(precision=4)  # for doctesting
         >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),
         ... sampling_rate=np.pi)
         >>> s1 = SpectralAnalyzer(t1)
@@ -263,7 +263,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
 
         Examples
         --------
-
+        >>> np.set_printoptions(precision=4)  # for doctesting
         >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),sampling_rate=np.pi)
         >>> c1 = CoherenceAnalyzer(t1)
         >>> c1.method['Fs']
