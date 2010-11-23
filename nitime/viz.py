@@ -1302,7 +1302,7 @@ def plot_corr_diff(tseries1,tseries2,fig=None,
         SNR1.append(nta.SNRAnalyzer(ts.TimeSeries(tseries1.data[i],
                                     sampling_rate=tseries1.sampling_rate)))
                                 
-        corr1.append(SNR1[-1].correlation[0])
+        corr1.append(np.arctanh(np.abs(SNR1[-1].correlation[0])))
         corr_e1.append(SNR1[-1].correlation[1])
         
         SNR2.append(nta.SNRAnalyzer(ts.TimeSeries(tseries2.data[i],
