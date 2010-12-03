@@ -77,6 +77,27 @@ class TimeInterface(object):
     This should be thought of as an abstract base class. """
 
     time_unit = None
+
+def get_time_unit(obj):
+    """
+    Extract the time unit of the object. If it is an iterable, get the time
+    unit of the first element.
+    
+    """
+
+    # If this is a Time object, no problem:
+    if isinstance(obj, TimeInterface):
+        return obj.time_unit
+
+    # Otherwise, if it is iterable, we recurse on it:
+    try:
+        it=iter(obj)
+    except TypeError:
+        return None
+    else:
+        return get_time_unit(it.next())
+    
+
     
 class TimeArray(np.ndarray,TimeInterface):
     """Base-class for time representations, implementing the TimeInterface"""  
@@ -89,10 +110,21 @@ class TimeArray(np.ndarray,TimeInterface):
              raise ValueError('Invalid time unit %s, must be one of %s' %
                              (time_unit,time_unit_conversion.keys()))         
 
+        # Get the conversion factor from the input:
         conv_fac = time_unit_conversion[time_unit]
 
+        # We check whether the data has a time-unit somewhere inside (for
+        # example, if it is a list of TimeArray objects):
+        if time_unit is None:
+            # Call get_time_unit to pull the time_unit out from inside:
+            time_unit = get_time_unit(data)
+            # If it has a time unit, you should not convert the values to
+            # base_unit, because they are already in that:
+            if time_unit is not None:
+                conv_fac = 1
+                
         # We can only honor the copy flag in a very narrow set of cases
-        # if data is already an TimeArray or if data is an ndarray with
+        # if data is already a TimeArray or if data is an ndarray with
         # dtype=int64
         if copy==False:
             if not getattr(data, 'dtype', None) == np.int64:
@@ -123,14 +155,11 @@ class TimeArray(np.ndarray,TimeInterface):
         if time.ndim > 1:
             raise ValueError('TimeArray can only be one-dimensional or 0-d')
         
-        #if time_unit is None and isinstance(data, TimeArray):
-        #    time_unit = data.time_unit
-
         if time_unit is None:
             time_unit = 's'
 
         time.time_unit = time_unit
-        time._conversion_factor = conv_fac
+        time._conversion_factor = time_unit_conversion[time_unit]
         return time
     
     def __array_wrap__(self, out_arr, context=None):

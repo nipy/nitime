@@ -6,6 +6,34 @@ import nose.tools as nt
 import decotest
 
 @decotest.parametric
+def test_get_time_unit():
+
+    number = 4
+    yield npt.assert_equal(ts.get_time_unit(number),None)
+
+    list_of_numbers = [4,5,6]
+    yield npt.assert_equal(ts.get_time_unit(list_of_numbers),None)
+    
+    for tu in ['ps','s','D']:
+        time_point = ts.TimeArray([4],time_unit=tu)
+        yield npt.assert_equal(ts.get_time_unit(time_point),tu)
+
+        list_of_time= [ts.TimeArray(4,time_unit=tu),ts.TimeArray(5,time_unit=tu)]
+        yield npt.assert_equal(ts.get_time_unit(list_of_time),tu)
+
+        # Go crazy, we don't mind:
+        list_of_lists= [[ts.TimeArray(4,time_unit=tu),
+                         ts.TimeArray(5,time_unit=tu)],
+                        [ts.TimeArray(4,time_unit=tu),
+                         ts.TimeArray(5,time_unit=tu)]]
+
+        yield npt.assert_equal(ts.get_time_unit(list_of_lists),tu)
+    
+        time_arr= ts.TimeArray([4,5],time_unit=tu)
+        yield npt.assert_equal(ts.get_time_unit(time_arr),tu)
+
+
+@decotest.parametric
 def test_TimeArray():
 
     time1 = ts.TimeArray(range(100),time_unit='ms')
@@ -15,8 +43,19 @@ def test_TimeArray():
     yield npt.assert_equal(time1.__repr__(),'1000000.0 s')
     #TimeArray can't be more than 1-d:
     yield nt.assert_raises, ValueError, ts.Events, np.zeros((2,2))
-    
 
+    dt = ts.TimeArray(0.001,time_unit='s')
+    tt = ts.TimeArray([dt])
+    yield npt.assert_equal(dt,tt)
+
+    t1 = ts.TimeArray([0,1,2,3])
+    t2 = ts.TimeArray([ts.TimeArray(0),
+                       ts.TimeArray(1),
+                       ts.TimeArray(2),
+                       ts.TimeArray(3)])
+    
+    yield npt.assert_equal(t1,t2)
+    
 def test_TimeArray_init_int64():
     """Make sure that we can initialize TimeArray with an array of ints"""
     time = ts.TimeArray(np.int64(1))
@@ -524,16 +563,16 @@ def test_Events():
             
 
         # make sure the time is retained
-        yield npt.assert_equal(ev1.time,t)
-        yield npt.assert_equal(ev2.time,t)
+        yield npt.assert_equal(ev1.time, t)
+        yield npt.assert_equal(ev2.time, t)
 
         # make sure time unit is correct
         if unit is not None:
-            yield npt.assert_equal(ev1.time_unit,unit)
-            yield npt.assert_equal(ev2.time_unit,unit)
+            yield npt.assert_equal(ev1.time_unit, unit)
+            yield npt.assert_equal(ev2.time_unit, unit)
         else:
-            yield npt.assert_equal(ev1.time_unit,'s')
-            yield npt.assert_equal(ev2.time_unit,'s')
+            yield npt.assert_equal(ev1.time_unit, t.time_unit)
+            yield npt.assert_equal(ev2.time_unit, t.time_unit)
 
         # make sure we can extract data
         yield npt.assert_equal(ev1.data['i'],x)
