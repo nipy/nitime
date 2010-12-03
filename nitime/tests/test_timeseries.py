@@ -478,6 +478,7 @@ def test_Epochs():
     e1ms_ar = ts.Epochs([0,0],[1,1], time_unit='ms')
 
     for t in [tms, tmin, tsec, utms, utmin, utsec]:
+
         # the sample time arrays are all at least 1ms long, so this should
         # return a timearray that has exactly one time point in it
         yield npt.assert_equal(len(t.during(e1ms)),1)

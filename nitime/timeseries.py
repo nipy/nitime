@@ -219,18 +219,26 @@ class TimeArray(np.ndarray,TimeInterface):
        if not hasattr(val,'_conversion_factor'):
            val *= self._conversion_factor
        return np.ndarray.__setitem__(self,key,val)
-    
+
+    # XXX Add a mode flag here:
+    # 1. per default take the closest time-point. This is the current
+    #  implementation
+    # 2. before - taking the time-point before if that exists
+    # 3. after - taking the time-point after if that exists (or return None, if
+    #  you fall off the edge)
+
     def index_at(self,t,tol=None):
         """ Returns the integer indices that corresponds to the time t"""
         t_e = TimeArray(t,time_unit=self.time_unit)
         d = np.abs(self-t_e)
         if tol is None:
-            idx=np.where(d==d.min())
-        else:
-            # tolerance is converted into a time-array, so that it does the
-            # right thing:
-            tol = TimeArray(tol,time_unit=self.time_unit)
-            idx=np.where(d<=tol)            
+            # If no tolerance is specified, use one clock tick of the base_unit:
+            tol = clock_tick
+
+        # tolerance is converted into a time-array, so that it does the
+        # right thing:
+        tol = TimeArray(tol,time_unit=self.time_unit)
+        idx = np.where(d<=tol)[0]
 
         return idx
 
@@ -245,8 +253,18 @@ class TimeArray(np.ndarray,TimeInterface):
 
         if self.ndim != 1:
             return NotImplementedError, 'slicing only implemented for 1-d TimeArrays'
-        i_start = self.index_at(e.start)[0].max()
-        i_stop = self.index_at(e.stop)[0].min()
+
+        #These two should be called with modes, such that they catch the right
+        #slice
+        start = self.index_at(e.start,mode='after')
+        stop = self.index_at(e.stop,mode='before')
+
+        if len(start)==0 and len(stop)==0:
+            # If these are not ther
+            return slice(0)
+
+        i_start = start.max()
+        i_stop = stop.min()
         if e.start > self[i_start]: # make sure self[i_start] is in epoch e
             i_start += 1
         if e.stop > self[i_stop]: # make sure to include self[i_stop]
@@ -310,7 +328,9 @@ class TimeArray(np.ndarray,TimeInterface):
             return np.divide(np.array(self),np.array(d).astype(float))
         else: 
             return np.divide(self,d)           
-        
+
+# Globally define a single tick of the base unit:
+clock_tick = TimeArray(1,time_unit=base_unit)
     
 class UniformTime(np.ndarray,TimeInterface):
     """ A representation of time sampled uniformly
