@@ -587,6 +587,23 @@ def test_Events():
         yield npt.assert_equal(ev2.index.i0,i0)
         yield npt.assert_equal(ev2.index.i1,i1)
 
+        #make sure slicing works
+        #one_event = ts.Events(t[[0]],time_unit=unit,i=[x[0]],j=[y[0]],k=[z[0]])
+        #regular indexing
+        yield npt.assert_equal(ev1[0].data['i'],x[0])
+        yield npt.assert_equal(ev1[0:2].data['i'],x[0:2])
+        
+        # indexing w/ time
+        yield npt.assert_equal(ev1[0.].data['i'],x[0])
+
+        # indexing w/ epoch
+        ep = ts.Epochs(start=0,stop=1.5, time_unit='ms')
+        print ev1[ep]
+        yield npt.assert_equal(ev1[ep].data['i'],x[0])
+
+        # fancy indexing (w/ boolean mask)
+        yield npt.assert_equal(ev1[ev3.index.trial==0].data['j'],y[0:2])
+
 
 @decotest.parametric
 def test_index_at_20101206():
