@@ -1190,4 +1190,29 @@ class Events(TimeInterface):
 ##         self.data = np.array(zip(*data.values()), dtype=dt).view(np.recarray)
         #Or a dict? 
         self.data = dict(data)
+    def __repr__(self):
+        rep = self.__class__.__name__ + ":\n\t" 
+        rep += self.time.__repr__() + "\n\t"
+        rep += self.data.__repr__()
+        return rep
 
+    def __getitem__(self,key):
+        # return scalar TimeArray in case key is integer
+        newdata =  dict()
+        newtime =  self.time[key].reshape(-1)
+        sl = key
+        if isinstance(key,int):
+            sl = [key]
+        elif isinstance(key,float):
+            sl = self.time.index_at(key)
+        elif isinstance(key,Epochs):
+            sl = self.time.slice_during(key)
+        for k,v in self.data.items():
+            # I had to resort to making an array here in order to make fancy
+            # indexing available. Perhaps we should convert all data.values()
+            # to arrays up front in the constructor, since we're already
+            # enforcing `time` to be the same length as every value of data.
+            newdata[k] = np.array(v,copy=False)[sl]
+        # XXX: I don't really understand how labels and index are supposed to
+        # be used, so I'm not implementing them when slicing events - pi 2010-12-04
+        return Events(newtime, **newdata)
