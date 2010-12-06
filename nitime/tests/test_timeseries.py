@@ -588,4 +588,14 @@ def test_Events():
         yield npt.assert_equal(ev2.index.i1,i1)
 
 
-    
+def test_index_at_20101206():
+    """Test for bug reported by Jonathan Taylor on 2010-12-06
+    Date: Mon, 6 Dec 2010 13:28:15 -0800
+    From: Jonathan Taylor <jonathan.taylor@stanford.edu>
+    To: NIPY Developer's List <nipy-devel@neuroimaging.scipy.org>
+    Subject: [Nipy-devel] nitime bug?
+    """
+    A=np.random.standard_normal(40)
+    TS_A=ts.TimeSeries(A,t0=-20,sampling_interval=2)
+    idx=TS_A.time.index_at(TS_A.time)
+    npt.assert_equal(idx,np.arange(40))
