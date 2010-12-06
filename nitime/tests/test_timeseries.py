@@ -595,10 +595,6 @@ def test_index_at_20101206():
     https://github.com/nipy/nitime/issues#issue/35 
 
     bug reported by Jonathan Taylor on 2010-12-06
-    Date: Mon, 6 Dec 2010 13:28:15 -0800
-    From: Jonathan Taylor <jonathan.taylor@stanford.edu>
-    To: NIPY Developer's List <nipy-devel@neuroimaging.scipy.org>
-    Subject: [Nipy-devel] nitime bug?
     """
     A=np.random.standard_normal(40)
     #negative t0
