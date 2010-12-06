@@ -588,6 +588,7 @@ def test_Events():
         yield npt.assert_equal(ev2.index.i1,i1)
 
 
+@decotest.parametric
 def test_index_at_20101206():
     """Test for bug reported by Jonathan Taylor on 2010-12-06
     Date: Mon, 6 Dec 2010 13:28:15 -0800
@@ -596,6 +597,12 @@ def test_index_at_20101206():
     Subject: [Nipy-devel] nitime bug?
     """
     A=np.random.standard_normal(40)
+    #negative t0
     TS_A=ts.TimeSeries(A,t0=-20,sampling_interval=2)
-    idx=TS_A.time.index_at(TS_A.time)
-    npt.assert_equal(idx,np.arange(40))
+    yield npt.assert_equal(TS_A.time.index_at(TS_A.time),np.arange(40))
+    #positive t0
+    TS_A=ts.TimeSeries(A,t0=15,sampling_interval=2)
+    yield npt.assert_equal(TS_A.time.index_at(TS_A.time),np.arange(40))
+    #no t0
+    TS_A=ts.TimeSeries(A,sampling_interval=2)
+    yield npt.assert_equal(TS_A.time.index_at(TS_A.time),np.arange(40))
