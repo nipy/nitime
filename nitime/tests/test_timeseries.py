@@ -590,7 +590,11 @@ def test_Events():
 
 @decotest.parametric
 def test_index_at_20101206():
-    """Test for bug reported by Jonathan Taylor on 2010-12-06
+    """Test for incorrect handling of negative t0 for time.index_at
+    
+    https://github.com/nipy/nitime/issues#issue/35 
+
+    bug reported by Jonathan Taylor on 2010-12-06
     Date: Mon, 6 Dec 2010 13:28:15 -0800
     From: Jonathan Taylor <jonathan.taylor@stanford.edu>
     To: NIPY Developer's List <nipy-devel@neuroimaging.scipy.org>
