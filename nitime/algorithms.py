@@ -2096,6 +2096,8 @@ def my_freqz(b, a=1., Nfreqs=1024, sides='onesided'):
         bw = np.ones(Nfreqs, 'D')*b
     else:
         L = len(b)
+        # D_mn = exp(-j*omega(m)*n)
+        # (D_mn * b) computes b(omega(m)) = sum_{n=0}^L b(n)exp(-j*omega(m)*n)
         DTFT = np.exp(-1j*fgrid[:,np.newaxis]*np.arange(0,L))
         bw = np.dot(DTFT, b)
     if isinstance(a, float_type) or isinstance(a, int_type) or len(a) == 1:

@@ -4,57 +4,6 @@ import matplotlib.pyplot as pp
 import nitime.mar.mar_xy_analysis as mar_xy_ana
 import nitime.mar.mar_tools as mar_tools
 
-def generate_mar(a, cov, N):
-    """
-
-    Generates a multivariate autoregressive dataset given the formula:
-
-    X(t) + sum_{i=1}^{P} a(i)X(t-i) = E(t)
-
-    Where E(t) is a vector of samples from possibly covarying noise processes.
-
-    Parameters
-    ----------
-
-    a : ndarray (P, nc, nc)
-       An order P set of coefficient matrices, each shaped (nc, nc) for nchannel
-       data
-    cov : ndarray (nc, nc)
-       The innovations process covariance
-    N : int
-       how many samples to generate
-
-    Returns
-    -------
-
-    mar, nz
-
-    mar and noise process shaped (nc, N)
-    """
-    n_seq = cov.shape[0]
-    n_order = a.shape[0]
-
-    nz = np.random.multivariate_normal(
-        np.zeros(n_seq), cov, size=(N,)
-        )
-
-    # nz is a (N x n_seq) array
-
-    mar = np.zeros((N, n_seq), 'd')
-
-    # this looks like a redundant loop that can be rolled into a matrix-matrix
-    # multiplication at each coef matrix a(i)
-
-    # this rearranges the equation to read:
-    # X(i) = E(i) - sum_{j=1}^{p} a(j)X(i-j)
-    # where X(n) n < 0 is taken to be 0
-    for i in xrange(N):
-        mar[i,:] = nz[i,:]
-        for j in xrange( min(i, n_order) ): # j logically in set {1, 2, ..., P}
-            mar[i,:] += np.dot(-a[j], mar[i-j-1,:])
-    return mar.transpose(), nz.transpose()
-
-
 np.random.seed(1981)
 
 # example data from Ding, Chen, Bressler 2008 pg 18 (eq 55)
@@ -93,7 +42,7 @@ L = 100
 z = np.empty((N, 2, L))
 nz = np.empty((N, 2, L))
 for i in xrange(N):
-    z[i], nz[i] = generate_mar(am, cov, L)
+    z[i], nz[i] = mar_tools.generate_mar(am, cov, L)
 
 
 # try to estimate the 2nd order (m)AR coefficients--

@@ -224,3 +224,52 @@ def lwr_alternate(r):
         sigf = np.dot(sigf, (idnt-np.dot(kb,ka).T))
 
     return a, sigb
+
+def generate_mar(a, cov, N):
+    """
+    Generates a multivariate autoregressive dataset given the formula:
+
+    X(t) + sum_{i=1}^{P} a(i)X(t-i) = E(t)
+
+    Where E(t) is a vector of samples from possibly covarying noise processes.
+
+    Parameters
+    ----------
+
+    a : ndarray (P, nc, nc)
+       An order P set of coefficient matrices, each shaped (nc, nc) for nchannel
+       data
+    cov : ndarray (nc, nc)
+       The innovations process covariance
+    N : int
+       how many samples to generate
+
+    Returns
+    -------
+
+    mar, nz
+
+    mar and noise process shaped (nc, N)
+    """
+    n_seq = cov.shape[0]
+    n_order = a.shape[0]
+
+    nz = np.random.multivariate_normal(
+        np.zeros(n_seq), cov, size=(N,)
+        )
+
+    # nz is a (N x n_seq) array
+
+    mar = np.zeros((N, n_seq), 'd')
+
+    # this looks like a redundant loop that can be rolled into a matrix-matrix
+    # multiplication at each coef matrix a(i)
+
+    # this rearranges the equation to read:
+    # X(i) = E(i) - sum_{j=1}^{p} a(j)X(i-j)
+    # where X(n) n < 0 is taken to be 0
+    for i in xrange(N):
+        mar[i,:] = nz[i,:]
+        for j in xrange( min(i, n_order) ): # j logically in set {1, 2, ..., P}
+            mar[i,:] += np.dot(-a[j], mar[i-j-1,:])
+    return mar.transpose(), nz.transpose()
