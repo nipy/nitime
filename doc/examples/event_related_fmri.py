@@ -26,6 +26,7 @@ use in the analysis:
 """
 
 from matplotlib.mlab import csv2rec
+import matplotlib.pyplot as plt
 
 import nitime.timeseries as ts
 import nitime.analysis as nta
