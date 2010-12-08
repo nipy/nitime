@@ -113,16 +113,18 @@ class TimeArray(np.ndarray,TimeInterface):
         # Get the conversion factor from the input:
         conv_fac = time_unit_conversion[time_unit]
 
+        # Call get_time_unit to pull the time_unit out from inside:
+        data_time_unit = get_time_unit(data)
+        # If it has a time unit, you should not convert the values to
+        # base_unit, because they are already in that:
+        if data_time_unit is not None:
+            conv_fac = 1
+
         # We check whether the data has a time-unit somewhere inside (for
         # example, if it is a list of TimeArray objects):
         if time_unit is None:
-            # Call get_time_unit to pull the time_unit out from inside:
-            time_unit = get_time_unit(data)
-            # If it has a time unit, you should not convert the values to
-            # base_unit, because they are already in that:
-            if time_unit is not None:
-                conv_fac = 1
-                
+            time_unit = data_time_unit
+
         # We can only honor the copy flag in a very narrow set of cases
         # if data is already a TimeArray or if data is an ndarray with
         # dtype=int64
@@ -135,7 +137,7 @@ class TimeArray(np.ndarray,TimeInterface):
                 time = data.copy()
             else:
                 data_arr = np.asarray(data)
-                if issubclass(data_arr.dtype.type,np.integer):
+                if issubclass(data_arr.dtype.type, np.integer):
                     # If this is an array of integers, cast to 64 bit integer
                     # and convert to the base_unit.
                     #XXX This will fail when even 64 bit is not large enough to
@@ -275,8 +277,8 @@ class TimeArray(np.ndarray,TimeInterface):
 
         # tolerance is converted into a time-array, so that it does the
         # right thing:
-        tol = TimeArray(tol,time_unit=self.time_unit)
-        return np.where(d<=tol)[0]
+        ttol = TimeArray(tol,time_unit=self.time_unit)
+        return np.where(d<=ttol)[0]
 
     def _index_before(self, t):
         # Use the standard Decorate-Sort-Undecorate (Schwartzian transform)

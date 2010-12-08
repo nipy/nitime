@@ -63,6 +63,16 @@ def test_TimeArray_init_int64():
 
     pass
 
+@decotest.parametric
+def test_TimeArray_init_list():
+    """Initializing with a list that contains TimeArray should work.
+    """
+    for t in [0.001, ts.TimeArray(0.001, time_unit='s')]:
+        tl = [t]
+        ta = ts.TimeArray(t, time_unit='s')
+        tla = ts.TimeArray(tl, time_unit='s')
+        yield nt.assert_equal(ta, tla)
+
 
 def test_TimeArray_repr():
     """
@@ -205,17 +215,30 @@ def test_TimeArray_at():
     time1 = ts.TimeArray(range(10),time_unit='ms')
     for i in xrange(10):
         this = time1.at(i)
+        i_ms = ts.TimeArray(i/1000.)
         yield npt.assert_equal(this,ts.TimeArray(i,time_unit='ms'))
-        this_secs=time1.at(ts.TimeArray(i/1000.))
+        this_secs=time1.at(i_ms)
         yield npt.assert_equal(this_secs,ts.TimeArray(i,time_unit='ms'))
         seconds_array = ts.TimeArray(time1,time_unit='s')
         this_secs=seconds_array.at(i/1000.)
         yield npt.assert_equal(this_secs,ts.TimeArray(i,time_unit='ms'))
-        all=time1.at(ts.TimeArray(i/1000.), tol=10)
+        all=time1.at(i_ms, tol=10)
         yield npt.assert_equal(all,time1)
         if i>0 and i<9:
-            this_secs=time1.at(ts.TimeArray(i/1000.), tol=1)
-            yield npt.assert_equal(this_secs,ts.TimeArray([i-1,i,i+1],time_unit='ms'))
+            this_secs = time1.at(i_ms, tol=1)
+            yield npt.assert_equal(this_secs,
+                                   ts.TimeArray([i-1,i,i+1], time_unit='ms'))
+
+
+@decotest.parametric
+def test_TimeArray_at2():
+    time1 = ts.TimeArray(range(10),time_unit='ms')
+    for i in [1]:
+        i_ms = ts.TimeArray(i/1000.)
+        this_secs = time1.at(i_ms, tol=1)
+        yield npt.assert_equal(this_secs,
+                               ts.TimeArray([i-1,i,i+1], time_unit='ms'))
+
 
 @decotest.parametric
 def test_UniformTime_index_at():
