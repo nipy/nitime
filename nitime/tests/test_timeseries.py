@@ -174,11 +174,31 @@ def test_TimeArray_div():
 @decotest.parametric
 def test_TimeArray_index_at():
     time1 = ts.TimeArray(range(10),time_unit='ms')
-    for i in xrange(10):
-        idx = time1.index_at([i])
-        yield npt.assert_equal(idx,np.array(i))
-        idx_secs=time1.index_at(ts.TimeArray(i/1000.))
-        yield npt.assert_equal(idx_secs,np.array(i))
+    for i in xrange(5):
+        # The return value is always an array, so we keep it for multiple tests
+        i_arr = np.array(i)
+        # Check 'closest' indexing mode first
+        idx = time1.index_at(i)
+        yield npt.assert_equal(idx, i_arr)
+
+        # If we index with seconds/1000, results shouldn't vary
+        idx_secs = time1.index_at(ts.TimeArray(i/1000., time_unit='s'))
+        yield npt.assert_equal(idx_secs, i_arr)
+
+        # If we now change the tolerance
+        # In this case, it should still return
+        idx = time1.index_at(i+0.1, tol=0.1)
+        yield npt.assert_equal(idx, i_arr)
+        # But with a smaller tolerance, we should get no indices
+        idx = time1.index_at(i+0.1, tol=0.05)
+        yield npt.assert_equal(idx, np.array([]))
+
+        # Now, check before/after modes
+        idx = time1.index_at(i+0.1, mode='before')
+        yield npt.assert_equal(idx, i_arr)
+
+        idx = time1.index_at(i+0.1, mode='after')
+        yield npt.assert_equal(idx, i_arr+1)
 
 @decotest.parametric
 def test_TimeArray_at():

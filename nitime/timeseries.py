@@ -227,10 +227,48 @@ class TimeArray(np.ndarray,TimeInterface):
     # 3. after - taking the time-point after if that exists (or return None, if
     #  you fall off the edge)
 
-    def index_at(self,t,tol=None):
-        """ Returns the integer indices that corresponds to the time t"""
-        t_e = TimeArray(t,time_unit=self.time_unit)
-        d = np.abs(self-t_e)
+    def index_at(self, t, tol=None, mode='closest'):
+        """ Returns the integer indices that corresponds to the time t
+
+        The returned indices depend on both `tol` and `mode`.  The `tol`
+        parameter specifies how close the given time must be to those present
+        in the array to give a match, when `mode` is `closest`.  The default
+        tolerance is 1 `base_unit` (by default, picoseconds).  If you specify
+        the tolerance as 0, then only *exact* matches are allowed, be careful
+        in this case of possible problems due to floating point roundoff error
+        in your time specification.
+
+        When mode is `before` or `after`, the tolerance is completely ignored.
+        In this case, either the largest time *before* the given `t` or the
+        earliest time *after* the given `t` is returned.
+
+        Parameters
+        ----------
+        t : time-like
+          Anything that is valid input for a TimeArray constructor.
+        tol : time-like, optional
+          Tolerance, specified in the time units of this TimeArray.
+        mode : string
+          One of ['closest', 'before', 'after'].
+
+        Returns
+        -------
+        The array with all the indices where the condition is met.
+          """
+        if not np.iterable(t):
+            t = [t]
+        t_e = TimeArray(t, time_unit=self.time_unit)
+        if mode=='closest':
+            return self._index_closest(t_e, tol)
+        elif mode=='before':
+            return self._index_before(t_e)
+        elif mode=='after':
+            return self._index_after(t_e)
+        else:
+            raise ValueError('Invalid mode specification')
+
+    def _index_closest(self, t, tol=None):
+        d = np.abs(self-t)
         if tol is None:
             # If no tolerance is specified, use one clock tick of the base_unit:
             tol = clock_tick
@@ -238,9 +276,24 @@ class TimeArray(np.ndarray,TimeInterface):
         # tolerance is converted into a time-array, so that it does the
         # right thing:
         tol = TimeArray(tol,time_unit=self.time_unit)
-        idx = np.where(d<=tol)[0]
+        return np.where(d<=tol)[0]
 
-        return idx
+    def _index_before(self, t):
+        # Use the standard Decorate-Sort-Undecorate (Schwartzian transform)
+        # pattern to find the right index.
+        cond = np.where(self <= t)[0]
+        if len(cond) == 0:
+            return cond
+        idx_max = self[cond].argmax()
+        return cond[idx_max]
+
+    def _index_after(self, t):
+        cond = np.where(t < self)[0]
+        if len(cond) == 0:
+            return cond
+
+        idx_min = self[cond].argmin()
+        return cond[idx_min]
 
     def slice_during(self,e):
         """ Returns the slice that corresponds to Epoch e"""
