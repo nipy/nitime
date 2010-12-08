@@ -311,15 +311,20 @@ class TimeArray(np.ndarray,TimeInterface):
 
         #These two should be called with modes, such that they catch the right
         #slice
-        start = self.index_at(e.start,mode='after')
-        stop = self.index_at(e.stop,mode='before')
+        start = self.index_at(e.start, mode='before')
+        stop = self.index_at(e.stop, mode='after')
 
-        if len(start)==0 and len(stop)==0:
-            # If these are not ther
+        # If *either* the start or stop index object comes back as the empty
+        # array, then it means the condition is not satisfied, we return the
+        # slice that does [:0],  i.e., always slices to nothing.
+        if start.shape==(0,) or stop.shape==(0,):
             return slice(0)
 
-        i_start = start.max()
-        i_stop = stop.min()
+        # Now,  we know the start/stop are not empty arrays, but they can be
+        # either scalars or arrays.
+        i_start = start if np.isscalar(start) else start.max()
+        i_stop = stop if np.isscalar(stop) else stop.min()
+
         if e.start > self[i_start]: # make sure self[i_start] is in epoch e
             i_start += 1
         if e.stop > self[i_stop]: # make sure to include self[i_stop]
