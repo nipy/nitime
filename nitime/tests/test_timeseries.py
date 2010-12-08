@@ -606,6 +606,20 @@ def test_Events():
 
 
 @decotest.parametric
+def test_Events_scalar():
+    t = ts.TimeArray(1, time_unit='ms')
+    i, j = 4, 5
+    ev = ts.Events(t, i=i, j=j)
+    # The semantics of scalar indexing into events are such that the returned
+    # value is always a new Events object (the mental model is that of python
+    # strings, where slicing OR scalar indexing still return the same thing, a
+    # string again -- there are no 'string scalars', and there are no 'Event
+    # scalars' either).
+    yield npt.assert_equal(ev.data['i'][0], i)
+    yield npt.assert_equal(ev.data['j'][0], j)
+    
+
+@decotest.parametric
 def test_index_at_20101206():
     """Test for incorrect handling of negative t0 for time.index_at
     

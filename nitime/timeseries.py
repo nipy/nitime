@@ -1160,6 +1160,11 @@ class Events(TimeInterface):
     """Represents timestamps and associated data """ 
 
     def __init__(self, time, labels=None, indices=None, time_unit=None, **data):
+
+        # The time data must be at least a 1-d array, NOT a time scalar
+        if not np.iterable(time):
+            time = [time]
+            
         # First initilaize the TimeArray from the time-stamps
         self.time = TimeArray(time,time_unit=time_unit)
         self.time_unit = self.time.time_unit
@@ -1167,10 +1172,23 @@ class Events(TimeInterface):
         # Make sure time is one-dimensional
         if self.time.ndim != 1:
             raise ValueError('The TimeArray provided can only be one-dimensional ')
-
+        # Ensure that the dict of data values has a known, uniform structure:
+        # all values must be arrays, with at least one dimension.
+        new_data = {}
+        for k,v in data.iteritems():
+            if np.iterable(v):
+                v = np.asarray(v)
+            else:
+                # For scalars, we do NOT want to create 0-d arrays, which are
+                # rather tricky to work with.  So if the input value is not an
+                # iterable object, we turn it into a one-element 1-d array.
+                v = np.array([v])
+            new_data[k] = v
+            
         # Make sure all data has same length
-        for check_v in data.values():
-            if len(check_v) != len(self.time):
+        ntimepts = len(self.time)
+        for check_v in new_data.values():
+            if len(check_v) != ntimepts:
                 raise ValueError('All data in the Events must be of the same length as the associated time')
 
         # Make sure indices have same length and are integers
@@ -1187,11 +1205,12 @@ class Events(TimeInterface):
 ##         dt = [(st,np.array(data[st]).dtype) for st in data] or None
 ##         self.data = np.array(zip(*data.values()), dtype=dt).view(np.recarray)
         #Or a dict? 
-        self.data = dict(data)
+        self.data = new_data
+
     def __repr__(self):
         rep = self.__class__.__name__ + ":\n\t" 
-        rep += self.time.__repr__() + "\n\t"
-        rep += self.data.__repr__()
+        rep += repr(self.time) + "\n\t"
+        rep += repr(self.data)
         return rep
 
     def __getitem__(self,key):
@@ -1199,18 +1218,13 @@ class Events(TimeInterface):
         newdata =  dict()
         newtime =  self.time[key].reshape(-1)
         sl = key
-        if isinstance(key,int):
-            sl = [key]
-        elif isinstance(key,float):
+        if isinstance(key,float):
             sl = self.time.index_at(key)
         elif isinstance(key,Epochs):
             sl = self.time.slice_during(key)
         for k,v in self.data.items():
-            # I had to resort to making an array here in order to make fancy
-            # indexing available. Perhaps we should convert all data.values()
-            # to arrays up front in the constructor, since we're already
-            # enforcing `time` to be the same length as every value of data.
-            newdata[k] = np.array(v,copy=False)[sl]
+            newdata[k] = v[sl]
         # XXX: I don't really understand how labels and index are supposed to
-        # be used, so I'm not implementing them when slicing events - pi 2010-12-04
+        # be used, so I'm not implementing them when slicing events - pi
+        # 2010-12-04
         return Events(newtime, **newdata)
