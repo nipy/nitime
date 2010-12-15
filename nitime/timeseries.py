@@ -944,8 +944,17 @@ class TimeSeries(TimeSeriesBase):
 
         if t0 is None:
            t0=0
-
            
+        # Make sure to grab the time unit from the inputs, if it is provided: 
+        if time_unit is None:
+            #If you gave us a duration with time_unit attached 
+            if isinstance(duration,TimeInterface):
+                time_unit = duration.time_unit
+            #Otherwise, you might have given us a sampling_interval with a
+            #time_unit attached:
+            elif isinstance(sampling_interval,TimeInterface):
+                time_unit = sampling_interval.time_unit
+       
         #Otherwise, you can still call the common constructor to get the real
         #object initialized, with time_unit set to None and that will generate
         #the object with time_unit set to 's':
@@ -961,36 +970,6 @@ class TimeSeries(TimeSeriesBase):
     def at(self,t,tol=None):
         """ Returns the values of the TimeArray object at time t"""
         return self.data[...,self.time.index_at(t)]
-
-            
-        #Calculate the duration, if that is not defined:
-        if duration is None:
-            duration=np.asarray(data).shape[-1]*sampling_interval
-
-        if t0 is None:
-           t0=0
-           
-        # Make sure to grab the time unit from the inputs, if it is provided: 
-        if time_unit is None:
-            #If you gave us a duration with time_unit attached 
-            if isinstance(duration,TimeInterface):
-                time_unit = duration.time_unit
-            #Otherwise, you might have given us a sampling_interval with a
-            #time_unit attached:
-            elif isinstance(sampling_interval,TimeInterface):
-                time_unit = sampling_interval.time_unit
-
-        #Otherwise, you can still call the common constructor to get the real
-        #object initialized, with time_unit set to None and that will generate
-        #the object with time_unit set to 's':  
-        TimeSeriesBase.__init__(self,data,time_unit)
-    
-        self.time_unit = time_unit
-        self.sampling_interval = TimeArray(sampling_interval,
-                                           time_unit=self.time_unit) 
-        self.t0 = TimeArray(t0,time_unit=self.time_unit)
-        self.sampling_rate = sampling_rate
-        self.duration = TimeArray(duration,time_unit=self.time_unit)
 
     def during(self,e):
         """ Returns the TimeSeries slice corresponding to epoch e """
