@@ -429,6 +429,10 @@ def plot_xcorr(xc,ij,fig=None,line_labels=None,xticks=None,yticks=None,
         line_labels.reverse()
         this_labels = line_labels
 
+    #Use the ij input as the labels:
+    else:
+        this_labels =  [str(this) for this in ij].reverse()
+
 
     #Make sure that time displays on the x axis with the units you want:
     conv_fac = xc.time._conversion_factor
