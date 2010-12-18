@@ -1750,7 +1750,8 @@ class SNRAnalyzer(BaseAnalyzer):
     
     @desc.setattr_on_read
     def mt_information(self):
-        return -1*np.log2(1-self.mt_coherence)
+        df = self.mt_frequencies[1]-self.mt_frequencies[0]
+        return -1*np.log2(1-self.mt_coherence) * df
         #These two formulations should be equivalent
         #return np.log2(1+self.mt_snr)
     
