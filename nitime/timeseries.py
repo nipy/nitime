@@ -222,13 +222,6 @@ class TimeArray(np.ndarray,TimeInterface):
            val *= self._conversion_factor
        return np.ndarray.__setitem__(self,key,val)
 
-    # XXX Add a mode flag here:
-    # 1. per default take the closest time-point. This is the current
-    #  implementation
-    # 2. before - taking the time-point before if that exists
-    # 3. after - taking the time-point after if that exists (or return None, if
-    #  you fall off the edge)
-
     def index_at(self, t, tol=None, mode='closest'):
         """ Returns the integer indices that corresponds to the time t
 
@@ -241,8 +234,8 @@ class TimeArray(np.ndarray,TimeInterface):
         in your time specification.
 
         When mode is `before` or `after`, the tolerance is completely ignored.
-        In this case, either the largest time *before* the given `t` or the
-        earliest time *after* the given `t` is returned.
+        In this case, either the largest time equal or *before* the given `t`
+        or the earliest time equal or *after* the given `t` is returned.
 
         Parameters
         ----------
@@ -290,7 +283,7 @@ class TimeArray(np.ndarray,TimeInterface):
         return cond[idx_max]
 
     def _index_after(self, t):
-        cond = np.where(t < self)[0]
+        cond = np.where(t <= self)[0]
         if len(cond) == 0:
             return cond
 
