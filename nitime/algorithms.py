@@ -2065,7 +2065,7 @@ def multi_taper_csd(s, Fs=2*np.pi, BW=None, low_bias=True,
 
     return freqs, csdfs 
 
-def my_freqz(b, a=1., Nfreqs=1024, sides='onesided'):
+def freq_response(b, a=1., Nfreqs=1024, sides='onesided'):
     """
     Returns the frequency response of the IIR or FIR filter described
     by beta and alpha coefficients. 
@@ -2172,7 +2172,7 @@ def yule_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
     # where w0 = 1, and wk = -ak for k>0
     # the transfer function here is H(f) = DTFT(w)
     # leading to Sxx(f) = Vxx(f) / |H(f)|**2 = sigma_v / |H(f)|**2
-    w, hw = my_freqz(sigma_v**0.5, a=np.concatenate(([1], -ak)),
+    w, hw = freq_response(sigma_v**0.5, a=np.concatenate(([1], -ak)),
                      Nfreqs=Nfreqs, sides=sides)
     ar_psd = (hw*hw.conj()).real
     return (w,2*ar_psd) if sides=='onesided' else (w,ar_psd)
@@ -2237,7 +2237,7 @@ def LD_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
     sigma_v = sig[-1]; ak = phi[1:,-1]
     if system:
         return sigma_v, ak
-    w, hw = my_freqz(sigma_v**0.5, a=np.concatenate(([1], -ak)),
+    w, hw = freq_response(sigma_v**0.5, a=np.concatenate(([1], -ak)),
                      Nfreqs=Nfreqs, sides=sides)
     ar_psd = (hw*hw.conj()).real
     return (w,2*ar_psd) if sides=='onesided' else (w,ar_psd)
@@ -2888,10 +2888,10 @@ def transfer_function_xy(a, Nfreqs=1024):
     di = np.r_[1, a[:,1,1]]
 
     # compute A(w) such that A(w)X(w) = Err(w)
-    w, aw = my_freqz(ai, Nfreqs=Nfreqs)
-    _, bw = my_freqz(bi, Nfreqs=Nfreqs)
-    _, cw = my_freqz(ci, Nfreqs=Nfreqs)
-    _, dw = my_freqz(di, Nfreqs=Nfreqs)
+    w, aw = freq_response(ai, Nfreqs=Nfreqs)
+    _, bw = freq_response(bi, Nfreqs=Nfreqs)
+    _, cw = freq_response(ci, Nfreqs=Nfreqs)
+    _, dw = freq_response(di, Nfreqs=Nfreqs)
 
     A = np.array([ [aw, bw], [cw, dw] ])
     # compute the transfer function from Err to X. Since Err(w) is 1(w),
