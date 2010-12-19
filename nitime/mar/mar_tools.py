@@ -1,6 +1,5 @@
 import numpy as np
 from numpy.linalg import inv
-import nitime.algorithms as alg
 
 def crosscov_vector(x, y, nlags=None):
     """
