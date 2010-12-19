@@ -117,7 +117,7 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
 
     >>> import nitime.algorithms as alg
     >>> ar_seq, nz, alpha = ar_generator()
-    >>> fgrid, hz = alg.my_freqz(1.0, a=np.r_[1, -alpha])
+    >>> fgrid, hz = alg.freq_response(1.0, a=np.r_[1, -alpha])
     >>> sdf_ar = (hz*hz.conj()).real
 
     """
@@ -1575,175 +1575,6 @@ def fir_design_matrix(events,len_hrf):
 
     return fir_matrix
 
-#----------goodness of fit utilities ----------------------------------------
-
-def noise_covariance_matrix(x,y):
-    """ Calculates the noise covariance matrix of the errors in predicting a
-    time-series
-    
-    Parameters
-    ----------
-    x,y: ndarray, where x is the actual time-series and y is the prediction
-
-    Returns
-    -------
-    np.matrix, the noise covariance matrix
-    
-    Example
-    -------
-    
-    >>> x = np.matrix([[1,2,3],[1,2,3],[1,2,3]])
-    >>> y = np.matrix([[1,2,3],[1,1,1],[3,3,3]])
-    >>> a = noise_covariance_matrix(x,y)
-    >>> a
-    matrix([[ 0.,  0.,  0.],
-            [ 0.,  1.,  1.],
-            [ 0.,  1.,  1.]])
-
-    """
-    e = x-y
-
-    return np.matrix(np.cov(e))
-    
-def akaike_information_criterion(x,y,m):
-    """ A measure of the goodness of fit of a statistical model based on the
-    number of parameters,  and the model likelihood, calculated from the
-    discrepancy between the variable x and the model estimate of that
-    variable.
-
-    Parameters
-    ----------
-
-    x: the actual time-series
-
-    y: the model prediction for the time-series
-    
-    m: int, the number of parameters in the model.
-    
-    Returns
-    -------
-
-    AIC: float
-        The value of the AIC
-        
-    Notes
-    -----
-    This is an implementation of equation (50) in Ding et al. (2006)
-    [Ding2006]_:
-
-    .. math ::
-
-    AIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m}{N_{total}},
-
-    where $\Sigma$ is the noise covariance matrix. In auto-regressive model
-    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual variance
-    in estimating time-series $i$ from $j$, $p$ is the dimensionality of the
-    data, $m$ is the number of parameters in the model and $N_{total}$ is the
-    number of time-points.   
-    
-    .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
-       Basic Theory and Application to
-       Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
-    
-    See also: http://en.wikipedia.org/wiki/Akaike_information_criterion
-    """
-    sigma = noise_covariance_matrix(x,y)
-    AIC = (2*( np.log(linalg.det(sigma)) ) +
-           ( (2*(sigma.shape[0]**2) * m ) / (x.shape[-1]) ))
-    
-    return AIC
-
-def akaike_information_criterion_c(x,y,m):
-    """ The Akaike Information Criterion, corrected for small sample size.
-
-    Parameters
-    ----------
-    x: the actual time-series
-
-    y: the model prediction for the time-series
-    
-    m: int, the number of parameters in the model.
-    
-    n: int, the total number of time-points/samples 
-
-
-    Returns
-    -------
-
-    AICc: float
-        The value of the AIC, corrected for small sample size
-
-    Notes
-    -----
-    Taken from: http://en.wikipedia.org/wiki/Akaike_information_criterion:
-
-    .. math::
-
-    AICc = AIC + \frac{2m(m+1)}{n-m-1}
-
-    Where m is the number of parameters in the model and n is the number of
-    time-points in the data.
-
-    See also :func:`akaike_information_criterion`
-    
-    """
-
-    AIC = akaike_information_criterion(x,y,m)
-    AICc = AIC + (2*m*(m+1))/(x.shape[-1]-m-1)
-
-    return AICc
-
-def bayesian_information_criterion(x,y,m):
-    """The Bayesian Information Criterion, also known as the Schwarz criterion
-     is a measure of goodness of fit of a statistical model, based on the
-     number of model parameters and the likelihood of the model
-
-    Parameters
-    ----------
-
-    x: the actual time-series
-
-    y: the model prediction for the time-series
-    
-    m: int, the number of parameters in the model.
-    
-    n: int, the total number of time-points/samples 
-    
-    Returns
-    -------
-
-    BIC: float
-       The value of the BIC
-
-    Notes
-    -----
-        This is an implementation of equation (51) in Ding et al. (2006)
-    [Ding2006]_:
-
-    .. math ::
-
-    BIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m log(N_{total})}{N_{total}},
-
-    where $\Sigma$ is the noise covariance matrix. In auto-regressive model
-    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual variance
-    in estimating time-series $i$ from $j$, $p$ is the dimensionality of the
-    data, $m$ is the number of parameters in the model and $N_{total}$ is the
-    number of time-points.   
-    
-    .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
-       Basic Theory and Application to
-       Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
-
-    
-    See http://en.wikipedia.org/wiki/Schwarz_criterion
-
-    """ 
-    sigma = noise_covariance_matrix(x,y)
-    BIC =  (2*( np.log(linalg.det(sigma)) ) +
-           ( (2*(sigma.shape[0]**2) * m * np.log(x.shape[-1])) / (x.shape[-1]) ))
-    return BIC
-
-
 #We carry around a copy of the hilbert transform analytic signal from newer
 #versions of scipy, in case someone is using an older version of scipy with a
 #borked hilbert:
@@ -2054,3 +1885,153 @@ def generate_mar(a, cov, N):
         for j in xrange( min(i, n_order) ): # j logically in set {1, 2, ..., P}
             mar[i,:] += np.dot(-a[j], mar[i-j-1,:])
     return mar.transpose(), nz.transpose()
+
+
+#----------goodness of fit utilities ----------------------------------------
+
+def akaike_information_criterion(x,m):
+
+    """
+
+    A measure of the goodness of fit of an auto-regressive model based on the
+    model order and the error covariance.
+
+    Parameters
+    ----------
+
+    x: the time-series
+
+    m: int, the model order.
+
+    Returns
+    -------
+
+    AIC: float
+        The value of the AIC
+
+    Notes
+    -----
+    This is an implementation of equation (50) in Ding et al. (2006)
+    [Ding2006]_:
+
+    .. math ::
+
+    AIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m}{N_{total}},
+
+    where $\Sigma$ is the noise covariance matrix. In auto-regressive model
+    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual variance
+    in estimating time-series $i$ from $j$, $p$ is the dimensionality of the
+    data, $m$ is the number of parameters in the model and $N_{total}$ is the
+    number of time-points.
+
+    .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
+       Basic Theory and Application to
+       Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
+
+    See also: http://en.wikipedia.org/wiki/Akaike_information_criterion
+    """
+
+    # Number of channels:
+    p = x.shape[0]
+    # Get the error covariance from the LWR estimate, nlags is the order of the
+    # model plus the zero lag:
+    Rxx = autocov_vector(x,nlags=m)
+    _,sigma = lwr(Rxx)
+    print sigma
+    AIC = (2*( np.log(linalg.det(sigma)) ) +
+           ( (2*(p**2) * m ) / (x.shape[-1]) ))
+
+    return AIC
+
+def akaike_information_criterion_c(x,m):
+    """ The Akaike Information Criterion, corrected for small sample size.
+
+    Parameters
+    ----------
+    x: float array
+        Time-series data
+
+    m: int,
+       The order of the auto-regressive model
+
+    Returns
+    -------
+
+    AICc: float
+        The value of the AIC, corrected for small sample size
+
+    Notes
+    -----
+    Taken from: http://en.wikipedia.org/wiki/Akaike_information_criterion:
+
+    .. math::
+
+    AICc = AIC + \frac{2m(m+1)}{n-m-1}
+
+    Where m is the number of parameters in the model and n is the number of
+    time-points in the data.
+
+    See also :func:`akaike_information_criterion`
+
+    """
+
+    AIC = akaike_information_criterion(x,m)
+    AICc = AIC + (2*m*(m+1))/(x.shape[-1]-m-1)
+
+    return AICc
+
+def bayesian_information_criterion(x,y,m):
+    """The Bayesian Information Criterion, also known as the Schwarz criterion
+     is a measure of goodness of fit of a statistical model, based on the
+     number of model parameters and the likelihood of the model
+
+    Parameters
+    ----------
+
+    x: the actual time-series
+
+    y: the model prediction for the time-series
+
+    m: int, the number of parameters in the model.
+
+    n: int, the total number of time-points/samples
+
+    Returns
+    -------
+
+    BIC: float
+       The value of the BIC
+
+    Notes
+    -----
+        This is an implementation of equation (51) in Ding et al. (2006)
+    [Ding2006]_:
+
+    .. math ::
+
+    BIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m log(N_{total})}{N_{total}},
+
+    where $\Sigma$ is the noise covariance matrix. In auto-regressive model
+    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual variance
+    in estimating time-series $i$ from $j$, $p$ is the dimensionality of the
+    data, $m$ is the number of parameters in the model and $N_{total}$ is the
+    number of time-points.
+
+    .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
+       Basic Theory and Application to
+       Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
+
+
+    See http://en.wikipedia.org/wiki/Schwarz_criterion
+
+    """
+    # Number of channels:
+    p = x.shape[0]
+    # Get the error covariance from the LWR estimate:
+    Rxx = autocov_vector(x,nlags=m)
+    _,sigma = lwr(Rxx)
+
+    BIC =  (2*( np.log(linalg.det(sigma)) ) +
+           ( (2*(p**2) * m * np.log(x.shape[-1])) / (x.shape[-1]) ))
+
+    return BIC
