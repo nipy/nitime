@@ -1,14 +1,34 @@
+
+"""
+
+.. _mar:
+
+=====================================
+Mulitvariate auto-regressive modeling
+=====================================
+
+"""
+
 import numpy as np
 import matplotlib.pyplot as pp
 
-import nitime.mar.mar_xy_analysis as mar_xy_ana
-import nitime.mar.mar_tools as mar_tools
+import nitime.algorithms as alg
+import nitime.utils as utils
 
 np.random.seed(1981)
 
-# example data from Ding, Chen, Bressler 2008 pg 18 (eq 55)
+"""
+
+The example data from Ding, Chen, Bressler 2008 pg 18 (eq 55)
 # X[t] = 0.9X[t-1] - 0.5X[t-2] + err_x
 # Y[t] = 0.8Y[t-1] - 0.5Y[t-2] + 0.16X[t-1] - 0.2X[t-2] + err_y
+
+"""
+#a1 = np.array([ [0.9, 0],
+#                [0.16, 0.8] ])
+
+#a2 = np.array([ [-0.5, 0],
+#                [-0.2, -0.5] ])
 
 a1 = np.array([ [0.9, 0],
                 [0.16, 0.8] ])
@@ -16,11 +36,12 @@ a1 = np.array([ [0.9, 0],
 a2 = np.array([ [-0.5, 0],
                 [-0.2, -0.5] ])
 
-# re-balance the equation to satisfying the relationship
-# Z[t] + sum_{i=1}^2 a[i]Z[t-i] = Err[t],
-# where Z[t] = [X[t], Y[t]]^t
-# and Err[t] ~ N(mu, cov=[ [x_var, xy_cov], [xy_cov, y_var] ])
+"""
 
+re-balance the equation to satisfying the relationship $Z[t] + sum_{i=1}^2 a[i]Z[t-i] = Err[t]$ , where $Z[t] = [X[t]$, $Y[t]]^t$ and $Err[t] ~ N(mu, cov=[ [x_var, xy_cov], [xy_cov, y_var] ]$)
+
+
+"""
 am = np.array([ -a1, -a2 ])
 
 x_var = 1
@@ -30,19 +51,30 @@ cov = np.array([ [x_var, xy_cov],
                  [xy_cov, y_var] ])
 
 
-# calculate the spectral matrix analytically ( z-transforms
-# evaluated at z=exp(j*omega) from omega in [0,pi] )
-w, Hw = mar_xy_ana.transfer_function_xy(am)
-Sw_true = mar_xy_ana.spectral_matrix_xy(Hw, cov)
+"""
 
-# generate 500 sets of 100 points
+calculate the spectral matrix analytically ( z-transforms evaluated at
+z=exp(j*omega) from omega in [0,pi] )
+
+
+"""
+
+w, Hw = alg.transfer_function_xy(am)
+Sw_true = alg.spectral_matrix_xy(Hw, cov)
+
+"""
+
+generate 500 sets of 100 points
+
+"""
+
 N = 500
 L = 100
 
 z = np.empty((N, 2, L))
 nz = np.empty((N, 2, L))
 for i in xrange(N):
-    z[i], nz[i] = mar_tools.generate_mar(am, cov, L)
+    z[i], nz[i] = utils.generate_mar(am, cov, L)
 
 
 # try to estimate the 2nd order (m)AR coefficients--
@@ -57,7 +89,7 @@ for i in xrange(N):
 
 Rxx = np.empty((500,2,2,3))
 for i in xrange(N):
-    Rxx[i] = mar_tools.autocov_vector(z[i], nlags=3)
+    Rxx[i] = utils.autocov_vector(z[i], nlags=3)
 
 Rxx = Rxx.mean(axis=0)
 
@@ -66,11 +98,11 @@ Rm = Rxx[...,1:]
 
 Rxx = Rxx.transpose(2,0,1)
 
-a, ecov = mar_tools.lwr(Rxx)
+a, ecov = utils.lwr(Rxx)
 
 print a - am
 
-w, f_x2y, f_y2x, f_xy, Sw = mar_xy_ana.granger_causality_xy(a, ecov)
+w, f_x2y, f_y2x, f_xy, Sw = alg.granger_causality_xy(a, ecov)
 
 f = pp.figure()
 
@@ -89,7 +121,7 @@ ax.set_title('power spectra')
 # interdependence plot
 ax = f.add_subplot(322)
 
-f_id = mar_xy_ana.interdependence_xy(Sw)
+f_id = alg.interdependence_xy(Sw)
 ax.plot(w, f_id)
 ax.set_title('interdependence')
 

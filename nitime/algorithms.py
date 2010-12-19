@@ -40,13 +40,15 @@ order to save calculation time.
 
 :func:`boxcar_filter`
 
+7. Granger causality
+
+:func:
+
 The algorithms in this library are the functional form of the algorithms, which
 accept as inputs numpy array and produce numpy array outputs. Therfore, they
 can be used on any type of data which can be represented in numpy arrays. See
 also :mod:`nitime.analysis` for simplified analysis interfaces, using the
 data containers implemented in :mod:`nitime.timeseries`
-
-7. Granger causality
 
 
 """
@@ -3054,7 +3056,7 @@ def granger_causality_xy(a, cov, Nfreqs=1024):
     Sxy = sigma2*Hxx*Hyx.conj() + gamma*Hxy_hat*Hyy_hat.conj()
     Syx = sigma2*Hyx*Hxx.conj() + gamma*Hyy_hat*Hxy_hat.conj()
 
-    # can safely through away imaginary part
+    # can safely throw away imaginary part
     # since Sxx and Syy are real, and Sxy == Syx*
     detS = (Sxx*Syy - Sxy*Syx).real
     f_xy = xx_auto_component * yy_auto_component
