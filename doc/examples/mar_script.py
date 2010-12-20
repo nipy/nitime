@@ -59,7 +59,9 @@ z=exp(j*omega) from omega in [0,pi] )
 
 """
 
-w, Hw = alg.transfer_function_xy(am)
+Nfreqs=200
+
+w, Hw = alg.transfer_function_xy(am, Nfreqs=Nfreqs)
 Sw_true = alg.spectral_matrix_xy(Hw, cov)
 
 """
@@ -102,7 +104,7 @@ a, ecov = utils.lwr(Rxx)
 
 print a - am
 
-w, f_x2y, f_y2x, f_xy, Sw = alg.granger_causality_xy(a, ecov)
+w, f_x2y, f_y2x, f_xy, Sw = alg.granger_causality_xy(a, ecov, Nfreqs=Nfreqs)
 
 f = pp.figure()
 
@@ -124,29 +126,30 @@ ax = f.add_subplot(322)
 f_id = alg.interdependence_xy(Sw)
 ax.plot(w, f_id)
 ax.set_title('interdependence')
+ax.set_ylim([0,2.2])
 
 # x causes y plot
 ax = f.add_subplot(323)
-
 ax.plot(w, f_x2y)
 ax.set_title('g. causality X on Y')
+ax.set_ylim([0,0.1])
 
 # y causes x plot
 ax = f.add_subplot(324)
-
 ax.plot(w, f_y2x)
 ax.set_title('g. causality Y on X')
+ax.set_ylim([0,0.01])
 
 # instantaneous causality
 ax = f.add_subplot(325)
-
 ax.plot(w, f_xy)
 ax.set_title('instantaneous causality')
+ax.set_ylim([0,2.2])
 
 # total causality
 ax = f.add_subplot(326)
-
 ax.plot(w, f_xy + f_x2y + f_y2x)
 ax.set_title('total causality')
+ax.set_ylim([0,2.2])
 
 pp.show()
