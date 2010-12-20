@@ -2732,30 +2732,9 @@ def cache_to_coherency(cache,ij):
 
 
 #-----------------------------------------------------------------------------
-# Signal generation
+# Wavelets
 #-----------------------------------------------------------------------------
-def gauss_white_noise(npts):
-    """Gaussian white noise.
 
-    XXX - incomplete."""
-
-    # Amplitude - should be a parameter
-    a = 1.
-    # Constant, band-limited amplitudes
-    # XXX - no bandlimiting yet
-    amp = np.zeros(npts)
-    amp.fill(a)
-    
-    # uniform phases
-    phi = np.random.uniform(high=2*np.pi, size=npts)
-    # frequency-domain signal
-    c = amp*np.exp(1j*phi)
-    # time-domain
-    n = np.fft.ifft(c)
-
-    # XXX No validation that output is gaussian enough yet
-    return n
-        
 #TODO:
 # * Write tests for various morlet wavelets
 # * Possibly write 'full morlet wavelet' function
