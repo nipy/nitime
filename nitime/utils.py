@@ -1944,8 +1944,11 @@ def akaike_information_criterion(x,m):
     Rxx = Rxx.transpose(2,0,1)
     _, sigma = lwr(Rxx)
 
+    #The total number of data points:
+    Ntotal = np.prod(x.shape)
+
     AIC = (2*( np.log(linalg.det(sigma)) ) +
-           ( (2*(p**2) * m ) / (x.shape[-1]) ))
+           ( (2*(p**2) * m ) / (Ntotal) ))
 
     return AIC
 
@@ -1982,7 +1985,11 @@ def akaike_information_criterion_c(x,m):
     """
 
     AIC = akaike_information_criterion(x,m)
-    AICc = AIC + (2*m*(m+1))/(x.shape[-1]-m-1)
+
+    #The total number of data points:
+    Ntotal = np.prod(x.shape)
+
+    AICc = AIC + (2*m*(m+1))/(Ntotal-m-1)
 
     return AICc
 
@@ -2041,7 +2048,10 @@ def bayesian_information_criterion(x,m):
     Rxx = Rxx.transpose(2,0,1)
     _, sigma = lwr(Rxx)
 
+    #The total number of data points:
+    Ntotal = np.prod(x.shape)
+
     BIC =  (2*( np.log(linalg.det(sigma)) ) +
-           ( (2*(p**2) * m * np.log(x.shape[-1])) / (x.shape[-1]) ))
+           ( (2*(p**2) * m * np.log(Ntotal)) / (Ntotal) ))
 
     return BIC

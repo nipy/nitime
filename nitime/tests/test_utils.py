@@ -192,3 +192,44 @@ def test_lwr_alternate():
 
         # compute |Ax-b| / |b| metric
         yield nt.assert_almost_equal, l2_d/l2_r, 0
+
+def test_information_criteria():
+    """
+
+    Test the implementation of information criteria:
+
+    """
+    a1 = np.array([ [0.9, 0],
+                [0.16, 0.8] ])
+
+    a2 = np.array([ [-0.5, 0],
+                [-0.2, -0.5] ])
+
+    am = np.array([ -a1, -a2 ])
+
+    x_var = 1
+    y_var = 0.7
+    xy_cov = 0.4
+    cov = np.array([ [x_var, xy_cov],
+                 [xy_cov, y_var] ])
+
+    N = 10
+    L = 100
+
+    z = np.empty((N, 2, L))
+    nz = np.empty((N, 2, L))
+    for i in xrange(N):
+        z[i], nz[i] = utils.generate_mar(am, cov, L)
+
+    AIC = []
+    BIC = []
+    AICc = []
+    for i in range(10):
+        AIC.append(utils.akaike_information_criterion(z,i))
+        AICc.append(utils.akaike_information_criterion_c(z,i))
+        BIC.append(utils.bayesian_information_criterion(z,i))
+
+    # The model has order 2, so this should minimize on 2:
+    #nt.assert_equal(np.argmin(AIC),2)
+    #nt.assert_equal(np.argmin(AICc),2)
+    nt.assert_equal(np.argmin(BIC),2)
