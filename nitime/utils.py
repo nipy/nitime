@@ -1899,7 +1899,8 @@ def akaike_information_criterion(x,m):
     Parameters
     ----------
 
-    x: the time-series
+    x: float array
+       Time series data with the dimensions (repetitions,channels,time)
 
     m: int, the model order.
 
@@ -1931,13 +1932,18 @@ def akaike_information_criterion(x,m):
     See also: http://en.wikipedia.org/wiki/Akaike_information_criterion
     """
 
-    # Number of channels:
-    p = x.shape[0]
-    # Get the error covariance from the LWR estimate, nlags is the order of the
-    # model plus the zero lag:
-    Rxx = autocov_vector(x,nlags=m)
-    _,sigma = lwr(Rxx)
-    print sigma
+    N = x.shape[0]
+    p = x.shape[1]
+
+    Rxx = np.empty((N,p,p,m+1))
+
+    for i in xrange(N):
+        Rxx[i] = autocov_vector(x[i], nlags=m+1)
+
+    Rxx = Rxx.mean(axis=0)
+    Rxx = Rxx.transpose(2,0,1)
+    _, sigma = lwr(Rxx)
+
     AIC = (2*( np.log(linalg.det(sigma)) ) +
            ( (2*(p**2) * m ) / (x.shape[-1]) ))
 
@@ -1980,7 +1986,7 @@ def akaike_information_criterion_c(x,m):
 
     return AICc
 
-def bayesian_information_criterion(x,y,m):
+def bayesian_information_criterion(x,m):
     """The Bayesian Information Criterion, also known as the Schwarz criterion
      is a measure of goodness of fit of a statistical model, based on the
      number of model parameters and the likelihood of the model
@@ -1988,13 +1994,11 @@ def bayesian_information_criterion(x,y,m):
     Parameters
     ----------
 
-    x: the actual time-series
+    x: float array
+       Time series data with the dimensions (repetitions,channels,time)
 
-    y: the model prediction for the time-series
+    m: int, the model order.
 
-    m: int, the number of parameters in the model.
-
-    n: int, the total number of time-points/samples
 
     Returns
     -------
@@ -2025,11 +2029,17 @@ def bayesian_information_criterion(x,y,m):
     See http://en.wikipedia.org/wiki/Schwarz_criterion
 
     """
-    # Number of channels:
-    p = x.shape[0]
-    # Get the error covariance from the LWR estimate:
-    Rxx = autocov_vector(x,nlags=m)
-    _,sigma = lwr(Rxx)
+    N = x.shape[0]
+    p = x.shape[1]
+
+    Rxx = np.empty((N,p,p,m+1))
+
+    for i in xrange(N):
+        Rxx[i] = autocov_vector(x[i], nlags=m+1)
+
+    Rxx = Rxx.mean(axis=0)
+    Rxx = Rxx.transpose(2,0,1)
+    _, sigma = lwr(Rxx)
 
     BIC =  (2*( np.log(linalg.det(sigma)) ) +
            ( (2*(p**2) * m * np.log(x.shape[-1])) / (x.shape[-1]) ))
