@@ -2893,7 +2893,7 @@ def transfer_function_xy(a, Nfreqs=1024):
     _, cw = freq_response(ci, Nfreqs=Nfreqs)
     _, dw = freq_response(di, Nfreqs=Nfreqs)
 
-    A = np.array([ [aw, bw], [cw, dw] ])
+    A = np.array([ [1-aw, -bw], [-cw, 1-dw] ])
     # compute the transfer function from Err to X. Since Err(w) is 1(w),
     # the transfer function H(w) = A^(-1)(w)
     # (use 2x2 matrix shortcut)
