@@ -62,6 +62,7 @@ import scipy.signal as sig
 import scipy.stats.distributions as dist
 
 import nitime.algorithms as tsa
+import nitime.utils as utils
 from nitime.viz import winspect
 from nitime.viz import plot_spectral_estimate
 

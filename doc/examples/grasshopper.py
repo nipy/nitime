@@ -26,7 +26,7 @@ import numpy as np
 import nitime.timeseries as ts
 import nitime.analysis as tsa
 import nitime.viz as viz
-
+from matplotlib import pyplot as plt
 
 """
 

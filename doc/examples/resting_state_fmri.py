@@ -28,7 +28,7 @@ of interest:
 
 #Import from other libraries:
 import numpy as np
-from matplotlib.pyplot import figure
+import matplotlib.pyplot as plt
 from matplotlib.mlab import csv2rec
 
 #Import the time-series objects: 
@@ -37,7 +37,6 @@ from nitime.timeseries import TimeSeries
 from nitime.analysis import CorrelationAnalyzer,CoherenceAnalyzer
 #Import utility functions:
 from nitime.utils import percent_change
-import nitime.viz as viz
 from nitime.viz import drawmatrix_channels,drawgraph_channels,plot_xcorr
 
 #This information (the sampling interval) has to be known in advance:
