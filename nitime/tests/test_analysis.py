@@ -48,6 +48,15 @@ def test_SpectralAnalyzer():
     npt.assert_equal(f.shape,(t.shape[0]/2+1,))
     npt.assert_equal(c.shape,(2,t.shape[0]/2+1))
 
+    # Test for data with only one channel
+    T = ts.TimeSeries(x,sampling_rate=Fs)
+    C = nta.SpectralAnalyzer(T)
+    f,c = C.psd
+
+    npt.assert_equal(f.shape,(33,)) #Same length for the frequencies 
+    npt.assert_equal(c.shape,(33,))  #1-d spectrum for the single channels
+
+
 def test_CoherenceAnalyzer():
     Fs = np.pi
     t = np.arange(10)

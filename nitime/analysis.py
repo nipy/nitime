@@ -146,14 +146,24 @@ class SpectralAnalyzer(BaseAnalyzer):
         psd = np.empty((self.input.shape[0],
                        psd_len),dtype=dt)
 
-        for i in xrange(self.input.data.shape[0]):
-            temp,f =  tsa.mlab.psd(self.input.data[i],
-                        NFFT=NFFT,
-                        Fs=Fs,
-                        detrend=detrend,
-                        window=window,
-                        noverlap=n_overlap)
-            psd[i] = temp.squeeze()
+        #If multi-channel data:
+        if len(self.input.data.shape)>1:
+            for i in xrange(self.input.data.shape[0]):
+                temp,f =  tsa.mlab.psd(self.input.data[i],
+                            NFFT=NFFT,
+                            Fs=Fs,
+                            detrend=detrend,
+                            window=window,
+                            noverlap=n_overlap)
+                psd[i] = temp.squeeze()
+
+        else:
+            psd,f = tsa.mlab.psd(self.input.data,
+                            NFFT=NFFT,
+                            Fs=Fs,
+                            detrend=detrend,
+                            window=window,
+                            noverlap=n_overlap)
 
         return f,psd
     @desc.setattr_on_read
