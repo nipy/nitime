@@ -242,17 +242,30 @@ def test_FilterAnalyzer():
     t = np.arange(np.pi/100,10*np.pi,np.pi/100)
     fast = np.sin(50*t)+10
     slow = np.sin(10*t)-20
+
+    fast_mean = np.mean(fast)
+    slow_mean = np.mean(slow)
+
     fast_ts = ts.TimeSeries(data=fast,sampling_rate=np.pi)
     slow_ts = ts.TimeSeries(data=slow,sampling_rate=np.pi)
-   
+
     #Make sure that the DC is preserved
     f_slow = nta.FilterAnalyzer(slow_ts,ub=0.6)
     f_fast = nta.FilterAnalyzer(fast_ts,lb=0.6)
-    npt.assert_almost_equal(f_slow.filtered_fourier.data.mean(),-20)
-    npt.assert_almost_equal(f_slow.filtered_boxcar.data.mean(),-20,decimal=3)
+    npt.assert_almost_equal(f_slow.filtered_fourier.data.mean(),slow_mean,
+                            decimal=2)
+    npt.assert_almost_equal(f_slow.filtered_boxcar.data.mean(),slow_mean,
+                            decimal=2)
     npt.assert_almost_equal(f_fast.filtered_fourier.data.mean(),10)
     npt.assert_almost_equal(f_fast.filtered_boxcar.data.mean(),10,decimal=2)
 
+    #Check that things work with a two-channel time-series:
+    T2 = ts.TimeSeries(np.vstack([fast,slow]),sampling_rate=np.pi)
+    f_both = nta.FilterAnalyzer(T2,ub=1.0,lb=0.1)
+    #These are rather basic tests:
+    npt.assert_equal(f_both.filtfilt.shape,T2.shape)
+    npt.assert_equal(f_both.filtered_boxcar.shape,T2.shape)
+    npt.assert_equal(f_both.filtered_fourier.shape,T2.shape)
 
 def test_NormalizationAnalyzer():
     """Testing the NormalizationAnalyzer """

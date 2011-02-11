@@ -1470,6 +1470,12 @@ class FilterAnalyzer(desc.ResetMixin):
        For zero phase delay filtering (filtfilt), the stop-band minimal
        attenuation.
 
+    Note
+    ----
+
+    All filtering methods used here makes sure to keep the original DC
+    component of the signal.
+
     """
 
     
@@ -1490,27 +1496,53 @@ class FilterAnalyzer(desc.ResetMixin):
 
         #Passband and stop-band are expressed as fraction of the Nyquist
         #frequency:
-        ub_frac = self.ub/(self.sampling_rate/2.)
+        if self.ub is not None:
+            ub_frac = self.ub/(self.sampling_rate/2.)
+        else:
+            ub_frac = 1.0
+
         lb_frac = self.lb/(self.sampling_rate/2.)
+
+        #We always treat the filter as though it is a band-pass filter:
+        btype = 'bandpass'
+
         wp = [lb_frac,ub_frac]
-        ws = [lb_frac-0.1,ub_frac+0.1]
+        #Make sure to not exceed the interval 0-1:
+        ws = [np.max([lb_frac-0.1*lb_frac,0]),
+              np.min([ub_frac+0.1*ub_frac,1.0])]
 
         N,Wn = signal.buttord(wp,ws,self._gpass,self._gstop)
-        b,a = signal.butter(np.abs(N),Wn,btype='band')
+        b,a = signal.butter(np.abs(N),Wn,btype=btype)
 
         #filtfilt only operates channel-by-channel, so we need to loop over the
         #channels, if the data is multi-channel data:
-        #if len(self.data.shape)>1:
-        #    out_data = []
-        #    for this in
-        #    out_data =
-        #else:
-        out_data = ts.TimeSeries(signal.filtfilt(b,a,self.data),
-                             sampling_rate=self.sampling_rate,
-                             time_unit=self.time_unit)
+        if len(self.data.shape)>1:
+            out_data = np.empty(self.data.shape)
+            for i in xrange(self.data.shape[0]):
+                out_data[i] = signal.filtfilt(b,a,self.data[i])
+
+                #Make sure to preserve the DC:
+                dc = np.mean(self.data[i])
+                out_data[i] -= np.mean(out_data[i])
+                out_data[i] += dc
+
+            out_data = ts.TimeSeries(out_data,
+                                     sampling_rate=self.sampling_rate,
+                                     time_unit=self.time_unit)
+        else:
+            out_data = signal.filtfilt(b,a,self.data)
+
+            #Make sure to preserve the DC:
+            dc = np.mean(self.data)
+            out_data[i] -= np.mean(out_data)
+            out_data[i] += dc
+
+            out_data = ts.TimeSeries(signal.filtfilt(b,a,self.data),
+                                     sampling_rate=self.sampling_rate,
+                                     time_unit=self.time_unit)
 
         return out_data
-        
+
     @desc.setattr_on_read
     def filtered_fourier(self):
         """

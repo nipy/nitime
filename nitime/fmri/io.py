@@ -42,7 +42,8 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
     filter: dict, optional
        If provided with a dict of the form:
 
-       {'lb':float or 0, 'ub':float or None, 'method':'fourier' or 'boxcar' }
+       {'lb':float or 0, 'ub':float or None, 'method':'fourier','boxcar' or
+       'filtfilt' }
        
        each voxel's data will be filtered into the frequency range [lb,ub] with
        nitime.analysis.FilterAnalyzer, using either the fourier or the boxcar
@@ -140,12 +141,18 @@ def _tseries_from_nifti_helper(coords,data,TR,filter,normalize,average):
     tseries = ts.TimeSeries(out_data,sampling_interval=TR)
 
     if filter is not None:
-        if filter['method'] not in ('boxcar','fourier'):
+        if filter['method'] not in ('boxcar','fourier','filtfilt'):
            raise ValueError("Filter method %s is not recognized"%filter['method'])
+
+        else:
+            F = tsa.FilterAnalyzer(tseries,lb=filter['lb'],ub=filter['ub'])
+
         if filter['method'] == 'boxcar':
-           tseries=tsa.FilterAnalyzer(tseries,lb=filter['lb'],ub=filter['ub']).filtered_boxcar
+            tseries=F.filtered_boxcar
         elif filter['method'] == 'fourier':
-           tseries = tsa.FilterAnalyzer(tseries,lb=filter['lb'],ub=filter['ub']).filtered_fourier
+            tseries = F.filtered_fourier
+        elif filter['method'] == 'filtfilt':
+            tseries = F.filtfilt
 
     if normalize=='percent':
             tseries = tsa.NormalizationAnalyzer(tseries).percent_change
