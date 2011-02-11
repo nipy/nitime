@@ -1448,23 +1448,77 @@ class HilbertAnalyzer(BaseAnalyzer):
 class FilterAnalyzer(desc.ResetMixin):
 
     """ A class for performing filtering operations on time-series and
-    producing the filtered versions of the time-series"""
+    producing the filtered versions of the time-series
+
+    Parameters
+    ----------
+
+    time_series: A nitime TimeSeries object.
+
+    lb,ub: float
+       Lower and upper band of a pass-band into which the data will be
+       filtered.
+
+    boxcar_iterations: int
+       For box-car filtering, how many times to iterate over the data while
+       convolving with a box-car function
+
+    gpass: float
+       For zero phase delay filtering (filtfilt), the pass-band maximal ripple
+       loss
+    gstop: float
+       For zero phase delay filtering (filtfilt), the stop-band minimal
+       attenuation.
+
+    """
 
     
-    def __init__(self,time_series,lb=0,ub=None,boxcar_iterations=2):
+    def __init__(self,time_series,lb=0,ub=None,boxcar_iterations=2,
+                 gpass=3,gstop=15):
         self.data = time_series.data 
         self.sampling_rate = time_series.sampling_rate
         self.ub=ub
         self.lb=lb
         self.time_unit=time_series.time_unit
         self._boxcar_iterations=boxcar_iterations
+        self._gstop = gstop
+        self._gpass = gpass
 
+    @desc.setattr_on_read
+    def filtfilt(self):
+        """ Filter the time-series using a zero phase digital filter"""
+
+        #Passband and stop-band are expressed as fraction of the Nyquist
+        #frequency:
+        ub_frac = self.ub/(self.sampling_rate/2.)
+        lb_frac = self.lb/(self.sampling_rate/2.)
+        wp = [lb_frac,ub_frac]
+        ws = [lb_frac-0.1,ub_frac+0.1]
+
+        N,Wn = signal.buttord(wp,ws,self._gpass,self._gstop)
+        b,a = signal.butter(np.abs(N),Wn,btype='band')
+
+        #filtfilt only operates channel-by-channel, so we need to loop over the
+        #channels, if the data is multi-channel data:
+        #if len(self.data.shape)>1:
+        #    out_data = []
+        #    for this in
+        #    out_data =
+        #else:
+        out_data = ts.TimeSeries(signal.filtfilt(b,a,self.data),
+                             sampling_rate=self.sampling_rate,
+                             time_unit=self.time_unit)
+
+        return out_data
         
     @desc.setattr_on_read
     def filtered_fourier(self):
+        """
 
-        """Filter the time-series by passing it to the Fourier domain and null
-        out the frequency bands outside of the range [lb,ub] """
+        Filter the time-series by passing it to the Fourier domain and null
+        out the frequency bands outside of the range [lb,ub]
+
+        """
 
         freqs = tsu.get_freqs(self.sampling_rate,self.data.shape[-1])
 
@@ -1493,10 +1547,14 @@ class FilterAnalyzer(desc.ResetMixin):
 
     @desc.setattr_on_read
     def filtered_boxcar(self):
-        """ Filte the time-series by a boxcar filter. The low pass filter is
-    implemented by convolving with a boxcar function of the right length and
-    amplitude and the high-pass filter is implemented by subtracting a low-pass
-    version (as above) from the signal"""
+        """
+        Filter the time-series by a boxcar filter.
+
+        The low pass filter is implemented by convolving with a boxcar function
+        of the right length and amplitude and the high-pass filter is
+        implemented by subtracting a low-pass version (as above) from the
+        signal
+        """
 
         if self.ub is not None:
             ub = self.ub/self.sampling_rate

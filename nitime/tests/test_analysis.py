@@ -247,9 +247,12 @@ def test_FilterAnalyzer():
    
     #Make sure that the DC is preserved
     f_slow = nta.FilterAnalyzer(slow_ts,ub=0.6)
-    npt.assert_almost_equal(f_slow.filtered_fourier.data.mean(),-20)
     f_fast = nta.FilterAnalyzer(fast_ts,lb=0.6)
-    npt.assert_almost_equal(f_fast.data.mean(),10)
+    npt.assert_almost_equal(f_slow.filtered_fourier.data.mean(),-20)
+    npt.assert_almost_equal(f_slow.filtered_boxcar.data.mean(),-20,decimal=3)
+    npt.assert_almost_equal(f_fast.filtered_fourier.data.mean(),10)
+    npt.assert_almost_equal(f_fast.filtered_boxcar.data.mean(),10,decimal=2)
+
 
 def test_NormalizationAnalyzer():
     """Testing the NormalizationAnalyzer """
