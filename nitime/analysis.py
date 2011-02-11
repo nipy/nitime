@@ -149,6 +149,10 @@ class SpectralAnalyzer(BaseAnalyzer):
         #If multi-channel data:
         if len(self.input.data.shape)>1:
             for i in xrange(self.input.data.shape[0]):
+                #'f' are the center frequencies of the frequency bands
+                #represented in the psd. These are identical in each iteration
+                #of the loop, so they get reassigned into the same variable in
+                #each iteration:  
                 temp,f =  tsa.mlab.psd(self.input.data[i],
                             NFFT=NFFT,
                             Fs=Fs,
