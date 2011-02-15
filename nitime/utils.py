@@ -1872,7 +1872,7 @@ def generate_mar(a, cov, N):
 
     # nz is a (N x n_seq) array
 
-    mar = np.zeros((N, n_seq), 'd')
+    mar = nz.copy() #np.zeros((N, n_seq), 'd')
 
     # this looks like a redundant loop that can be rolled into a matrix-matrix
     # multiplication at each coef matrix a(i)
@@ -1881,9 +1881,9 @@ def generate_mar(a, cov, N):
     # X(i) = E(i) - sum_{j=1}^{p} a(j)X(i-j)
     # where X(n) n < 0 is taken to be 0
     for i in xrange(N):
-        mar[i,:] = nz[i,:]
         for j in xrange( min(i, n_order) ): # j logically in set {1, 2, ..., P}
-            mar[i,:] += np.dot(-a[j], mar[i-j-1,:])
+            mar[i,:] -= np.dot(a[j], mar[i-j-1,:])
+
     return mar.transpose(), nz.transpose()
 
 

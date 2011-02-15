@@ -70,8 +70,8 @@ generate 500 sets of 100 points
 
 """
 
-N = 500
-L = 100
+N = 50
+L = 1000
 
 z = np.empty((N, 2, L))
 nz = np.empty((N, 2, L))
@@ -112,10 +112,10 @@ f = pp.figure()
 ax = f.add_subplot(321)
 # correct for one-sided spectral density functions
 Sxx_true = 2*Sw_true[0,0].real; Syy_true = 2*Sw_true[1,1].real
-Sxx_est = 2*Sw[0,0].real; Syy_est = 2*Sw[1,1].real
-ax.plot(w, Sxx_true, 'b', label='true Sxx(w)')
+Sxx_est = np.abs(2*Sw[0,0]); Syy_est = np.abs(2*Sw[1,1])
+#ax.plot(w, Sxx_true, 'b', label='true Sxx(w)')
 ax.plot(w, Sxx_est, 'b--', label='estimated Sxx(w)')
-ax.plot(w, Syy_true, 'g', label='true Syy(w)')
+#ax.plot(w, Syy_true, 'g', label='true Syy(w)')
 ax.plot(w, Syy_est, 'g--', label='estimated Syy(w)')
 ax.legend()
 ax.set_title('power spectra')
