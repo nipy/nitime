@@ -42,12 +42,12 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
     filter: dict, optional
        If provided with a dict of the form:
 
-       {'lb':float or 0, 'ub':float or None, 'method':'fourier','boxcar' or
-       'filtfilt' }
+       {'lb':float or 0, 'ub':float or None, 'method':'fourier','boxcar' 'fir'
+       or 'iir' }
        
        each voxel's data will be filtered into the frequency range [lb,ub] with
-       nitime.analysis.FilterAnalyzer, using either the fourier or the boxcar
-       method provided by that analyzer
+       nitime.analysis.FilterAnalyzer, using the method chosen here (defaults
+       to 'fir')
        
     verbose: Whether to report on ROI and file being read.
     
@@ -141,18 +141,28 @@ def _tseries_from_nifti_helper(coords,data,TR,filter,normalize,average):
     tseries = ts.TimeSeries(out_data,sampling_interval=TR)
 
     if filter is not None:
-        if filter['method'] not in ('boxcar','fourier','filtfilt'):
+        if filter['method'] not in ('boxcar','fourier','fir','iir'):
            raise ValueError("Filter method %s is not recognized"%filter['method'])
 
         else:
-            F = tsa.FilterAnalyzer(tseries,lb=filter['lb'],ub=filter['ub'])
+            #Construct the key-word arguments to FilterAnalyzer:
+            kwargs = dict(lb=filter.get('lb',0),ub=filter.get('ub',None),
+                          boxcar_iterations=filter.get('boxcar_iterations',2),
+                          filt_order=filter.get('filt_order',64),
+                          gpass=filter.get('gpass',1),
+                          gstop=filter.get('gstop',60),
+                          ftype=filter.get('ftype','ellip'))
+                          
+            F = tsa.FilterAnalyzer(tseries,**kwargs)
 
         if filter['method'] == 'boxcar':
             tseries=F.filtered_boxcar
         elif filter['method'] == 'fourier':
             tseries = F.filtered_fourier
-        elif filter['method'] == 'filtfilt':
-            tseries = F.filtfilt
+        elif filter['method'] == 'fir':
+            tseries = F.fir
+        elif filter['method'] == 'iir':
+            tseries = F.iir
 
     if normalize=='percent':
             tseries = tsa.NormalizationAnalyzer(tseries).percent_change

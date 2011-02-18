@@ -256,14 +256,18 @@ def test_FilterAnalyzer():
                             decimal=2)
     npt.assert_almost_equal(f_slow.filtered_boxcar.data.mean(),slow_mean,
                             decimal=2)
+    npt.assert_almost_equal(f_slow.fir.data.mean(),slow_mean)
+
     npt.assert_almost_equal(f_fast.filtered_fourier.data.mean(),10)
     npt.assert_almost_equal(f_fast.filtered_boxcar.data.mean(),10,decimal=2)
+    npt.assert_almost_equal(f_fast.fir.data.mean(),10)
 
     #Check that things work with a two-channel time-series:
     T2 = ts.TimeSeries(np.vstack([fast,slow]),sampling_rate=np.pi)
     f_both = nta.FilterAnalyzer(T2,ub=1.0,lb=0.1)
     #These are rather basic tests:
-    npt.assert_equal(f_both.filtfilt.shape,T2.shape)
+    npt.assert_equal(f_both.fir.shape,T2.shape)
+    npt.assert_equal(f_both.iir.shape,T2.shape)
     npt.assert_equal(f_both.filtered_boxcar.shape,T2.shape)
     npt.assert_equal(f_both.filtered_fourier.shape,T2.shape)
 

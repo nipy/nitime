@@ -1464,23 +1464,30 @@ class FilterAnalyzer(desc.ResetMixin):
        convolving with a box-car function
 
     gpass: float
-       For zero phase delay filtering (filtfilt), the pass-band maximal ripple
-       loss
+       For iir filtering, the pass-band maximal ripple loss (default: 1)
+       
     gstop: float
-       For zero phase delay filtering (filtfilt), the stop-band minimal
-       attenuation.
+       For iir filtering, the stop-band minimal attenuation (default: 60).
+
+    filt_order: int
+        For iir/fir filtering, the order of the filter. Note for fir filtering,
+        this needs to be an even number.
+
+    ftype: str
+        The type of filter to be used in iir filtering (see
+        scipy.signal.iirdesign for details). 
 
     Note
     ----
-
-    All filtering methods used here makes sure to keep the original DC
-    component of the signal.
+    All filtering methods used here keep the original DC component of the
+    signal.
 
     """
-
-    
     def __init__(self,time_series,lb=0,ub=None,boxcar_iterations=2,
-                 gpass=3,gstop=15):
+                 filt_order=64,gpass=1,gstop=60,ftype='ellip'):
+
+        #Initialize all the local variables you will need for all the different
+        #filtering methods: 
         self.data = time_series.data 
         self.sampling_rate = time_series.sampling_rate
         self.ub=ub
@@ -1489,11 +1496,104 @@ class FilterAnalyzer(desc.ResetMixin):
         self._boxcar_iterations=boxcar_iterations
         self._gstop = gstop
         self._gpass = gpass
+        self._filt_order = filt_order
+        self._ftype = ftype
+
+
+    def filtfilt(self,b,a):
+
+        """
+        Zero-phase delay filtering (either iir or fir).
+
+        Parameters
+        ----------
+
+        a,b: filter coefficients
+
+        Note
+        ----
+
+        This is a wrapper around scipy.signal.filtfilt
+        
+        """ 
+        #filtfilt only operates channel-by-channel, so we need to loop over the
+        #channels, if the data is multi-channel data:
+        if len(self.data.shape)>1:
+            out_data = np.empty(self.data.shape)
+            for i in xrange(self.data.shape[0]):
+                out_data[i] = signal.filtfilt(b,a,self.data[i])
+                #Make sure to preserve the DC:
+                dc = np.mean(self.data[i])
+                out_data[i] -= np.mean(out_data[i])
+                out_data[i] += dc
+            out_data = ts.TimeSeries(out_data,
+                                     sampling_rate=self.sampling_rate,
+                                     time_unit=self.time_unit)
+        else:
+            out_data = signal.filtfilt(b,a,self.data)
+            #Make sure to preserve the DC:
+            dc = np.mean(self.data)
+            out_data -= np.mean(out_data)
+            out_data += dc
+            out_data = ts.TimeSeries(out_data,
+                                     sampling_rate=self.sampling_rate,
+                                     time_unit=self.time_unit)
+
+        return out_data
 
     @desc.setattr_on_read
-    def filtfilt(self):
-        """ Filter the time-series using a zero phase digital filter"""
+    def fir(self):
+        """
+        Filter the time-series using an FIR digital filter. Filtering is done
+        back and forth (using scipy.signal.filtfilt) to achieve zero phase
+        delay
+        """
+    
+        #Passband and stop-band are expressed as fraction of the Nyquist
+        #frequency:
+        if self.ub is not None:
+            ub_frac = self.ub/(self.sampling_rate/2.)
+        else:
+            ub_frac = 1.0
+            
+        lb_frac = self.lb/(self.sampling_rate/2.)
 
+        n_taps = self._filt_order + 1
+
+        #This means the filter order you chose was too large (needs to be
+        #shorter than a 1/3 of your time-series )
+        if n_taps>self.data.shape[-1]*3:
+            raise ValueError("The filter order chosen is longer than the time-series")
+
+        #Band-pass:
+        if lb_frac>0 and ub_frac<1: 
+            b = signal.firwin(n_taps,[lb_frac,ub_frac])
+
+        #Lowpass:
+        elif lb_frac==0:
+            b = signal.firwin(n_taps,ub_frac)
+
+        #High-pass
+        elif ub_frac==1:
+            #Includes a spectral inversion:
+            b = -1 * signal.firwin(n_taps,lb_frac)
+            b[n_taps/2] = b[n_taps/2] + 1
+
+        else:
+            raise ValueError("The lower-bound or upper bound used to filter are beyond the range 0-Nyquist. You asked for a filter between %s and %s percent of the Nyquist frequency"%(lb_frac*100,ub_frac*100))
+            
+        a = [1]
+
+        return self.filtfilt(b,a)
+    
+    @desc.setattr_on_read
+    def iir(self):
+        """
+        Filter the time-series using an IIR filter. Filtering is done back and
+        forth (using scipy.signal.filtfilt) to achieve zero phase delay
+
+        """
+    
         #Passband and stop-band are expressed as fraction of the Nyquist
         #frequency:
         if self.ub is not None:
@@ -1503,45 +1603,15 @@ class FilterAnalyzer(desc.ResetMixin):
 
         lb_frac = self.lb/(self.sampling_rate/2.)
 
-        #We always treat the filter as though it is a band-pass filter:
-        btype = 'bandpass'
-
         wp = [lb_frac,ub_frac]
+        
         #Make sure to not exceed the interval 0-1:
-        ws = [np.max([lb_frac-0.1*lb_frac,0]),
-              np.min([ub_frac+0.1*ub_frac,1.0])]
+        ws = [np.max([lb_frac-0.1,0]),
+              np.min([ub_frac+0.1,1.0])]
+        
+        b,a = signal.iirdesign(wp,ws,self._gpass,self._gstop,ftype=self._ftype)
 
-        N,Wn = signal.buttord(wp,ws,self._gpass,self._gstop)
-        b,a = signal.butter(np.abs(N),Wn,btype=btype)
-
-        #filtfilt only operates channel-by-channel, so we need to loop over the
-        #channels, if the data is multi-channel data:
-        if len(self.data.shape)>1:
-            out_data = np.empty(self.data.shape)
-            for i in xrange(self.data.shape[0]):
-                out_data[i] = signal.filtfilt(b,a,self.data[i])
-
-                #Make sure to preserve the DC:
-                dc = np.mean(self.data[i])
-                out_data[i] -= np.mean(out_data[i])
-                out_data[i] += dc
-
-            out_data = ts.TimeSeries(out_data,
-                                     sampling_rate=self.sampling_rate,
-                                     time_unit=self.time_unit)
-        else:
-            out_data = signal.filtfilt(b,a,self.data)
-
-            #Make sure to preserve the DC:
-            dc = np.mean(self.data)
-            out_data[i] -= np.mean(out_data)
-            out_data[i] += dc
-
-            out_data = ts.TimeSeries(signal.filtfilt(b,a,self.data),
-                                     sampling_rate=self.sampling_rate,
-                                     time_unit=self.time_unit)
-
-        return out_data
+        return self.filtfilt(b,a)
 
     @desc.setattr_on_read
     def filtered_fourier(self):
