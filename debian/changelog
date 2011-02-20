@@ -1,3 +1,10 @@
+nitime (0.2-2) unstable; urgency=low
+
+  * Proper casing in ${python:depends} (Closes: #614220).
+    Thanks Jakub Wilk for the report and for the fix
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Sun, 20 Feb 2011 09:40:41 -0500
+
 nitime (0.2-1) unstable; urgency=low
 
   * Initial release (Closes: #600714)
