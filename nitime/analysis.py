@@ -992,12 +992,13 @@ class CorrelationAnalyzer(BaseAnalyzer):
         xcorr = np.zeros((tseries_length,
                           tseries_length,
                           t_points*2-1))
-         
+        data = self.input.data
         for i in xrange(tseries_length): 
+            data_i = data[i]
             for j in xrange(i,tseries_length):
-                xcorr[i][j] = np.correlate(self.input.data[i],
-                                             self.input.data[j],
-                                             mode='full')
+                xcorr[i,j] = np.correlate(data_i,
+                                          data[j],
+                                          mode='full')
 
         idx = tsu.tril_indices(tseries_length,-1)
         xcorr[idx[0],idx[1],...] = xcorr[idx[1],idx[0],...]
@@ -1025,11 +1026,12 @@ class CorrelationAnalyzer(BaseAnalyzer):
         xcorr = np.zeros((tseries_length,
                           tseries_length,
                           t_points*2-1))
-         
+        data = self.input.data
         for i in xrange(tseries_length): 
+            data_i = data[i]
             for j in xrange(i,tseries_length):
-                xcorr[i,j] = np.correlate(self.input.data[i],
-                                          self.input.data[j],
+                xcorr[i,j] = np.correlate(data_i,
+                                          data[j],
                                           mode='full')
                 xcorr[i,j] /= (xcorr[i,j,t_points])
                 xcorr[i,j] *= self.corrcoef[i,j]
