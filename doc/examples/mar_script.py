@@ -59,7 +59,7 @@ z=exp(j*omega) from omega in [0,pi] )
 
 """
 
-Nfreqs=200
+Nfreqs=1024
 
 w, Hw = alg.transfer_function_xy(am, Nfreqs=Nfreqs)
 Sw_true = alg.spectral_matrix_xy(Hw, cov)
@@ -70,14 +70,21 @@ generate 500 sets of 100 points
 
 """
 
-N = 50
-L = 1000
+#Number of realizations of the process
+N = 500
+#Length of each realization:
+L = 1024
 
-z = np.empty((N, 2, L))
-nz = np.empty((N, 2, L))
+order = am.shape[0]
+n_lags = order + 1
+
+n_process = am.shape[-1]
+
+z = np.empty((N, n_process, L))
+nz = np.empty((N, n_process, L))
+
 for i in xrange(N):
     z[i], nz[i] = utils.generate_mar(am, cov, L)
-
 
 # try to estimate the 2nd order (m)AR coefficients--
 # average together N estimates of auto-covariance at lags k=0,1,2
@@ -89,9 +96,10 @@ for i in xrange(N):
 # Rxx_11(k) is E{ z1(t)z1*(t-k) }
 # So only Rxx(0) is symmetric
 
-Rxx = np.empty((500,2,2,3))
+Rxx = np.empty((N,n_process,n_process,n_lags))
+
 for i in xrange(N):
-    Rxx[i] = utils.autocov_vector(z[i], nlags=3)
+    Rxx[i] = utils.autocov_vector(z[i],nlags=n_lags)
 
 Rxx = Rxx.mean(axis=0)
 
@@ -102,22 +110,37 @@ Rxx = Rxx.transpose(2,0,1)
 
 a, ecov = utils.lwr(Rxx)
 
+print 'compare coefficients to estimate:'
 print a - am
+print 'compare covariance to estimate:'
+print ecov - cov
 
-w, f_x2y, f_y2x, f_xy, Sw = alg.granger_causality_xy(a, ecov, Nfreqs=Nfreqs)
+w, f_x2y, f_y2x, f_xy, Sw = alg.granger_causality_xy(a,ecov,Nfreqs=Nfreqs)
 
 f = pp.figure()
+c_x = np.empty((L,w.shape[0]))
+c_y = np.empty((L,w.shape[0]))
+
+for i in xrange(N):
+    frex,c_x[i],nu = alg.multi_taper_psd(z[i][0])
+    frex,c_y[i],nu = alg.multi_taper_psd(z[i][1])
 
 # power plot
 ax = f.add_subplot(321)
 # correct for one-sided spectral density functions
-Sxx_true = 2*Sw_true[0,0].real; Syy_true = 2*Sw_true[1,1].real
-Sxx_est = np.abs(2*Sw[0,0]); Syy_est = np.abs(2*Sw[1,1])
+Sxx_true = Sw_true[0,0].real; Syy_true = Sw_true[1,1].real
+Sxx_est = np.abs(Sw[0,0]); Syy_est = np.abs(Sw[1,1])
 #ax.plot(w, Sxx_true, 'b', label='true Sxx(w)')
 ax.plot(w, Sxx_est, 'b--', label='estimated Sxx(w)')
 #ax.plot(w, Syy_true, 'g', label='true Syy(w)')
 ax.plot(w, Syy_est, 'g--', label='estimated Syy(w)')
+
+#scaler = np.mean(Sxx_est/np.mean(c_x,0))
+ax.plot(w,np.mean(c_x,0),'r',label='Sxx(w) - MT PSD')
+ax.plot(w,np.mean(c_y,0),'r--',label='Syy(w) - MT PSD')
+
 ax.legend()
+
 ax.set_title('power spectra')
 
 # interdependence plot
@@ -152,4 +175,4 @@ ax.plot(w, f_xy + f_x2y + f_y2x)
 ax.set_title('total causality')
 ax.set_ylim([0,2.2])
 
-pp.show()
+#pp.show()

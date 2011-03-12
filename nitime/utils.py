@@ -1742,14 +1742,14 @@ def lwr(r):
 
     a = np.zeros((P,nc,nc)) # ar coefs
     b = np.zeros_like(a) # lp coefs
-    sigf = np.zeros_like(r[0]) # forward prediction error covariance
-    sigb = np.zeros_like(r[0]) # backward prediction error covariance
+    sigb = np.zeros_like(r[0]) # forward prediction error covariance
+    sigf = np.zeros_like(r[0]) # backward prediction error covariance
     delta = np.zeros_like(r[0])
 
     # initialize
     idnt = np.eye(nc)
-    sigb[:] = r[0]
     sigf[:] = r[0]
+    sigb[:] = r[0]
 
     # iteratively find sequences A_{p+1}(i) and B_{p+1}(i)
     for p in xrange(P):
@@ -1761,8 +1761,8 @@ def lwr(r):
             delta += np.dot(a[i-1], r[p+1-i])
 
         # intermediate values
-        ka = np.dot(delta, inv(sigf))
-        kb = np.dot(delta.T, inv(sigb))
+        ka = np.dot(delta, inv(sigb))
+        kb = np.dot(delta.T, inv(sigf))
 
         # store a_{p} before updating sequence to a_{p+1}
         ao = a.copy()
@@ -1776,10 +1776,10 @@ def lwr(r):
         a[p] = -ka
         b[p] = -kb
 
-        sigb = np.dot(idnt-np.dot(ka,kb), sigb)
-        sigf = np.dot(idnt-np.dot(kb,ka), sigf)
+        sigf = np.dot(idnt-np.dot(ka,kb), sigf)
+        sigb = np.dot(idnt-np.dot(kb,ka), sigb)
 
-    return a, sigb
+    return a, sigf
 
 def lwr_alternate(r):
     # r(k) = E{ X(t)X*(t+k) } ( * = conjugate transpose )
@@ -1801,14 +1801,14 @@ def lwr_alternate(r):
 
     a = np.zeros((P,nc,nc)) # ar coefs
     b = np.zeros_like(a) # lp coefs
-    sigf = np.zeros_like(r[0]) # forward prediction error covariance
-    sigb = np.zeros_like(r[0]) # backward prediction error covariance
+    sigb = np.zeros_like(r[0]) # forward prediction error covariance
+    sigf = np.zeros_like(r[0]) # backward prediction error covariance
     delta = np.zeros_like(r[0])
 
     # initialize
     idnt = np.eye(nc)
-    sigb[:] = r[0]
     sigf[:] = r[0]
+    sigb[:] = r[0]
 
     # iteratively find sequences A_{p+1}(i) and B_{p+1}(i)
     for p in xrange(P):
@@ -1819,8 +1819,8 @@ def lwr_alternate(r):
             delta += np.dot(r[p+1-i], a[i-1].T)
 
         # intermediate values
-        ka = np.dot(delta.T, inv(sigf).T) # (inv(sigf)*del)'
-        kb = np.dot(delta, inv(sigb).T)   # (inv(sigb)*del')'
+        ka = np.dot(delta.T, inv(sigb).T) # (inv(sigb)*del)'
+        kb = np.dot(delta, inv(sigf).T)   # (inv(sigf)*del')'
 
         # store a_{p} before updating sequence to a_{p+1}
         ao = a.copy()
@@ -1832,10 +1832,10 @@ def lwr_alternate(r):
         a[p] = -ka
         b[p] = -kb
 
-        sigb = np.dot(sigb, (idnt-np.dot(ka,kb).T))
-        sigf = np.dot(sigf, (idnt-np.dot(kb,ka).T))
+        sigf = np.dot(sigf, (idnt-np.dot(ka,kb).T))
+        sigb = np.dot(sigb, (idnt-np.dot(kb,ka).T))
 
-    return a, sigb
+    return a, sigf
 
 def generate_mar(a, cov, N):
     """

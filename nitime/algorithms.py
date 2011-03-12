@@ -2112,9 +2112,8 @@ def freq_response(b, a=1., Nfreqs=1024, sides='onesided'):
         DTFT = np.exp(-1j*fgrid[:,np.newaxis]*np.arange(0,L))
         aw = np.dot(DTFT, a)
     return fgrid, bw/aw
-    
 
-def yule_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
+def AR_est_YW(s, order, sxx=None):
     """Finds the parameters for an autoregressive model of order norder
     of the process s. Using these parameters, an estimate of the PSD
     is calculated from [-PI,PI) in Nfreqs, or [0,PI] in {N/2+1}freqs.
@@ -2134,25 +2133,13 @@ def yule_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
     order : int
         The order P of the AR system
 
-    Nfreqs : int
-        The number of spacings on the frequency grid from [-PI,PI).
-        If sides=='onesided', Nfreqs/2+1 frequencies are computed from [0,PI]
-
     sxx : ndarray (optional)
         An optional, possibly unbiased estimate of the autocovariance of s
 
-    sides : str (optional)
-        Indicates whether to return a one-sided or two-sided PSD
-
-    system : bool (optional)
-        If True, return the AR system parameters, sigma_v and a{k}
-    
     Returns
     -------
-    (w, ar_psd)
-    w : Array of normalized frequences from [-.5, .5) or [0,.5]
-    ar_psd : A PSD estimate computed by sigma_v / |1-a(f)|**2 , where
-             a(f) = DTFT(ak)
+    a, ecov: The system coefficients and the estimated covariance
+
     """
     if sxx is not None and type(sxx) == np.ndarray:
         sxx_m = sxx[:order+1]
@@ -2163,22 +2150,9 @@ def yule_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
     y = sxx_m[1:].conj()
     ak = linalg.solve(R,y)
     sigma_v = sxx_m[0] - np.dot(sxx_m[1:], ak)
-    if system:
-        return sigma_v, ak
-    # compute the psd as |h(f)|**2, where h(f) is the transfer function..
-    # for this model s[n] = a1*s[n-1] + a2*s[n-2] + ... aP*s[n-P] + v[n]
-    # Taken as a FIR system from s[n] to v[n],
-    # v[n] = w0*s[n] + w1*s[n-1] + w2*s[n-2] + ... + wP*s[n-P],
-    # where w0 = 1, and wk = -ak for k>0
-    # the transfer function here is H(f) = DTFT(w)
-    # leading to Sxx(f) = Vxx(f) / |H(f)|**2 = sigma_v / |H(f)|**2
-    w, hw = freq_response(sigma_v**0.5, a=np.concatenate(([1], -ak)),
-                     Nfreqs=Nfreqs, sides=sides)
-    ar_psd = (hw*hw.conj()).real
-    return (w,2*ar_psd) if sides=='onesided' else (w,ar_psd)
-    
-    
-def LD_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
+    return ak, sigma_v
+
+def AR_est_LD(s, order, sxx=None):
     """Finds the parameters for an autoregressive model of order norder
     of the process s. Using these parameters, an estimate of the PSD
     is calculated from [-PI,PI) in Nfreqs, or [0,PI] in {N/2+1}freqs.
@@ -2198,25 +2172,14 @@ def LD_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
     order : int
         The order P of the AR system
 
-    Nfreqs : int
-        The number of spacings on the frequency grid from [-PI,PI).
-        If sides=='onesided', Nfreqs/2+1 frequencies are computed from [0,PI]
-
     sxx : ndarray (optional)
         An optional, possibly unbiased estimate of the autocovariance of s
 
-    sides : str (optional)
-        Indicates whether to return a one-sided or two-sided PSD
-
-    system : bool (optional)
-        If True, return the AR system parameters, sigma_v and a{k}
     
     Returns
     -------
-    (w, ar_psd)
-    w : Array of normalized frequences from [-.5, .5) or [0,.5]
-    ar_psd : A PSD estimate computed by sigma_v / |1-a(f)|**2 , where
-             a(f) = DTFT(ak)
+    a, ecov: The system coefficients and the estimated covariance
+
     """
     if sxx is not None and type(sxx) == np.ndarray:
         sxx_m = sxx[:order+1]
@@ -2235,13 +2198,67 @@ def LD_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
         sig[k] = sig[k-1]*(1 - phi[k,k]**2)
 
     sigma_v = sig[-1]; ak = phi[1:,-1]
-    if system:
-        return sigma_v, ak
+    return ak, sigma_v
+
+def MAR_est_LWR(s, order, sxx=None):
+
+    """
+    MAR estimation, using the LWR algorithm, as in Morf et al.
+
+
+    Parameters
+    ----------
+    s : ndarray
+        The sampled autoregressive random process
+
+    order : int
+        The order P of the AR system
+
+    sxx : ndarray (optional)
+        An optional, possibly unbiased estimate of the autocovariance of s
+
+    Returns
+    -------
+    a, ecov: The system coefficients and the estimated covariance
+    """
+    Rxx = ut.autocov_vector(s, nlags=order)
+    a, ecov = ut.lwr(Rxx.transpose(2,0,1))
+    return a,ecov
+
+def AR_psd(ak, sigma_v, Nfreqs=1024, sides='onesided'):
+    """What does this do?
+
+    Nfreqs : int
+        The number of spacings on the frequency grid from [-PI,PI).
+        If sides=='onesided', Nfreqs/2+1 frequencies are computed from [0,PI]
+
+    sides : str (optional)
+        Indicates whether to return a one-sided or two-sided PSD
+
+    system : bool (optional)
+        If True, return the AR system parameters, sigma_v and a{k}
+
+
+    Returns
+    -------
+    (w, ar_psd)
+    w : Array of normalized frequences from [-.5, .5) or [0,.5]
+    ar_psd : A PSD estimate computed by sigma_v / |1-a(f)|**2 , where
+             a(f) = DTFT(ak)
+
+
+    """
+    # compute the psd as |h(f)|**2, where h(f) is the transfer function..
+    # for this model s[n] = a1*s[n-1] + a2*s[n-2] + ... aP*s[n-P] + v[n]
+    # Taken as a FIR system from s[n] to v[n],
+    # v[n] = w0*s[n] + w1*s[n-1] + w2*s[n-2] + ... + wP*s[n-P],
+    # where w0 = 1, and wk = -ak for k>0
+    # the transfer function here is H(f) = DTFT(w)
+    # leading to Sxx(f) = Vxx(f) / |H(f)|**2 = sigma_v / |H(f)|**2
     w, hw = freq_response(sigma_v**0.5, a=np.concatenate(([1], -ak)),
                      Nfreqs=Nfreqs, sides=sides)
     ar_psd = (hw*hw.conj()).real
     return (w,2*ar_psd) if sides=='onesided' else (w,ar_psd)
-
 
 def boxcar_filter(time_series,lb=0,ub=1,n_iterations=2):
     """
@@ -3014,8 +3031,7 @@ def granger_causality_xy(a, cov, Nfreqs=1024):
     xx_auto_component = (sigma*Hxx_hat*Hxx_hat.conj()).real
     cross_component = gamma2*Hxy*Hxy.conj()
     Sxx = xx_auto_component + cross_component
-    f_y_on_x = Sxx.real / xx_auto_component
-    np.log(f_y_on_x, f_y_on_x)
+    f_y_on_x = np.log( Sxx.real / xx_auto_component )
 
 
     # this transformation computes the Granger causality of X on Y
@@ -3026,8 +3042,7 @@ def granger_causality_xy(a, cov, Nfreqs=1024):
     yy_auto_component = (gamma*Hyy_hat*Hyy_hat.conj()).real
     cross_component = sigma2*Hyx*Hyx.conj()
     Syy = yy_auto_component + cross_component
-    f_x_on_y = Syy.real / yy_auto_component
-    np.log(f_x_on_y, f_x_on_y)
+    f_x_on_y = np.log( Syy.real / yy_auto_component )
 
     # now compute cross densities, using the latest transformation
     Hxx = Hw[0,0]
@@ -3041,6 +3056,6 @@ def granger_causality_xy(a, cov, Nfreqs=1024):
     detS = (Sxx*Syy - Sxy*Syx).real
     f_xy = xx_auto_component * yy_auto_component
     f_xy /= detS
-    np.log(f_xy, f_xy)
+    f_xy = np.log(f_xy)
 
     return w, f_x_on_y, f_y_on_x, f_xy, np.array([[Sxx, Sxy], [Syx, Syy]])
