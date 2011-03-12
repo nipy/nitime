@@ -79,7 +79,7 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
             out_data = [[]] * n_roi
             tseries = [[]] * n_roi
             for i in xrange(n_roi):
-                tseries[i] = _tseries_from_nifti_helper(coords[i].astype(int),
+                tseries[i] = _tseries_from_nifti_helper(np.array(coords[i]).astype(int),
                                                         data,TR,
                                                         filter,
                                                         normalize,
@@ -104,14 +104,14 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
                 tseries_list.append([[]] * n_roi)
                 for i in xrange(n_roi):
                     tseries_list[-1][i] = _tseries_from_nifti_helper(
-                                                coords[i].astype(int),
+                                                np.array(coords[i]).astype(int),
                                                 data,TR,filter,normalize,average)
 
                 
                 
             else:
                 tseries_list.append(_tseries_from_nifti_helper(
-                                                       coords.astype(int),
+                                                       np.array(coords).astype(int),
                                                        data,TR,
                                                        filter,normalize,average))
 
