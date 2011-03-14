@@ -84,7 +84,7 @@ class BaseAnalyzer(desc.ResetMixin):
 ##Spectral estimation: 
 class SpectralAnalyzer(BaseAnalyzer):
     """ Analyzer object for spectral analysis"""
-    def __init__(self,input=None,method=None):
+    def __init__(self,input=None,method=None,BW=None,adaptive=False):
         """
         The initialization of the
         
@@ -92,9 +92,21 @@ class SpectralAnalyzer(BaseAnalyzer):
         ----------
         input: time-series objects
 
-        method: dict optional, see :func:`algorithms.get_spectra` for
-        specification of the spectral analysis method
+        method: dict (optional),
+           The method spec used in calculating 'psd' see
+           :func:`algorithms.get_spectra` for details.
 
+        BW: float (optional),
+            In 'spectrum_multi_taper' The bandwidth of the windowing function
+            will determine the number tapers to use. This parameters represents
+            trade-off between frequency resolution (lower main lobe BW for the
+            taper) and variance reduction (higher BW and number of averaged
+            estimates).
+        
+        adaptive : {True/False}
+           In 'spectrum_multi_taper', use an adaptive weighting routine to
+           combine the PSD estimates of different tapers. 
+        
         Examples
         --------
         >>> np.set_printoptions(precision=4)  # for doctesting
@@ -122,6 +134,10 @@ class SpectralAnalyzer(BaseAnalyzer):
         if self.method is None:
             self.method = {'this_method':'welch',
                            'Fs':self.input.sampling_rate}
+
+        self.BW=BW
+        self.adaptive=adaptive
+        
     @desc.setattr_on_read
     def psd(self):
         """
@@ -238,18 +254,29 @@ class SpectralAnalyzer(BaseAnalyzer):
         The spectrum and cross-spectra, computed using
         :func:`multi_taper_csd'
 
-        XXX This method needs to be improved to include a clever way of
-        figuring out how many tapers to generate and a way to extract the
-        estimate of error based on the tapers. 
-
         """
-        data = self.input.data
-        sampling_rate = self.input.sampling_rate
-        self.multi_taper_method = self.method
-        self.multi_taper_method['this_method'] = 'multi_taper_csd'
-        self.multi_taper_method['Fs'] = sampling_rate
-        f,spectrum_multi_taper = tsa.get_spectra(data,
-                                                 method=self.multi_taper_method)
+        #Initialize the output
+        spectrum_multi_taper = np.empty((self.input.shape[0],
+                                         self.input.shape[-1]/2+1))
+        
+        #If multi-channel data:
+        if len(self.input.data.shape)>1:
+            for i in xrange(self.input.data.shape[0]):
+                # 'f' are the center frequencies of the frequency bands
+                # represented in the MT psd. These are identical in each iteration
+                # of the loop, so they get reassigned into the same variable in
+                # each iteration:  
+                f,spectrum_multi_taper[i],_ =  tsa.multi_taper_psd(self.input.data[i],
+                                                                Fs=self.input.sampling_rate,
+                                                                BW=self.BW,
+                                                                adaptive=self.adaptive)
+                
+        else:
+            f,spectrum_multi_taper = tsa.multi_taper_psd(self.input.data,
+                                        Fs=self.input.sampling_rate,
+                                        BW=self.BW,
+                                        adaptive=self.adaptive)
+         
         return f,spectrum_multi_taper
     
 ##Bivariate methods:  
@@ -1502,7 +1529,7 @@ class FilterAnalyzer(desc.ResetMixin):
         self._ftype = ftype
 
 
-    def filtfilt(self,b,a):
+    def filtfilt(self,b,a,in_ts=None):
 
         """
         Zero-phase delay filtering (either iir or fir).
@@ -1512,36 +1539,46 @@ class FilterAnalyzer(desc.ResetMixin):
 
         a,b: filter coefficients
 
+        in_ts: time-series object. This allows to replace the input. Instead
+        of analyzing this analyzers input data, analyze some other time-series object
+
         Note
         ----
 
         This is a wrapper around scipy.signal.filtfilt
         
-        """ 
+        """
+        # Switch in the new in_ts:
+        if in_ts is not None:
+            data = in_ts.data
+            Fs = in_ts.sampling_rate
+            tu = in_ts.time_unit
+        else:
+            data = self.data
+            Fs = self.sampling_rate
+            tu = self.time_unit
+            
         #filtfilt only operates channel-by-channel, so we need to loop over the
         #channels, if the data is multi-channel data:
-        if len(self.data.shape)>1:
-            out_data = np.empty(self.data.shape)
-            for i in xrange(self.data.shape[0]):
-                out_data[i] = signal.filtfilt(b,a,self.data[i])
+        if len(data.shape)>1:
+            out_data = np.empty(data.shape)
+            for i in xrange(data.shape[0]):
+                out_data[i] = signal.filtfilt(b,a,data[i])
                 #Make sure to preserve the DC:
-                dc = np.mean(self.data[i])
+                dc = np.mean(data[i])
                 out_data[i] -= np.mean(out_data[i])
                 out_data[i] += dc
-            out_data = ts.TimeSeries(out_data,
-                                     sampling_rate=self.sampling_rate,
-                                     time_unit=self.time_unit)
         else:
-            out_data = signal.filtfilt(b,a,self.data)
+            out_data = signal.filtfilt(b,a,data)
             #Make sure to preserve the DC:
-            dc = np.mean(self.data)
+            dc = np.mean(data)
             out_data -= np.mean(out_data)
             out_data += dc
-            out_data = ts.TimeSeries(out_data,
-                                     sampling_rate=self.sampling_rate,
-                                     time_unit=self.time_unit)
 
-        return out_data
+        return ts.TimeSeries(out_data,
+                             sampling_rate=Fs,
+                             time_unit=self.time_unit)
+
 
     @desc.setattr_on_read
     def fir(self):
@@ -1560,33 +1597,34 @@ class FilterAnalyzer(desc.ResetMixin):
             
         lb_frac = self.lb/(self.sampling_rate/2.)
 
+        if lb_frac<0 or ub_frac>1:
+            raise ValueError("The lower-bound or upper bound used to filter are beyond the range 0-Nyquist. You asked for a filter between %s and %s percent of the Nyquist frequency"%(lb_frac*100,ub_frac*100))
+
         n_taps = self._filt_order + 1
 
         #This means the filter order you chose was too large (needs to be
         #shorter than a 1/3 of your time-series )
         if n_taps>self.data.shape[-1]*3:
-            raise ValueError("The filter order chosen is longer than the time-series")
+            raise ValueError("The filter order chosen is too large for this time-series")
 
-        #Band-pass:
-        if lb_frac>0 and ub_frac<1: 
-            b = signal.firwin(n_taps,[lb_frac,ub_frac])
+        # a is always 1:
+        a = [1]
+
+        sig = ts.TimeSeries(data=self.data,sampling_rate=self.sampling_rate)
 
         #Lowpass:
-        elif lb_frac==0:
+        if ub_frac<1:
             b = signal.firwin(n_taps,ub_frac)
-
+            sig = self.filtfilt(b,a,sig)
+            
         #High-pass
-        elif ub_frac==1:
+        if lb_frac>0:
             #Includes a spectral inversion:
             b = -1 * signal.firwin(n_taps,lb_frac)
             b[n_taps/2] = b[n_taps/2] + 1
+            sig = self.filtfilt(b,a,sig)
 
-        else:
-            raise ValueError("The lower-bound or upper bound used to filter are beyond the range 0-Nyquist. You asked for a filter between %s and %s percent of the Nyquist frequency"%(lb_frac*100,ub_frac*100))
-            
-        a = [1]
-
-        return self.filtfilt(b,a)
+        return sig
     
     @desc.setattr_on_read
     def iir(self):
@@ -1646,8 +1684,8 @@ class FilterAnalyzer(desc.ResetMixin):
                                       #complex parts
 
         return ts.TimeSeries(data=data_out,
-                                 sampling_rate=self.sampling_rate,
-                                 time_unit=self.time_unit) 
+                             sampling_rate=self.sampling_rate,
+                             time_unit=self.time_unit) 
 
     @desc.setattr_on_read
     def filtered_boxcar(self):
@@ -1667,7 +1705,7 @@ class FilterAnalyzer(desc.ResetMixin):
             
         lb = self.lb/self.sampling_rate
 
-        data_out = tsa.boxcar_filter(self.data,lb=lb,ub=ub,
+        data_out = tsa.boxcar_filter(np.copy(self.data),lb=lb,ub=ub,
                                      n_iterations=self._boxcar_iterations)
 
         return ts.TimeSeries(data=data_out,

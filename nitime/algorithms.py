@@ -2267,14 +2267,14 @@ def boxcar_filter(time_series,lb=0,ub=1,n_iterations=2):
 
     n = time_series.shape[-1]
  
-    box_car_ub = np.ones(np.ceil(1.0/ub))
+    box_car_ub = np.ones(np.ceil(1.0/ub/2.0))
     box_car_ub = box_car_ub/(float(len(box_car_ub))) 
     box_car_ones_ub = np.ones(len(box_car_ub))
 
     if lb==0:
         lb=None
     else:
-        box_car_lb = np.ones(np.ceil(1.0/lb))
+        box_car_lb = np.ones(np.ceil(1.0/lb/2.0))
         box_car_lb = box_car_lb/(float(len(box_car_lb))) 
         box_car_ones_lb = np.ones(len(box_car_lb))
 

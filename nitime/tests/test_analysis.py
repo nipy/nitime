@@ -41,7 +41,7 @@ def test_SpectralAnalyzer():
     f,c = C.spectrum_multi_taper
 
     npt.assert_equal(f.shape,(t.shape[0]/2+1,))
-    npt.assert_equal(c.shape,(2,2,t.shape[0]/2+1))
+    npt.assert_equal(c.shape,(2,t.shape[0]/2+1))
 
     f,c = C.periodogram
 
