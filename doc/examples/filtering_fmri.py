@@ -36,6 +36,7 @@ from matplotlib.mlab import csv2rec
 Next, the particular nitime classes we will be using in this example: 
 
 """
+
 import nitime
 
 # Import the time-series objects: 
@@ -101,7 +102,8 @@ example, we will only plot the data from the 10th ROI (by indexing into the
 spectra). We compare all the methods of spectral estimation by plotting them
 together: 
 
-""" 
+"""
+
 ax01.plot(S_original.psd[0],S_original.psd[1][9],label='Welch PSD')
 ax01.plot(S_original.spectrum_fourier[0],S_original.spectrum_fourier[1][9],label='FFT')
 ax01.plot(S_original.periodogram[0],S_original.periodogram[1][9],label='Periodogram')
@@ -158,9 +160,11 @@ As with the SpectralAnalyzer, there is a common API for the different methods
 used for filtering. We use the following methods:
 
 - Boxcar filter: The time-series is convolved with a box-car function of the
-  right length to smooth the data. This functions as a low-pass filter. The
+  right length to smooth the data to such an extent that the frequencies higher
+  than represented by the length of this box-car function are no longer present
+  in the smoothed version of the time-series. This functions as a low-pass filter. The
   data can then be high-pass filtered by subtracting this version of the data
-  from the original
+  from the original. For a band-pass filter, both of these operations are done.
 
 """
 
@@ -168,7 +172,14 @@ ax02.plot(F.filtered_boxcar.data[0],label='Boxcar filter')
 
 """
 
-- FIR filter 
+- FIR filter: A digital filter with a finite impulse response. These filters
+  have an order of 64 per default, but that can be adjusted by setting the key
+  word argument 'filt_order', passed to initialize the FilterAnalyzer. For
+  FIR filtering, :mod:`nitime` uses a Hamming window filter, but this can also
+  be changed by setting the key word argument 'fir_win'.
+  As with the boxcar filter, if band-pass filtering is required, a low-pass
+  filter is applied and then a high-pass filter is applied to the resulting
+  time-series.
 
 """
 
@@ -176,7 +187,12 @@ ax02.plot(F.fir.data[0],label='FIR')
 
 """
 
-- IIR filter
+- IIR filter: A digital filter with an infinite impulse response function. Per
+  default an elliptic filter is used here, but this can be changed, by setting
+  the 'iir_type' key word argument used when initializing the FilterAnalyzer. 
+
+For both FIR filters and IIR filters, :func:`scipy.signal.filtfilt` is used in
+order to achieve zero phase delay filtering.
 
 """
 
@@ -187,12 +203,14 @@ ax02.plot(F.iir.data[0],label='IIR')
 - Fourier filter: this is a quick and dirty filter. The data is FFT-ed into the
   frequency domain. The power in the unwanted frequency bins is removed (by
   replacing the power in these bins with zero) and the data is IFFT-ed back
-  into the time-domain.
+  into the time-domain. 
 
 """
 
 ax02.plot(F.filtered_fourier.data[0],label='Fourier')
 ax02.legend()
+ax02.set_xlabel('Time (TR)')
+ax02.set_ylabel('Signal amplitude (a.u.)')
 
 """
 
@@ -267,6 +285,8 @@ ax04 = fig04.add_subplot(1,1,1)
 ax04.plot(NormalizationAnalyzer(F.fir).percent_change.data[0],label='% change')
 ax04.plot(NormalizationAnalyzer(F.fir).z_score.data[0],label='Z score')
 ax04.legend()
+ax04.set_xlabel('Time (TR)')
+ax04.set_ylabel('Amplitude (% change or Z-score)')
 
 """     
 
@@ -277,9 +297,8 @@ Notice that the same methods of filtering and normalization can be applied to
 fMRI data, upon reading it from a nifti file, using :mod:`nitime.fmri.io`. 
 
 We demonstrate that in what follows.[Notice that nibabel
-(http://nipy.org/nibabel) is required in order to run the following examples,
-so we test whether the user has that installed and throw an informative error
-if not:]
+(http://nipy.org/nibabel) is required in order to run the following
+examples. An error will be thrown if nibabel is not installed]
 
 """
 
@@ -304,7 +323,7 @@ f_ub = 0.15
 """
 
 An fMRI data file with some fMRI data is shipped as part of the distribution,
-the following line will find the path to this data on the specific setup:
+the following line will find the path to this data on the specific computer:
 
 """
 
@@ -328,7 +347,7 @@ coords = np.array(coords).T
 
 """
 
-We use nitime.fmri.io in order to generate a TimeSeries object from spatial
+We use :mod:`nitime.fmri.io` in order to generate a TimeSeries object from spatial
 coordinates in the data file. Notice that normalization method is provided as a
 string input to the keyword argument 'normalize' and the filter and its
 properties are provided as a dict to the keyword argument 'filter':
@@ -388,6 +407,11 @@ ax05.legend()
 
 .. image:: fig/filtering_fmri_05.png
 
+
+Notice that though the boxcar filter doesn't usually do an amazing job with
+long time-series and IIR/FIR filters seem to be superior in those cases, in
+this example, where the time-series is much shorter, it sometimes does a relatively
+decent job.
 
 We call plt.show() in order to display the figure:
 

@@ -1484,28 +1484,32 @@ class FilterAnalyzer(desc.ResetMixin):
 
     time_series: A nitime TimeSeries object.
 
-    lb,ub: float
+    lb,ub: float (optional)
        Lower and upper band of a pass-band into which the data will be
-       filtered.
+       filtered. Default: 0, Nyquist
 
-    boxcar_iterations: int
+    boxcar_iterations: int (optional)
        For box-car filtering, how many times to iterate over the data while
-       convolving with a box-car function
+       convolving with a box-car function. Default: 2
 
-    gpass: float
+    gpass: float (optional)
        For iir filtering, the pass-band maximal ripple loss (default: 1)
        
-    gstop: float
+    gstop: float (optional)
        For iir filtering, the stop-band minimal attenuation (default: 60).
 
-    filt_order: int
+    filt_order: int (optional)
         For iir/fir filtering, the order of the filter. Note for fir filtering,
-        this needs to be an even number.
+        this needs to be an even number. Default: 64
 
-    ftype: str
+    iir_ftype: str (optional)
         The type of filter to be used in iir filtering (see
-        scipy.signal.iirdesign for details). 
+        scipy.signal.iirdesign for details). Default 'ellip'
 
+    fir_win: str
+        The window to be used in fir filtering (see scipy.signal.firwin for
+        details). Default: 'hamming'
+    
     Note
     ----
     All filtering methods used here keep the original DC component of the
@@ -1513,7 +1517,7 @@ class FilterAnalyzer(desc.ResetMixin):
 
     """
     def __init__(self,time_series,lb=0,ub=None,boxcar_iterations=2,
-                 filt_order=64,gpass=1,gstop=60,ftype='ellip'):
+                 filt_order=64,gpass=1,gstop=60,iir_ftype='ellip',fir_win='hamming'):
 
         #Initialize all the local variables you will need for all the different
         #filtering methods: 
@@ -1526,8 +1530,8 @@ class FilterAnalyzer(desc.ResetMixin):
         self._gstop = gstop
         self._gpass = gpass
         self._filt_order = filt_order
-        self._ftype = ftype
-
+        self._ftype = iir_ftype
+        self._win = fir_win
 
     def filtfilt(self,b,a,in_ts=None):
 
@@ -1614,13 +1618,13 @@ class FilterAnalyzer(desc.ResetMixin):
 
         #Lowpass:
         if ub_frac<1:
-            b = signal.firwin(n_taps,ub_frac)
+            b = signal.firwin(n_taps,ub_frac,self._win)
             sig = self.filtfilt(b,a,sig)
             
         #High-pass
         if lb_frac>0:
             #Includes a spectral inversion:
-            b = -1 * signal.firwin(n_taps,lb_frac)
+            b = -1 * signal.firwin(n_taps,lb_frac,self._win)
             b[n_taps/2] = b[n_taps/2] + 1
             sig = self.filtfilt(b,a,sig)
 

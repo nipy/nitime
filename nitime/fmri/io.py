@@ -151,7 +151,8 @@ def _tseries_from_nifti_helper(coords,data,TR,filter,normalize,average):
                           filt_order=filter.get('filt_order',64),
                           gpass=filter.get('gpass',1),
                           gstop=filter.get('gstop',60),
-                          ftype=filter.get('ftype','ellip'))
+                          iir_ftype=filter.get('iir_ftype','ellip'),
+                          fir_win=filter.get('fir_win','hamming'))
                           
             F = tsa.FilterAnalyzer(tseries,**kwargs)
 
