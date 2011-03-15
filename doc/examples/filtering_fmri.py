@@ -410,8 +410,8 @@ ax05.legend()
 
 Notice that though the boxcar filter doesn't usually do an amazing job with
 long time-series and IIR/FIR filters seem to be superior in those cases, in
-this example, where the time-series is much shorter, it sometimes does a relatively
-decent job.
+this example, where the time-series is much shorter, it sometimes does a
+relatively decent job.
 
 We call plt.show() in order to display the figure:
 
