@@ -8,10 +8,11 @@ Mulitvariate auto-regressive modeling
 =====================================
 
 
-This example is based on Ding, Chen and Bressler 2006 _[Ding2006]. 
+This example is based on Ding, Chen and Bressler 2006 [Ding2006]_. 
 
 
 We start by importing the required libraries: 
+
 
 """
 
@@ -53,12 +54,19 @@ a2 = np.array([ [-0.5, 0],
 
 """
 
-Re-balance the equation to satisfy the relationship $Z[t] + sum_{i=1}^2 a[i]Z[t-i] = Err[t]$ , where $Z[t] = [X[t]$, $Y[t]]^t$ and $Err[t] ~ N(mu, cov=[ [x_var, xy_cov], [xy_cov, y_var] ]$)
+Re-balance the equation to satisfy the relationship
+
+.. math::
+
+      Z[t] + sum_{i=1}^2 a[i]Z[t-i] = Err[t] ,
+
+where $Z[t] = [X[t]$, $Y[t]]^t$ and $Err[t] ~ N(mu, cov=[ [x_var, xy_cov], [xy_cov, y_var] ])$
 
 
 
 
 """
+
 am = np.array([ -a1, -a2 ])
 
 x_var = 1
@@ -192,9 +200,21 @@ ax.plot(w, f_xy + f_x2y + f_y2x)
 ax.set_title('total causality')
 ax.set_ylim([0,2.2])
 
+"""
+
+.. image:: fig/mar_script_01.png
+
+
+
+"""
+
+
 pp.show()
 
 """
+
+
+
 
 .. [Ding2008] M. Ding, Y. Chen and S.L. Bressler (2006) Granger causality:
    basic theory and application to neuroscience. In Handbook of Time Series
