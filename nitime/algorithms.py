@@ -2236,7 +2236,7 @@ def LD_AR_est(s, order, Nfreqs, sxx=None, sides='onesided', system=False):
     return (w,2*ar_psd) if sides=='onesided' else (w,ar_psd)
 
 
-def boxcar_filter(time_series,lb=0,ub=1,n_iterations=2):
+def boxcar_filter(time_series,lb=0,ub=0.5,n_iterations=2):
     """
     Filters data into a frequency range. 
 
@@ -2252,7 +2252,7 @@ def boxcar_filter(time_series,lb=0,ub=1,n_iterations=2):
        the signal
     ub : float, optional
       The cut-off frequency for the low-pass filtering as a proportion of the
-      sampling rate. Default to 1
+      sampling rate. Default to 0.5 (Nyquist)
     lb : float, optional
       The cut-off frequency for the high-pass filtering as a proportion of the
       sampling rate. Default to 0
@@ -2266,17 +2266,19 @@ def boxcar_filter(time_series,lb=0,ub=1,n_iterations=2):
     """
 
     n = time_series.shape[-1]
- 
-    box_car_ub = np.ones(np.ceil(1.0/ub/2.0))
-    box_car_ub = box_car_ub/(float(len(box_car_ub))) 
-    box_car_ones_ub = np.ones(len(box_car_ub))
+
+    len_boxcar_ub = np.ceil(1 / (2.0*ub) )
+    boxcar_ub = np.empty(len_boxcar_ub)
+    boxcar_ub.fill(1.0/len_boxcar_ub)
+    boxcar_ones_ub = np.ones_like(boxcar_ub)
 
     if lb==0:
         lb=None
     else:
-        box_car_lb = np.ones(np.ceil(1.0/lb/2.0))
-        box_car_lb = box_car_lb/(float(len(box_car_lb))) 
-        box_car_ones_lb = np.ones(len(box_car_lb))
+        len_boxcar_lb = np.ceil(1 / (2.0*lb) )
+        boxcar_lb = np.empty(len_boxcar_lb)
+        boxcar_lb.fill(1.0/len_boxcar_lb)
+        boxcar_ones_lb = np.ones_like(boxcar_lb)
 
     #If the time_series is a 1-d, we add a dimension, so that we can iterate
     #over 2-d inputs:
@@ -2286,13 +2288,13 @@ def boxcar_filter(time_series,lb=0,ub=1,n_iterations=2):
         if ub:
             #Start by applying a low-pass to the signal.  Pad the signal on
             #each side with the initial and terminal signal value:
-            pad_s = np.hstack((box_car_ones_ub*time_series[i,0],time_series[i]))
-            pad_s = np.hstack((pad_s, box_car_ones_ub*time_series[i,-1]))
+            pad_s = np.hstack((boxcar_ones_ub*time_series[i,0],time_series[i]))
+            pad_s = np.hstack((pad_s, boxcar_ones_ub*time_series[i,-1]))
 
             #Filter operation is a convolution with the box-car(iterate,
             #n_iterations times over this operation):
             for iteration in xrange(n_iterations):
-                conv_s = np.convolve(pad_s,box_car_ub)
+                conv_s = np.convolve(pad_s,boxcar_ub)
 
             #Extract the low pass signal by excising the central
             #len(time_series) points:        
@@ -2302,13 +2304,13 @@ def boxcar_filter(time_series,lb=0,ub=1,n_iterations=2):
         #Now, if there is a high-pass, do the same, but in the end subtract out
         #the low-passed signal:
         if lb:
-            pad_s = np.hstack((box_car_ones_lb*time_series[i,0],time_series[i]))
-            pad_s = np.hstack((pad_s, box_car_ones_lb * time_series[i,-1])) 
+            pad_s = np.hstack((boxcar_ones_lb*time_series[i,0],time_series[i]))
+            pad_s = np.hstack((pad_s, boxcar_ones_lb * time_series[i,-1])) 
             
             #Filter operation is a convolution with the box-car(iterate,
             #n_iterations times over this operation):
             for iteration in xrange(n_iterations):
-                conv_s = np.convolve(pad_s,box_car_lb)
+                conv_s = np.convolve(pad_s,boxcar_lb)
 
             #Extract the low pass signal by excising the central
             #len(time_series) points:
