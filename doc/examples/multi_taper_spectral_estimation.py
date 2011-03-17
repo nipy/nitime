@@ -183,7 +183,7 @@ This is the true PSD for this sequence:
 
 """
 
-fgrid, hz = tsa.my_freqz(1.0, a=np.r_[1, -alpha], Nfreqs=N)
+fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha], Nfreqs=N)
 psd = (hz*hz.conj()).real
 
 """

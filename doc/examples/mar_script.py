@@ -7,28 +7,43 @@
 Mulitvariate auto-regressive modeling
 =====================================
 
+
+This example is based on Ding, Chen and Bressler 2006 _[Ding2006]. 
+
+
+We start by importing the required libraries: 
+
 """
 
 import numpy as np
 import matplotlib.pyplot as pp
 
+
+"""
+
+From nitime, we import the algorithms and the utils:
+
+"""
+
 import nitime.algorithms as alg
 import nitime.utils as utils
+
+
+"""
+
+Setting the random seed assures that we always get the same 'random' answer:
+
+"""
 
 np.random.seed(1981)
 
 """
 
-The example data from Ding, Chen, Bressler 2008 pg 18 (eq 55)
+The example data from _[Ding2006] pg 18 (eq 55)
 # X[t] = 0.9X[t-1] - 0.5X[t-2] + err_x
 # Y[t] = 0.8Y[t-1] - 0.5Y[t-2] + 0.16X[t-1] - 0.2X[t-2] + err_y
 
 """
-#a1 = np.array([ [0.9, 0],
-#                [0.16, 0.8] ])
-
-#a2 = np.array([ [-0.5, 0],
-#                [-0.2, -0.5] ])
 
 a1 = np.array([ [0.9, 0],
                 [0.16, 0.8] ])
@@ -38,7 +53,9 @@ a2 = np.array([ [-0.5, 0],
 
 """
 
-re-balance the equation to satisfying the relationship $Z[t] + sum_{i=1}^2 a[i]Z[t-i] = Err[t]$ , where $Z[t] = [X[t]$, $Y[t]]^t$ and $Err[t] ~ N(mu, cov=[ [x_var, xy_cov], [xy_cov, y_var] ]$)
+Re-balance the equation to satisfy the relationship $Z[t] + sum_{i=1}^2 a[i]Z[t-i] = Err[t]$ , where $Z[t] = [X[t]$, $Y[t]]^t$ and $Err[t] ~ N(mu, cov=[ [x_var, xy_cov], [xy_cov, y_var] ]$)
+
+
 
 
 """
@@ -53,7 +70,7 @@ cov = np.array([ [x_var, xy_cov],
 
 """
 
-calculate the spectral matrix analytically ( z-transforms evaluated at
+Calculate the spectral matrix analytically ( z-transforms evaluated at
 z=exp(j*omega) from omega in [0,pi] )
 
 
@@ -175,4 +192,15 @@ ax.plot(w, f_xy + f_x2y + f_y2x)
 ax.set_title('total causality')
 ax.set_ylim([0,2.2])
 
-#pp.show()
+pp.show()
+
+"""
+
+.. [Ding2008] M. Ding, Y. Chen and S.L. Bressler (2006) Granger causality:
+   basic theory and application to neuroscience. In Handbook of Time Series
+   Analysis, ed. B. Schelter, M. Winterhalder, and J. Timmer, Wiley-VCH
+   Verlage, 2006: 451-474
+
+
+
+"""
