@@ -5,6 +5,7 @@ XXX wrie top level doc-string
 """
 import numpy as np
 import scipy.linalg as linalg
+from numpy.linalg import inv
 
 
 #-----------------------------------------------------------------------------
@@ -116,7 +117,7 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
 
     >>> import nitime.algorithms as alg
     >>> ar_seq, nz, alpha = ar_generator()
-    >>> fgrid, hz = alg.my_freqz(1.0, a=np.r_[1, -alpha])
+    >>> fgrid, hz = alg.freq_response(1.0, a=np.r_[1, -alpha])
     >>> sdf_ar = (hz*hz.conj()).real
 
     """
@@ -1574,175 +1575,6 @@ def fir_design_matrix(events,len_hrf):
 
     return fir_matrix
 
-#----------goodness of fit utilities ----------------------------------------
-
-def noise_covariance_matrix(x,y):
-    """ Calculates the noise covariance matrix of the errors in predicting a
-    time-series
-    
-    Parameters
-    ----------
-    x,y: ndarray, where x is the actual time-series and y is the prediction
-
-    Returns
-    -------
-    np.matrix, the noise covariance matrix
-    
-    Example
-    -------
-    
-    >>> x = np.matrix([[1,2,3],[1,2,3],[1,2,3]])
-    >>> y = np.matrix([[1,2,3],[1,1,1],[3,3,3]])
-    >>> a = noise_covariance_matrix(x,y)
-    >>> a
-    matrix([[ 0.,  0.,  0.],
-            [ 0.,  1.,  1.],
-            [ 0.,  1.,  1.]])
-
-    """
-    e = x-y
-
-    return np.matrix(np.cov(e))
-    
-def akaike_information_criterion(x,y,m):
-    """ A measure of the goodness of fit of a statistical model based on the
-    number of parameters,  and the model likelihood, calculated from the
-    discrepancy between the variable x and the model estimate of that
-    variable.
-
-    Parameters
-    ----------
-
-    x: the actual time-series
-
-    y: the model prediction for the time-series
-    
-    m: int, the number of parameters in the model.
-    
-    Returns
-    -------
-
-    AIC: float
-        The value of the AIC
-        
-    Notes
-    -----
-    This is an implementation of equation (50) in Ding et al. (2006)
-    [Ding2006]_:
-
-    .. math ::
-
-    AIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m}{N_{total}},
-
-    where $\Sigma$ is the noise covariance matrix. In auto-regressive model
-    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual variance
-    in estimating time-series $i$ from $j$, $p$ is the dimensionality of the
-    data, $m$ is the number of parameters in the model and $N_{total}$ is the
-    number of time-points.   
-    
-    .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
-       Basic Theory and Application to
-       Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
-    
-    See also: http://en.wikipedia.org/wiki/Akaike_information_criterion
-    """
-    sigma = noise_covariance_matrix(x,y)
-    AIC = (2*( np.log(linalg.det(sigma)) ) +
-           ( (2*(sigma.shape[0]**2) * m ) / (x.shape[-1]) ))
-    
-    return AIC
-
-def akaike_information_criterion_c(x,y,m):
-    """ The Akaike Information Criterion, corrected for small sample size.
-
-    Parameters
-    ----------
-    x: the actual time-series
-
-    y: the model prediction for the time-series
-    
-    m: int, the number of parameters in the model.
-    
-    n: int, the total number of time-points/samples 
-
-
-    Returns
-    -------
-
-    AICc: float
-        The value of the AIC, corrected for small sample size
-
-    Notes
-    -----
-    Taken from: http://en.wikipedia.org/wiki/Akaike_information_criterion:
-
-    .. math::
-
-    AICc = AIC + \frac{2m(m+1)}{n-m-1}
-
-    Where m is the number of parameters in the model and n is the number of
-    time-points in the data.
-
-    See also :func:`akaike_information_criterion`
-    
-    """
-
-    AIC = akaike_information_criterion(x,y,m)
-    AICc = AIC + (2*m*(m+1))/(x.shape[-1]-m-1)
-
-    return AICc
-
-def bayesian_information_criterion(x,y,m):
-    """The Bayesian Information Criterion, also known as the Schwarz criterion
-     is a measure of goodness of fit of a statistical model, based on the
-     number of model parameters and the likelihood of the model
-
-    Parameters
-    ----------
-
-    x: the actual time-series
-
-    y: the model prediction for the time-series
-    
-    m: int, the number of parameters in the model.
-    
-    n: int, the total number of time-points/samples 
-    
-    Returns
-    -------
-
-    BIC: float
-       The value of the BIC
-
-    Notes
-    -----
-        This is an implementation of equation (51) in Ding et al. (2006)
-    [Ding2006]_:
-
-    .. math ::
-
-    BIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m log(N_{total})}{N_{total}},
-
-    where $\Sigma$ is the noise covariance matrix. In auto-regressive model
-    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual variance
-    in estimating time-series $i$ from $j$, $p$ is the dimensionality of the
-    data, $m$ is the number of parameters in the model and $N_{total}$ is the
-    number of time-points.   
-    
-    .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
-       Basic Theory and Application to
-       Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
-
-    
-    See http://en.wikipedia.org/wiki/Schwarz_criterion
-
-    """ 
-    sigma = noise_covariance_matrix(x,y)
-    BIC =  (2*( np.log(linalg.det(sigma)) ) +
-           ( (2*(sigma.shape[0]**2) * m * np.log(x.shape[-1])) / (x.shape[-1]) ))
-    return BIC
-
-
 #We carry around a copy of the hilbert transform analytic signal from newer
 #versions of scipy, in case someone is using an older version of scipy with a
 #borked hilbert:
@@ -1775,3 +1607,451 @@ def hilbert_from_new_scipy(x, N=None, axis=-1):
         h = h[ind]
     x = np.fft.ifft(Xf*h, axis=axis)
     return x
+
+
+#---------- MAR utilities ----------------------------------------
+
+# These utilities are used in the computation of multivariate autoregressive
+# models (used in computing Granger causality):
+
+def crosscov_vector(x, y, nlags=None):
+    """
+    This method computes the following function
+
+    .. math::
+
+    R_{xy}(k) = E{ x(t)y^{*}(t-k) } = E{ x(t+k)y^{*}(k) }
+    k \in {0, 1, ..., nlags-1}
+
+    (* := conjugate transpose)
+
+    Note: In the case where x==y (autocovariance), this is related to
+    the other commonly used definition for vector autocovariance
+
+    .. math::
+
+    R_{xx}^{(2)}(k) = E{ x(t-k)x^{*}(k) } = R_{xx}^{*}(k) = R_{xx}(-k)
+
+    Parameters
+    ----------
+
+    x, y: ndarray (nc, N)
+
+    nlags: int, optional
+       compute lags for k in {0, ..., nlags-1}
+
+    Returns
+    -------
+
+    rxy : ndarray (nc, nc, nlags)
+
+    """
+    N = x.shape[1]
+    if nlags is None:
+        nlags = N
+    nc = x.shape[0]
+
+    rxy = np.empty((nc, nc, nlags))
+
+    # rxy(k) = E{ x(t)y*(t-k) } ( * = conj transpose )
+    # Take the expectation over an outer-product
+    # between x(t) and conj{y(t-k)} for each t
+
+    for k in xrange(nlags):
+        # rxy(k) = E{ x(t)y*(t-k) }
+        prod = x[:,None,k:] * y[None,:,:N-k].conj()
+##         # rxy(k) = E{ x(t)y*(t+k) }
+##         prod = x[:,None,:N-k] * y[None,:,k:].conj()
+        # Do a sample mean of N-k pts? or sum and divide by N?
+        rxy[...,k] = prod.mean(axis=-1)
+    return rxy
+
+def autocov_vector(x, nlags=None):
+    """
+    This method computes the following function
+
+    .. math::
+
+    R_{xx}(k) = E{ x(t)x^{*}(t-k) } = E{ x(t+k)x^{*}(k) }
+    k \in {0, 1, ..., nlags-1}
+
+    (* := conjugate transpose)
+
+    Note: this is related to
+    the other commonly used definition for vector autocovariance
+
+    .. math::
+
+    R_{xx}^{(2)}(k) = E{ x(t-k)x^{*}(k) } = R_{xx}^{*}(k) = R_{xx}(-k)
+
+    Parameters
+    ----------
+
+    x: ndarray (nc, N)
+
+    nlags: int, optional
+       compute lags for k in {0, ..., nlags-1}
+
+    Returns
+    -------
+
+    rxx : ndarray (nc, nc, nlags)
+
+    """
+    return crosscov_vector(x, x, nlags=nlags)
+
+def lwr(r):
+    """Perform a Levinson-Wiggins[Whittle]-Robinson recursion to
+    find the coefficients a(i) that satisfy the system of equations:
+
+    sum_{k=0}^{p} a(k)r(j-k) = 0, for j = {1,2,...,p}
+
+    with the additional equation
+
+    sum_{k=0}^{p} a(k)r(-k) = V
+
+    where V is the covariance matrix of the innovations process
+
+    Also note that r is defined as:
+
+    r(k) = E{ X(t)X*(t-k) } ( * = conjugate transpose )
+    r(-k) = r(k).T
+
+
+    This routine adapts the algorithm found in eqs (1)-(11)
+    in Morf, Vieira, Kailath 1978
+
+    Parameters
+    ----------
+
+    r : ndarray, shape (P+1, nc, nc)
+
+    Returns
+    -------
+
+    a : ndarray (P,nc,nc)
+      coefficient sequence of order P
+    sigma : ndarray (nc,nc)
+      covariance estimate
+
+    """
+
+    # r is (P+1, nc, nc)
+    nc = r.shape[1]
+    P = r.shape[0]-1
+
+    a = np.zeros((P,nc,nc)) # ar coefs
+    b = np.zeros_like(a) # lp coefs
+    sigb = np.zeros_like(r[0]) # forward prediction error covariance
+    sigf = np.zeros_like(r[0]) # backward prediction error covariance
+    delta = np.zeros_like(r[0])
+
+    # initialize
+    idnt = np.eye(nc)
+    sigf[:] = r[0]
+    sigb[:] = r[0]
+
+    # iteratively find sequences A_{p+1}(i) and B_{p+1}(i)
+    for p in xrange(P):
+
+        # calculate delta_{p+1}
+        # delta_{p+1} = r(p+1) + sum_{i=1}^{p} a(i)r(p+1-i)
+        delta[:] = r[p+1]
+        for i in xrange(1,p+1):
+            delta += np.dot(a[i-1], r[p+1-i])
+
+        # intermediate values
+        ka = np.dot(delta, inv(sigb))
+        kb = np.dot(delta.T, inv(sigf))
+
+        # store a_{p} before updating sequence to a_{p+1}
+        ao = a.copy()
+        # a_{p+1}(i) = a_{p}(i) - ka*b_{p}(p+1-i) for i in {1,2,...,p}
+        # b_{p+1}(i) = b_{p}(i) - kb*a_{p}(p+1-i) for i in {1,2,...,p}
+        for i in xrange(1,p+1):
+            a[i-1] -= np.dot(ka, b[p-i])
+        for i in xrange(1,p+1):
+            b[i-1] -= np.dot(kb, ao[p-i])
+
+        a[p] = -ka
+        b[p] = -kb
+
+        sigf = np.dot(idnt-np.dot(ka,kb), sigf)
+        sigb = np.dot(idnt-np.dot(kb,ka), sigb)
+
+    return a, sigf
+
+def lwr_alternate(r):
+    # r(k) = E{ X(t)X*(t+k) } ( * = conjugate transpose )
+    # r(-k) = r(k).T
+    # this routine solves the system of equations
+    # sum_{k=0}^{p} A(k)r(k-j) = 0, for j = {1,2,...,p}
+    # with the additional equation
+    # sum_{k=0}^{p} A(k)r(k) = V
+    # where V is the covariance matrix of the innovations process
+    #
+    # This routine adjusts the algorithm found in eqs (1)-(11)
+    # in Morf, Vieira, Kailath 1978 to reflect that this system
+    # is composed in a slightly different way (due to the conflicting
+    # definition of autocovariance)
+
+    # r is (P+1, nc, nc)
+    nc = r.shape[1]
+    P = r.shape[0]-1
+
+    a = np.zeros((P,nc,nc)) # ar coefs
+    b = np.zeros_like(a) # lp coefs
+    sigb = np.zeros_like(r[0]) # forward prediction error covariance
+    sigf = np.zeros_like(r[0]) # backward prediction error covariance
+    delta = np.zeros_like(r[0])
+
+    # initialize
+    idnt = np.eye(nc)
+    sigf[:] = r[0]
+    sigb[:] = r[0]
+
+    # iteratively find sequences A_{p+1}(i) and B_{p+1}(i)
+    for p in xrange(P):
+
+        # calculate delta_{p+1}
+        delta[:] = r[p+1]
+        for i in xrange(1,p+1):
+            delta += np.dot(r[p+1-i], a[i-1].T)
+
+        # intermediate values
+        ka = np.dot(delta.T, inv(sigb).T) # (inv(sigb)*del)'
+        kb = np.dot(delta, inv(sigf).T)   # (inv(sigf)*del')'
+
+        # store a_{p} before updating sequence to a_{p+1}
+        ao = a.copy()
+        for i in xrange(1,p+1):
+            a[i-1] -= np.dot(ka, b[p-i])
+        for i in xrange(1,p+1):
+            b[i-1] -= np.dot(kb, ao[p-i])
+
+        a[p] = -ka
+        b[p] = -kb
+
+        sigf = np.dot(sigf, (idnt-np.dot(ka,kb).T))
+        sigb = np.dot(sigb, (idnt-np.dot(kb,ka).T))
+
+    return a, sigf
+
+def generate_mar(a, cov, N):
+    """
+    Generates a multivariate autoregressive dataset given the formula:
+
+    X(t) + sum_{i=1}^{P} a(i)X(t-i) = E(t)
+
+    Where E(t) is a vector of samples from possibly covarying noise processes.
+
+    Parameters
+    ----------
+
+    a : ndarray (P, nc, nc)
+       An order P set of coefficient matrices, each shaped (nc, nc) for nchannel
+       data
+    cov : ndarray (nc, nc)
+       The innovations process covariance
+    N : int
+       how many samples to generate
+
+    Returns
+    -------
+
+    mar, nz
+
+    mar and noise process shaped (nc, N)
+    """
+    n_seq = cov.shape[0]
+    n_order = a.shape[0]
+
+    nz = np.random.multivariate_normal(
+        np.zeros(n_seq), cov, size=(N,)
+        )
+
+    # nz is a (N x n_seq) array
+
+    mar = nz.copy() #np.zeros((N, n_seq), 'd')
+
+    # this looks like a redundant loop that can be rolled into a matrix-matrix
+    # multiplication at each coef matrix a(i)
+
+    # this rearranges the equation to read:
+    # X(i) = E(i) - sum_{j=1}^{p} a(j)X(i-j)
+    # where X(n) n < 0 is taken to be 0
+    for i in xrange(N):
+        for j in xrange( min(i, n_order) ): # j logically in set {1, 2, ..., P}
+            mar[i,:] -= np.dot(a[j], mar[i-j-1,:])
+
+    return mar.transpose(), nz.transpose()
+
+
+#----------goodness of fit utilities ----------------------------------------
+
+def akaike_information_criterion(x,m):
+
+    """
+
+    A measure of the goodness of fit of an auto-regressive model based on the
+    model order and the error covariance.
+
+    Parameters
+    ----------
+
+    x: float array
+       Time series data with the dimensions (repetitions,channels,time)
+
+    m: int, the model order.
+
+    Returns
+    -------
+
+    AIC: float
+        The value of the AIC
+
+    Notes
+    -----
+    This is an implementation of equation (50) in Ding et al. (2006)
+    [Ding2006]_:
+
+    .. math ::
+
+    AIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m}{N_{total}},
+
+    where $\Sigma$ is the noise covariance matrix. In auto-regressive model
+    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual variance
+    in estimating time-series $i$ from $j$, $p$ is the dimensionality of the
+    data, $m$ is the number of parameters in the model and $N_{total}$ is the
+    number of time-points.
+
+    .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
+       Basic Theory and Application to
+       Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
+
+    See also: http://en.wikipedia.org/wiki/Akaike_information_criterion
+    """
+
+    N = x.shape[0]
+    p = x.shape[1]
+
+    Rxx = np.empty((N,p,p,m+1))
+
+    for i in xrange(N):
+        Rxx[i] = autocov_vector(x[i], nlags=m+1)
+
+    Rxx = Rxx.mean(axis=0)
+    Rxx = Rxx.transpose(2,0,1)
+    _, sigma = lwr(Rxx)
+
+    #The total number of data points:
+    Ntotal = np.prod(x.shape)
+
+    AIC = (2*( np.log(linalg.det(sigma)) ) +
+           ( (2*(p**2) * m ) / (Ntotal) ))
+
+    return AIC
+
+def akaike_information_criterion_c(x,m):
+    """ The Akaike Information Criterion, corrected for small sample size.
+
+    Parameters
+    ----------
+    x: float array
+        Time-series data
+
+    m: int,
+       The order of the auto-regressive model
+
+    Returns
+    -------
+
+    AICc: float
+        The value of the AIC, corrected for small sample size
+
+    Notes
+    -----
+    Taken from: http://en.wikipedia.org/wiki/Akaike_information_criterion:
+
+    .. math::
+
+    AICc = AIC + \frac{2m(m+1)}{n-m-1}
+
+    Where m is the number of parameters in the model and n is the number of
+    time-points in the data.
+
+    See also :func:`akaike_information_criterion`
+
+    """
+
+    AIC = akaike_information_criterion(x,m)
+
+    #The total number of data points:
+    Ntotal = np.prod(x.shape)
+
+    AICc = AIC + (2*m*(m+1))/(Ntotal-m-1)
+
+    return AICc
+
+def bayesian_information_criterion(x,m):
+    """The Bayesian Information Criterion, also known as the Schwarz criterion
+     is a measure of goodness of fit of a statistical model, based on the
+     number of model parameters and the likelihood of the model
+
+    Parameters
+    ----------
+
+    x: float array
+       Time series data with the dimensions (repetitions,channels,time)
+
+    m: int, the model order.
+
+
+    Returns
+    -------
+
+    BIC: float
+       The value of the BIC
+
+    Notes
+    -----
+        This is an implementation of equation (51) in Ding et al. (2006)
+    [Ding2006]_:
+
+    .. math ::
+
+    BIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m log(N_{total})}{N_{total}},
+
+    where $\Sigma$ is the noise covariance matrix. In auto-regressive model
+    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual variance
+    in estimating time-series $i$ from $j$, $p$ is the dimensionality of the
+    data, $m$ is the number of parameters in the model and $N_{total}$ is the
+    number of time-points.
+
+    .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
+       Basic Theory and Application to
+       Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
+
+
+    See http://en.wikipedia.org/wiki/Schwarz_criterion
+
+    """
+    N = x.shape[0]
+    p = x.shape[1]
+
+    Rxx = np.empty((N,p,p,m+1))
+
+    for i in xrange(N):
+        Rxx[i] = autocov_vector(x[i], nlags=m+1)
+
+    Rxx = Rxx.mean(axis=0)
+    Rxx = Rxx.transpose(2,0,1)
+    _, sigma = lwr(Rxx)
+
+    #The total number of data points:
+    Ntotal = np.prod(x.shape)
+
+    BIC =  (2*( np.log(linalg.det(sigma)) ) +
+           ( (2*(p**2) * m * np.log(Ntotal)) / (Ntotal) ))
+
+    return BIC

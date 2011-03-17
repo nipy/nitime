@@ -114,3 +114,122 @@ def plot_savings():
     pp.plot(range(8,13), times2, label='fdomain crosscov')
     pp.legend()
     pp.show()
+
+def test_lwr():
+    "test solution of lwr recursion"
+
+    for trial in xrange(3):
+        nc = np.random.randint(2, high=10)
+        P = np.random.randint(2, high=6)
+        # nc is channels, P is lags (order)
+        r = np.random.randn(P+1,nc,nc)
+        r[0] = np.dot(r[0], r[0].T) # force r0 to be symmetric
+
+        a, Va = utils.lwr(r)
+        # Verify the "orthogonality" principle of the mAR system
+        # Set up a system in blocks to compute, for each k
+        #   sum_{i=1}^{P} A(i)R(k-i) = -R(k) k > 0
+        # = sum_{i=1}^{P} R(k-i)^T A(i)^T = -R(k)^T
+        # = sum_{i=1}^{P} R(i-k)A(i)^T = -R(k)^T
+        rmat = np.zeros((nc*P, nc*P))
+        for k in xrange(1,P+1):
+            for i in xrange(1,P+1):
+                im = i-k
+                if im < 0:
+                    r1 = r[-im].T
+                else:
+                    r1 = r[im]
+                rmat[(k-1)*nc:k*nc,(i-1)*nc:i*nc] = r1
+
+        rvec = np.zeros((nc*P, nc))
+        avec = np.zeros((nc*P, nc))
+        for m in xrange(P):
+            rvec[m*nc:(m+1)*nc] = -r[m+1].T
+            avec[m*nc:(m+1)*nc] = a[m].T
+
+        l2_d = np.dot(rmat, avec) - rvec
+        l2_d = (l2_d**2).sum()**0.5
+        l2_r = (rvec**2).sum()**0.5
+
+        # compute |Ax-b| / |b| metric
+        yield nt.assert_almost_equal, l2_d/l2_r, 0
+
+def test_lwr_alternate():
+    "test solution of lwr recursion"
+
+    for trial in xrange(3):
+        nc = np.random.randint(2, high=10)
+        P = np.random.randint(2, high=6)
+        # nc is channels, P is lags (order)
+        r = np.random.randn(P+1,nc,nc)
+        r[0] = np.dot(r[0], r[0].T) # force r0 to be symmetric
+
+        a, Va = utils.lwr_alternate(r)
+        # Verify the "orthogonality" principle of the mAR system
+        # Set up a system in blocks to compute, for each k
+        #   sum_{i=1}^{P} A(i)R(-k+i) = -R(-k)  k > 0
+        # = sum_{i=1}^{P} (R(-k+i)^T A^T(i))^T = -R(-k) = -R(k)^T
+        # = sum_{i=1}^{P} R(k-i)A.T(i) = -R(k)
+        rmat = np.zeros((nc*P, nc*P))
+        for k in xrange(1,P+1):
+            for i in xrange(1,P+1):
+                im = k-i
+                if im < 0:
+                    r1 = r[-im].T
+                else:
+                    r1 = r[im]
+                rmat[(k-1)*nc:k*nc,(i-1)*nc:i*nc] = r1
+
+        rvec = np.zeros((nc*P, nc))
+        avec = np.zeros((nc*P, nc))
+        for m in xrange(P):
+            rvec[m*nc:(m+1)*nc] = -r[m+1]
+            avec[m*nc:(m+1)*nc] = a[m].T
+
+        l2_d = np.dot(rmat, avec) - rvec
+        l2_d = (l2_d**2).sum()**0.5
+        l2_r = (rvec**2).sum()**0.5
+
+        # compute |Ax-b| / |b| metric
+        yield nt.assert_almost_equal, l2_d/l2_r, 0
+
+def test_information_criteria():
+    """
+
+    Test the implementation of information criteria:
+
+    """
+    a1 = np.array([ [0.9, 0],
+                [0.16, 0.8] ])
+
+    a2 = np.array([ [-0.5, 0],
+                [-0.2, -0.5] ])
+
+    am = np.array([ -a1, -a2 ])
+
+    x_var = 1
+    y_var = 0.7
+    xy_cov = 0.4
+    cov = np.array([ [x_var, xy_cov],
+                 [xy_cov, y_var] ])
+
+    N = 10
+    L = 100
+
+    z = np.empty((N, 2, L))
+    nz = np.empty((N, 2, L))
+    for i in xrange(N):
+        z[i], nz[i] = utils.generate_mar(am, cov, L)
+
+    AIC = []
+    BIC = []
+    AICc = []
+    for i in range(10):
+        AIC.append(utils.akaike_information_criterion(z,i))
+        AICc.append(utils.akaike_information_criterion_c(z,i))
+        BIC.append(utils.bayesian_information_criterion(z,i))
+
+    # The model has order 2, so this should minimize on 2:
+    #nt.assert_equal(np.argmin(AIC),2)
+    #nt.assert_equal(np.argmin(AICc),2)
+    nt.assert_equal(np.argmin(BIC),2)

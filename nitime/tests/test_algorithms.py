@@ -237,7 +237,8 @@ def test_DPSS_matlab():
 def test_yule_walker_AR():
     arsig,_,_ = ut.ar_generator(N=512)
     avg_pwr = (arsig*arsig.conjugate()).mean()
-    w, psd = tsa.yule_AR_est(arsig, 8, 1024)
+    ak,sigma_v = tsa.AR_est_YW(arsig, 8, 1024)
+    w, psd = tsa.AR_psd(ak, sigma_v)
     # for efficiency, let's leave out the 2PI in the numerator and denominator
     # for the following integral
     dw = 1./1024
@@ -247,7 +248,9 @@ def test_yule_walker_AR():
 def test_LD_AR():
     arsig,_,_ = ut.ar_generator(N=512)
     avg_pwr = (arsig*arsig.conjugate()).mean()
-    w, psd = tsa.LD_AR_est(arsig, 8, 1024)
+    ak, sigma_v = tsa.AR_est_LD(arsig, 8, 1024)
+    w, psd = tsa.AR_psd(ak, sigma_v)
+
     # for efficiency, let's leave out the 2PI in the numerator and denominator
     # for the following integral
     dw = 1./1024

@@ -62,6 +62,6 @@ Now we estimate back the model parameters:
 
 """
 
-sigma_est, coefs_est = alg.yule_AR_est(X, 2, 2*npts, system=True)
+sigma_est, coefs_est = alg.AR_est_YW(X, 2)
 
 plt.show()
