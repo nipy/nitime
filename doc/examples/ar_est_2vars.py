@@ -44,10 +44,11 @@ We will generate an AR(2) model, with the following coefficients (taken from
 [Ding2006]_, eq. 55):
 
 .. math::
-   :label:eqn_ar
 
-   x_t & = & 0.9x_{t-1} - 0.5 x_{t-2} + \epsilon_t\\
-   y_t & =& 0.8Y_{t-1} - 0.5 y_{t-2} + 0.16 x_{t-1} - 0.2 x_{t-2} + \eta_t
+   \begin{array}{ccc}
+   x_t &=& 0.9x_{t-1} - 0.5 x_{t-2} + \epsilon_t\\
+   y_t &=& 0.8Y_{t-1} - 0.5 y_{t-2} + 0.16 x_{t-1} - 0.2 x_{t-2} + \eta_t
+   \end{array}
 
 Or more succinctly, if we define:
 
@@ -167,7 +168,10 @@ Each $R^{xx}(k)$ has the shape (2,2), where:
 
 Where $E$ is the expected value and $^*$ marks the conjugate transpose. Thus, only $R^{xx}(0)$ is symmetric.
 
-This is calculated by using the function :func:`utils.autocov_vector`:
+This is calculated by using the function :func:`utils.autocov_vector`. Notice
+that the estimation is done for an assumed known process order. In practice, if
+the order of the process is unknown, we will have to use some criterion in
+order to choose an appropriate order, given the data.
 
 """
 
@@ -186,8 +190,8 @@ Rxx = Rxx.transpose(2, 0, 1)
 
 """
 
-We use the Levinson-Whittle(-Wiggins) and Robinson algorithm, as described in
-[Morf1978]_
+We use the Levinson-Whittle(-Wiggins) and Robinson algorithm, as described in [Morf1978]_
+, in order to estimate the MAR coefficients and the covariance matrix:
 
 """
 
@@ -195,8 +199,8 @@ a, ecov = alg.lwr_recursion(Rxx)
 
 """
 
-Calculate Granger causality:
-
+Next, we use the calculated coefficients and covariance matrix, in order to
+calculate Granger 'causality':
 
 """
 
@@ -210,7 +214,29 @@ c_y = np.empty((L, w.shape[0]))
 
 """
 
-Plot the results:
+This results in several different outputs, which we will proceed to plot.
+
+First, we will plot the estimated spectrum. This will be compared to two other
+estimates of the spectrum. The first is the 'true' spectrum, calculated from
+the known coefficients that generated the data:
+
+"""
+
+fig01 = plt.figure()
+ax01 = fig01.add_subplot(1,1,1)
+
+# This is the estimate:
+Sxx_est = np.abs(Sw[0,0])
+Syy_est = np.abs(Sw[1,1])
+
+# This is the 'true' value, corrected for one-sided spectral density functions
+Sxx_true = Sw_true[0,0].real
+Syy_true = Sw_true[1,1].real
+
+"""
+
+The other is an estimate based on a multi-taper spectral estimate from the
+empirical signals:
 
 """
 
@@ -235,12 +261,21 @@ ax.plot(w, Syy_est, 'g--', label='estimated Syy(w)')
 ax.plot(w, np.mean(c_x, 0), 'r', label='Sxx(w) - MT PSD')
 ax.plot(w, np.mean(c_y, 0), 'r--', label='Syy(w) - MT PSD')
 
-ax.legend()
+ax01.plot(w, Sxx_true, 'b', label='true Sxx(w)')
+ax01.plot(w, Sxx_est, 'b--', label='estimated Sxx(w)')
+ax01.plot(w, Syy_true, 'g', label='true Syy(w)')
+ax01.plot(w, Syy_est, 'g--', label='estimated Syy(w)')
+ax01.plot(w,np.mean(c_x,0),'r',label='Sxx(w) - MT PSD')
+ax01.plot(w,np.mean(c_y,0),'r--',label='Syy(w) - MT PSD')
 
-ax.set_title('power spectra')
+ax01.legend()
 
-# interdependence plot
-ax = f.add_subplot(322)
+"""
+
+.. image:: fig/ar_est_2vars_01.png
+
+
+"""
 
 f_id = alg.interdependence_xy(Sw)
 ax.plot(w, f_id)
@@ -259,7 +294,24 @@ ax.plot(w, f_y2x)
 ax.set_title('g. causality Y on X')
 ax.set_ylim([0, 0.01])
 
+
+"""
+
+Next, we plot the granger causalities. There are three GCs. One for each
+direction of causality between the two processes (X => Y and Y => X). In
+addition, there is the instanteaneous causality between the processes:
+
+"""
+
+fig02 = plt.figure()
+ax02 = fig02.add_subplot(1,1,1)
+
+# x causes y plot
+ax02.plot(w, f_x2y,label='X => Y')
+# y causes x plot
+ax02.plot(w, f_y2x,label='Y => X')
 # instantaneous causality
+
 ax = f.add_subplot(325)
 ax.plot(w, f_xy)
 ax.set_title('instantaneous causality')
@@ -271,13 +323,49 @@ ax.plot(w, f_xy + f_x2y + f_y2x)
 ax.set_title('total causality')
 ax.set_ylim([0, 2.2])
 
+ax02.plot(w, f_xy, label='X:Y')
+
+ax02.legend()
+
 """
 
-.. image:: fig/ar_est_2vars_01.png
+.. image:: fig/ar_est_2vars_02.png
 
+Finally, we calculate the total causality, which is the sum of all the above
+causalities. We compare this to the interdependence between the processes. This is the
+measure of total dependence and is closely akin to the coherence between the
+processes. We also compare to the empirically calculated coherence:
 
 """
 
+fig03 = plt.figure()
+ax03 = fig03.add_subplot(1,1,1)
+
+# total causality
+ax03.plot(w, f_xy + f_x2y + f_y2x,label='Total causality')
+
+#Interdepence:
+f_id = alg.interdependence_xy(Sw)
+ax03.plot(w, f_id,label='Interdependence')
+
+coh = np.empty((N,33))
+
+for i in xrange(N):
+    frex,this_coh = alg.coherence(z[i])
+    coh[i] = this_coh[0,1]
+
+ax03.plot(frex,np.mean(coh,0),label='Coherence')
+
+ax03.legend()
+
+"""
+
+.. image:: fig/ar_est_2vars_03.png
+
+
+Finally, we call plt.show(), in order to show the figures:
+
+"""
 
 plt.show()
 
