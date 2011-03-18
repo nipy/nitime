@@ -17,7 +17,7 @@ We start by importing the required libraries:
 """
 
 import numpy as np
-import matplotlib.pyplot as pp
+import matplotlib.pyplot as plt
 
 
 """
@@ -40,9 +40,39 @@ np.random.seed(1981)
 
 """
 
-The example data from _[Ding2006] pg 18 (eq 55)
-# X[t] = 0.9X[t-1] - 0.5X[t-2] + err_x
-# Y[t] = 0.8Y[t-1] - 0.5Y[t-2] + 0.16X[t-1] - 0.2X[t-2] + err_y
+We will generate an AR(2) model, with the following coefficients (taken from
+[Ding2006]_, eq. 55):
+
+.. math::
+   :label:eqn_ar
+
+   x_t & = & 0.9x_{t-1} - 0.5 x_{t-2} + \epsilon_t\\
+   y_t & =& 0.8Y_{t-1} - 0.5 y_{t-2} + 0.16 x_{t-1} - 0.2 x_{t-2} + \eta_t
+
+Or more succinctly, if we define:
+
+.. math::
+
+    Z_{t}=\left(\begin{array}{c}
+    x_{t}\\
+    y_{t}\end{array}\right),\,E_t=\left(\begin{array}{c}
+    \epsilon_{t}\\
+    \eta_{t}\end{array}\right)
+
+then:
+
+.. math::
+
+  Z_t = A_1 Z_{t-1} + A_2 Z_{t-2} + E_t
+
+where:
+
+.. math::
+
+   E_t \sim {\cal N} (\mu,\Sigma) \mathrm{, where} \,\, \Sigma=\left(\begin{array}{cc}var_{\epsilon} & cov_{xy}\\ cov_{xy} & var_{\eta}\end{array}\right)
+
+
+We now build the two :math:`A_i` matrices with the values indicated above:
 
 """
 
@@ -52,22 +82,30 @@ a1 = np.array([[0.9, 0],
 a2 = np.array([[-0.5, 0],
                [-0.2, -0.5]])
 
+
 """
 
-Re-balance the equation to satisfy the relationship
+For implementation reasons, we rewrite the equation (:ref:`eqn_ar`) as follows:
 
 .. math::
 
-      Z[t] + sum_{i=1}^2 a[i]Z[t-i] = Err[t] ,
+    Z_t + \sum_{i=1}^2 a_i Z_{t-i} = E_t
 
-where $Z[t] = [X[t]$, $Y[t]]^t$ and $Err[t] ~ N(mu, cov=[ [x_var, xy_cov], [xy_cov, y_var] ])$
-
-
-
+where: $a_i = - A_i$:
 
 """
 
 am = np.array([-a1, -a2])
+
+
+"""
+
+
+The variances and covariance of the processes are known (provided as part of
+the example in [Ding2006]_, after eq. 55):
+
+
+"""
 
 x_var = 1
 y_var = 0.7
@@ -78,9 +116,8 @@ cov = np.array([[x_var, xy_cov],
 
 """
 
-Calculate the spectral matrix analytically ( z-transforms evaluated at
-z=exp(j*omega) from omega in [0,pi] )
-
+We can calculate the spectral matrix analytically, based on the known
+coefficients, for 1024 frequency bins:
 
 """
 
@@ -91,7 +128,8 @@ Sw_true = alg.spectral_matrix_xy(Hw, cov)
 
 """
 
-generate 500 sets of 100 points
+Next, we will generate 500 example sets of 100 points of these processes, to analyze:
+
 
 """
 
@@ -111,15 +149,27 @@ nz = np.empty((N, n_process, L))
 for i in xrange(N):
     z[i], nz[i] = utils.generate_mar(am, cov, L)
 
-# try to estimate the 2nd order (m)AR coefficients--
-# average together N estimates of auto-covariance at lags k=0,1,2
+"""
 
-# each Rxx(k) is shape (2,2), where
-# Rxx_00(k) is E{ z0(t)z0*(t-k) }
-# Rxx_01(k) is E{ z0(t)z1*(t-k) }
-# Rxx_10(k) is E{ z1(t)z0*(t-k) }
-# Rxx_11(k) is E{ z1(t)z1*(t-k) }
-# So only Rxx(0) is symmetric
+We can estimate the 2nd order AR coefficients, by averaging together N
+estimates of auto-covariance at lags k=0,1,2
+
+Each $R^{xx}(k)$ has the shape (2,2), where:
+
+.. math::
+
+   \begin{array}{ccc}
+   R^{xx}_{00}(k) &=& E( Z_0(t)Z_0^*(t-k) )\\
+   R^{xx}_{01}(k) &=& E( Z_0(t)Z_1^*(t-k) )\\
+   R^{xx}_{10}(k) &=& E( Z_1(t)Z_0^*(t-k) )\\
+   R^{xx}_{11}(k) &=& E( Z_1(t)Z_1^*(t-k) )\end{array}
+
+
+Where $E$ is the expected value and $^*$ marks the conjugate transpose. Thus, only $R^{xx}(0)$ is symmetric.
+
+This is calculated by using the function :func:`utils.autocov_vector`:
+
+"""
 
 Rxx = np.empty((N, n_process, n_process, n_lags))
 
@@ -133,20 +183,36 @@ Rm = Rxx[..., 1:]
 
 Rxx = Rxx.transpose(2, 0, 1)
 
+
+"""
+
+We use the Levinson-Whittle(-Wiggins) and Robinson algorithm, as described in
+[Morf1978]_
+
+"""
+
 a, ecov = alg.lwr_recursion(Rxx)
 
-print 'compare coefficients to estimate:'
-print a - am
-print 'compare covariance to estimate:'
-print ecov - cov
+"""
+
+Calculate Granger causality:
+
+
+"""
 
 w, f_x2y, f_y2x, f_xy, Sw = alg.granger_causality_xy(a,
                                                      ecov,
                                                      n_freqs=n_freqs)
 
-f = pp.figure()
+f = plt.figure()
 c_x = np.empty((L, w.shape[0]))
 c_y = np.empty((L, w.shape[0]))
+
+"""
+
+Plot the results:
+
+"""
 
 for i in xrange(N):
     frex, c_x[i], nu = alg.multi_taper_psd(z[i][0])
@@ -210,11 +276,10 @@ ax.set_ylim([0, 2.2])
 .. image:: fig/ar_est_2vars_01.png
 
 
-
 """
 
 
-pp.show()
+plt.show()
 
 """
 
@@ -226,6 +291,9 @@ pp.show()
    Analysis, ed. B. Schelter, M. Winterhalder, and J. Timmer, Wiley-VCH
    Verlage, 2006: 451-474
 
+.. [Morf1978] M. Morf, A. Vieira and T. Kailath (1978) Covariance
+   Characterization by Partial Autocorrelation Matrices. The Annals of Statistics,
+   6: 643-648
 
 
 """
