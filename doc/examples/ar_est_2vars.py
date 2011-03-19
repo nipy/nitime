@@ -7,6 +7,7 @@
 Mulitvariate auto-regressive modeling
 =====================================
 
+Multivariate auto-regressive modeling uses a simple
 
 This example is based on Ding, Chen and Bressler 2006 [Ding2006]_.
 
@@ -47,8 +48,7 @@ We will generate an AR(2) model, with the following coefficients (taken from
 
    \begin{array}{ccc}
    x_t &=& 0.9x_{t-1} - 0.5 x_{t-2} + \epsilon_t\\
-   y_t &=& 0.8Y_{t-1} - 0.5 y_{t-2} + 0.16 x_{t-1} - 0.2 x_{t-2} + \eta_t
-   \end{array}
+   y_t &=& 0.8y_{t-1} - 0.5 y_{t-2} + 0.16 x_{t-1} - 0.2 x_{t-2} + \eta_t\end{array}
 
 Or more succinctly, if we define:
 
@@ -330,6 +330,12 @@ ax02.legend()
 """
 
 .. image:: fig/ar_est_2vars_02.png
+
+
+Note that these results make intuitive sense, when you look at the equations
+governing the mutual influences. X is entirely influenced by X (no effects of Y
+on X in :ref:`eq1`) and there is some influence of X on Y (:ref:`eq2`),
+resulting in this pattern.
 
 Finally, we calculate the total causality, which is the sum of all the above
 causalities. We compare this to the interdependence between the processes. This is the
