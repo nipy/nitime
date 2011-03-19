@@ -254,7 +254,7 @@ def periodogram(s, Fs=2*np.pi, Sk=None, N=None, sides='default', normalize=True)
         P /= norm
     return freqs, P
 
-def periodogram_csd(s, Sk=None, N=None, sides='default', normalize=True):
+def periodogram_csd(s, Fs=2*np.pi, Sk=None, NFFT=None, sides='default', normalize=True):
     """Takes an N-point periodogram estimate of all the cross spectral
     density functions between rows of s.
 
@@ -269,10 +269,13 @@ def periodogram_csd(s, Sk=None, N=None, sides='default', normalize=True):
     s : ndarray
         Signals for which to estimate the CSD, time dimension in the last axis
 
+    Fs: float (optional)
+       The sampling rate. Defaults to 2*pi
+
     Sk : ndarray (optional)
         Precomputed FFT of rows of s
 
-    N : int (optional)
+    NFFT : int (optional)
         Indicates an N-point FFT where N != s.shape[-1]
 
     sides : str (optional)   [ 'default' | 'onesided' | 'twosided' ]
@@ -308,7 +311,10 @@ def periodogram_csd(s, Sk=None, N=None, sides='default', normalize=True):
         N = Sk.shape[-1]
         Sk_loc = Sk.reshape(np.prod(Sk_shape[:-1]), N)
     else:
-        N = s.shape[-1] if not N else N
+        if NFFT is not None:
+            N = NFFT
+        else: 
+            N = s.shape[-1] 
         Sk_loc = np.fft.fft(s, n=N)
     # reset s.shape
     s.shape = s_shape
@@ -328,7 +334,7 @@ def periodogram_csd(s, Sk=None, N=None, sides='default', normalize=True):
         # last duplicate freq
         Fl = (N+1)/2
         csd_mat = np.empty((M,M,Fn), 'D')
-        freqs = np.linspace(0, np.pi, Fn)
+        freqs = np.linspace(0, Fs/2, Fn)
         for i in xrange(M):
             for j in xrange(i+1):
                 csd_mat[i,j,0] = Sk_loc[i,0]*Sk_loc[j,0].conj()
@@ -338,7 +344,7 @@ def periodogram_csd(s, Sk=None, N=None, sides='default', normalize=True):
                     
     else:
         csd_mat = np.empty((M,M,N), 'D')
-        freqs = np.linspace(0, 2*np.pi, N, endpoint=False)        
+        freqs = np.linspace(0, Fs/2, N, endpoint=False)        
         for i in xrange(M):
             for j in xrange(i+1):
                 csd_mat[i,j] = Sk_loc[i]*Sk_loc[j].conj()
@@ -530,7 +536,7 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
 
 
 def multi_taper_psd(s, Fs=2*np.pi, BW = None,  adaptive=False,
-                    jackknife=True,low_bias=True, sides='default'):
+                    jackknife=True,low_bias=True, sides='default',NFFT=None):
     """Returns an estimate of the PSD function of s using the multitaper
     method. If the NW product, or the BW and Fs in Hz are not specified
     by the user, a bandwidth of 4 times the fundamental frequency,
@@ -579,7 +585,7 @@ def multi_taper_psd(s, Fs=2*np.pi, BW = None,  adaptive=False,
 
     """
     # have last axis be time series for now
-    N = s.shape[-1]
+    N = s.shape[-1] if not NFFT else NFFT
     rest_of = s.shape[:-1]
 
     s = s.reshape( int(np.product(rest_of)), N )

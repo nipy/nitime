@@ -16,7 +16,7 @@ XXX
 import numpy as np
 import matplotlib.mlab as mlab
 
-from spectral import get_spectra
+from spectral import get_spectra,get_spectra_bi
 import nitime.utils as utils
 
 def coherency(time_series,csd_method= None):
@@ -690,110 +690,6 @@ def coherence_partial_calculate(fxy,fxx,fyy,fxr,fry,frr):
     return (( (np.abs(Rxy-Rxr*Rry))**2 ) /
            ( (1-((np.abs(Rxr))**2)) * (1-((np.abs(Rry))**2)) ) )
 
-def coherence_partial_bavg(time_series,r,csd_method=None,lb=0,ub=None):
-    r"""
-    Compute the band-averaged partial coherence between the spectra of two time
-    series. See :func:`coherence_partial`.  
-
-    Input to this function is in the time domain.
-
-    Parameters
-    ----------
-    time_series : float array
-         Time series data with the time on the last dimension
-         
-    r : float array
-         Cause to be partialed out
-         
-    csd_method: dict, optional
-       See :func:`get_spectra` for details
-
-    lb: float, optional
-        The lower bound frequency (in Hz) of the range over which the average
-        is calculated. Default: 0
-
-    ub: float, optional
-        The upper bound frequency (in Hz) of the range over which the average
-        is calculated. Defaults to the Nyquist frequency  
-
-    Returns 
-    -------
-    c: float
-        the band-averaged coherency
-   
-    """ 
-    if csd_method is None:
-        csd_method = {'this_method':'welch'} #The default
-
-    f,fxy = get_spectra(time_series,csd_method)
-
-    c=np.zeros((time_series.shape[0],
-                time_series.shape[0],
-                f.shape[0]), dtype = complex)       
-
-    lb_idx,ub_idx = utils.get_bounds(f,lb,ub)
-
-    if lb==0:
-        lb_idx = 1 #The lowest frequency band should be f0
-
-    c = np.zeros((time_series.shape[0],
-                time_series.shape[0]))
-
-    for i in xrange(time_series.shape[0]): 
-        for j in xrange(i,time_series.shape[0]):
-            f,fxx,frr,frx = get_spectra_bi(time_series[i],r,csd_method)
-            f,fyy,frr,fry = get_spectra_bi(time_series[j],r,csd_method)
-            coherence_partial_bavg_calculate(f[lb_idx:ub_idx],
-                                        fxy[i][j][lb_idx:ub_idx],
-                                        fxy[i][i][lb_idx:ub_idx],
-                                        fxy[j][j][lb_idx:ub_idx],
-                                        fxr[lb_idx:ub_idx],
-                                        fry[lb_idx:ub_idx],
-                                        frr[lb_idx:ub_idx])
-
-    idx = np.tril_indices(time_series.shape[0],-1)
-    c[idx[0],idx[1],...] = c[idx[1],idx[0],...].conj() #Make it symmetric
-
-    return c
-
-def coherence_partial_bavg_calculate(f,fxy,fxx,fyy,fxr,fry,frr):
-    r"""
-    Compute the band-averaged partial coherence between the spectra of
-    two time series.
-    
-    Input to this function is in the frequency domain.
-
-    Parameters
-    ----------
-
-    f: the frequencies
-    
-    fxy : float array
-         The cross-spectrum of the time series 
-    
-    fyy,fxx : float array
-         The spectra of the signals
-
-    fxr,fry : float array
-         The cross-spectra of the signals with the event
-         
-    Returns 
-    -------
-    float
-        the band-averaged coherency
-
-    See also
-    --------
-    coherency, coherence, coherence_partial, coherency_bavg
-   
-    """
-    coh = coherency
-    Rxy = coh(fxy,fxx,fyy)
-    Rxr = coh(fxr,fxx,frr)
-    Rry = coh(fry,fyy,frr)
-
-    return (np.sum(Rxy-Rxr*Rry)/
-        np.sqrt(np.sum(1-Rxr*Rxr.conjugate())*np.sum(1-Rry*Rry.conjugate())))
 
 def coherency_phase_spectrum (time_series,csd_method=None):
     """
@@ -957,74 +853,8 @@ def coherency_phase_delay_calculate(f,fxy):
     t =  (phi)  / (2*np.pi*f)
         
     return t
-
-
-def coherency_phase_delay_bavg(time_series,lb=0,ub=None,csd_method=None):
-    """
-    Band-averaged phase delay between time-series
-
-    Parameters
-    ----------
-
-    time_series: float array
-       The time-series data
-
-    lb,ub : float, optional
-       Lower and upper bounds on the frequency range over which the phase delay
-       is averaged
-
-    Returns
-    -------
-    p : float array
-       The pairwise band-averaged phase-delays between the time-series. 
     
-    """
-
-    if csd_method is None:
-        csd_method = {'this_method':'welch'} #The default
-
-    f,fxy = get_spectra(time_series,csd_method)
-
-    lb_idx,ub_idx = utils.get_bounds(f,lb,ub)
-
-    if lb_idx == 0:
-        lb_idx = 1
-    
-    p = np.zeros((time_series.shape[0],time_series.shape[0],
-                  f[lb_idx:ub_idx].shape[-1]))
-
-    for i in xrange(time_series.shape[0]): 
-        for j in xrange(i,time_series.shape[0]):
-            p[i][j] = coherency_phase_delay_bavg_calculate(f[lb_idx:ub_idx],
-                                                      fxy[i][j][lb_idx:ub_idx])
-            p[j][i] = coherency_phase_delay_bavg_calculate(f[lb_idx:ub_idx],
-                                           fxy[i][j][lb_idx:ub_idx].conjugate())
-
-    return p
-
-def coherency_phase_delay_bavg_calculate(f,fxy):
-    r"""
-    Compute the band-averaged phase delay between the spectra of two signals 
-
-    Parameters
-    ----------
-
-    f: float array
-         The frequencies 
-         
-    fxy : float array
-         The cross-spectrum of the time series 
-    
-    Returns 
-    -------
-    
-    float
-        the phase delay (in sec)
-           
-    """
-    return np.mean(coherency_phase_spectrum (fxy)/(2*np.pi*f))
-    
-def correlation_spectrum(x1,x2, Fs=2, norm=False):
+def correlation_spectrum(x1,x2, Fs=2*np.pi, norm=False):
     """Calculate the spectral decomposition of the correlation.
     
     Parameters
@@ -1041,11 +871,11 @@ def correlation_spectrum(x1,x2, Fs=2, norm=False):
     
     Returns
     -------
-    ccn: ndarray
-       The spectral decomposition of the correlation
-
     f: ndarray
        ndarray with the frequencies
+
+    ccn: ndarray
+       The spectral decomposition of the correlation
     
     Notes
     -----
@@ -1076,7 +906,7 @@ def correlation_spectrum(x1,x2, Fs=2, norm=False):
                                     #normalization make this strictly positive? 
 
     f = utils.get_freqs(Fs,n)
-    return f,ccn[0:n/2]
+    return f,ccn[0:(n/2+1)]
 
 
 
