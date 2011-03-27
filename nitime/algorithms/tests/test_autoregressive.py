@@ -7,13 +7,21 @@ import nitime.utils as utils
 def test_AR_YW():
     arsig,_,_ = utils.ar_generator(N=512)
     avg_pwr = (arsig*arsig.conjugate()).mean()
-    ak,sigma_v = tsa.AR_est_YW(arsig, 8, 1024)
+    order = 8
+    ak,sigma_v = tsa.AR_est_YW(arsig, order) 
     w, psd = tsa.AR_psd(ak, sigma_v)
     # for efficiency, let's leave out the 2PI in the numerator and denominator
     # for the following integral
     dw = 1./1024
     avg_pwr_est = np.trapz(psd, dx=dw)
     npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
+
+    # Test for providing the autocovariance as an input:
+    ak,sigma_v = tsa.AR_est_YW(arsig, order, utils.autocov(arsig)[:order+1])
+    w, psd = tsa.AR_psd(ak, sigma_v)
+    avg_pwr_est = np.trapz(psd, dx=dw)
+    npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
+
 
 def test_AR_LD():
     """
@@ -24,7 +32,8 @@ def test_AR_LD():
     """
     arsig,_,_ = utils.ar_generator(N=512)
     avg_pwr = (arsig*arsig.conjugate()).mean()
-    ak, sigma_v = tsa.AR_est_LD(arsig, 8, 1024)
+    order = 8
+    ak, sigma_v = tsa.AR_est_LD(arsig, order)
     w, psd = tsa.AR_psd(ak, sigma_v)
 
     # for efficiency, let's leave out the 2PI in the numerator and denominator
@@ -32,6 +41,13 @@ def test_AR_LD():
     dw = 1./1024
     avg_pwr_est = np.trapz(psd, dx=dw)
     npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
+
+    # Test for providing the autocovariance as an input:
+    ak,sigma_v = tsa.AR_est_LD(arsig, order, utils.autocov(arsig)[:order+1])
+    w, psd = tsa.AR_psd(ak, sigma_v)
+    avg_pwr_est = np.trapz(psd, dx=dw)
+    npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
+
 
 def test_MAR_est_LWR():
     """
@@ -106,11 +122,15 @@ def test_MAR_est_LWR():
                                                          cov,
                                                          Nfreqs=Nfreqs)
 
-    w, f_x2y_est, f_y2x_est, f_xy_est, Sw = tsa.granger_causality_xy(a_est,
+    w, f_x2y_est, f_y2x_est, f_xy_est, Sw_est = tsa.granger_causality_xy(a_est,
                                                                      cov_est,
                                                                      Nfreqs=Nfreqs)
 
-    
+
+    # interdependence_xy
+
+    i_xy = tsa.interdependence_xy(Sw)
+    i_xy_est = tsa.interdependence_xy(Sw_est)
     
     # This is all very approximate:
     npt.assert_almost_equal(Hw,Hw_est,decimal=1)
@@ -119,3 +139,4 @@ def test_MAR_est_LWR():
     npt.assert_almost_equal(f_xy,f_xy_est,1)
     npt.assert_almost_equal(f_x2y,f_x2y_est,1)
     npt.assert_almost_equal(f_y2x,f_y2x_est,1)
+    npt.assert_almost_equal(i_xy,i_xy_est,1)
