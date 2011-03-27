@@ -2,10 +2,10 @@ import numpy as np
 import numpy.testing as npt
 
 import nitime.algorithms as tsa
-
+import nitime.utils as utils
 
 def test_AR_YW():
-    arsig,_,_ = ut.ar_generator(N=512)
+    arsig,_,_ = utils.ar_generator(N=512)
     avg_pwr = (arsig*arsig.conjugate()).mean()
     ak,sigma_v = tsa.AR_est_YW(arsig, 8, 1024)
     w, psd = tsa.AR_psd(ak, sigma_v)
@@ -22,7 +22,7 @@ def test_AR_LD():
     expercted PSD
 
     """
-    arsig,_,_ = ut.ar_generator(N=512)
+    arsig,_,_ = utils.ar_generator(N=512)
     avg_pwr = (arsig*arsig.conjugate()).mean()
     ak, sigma_v = tsa.AR_est_LD(arsig, 8, 1024)
     w, psd = tsa.AR_psd(ak, sigma_v)
@@ -38,7 +38,12 @@ def test_MAR_est_LWR():
 
     Test the LWR MAR estimator against the power of the signal
 
+    This also tests the functions: transfer_function_xy, spectral_matrix_xy,
+    coherence_from_spectral and granger_causality_xy
+    
     """
+
+    # This is the same processes as those in doc/examples/ar_est_2vars.py: 
     a1 = np.array([ [0.9, 0],
                 [0.16, 0.8] ])
 
@@ -55,8 +60,9 @@ def test_MAR_est_LWR():
                      [xy_cov, y_var] ])
 
 
+    Nfreqs = 1024
     w, Hw = tsa.transfer_function_xy(am, Nfreqs=Nfreqs)
-    Sw_true = tsa.spectral_matrix_xy(Hw, cov)
+    Sw = tsa.spectral_matrix_xy(Hw, cov)
 
     # This many realizations of the process:
     N = 500
@@ -73,19 +79,43 @@ def test_MAR_est_LWR():
 
     for i in xrange(N):
         z[i], nz[i] = utils.generate_mar(am, cov, L)
-        
-    Rxx = np.empty((N,n_process,n_process,n_lags))
-        
+
+    a_est = []
+    cov_est = []
+
+    # This loop runs MAR_est_LWR:
     for i in xrange(N):
-        Rxx[i] = utils.autocov_vector(z[i],nlags=n_lags)
+        Rxx = (tsa.MAR_est_LWR(z[i],order=n_lags))
+        a_est.append(Rxx[0])
+        cov_est.append(Rxx[1])
 
-    Rxx = Rxx.mean(axis=0)
-    Rxx = Rxx.transpose(2,0,1)
+    a_est = np.mean(a_est,0)
+    cov_est = np.mean(cov_est,0)
 
-    a, ecov = utils.lwr(Rxx)
+    # This tests transfer_function_xy and spectral_matrix_xy: 
+    w, Hw_est = tsa.transfer_function_xy(a_est, Nfreqs=Nfreqs)
+    Sw_est = tsa.spectral_matrix_xy(Hw_est, cov_est)
 
-    w, f_x2y, f_y2x, f_xy, Sw = alg.granger_causality_xy(a,ecov,Nfreqs=Nfreqs)
+    # coherence_from_spectral:
+    c = tsa.coherence_from_spectral(Sw)
+    c_est = tsa.coherence_from_spectral(Sw_est)
 
-    # correct for one-sided spectral density functions
-    Sxx_true = Sw_true[0,0].real; Syy_true = Sw_true[1,1].real
-    Sxx_est = np.abs(Sw[0,0]); Syy_est = np.abs(Sw[1,1])
+    # granger_causality_xy:
+
+    w, f_x2y, f_y2x, f_xy, Sw = tsa.granger_causality_xy(am,
+                                                         cov,
+                                                         Nfreqs=Nfreqs)
+
+    w, f_x2y_est, f_y2x_est, f_xy_est, Sw = tsa.granger_causality_xy(a_est,
+                                                                     cov_est,
+                                                                     Nfreqs=Nfreqs)
+
+    
+    
+    # This is all very approximate:
+    npt.assert_almost_equal(Hw,Hw_est,decimal=1)
+    npt.assert_almost_equal(Sw,Sw_est,decimal=1)
+    npt.assert_almost_equal(c,c_est,1)
+    npt.assert_almost_equal(f_xy,f_xy_est,1)
+    npt.assert_almost_equal(f_x2y,f_x2y_est,1)
+    npt.assert_almost_equal(f_y2x,f_y2x_est,1)

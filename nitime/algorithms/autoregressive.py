@@ -122,7 +122,7 @@ def MAR_est_LWR(s, order, sxx=None):
     a, ecov: The system coefficients and the estimated covariance
     """
     Rxx = utils.autocov_vector(s, nlags=order)
-    a, ecov = ut.lwr(Rxx.transpose(2,0,1))
+    a, ecov = utils.lwr(Rxx.transpose(2,0,1))
     return a,ecov
 
 def AR_psd(ak, sigma_v, Nfreqs=1024, sides='onesided'):
