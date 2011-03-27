@@ -352,6 +352,14 @@ def test_UniformTime():
 
     yield npt.assert_equal(b.sampling_interval,a.sampling_interval)
 
+    # make sure the t0 ando other attribute is copied
+    a = ts.UniformTime(length=1,sampling_rate=1)
+    b = a.copy()
+    yield npt.assert_equal(b.duration, a.duration)
+    yield npt.assert_equal(b.sampling_rate, a.sampling_rate)
+    yield npt.assert_equal(b.sampling_interval, a.sampling_interval)
+    yield npt.assert_equal(b.t0, a.t0)
+
 
 def test_UniformTime_repr():
     """
@@ -460,6 +468,22 @@ def test_TimeSeries():
     #If the data is not the right length, that should throw an error:
     yield npt.assert_raises(ValueError,
                           ts.TimeSeries,dict(data=data,time=t))
+
+    # test basic arithmetics wiht TimeSeries
+    tseries1 = ts.TimeSeries([1,2,3,4,5,6,7,8,9,10], sampling_rate=1)
+    tseries2 = tseries1 + 1
+    yield npt.assert_equal(tseries1.data + 1, tseries2.data)
+    yield npt.assert_equal(tseries1.time, tseries2.time)
+    tseries2 -= 1
+    yield npt.assert_equal(tseries1.data, tseries2.data)
+    yield npt.assert_equal(tseries1.time, tseries2.time)
+    tseries2 = tseries1 * 2
+    yield npt.assert_equal(tseries1.data * 2, tseries2.data)
+    yield npt.assert_equal(tseries1.time, tseries2.time)
+    tseries2 /= 2
+    yield npt.assert_equal(tseries1.data, tseries2.data)
+    yield npt.assert_equal(tseries1.time, tseries2.time)
+
     
 def test_TimeSeries_repr():
 

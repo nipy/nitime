@@ -28,9 +28,7 @@ __all__ = ['time_unit_conversion',
 # Imports
 #-----------------------------------------------------------------------------
 
-import warnings
 import numpy as np
-
 
 # Our own
 from nitime import descriptors as desc
@@ -52,10 +50,10 @@ time_unit_conversion = {
                         'ns':10**3,  # nanosecond
                         'us':10**6,  # microsecond
                         'ms':10**9,  # millisecond
-                        's':10**12,   # second
-                        None:10**12, #The default is seconds (when constructor
-                                     #doesn't get any input, it defaults to
-                                     #None)
+                        's':10**12,  # second
+                        None:10**12, # The default is seconds (when constructor
+                                     # doesn't get any input, it defaults to
+                                     # None)
                         'm':60*10**12,   # minute
                         'h':3600*10**12,   # hour
                         'D':24*3600*10**12,   # day
@@ -577,6 +575,11 @@ class UniformTime(np.ndarray,TimeInterface):
             else:
                 self._conversion_factor=time_unit_conversion[self.time_unit]
 
+        # Make sure that t0 attribute is set properly:
+        for attr in ['t0', 'sampling_rate', 'sampling_interval', 'duration']:
+            if not hasattr(self,attr) and hasattr(obj, attr):
+                setattr(self, attr, getattr(obj, attr))
+
     def __repr__(self):
        """Pass it through the conversion factor"""
 
@@ -790,15 +793,53 @@ class TimeSeriesBase(object):
         elif isinstance(key,Epochs):
             return self.during(key)
         elif self.data.ndim==1:
-            return self.data[key] #time is the last dimension
+            return self.data[key]  # time is the last dimension
         else:
-            return self.data[:,key] #time is the last dimension
+            return self.data[:,key]  # time is the last dimension
 
     def __repr__(self):
         rep = self.__class__.__name__ + ":" 
         return rep + self.time.__repr__() + self.data.T.__repr__()
 
-        
+    # add some methods that implement arithmetic on the timeseries data
+    def __add__(self, other):
+        out = self.copy()
+        out.data = out.data.__add__(other)
+        return out
+
+    def __sub__(self, other):
+        out = self.copy()
+        out.data = out.data.__sub__(other)
+        return out
+
+    def __mul__(self, other):
+        out = self.copy()
+        out.data = out.data.__mul__(other)
+        return out
+
+    def __div__(self, other):
+        out = self.copy()
+        out.data = out.data.__div__(other)
+        return out
+
+    def __iadd__(self, other):
+        self.data.__iadd__(other)
+        return self
+
+    def __isub__(self, other):
+        self.data.__isub__(other)
+        return self
+
+    def __imul__(self, other):
+        self.data.__imul__(other)
+        return self
+
+    def __idiv__(self, other):
+        self.data.__idiv__(other)
+        return self
+
+
+
 class TimeSeries(TimeSeriesBase):
     """Represent data collected at uniform intervals.
     """
@@ -819,8 +860,12 @@ class TimeSeries(TimeSeriesBase):
     def from_time_and_data(time, data):
         return TimeSeries.__init__(data, time=time)
         
-    
-    
+    def copy(self):
+        return TimeSeries(data = self.data.copy(),
+                          time = self.time.copy(),
+                          time_unit = self.time_unit,
+                          metadata = self.metadata.copy())
+
     def __init__(self, data, t0=None, sampling_interval=None,
                  sampling_rate=None, duration=None, time=None, time_unit='s',
                  metadata=None):
