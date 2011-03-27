@@ -35,16 +35,6 @@ def test_scipy_resample():
     npt.assert_array_almost_equal(t_dn2, dn_samp_ana)
 
 
-#XXX def test_coherency_phase ()
-#XXX def test_coherence_partial_phase()
-
-@npt.dec.skipif(True)
-def test_fir():
-    assert False, "Test Not Implemented"
-
-@npt.dec.skipif(True)
-def test_percent_change():
-    assert False, "Test Not Implemented"
 
 def test_DPSS_windows():
     "Are the eigenvalues representing spectral concentration near unity"
@@ -73,28 +63,6 @@ def test_DPSS_matlab():
     b = np.loadtxt(os.path.join(test_dir_path,'dpss_matlab.txt'))
     npt.assert_almost_equal(a,b.T)
         
-def test_yule_walker_AR():
-    arsig,_,_ = ut.ar_generator(N=512)
-    avg_pwr = (arsig*arsig.conjugate()).mean()
-    ak,sigma_v = tsa.AR_est_YW(arsig, 8, 1024)
-    w, psd = tsa.AR_psd(ak, sigma_v)
-    # for efficiency, let's leave out the 2PI in the numerator and denominator
-    # for the following integral
-    dw = 1./1024
-    avg_pwr_est = np.trapz(psd, dx=dw)
-    npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
-
-def test_LD_AR():
-    arsig,_,_ = ut.ar_generator(N=512)
-    avg_pwr = (arsig*arsig.conjugate()).mean()
-    ak, sigma_v = tsa.AR_est_LD(arsig, 8, 1024)
-    w, psd = tsa.AR_psd(ak, sigma_v)
-
-    # for efficiency, let's leave out the 2PI in the numerator and denominator
-    # for the following integral
-    dw = 1./1024
-    avg_pwr_est = np.trapz(psd, dx=dw)
-    npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
     
 def test_periodogram():
     arsig,_,_ = ut.ar_generator(N=512)

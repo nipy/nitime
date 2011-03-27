@@ -3,6 +3,7 @@
 Autoregressive processes are processes of the form:
 
 
+This module contains functions for the estimation of 
 """
 
 
