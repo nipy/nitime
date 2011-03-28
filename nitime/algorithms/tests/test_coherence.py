@@ -26,7 +26,8 @@ y = x + np.random.rand(t.shape[-1])
 
 tseries = np.vstack([x,y])
 
-methods = ({"this_method":'welch',"NFFT":256,"Fs":2*np.pi},
+methods = (None,
+           {"this_method":'welch',"NFFT":256,"Fs":2*np.pi},
            {"this_method":'multi_taper_csd',"Fs":2*np.pi},
            {"this_method":'periodogram_csd',"Fs":2*np.pi,"NFFT":256})
 
@@ -46,7 +47,7 @@ def test_coherency():
         npt.assert_array_almost_equal(c[0,1],c[1,0].conjugate())
         npt.assert_array_almost_equal(c[0,0],np.ones(f.shape))
 
-        if method['this_method'] != "multi_taper_csd":
+        if method is not None and method['this_method'] != "multi_taper_csd":
             f_theoretical = utils.get_freqs(method['Fs'],method['NFFT'])
             npt.assert_array_almost_equal(f,f_theoretical)
             npt.assert_array_almost_equal(f,f_theoretical)
@@ -90,32 +91,37 @@ def test_coherence_regularized():
         npt.assert_array_almost_equal(c[0,1],c[1,0])
 
 
-def test_coherency_bavg():
-    ub = np.pi/2
-    lb = 0.2
-    for method in methods:
-        c = tsa.coherency_bavg(tseries,lb=lb,ub=ub,csd_method=method)
+# Define as global for the following functions:
 
-        #Test that this gets rid of the frequency axis:
-        npt.assert_equal(len(c.shape), 2)
-        # And that the result is equal
-        npt.assert_almost_equal(c[0,1],c[1,0].conjugate())
+def test_coherency_bavg():
+    ub = [np.pi/2,None]
+    lb = [0,0.2]
+    for method in methods:
+        for this_lb in lb:
+            for this_ub in ub:
+                c = tsa.coherency_bavg(tseries,lb=this_lb,ub=this_ub,csd_method=method)
+
+                #Test that this gets rid of the frequency axis:
+                npt.assert_equal(len(c.shape), 2)
+                # And that the result is equal
+                npt.assert_almost_equal(c[0,1],c[1,0].conjugate())
         
 
 def test_coherence_bavg():
-    ub = np.pi/2
-    lb = 0.2
+    ub = [np.pi/2,None]
+    lb = [0,0.2]
     for method in methods:
-        c = tsa.coherence_bavg(tseries,lb=lb,ub=ub,csd_method=method)
+        for this_lb in lb:
+            for this_ub in ub:
+                c = tsa.coherence_bavg(tseries,lb=this_lb,ub=this_ub,csd_method=method)
 
-        #Test that this gets rid of the frequency axis:
-        npt.assert_equal(len(c.shape), 2)
-        # And that the result is equal
-        npt.assert_almost_equal(c[0,1],c[1,0].conjugate())
+                #Test that this gets rid of the frequency axis:
+                npt.assert_equal(len(c.shape), 2)
+                # And that the result is equal
+                npt.assert_almost_equal(c[0,1],c[1,0].conjugate())
 
 # XXX FIXME: This doesn't work for the periodogram method. Is this because of
 # get_spectra_bi? This should be answered by thoroughly testing get_spectra_bi
-@npt.dec.skipif(True) 
 def test_coherence_partial():
     """ Test partial coherence"""
 
@@ -124,8 +130,9 @@ def test_coherence_partial():
     z = y + np.random.rand(t.shape[-1])
 
     for method in methods:
-        f,c = tsa.coherence_partial(np.vstack([x,y]),z,csd_method=method)
-        npt.assert_array_almost_equal(c[0,1],c[1,0].conjugate())
+        if method and method['this_method']=='welch':
+            f,c = tsa.coherence_partial(np.vstack([x,y]),z,csd_method=method)
+            npt.assert_array_almost_equal(c[0,1],c[1,0].conjugate())
 
 def test_coherence_phase_delay():
     """
@@ -169,6 +176,7 @@ def test_correlation_spectrum():
     Test the correlation spectrum method 
     
     """
+    # Smoke-test for now - unclear what to test here...
     f,c= tsa.correlation_spectrum(x,y)
 
 # XXX FIXME: http://github.com/nipy/nitime/issues/issue/1

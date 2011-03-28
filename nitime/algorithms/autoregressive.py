@@ -126,7 +126,8 @@ def MAR_est_LWR(s, order, sxx=None):
     return a,ecov
 
 def AR_psd(ak, sigma_v, Nfreqs=1024, sides='onesided'):
-    """What does this do?
+    """
+    Compute the PSD of an AR process, based on the process coefficients and covariance 
 
     Nfreqs : int
         The number of spacings on the frequency grid from [-PI,PI).
@@ -134,10 +135,6 @@ def AR_psd(ak, sigma_v, Nfreqs=1024, sides='onesided'):
 
     sides : str (optional)
         Indicates whether to return a one-sided or two-sided PSD
-
-    system : bool (optional)
-        If True, return the AR system parameters, sigma_v and a{k}
-
 
     Returns
     -------
@@ -159,7 +156,6 @@ def AR_psd(ak, sigma_v, Nfreqs=1024, sides='onesided'):
                      Nfreqs=Nfreqs, sides=sides)
     ar_psd = (hw*hw.conj()).real
     return (w,2*ar_psd) if sides=='onesided' else (w,ar_psd)
-
 
 
 
