@@ -470,8 +470,10 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
     """
     
     N = tx.shape[-1]
-    if N!=ty.shape[-1]:
+    if ty.shape!=tx.shape:
         raise ValueError('shape mismatch between tx, ty')
+
+
     pshape = list(tx.shape)
 
     if isinstance(weights, (list, tuple)):
@@ -492,11 +494,14 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
         tsl = tuple(truncated_slice)
         tx = tx[tsl]
         ty = ty[tsl]
-        # weights may be scalars, or already truncated
-        if weights_x.shape[-1] > Fn:
-            weights_x = weights_x[tsl]
-        if weights_y.shape[-1] > Fn:
-            weights_y = weights_y[tsl]
+
+# The following commented out, because it is not being used. What is it good
+# for? 
+##         # weights may be scalars, or already truncated
+##         if weights_x.shape[-1] > Fn:
+##             weights_x = weights_x[tsl]
+##         if weights_y.shape[-1] > Fn:
+##             weights_y = weights_y[tsl]
 
     sf = weights_x*tx
     sf *= (weights_y * ty.conj())
