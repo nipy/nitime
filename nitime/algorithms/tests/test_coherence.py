@@ -29,7 +29,9 @@ tseries = np.vstack([x,y])
 methods = (None,
            {"this_method":'welch',"NFFT":256,"Fs":2*np.pi},
            {"this_method":'multi_taper_csd',"Fs":2*np.pi},
-           {"this_method":'periodogram_csd',"Fs":2*np.pi,"NFFT":256})
+           {"this_method":'periodogram_csd',"Fs":2*np.pi,"NFFT":256},
+           {"this_method":'welch',"NFFT":256,"Fs":2*np.pi,
+            "window":mlab.window_hanning(np.ones(256))})
 
 
 def test_coherency():
@@ -120,8 +122,7 @@ def test_coherence_bavg():
                 # And that the result is equal
                 npt.assert_almost_equal(c[0,1],c[1,0].conjugate())
 
-# XXX FIXME: This doesn't work for the periodogram method. Is this because of
-# get_spectra_bi? This should be answered by thoroughly testing get_spectra_bi
+# XXX FIXME: This doesn't work for the periodogram method:
 def test_coherence_partial():
     """ Test partial coherence"""
 
@@ -130,7 +131,7 @@ def test_coherence_partial():
     z = y + np.random.rand(t.shape[-1])
 
     for method in methods:
-        if method and method['this_method']=='welch':
+        if (method is None) or method['this_method']=='welch':
             f,c = tsa.coherence_partial(np.vstack([x,y]),z,csd_method=method)
             npt.assert_array_almost_equal(c[0,1],c[1,0].conjugate())
 
@@ -177,7 +178,7 @@ def test_correlation_spectrum():
     
     """
     # Smoke-test for now - unclear what to test here...
-    f,c= tsa.correlation_spectrum(x,y)
+    f,c= tsa.correlation_spectrum(x,y,norm=True)
 
 # XXX FIXME: http://github.com/nipy/nitime/issues/issue/1
 @npt.dec.skipif(True) 
@@ -269,11 +270,95 @@ def test_cached_coherence():
 
     yield npt.assert_almost_equal,coh_direct,coh_cached
 
-#The following test fails because these two are in fact not equal. This is
-#because one is based on calculating the angle of the averaged psd and the
-#other is based on calculating the average of the angles calculated over
-#different windows. Note that this is not the same, because the angle is not a
-#linear functions (arctan):
-##     phase_cached = tsa.cache_to_relative_phase(cache,ij)[0,1]    
-##     f,phase_direct = tsa.coherency_phase_spectrum(ts)
-##     yield npt.assert_almost_equal,phase_cached,phase_direct[0,1]
+    # Only welch PSD works and an error is thrown otherwise. This tests that
+    # the error is thrown:
+    npt.assert_raises(ValueError,tsa.cache_fft,ts,ij,method=methods[2])
+    
+    # Take the method in which the window is defined on input:
+    freqs,cache1 = tsa.cache_fft(ts,ij,method=methods[4])
+    # And compare it to the method in which it isn't:
+    freqs,cache2 = tsa.cache_fft(ts,ij,method=methods[1])
+    npt.assert_equal(cache1,cache2)
+
+    # Do the same, while setting scale_by_freq to False: 
+    freqs,cache1 = tsa.cache_fft(ts,ij,method=methods[4],scale_by_freq=False)
+    freqs,cache2 = tsa.cache_fft(ts,ij,method=methods[1],scale_by_freq=False)
+    npt.assert_equal(cache1,cache2)
+
+    # Test cache_to_psd: 
+    psd1 = tsa.cache_to_psd(cache,ij)[0]
+    # Against the standard get_spectra:
+    f,c = tsa.get_spectra(ts)
+    psd2 = c[0][0]
+
+    npt.assert_almost_equal(psd1,psd2)
+
+    # Test that prefer_speed_over_memory doesn't change anything:
+    freqs,cache1 = tsa.cache_fft(ts,ij)
+    freqs,cache2 = tsa.cache_fft(ts,ij,prefer_speed_over_memory=True)
+    psd1 = tsa.cache_to_psd(cache1,ij)[0]
+    psd2 = tsa.cache_to_psd(cache2,ij)[0]
+    npt.assert_almost_equal(psd1,psd2)
+
+# XXX This is not testing anything substantial for now - I am not sure what to
+# test here... 
+def test_cache_to_phase():
+    """
+    Test phase calculations from cached windowed FFT
+
+    """
+    ij = [(0,1),(1,0)]
+    x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + np.random.rand(t.shape[-1])
+    y = np.sin(t) + np.sin(2*t) + np.sin(3*t) + np.random.rand(t.shape[-1])
+    ts = np.vstack([x,y])
+    freqs,cache = tsa.cache_fft(ts,ij)
+    ph=(tsa.cache_to_phase(cache,ij))
+
+def test_cache_to_coherency():
+    """
+
+    Test cache_to_coherency against the standard coherency calculation
+    
+    """
+    ij = [(0,1),(1,0)]
+    ts = np.loadtxt(os.path.join(test_dir_path,'tseries12.txt'))
+    freqs,cache = tsa.cache_fft(ts,ij)
+    Cxy = tsa.cache_to_coherency(cache,ij)
+    f,c = tsa.coherency(ts)
+    npt.assert_almost_equal(Cxy[0][1],c[0,1])
+
+    # Check that it doesn't matter if you prefer_speed_over_memory:
+    freqs,cache2 = tsa.cache_fft(ts,ij,prefer_speed_over_memory=True)
+    Cxy2 = tsa.cache_to_coherency(cache2,ij)
+
+    npt.assert_equal(Cxy2,Cxy)
+
+    # XXX Calculating the angle of the averaged psd and calculating the average of the
+    # angles calculated over different windows does not yield exactly the same
+    # number, because the angle is not a linear functions (arctan), so it is
+    # unclear how to test this, but we make sure that it runs, whether or not
+    # you prefer_speed_over_memory:
+    freqs,cache = tsa.cache_fft(ts,ij)   
+    tsa.cache_to_relative_phase(cache,ij)
+
+    freqs,cache = tsa.cache_fft(ts,ij,prefer_speed_over_memory=True)   
+    tsa.cache_to_relative_phase(cache,ij)
+
+
+    # Check that things run alright, even if there is just one window for the
+    # entire ts:
+    freqs,cache = tsa.cache_fft(ts,ij,method=dict(this_method='welch',
+                                                   NFFT=ts.shape[-1],
+                                                   n_overlap=0))
+
+    cxy_one_window = tsa.cache_to_coherency(cache,ij)
+    ph_one_window = tsa.cache_to_relative_phase(cache,ij)
+    
+    # And whether or not you prefer_speed_over_memory
+    freqs,cache = tsa.cache_fft(ts,ij,method=dict(this_method='welch',
+                                                   NFFT=ts.shape[-1],
+                                                   n_overlap=0),
+                                prefer_speed_over_memory=True)
+
+    cxy_one_window = tsa.cache_to_coherency(cache,ij)
+    ph_one_window = tsa.cache_to_relative_phase(cache,ij)

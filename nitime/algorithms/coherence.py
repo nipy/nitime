@@ -1054,7 +1054,7 @@ def cache_fft(time_series,ij,lb=0,ub=None,
             FFT_conj_slices[i_channel] = np.conjugate(Slices)
 
     cache = {'FFT_slices':FFT_slices,'FFT_conj_slices':FFT_conj_slices,
-             'norm_val':norm_val}
+             'norm_val':norm_val,'Fs':Fs,'scale_by_freq':scale_by_freq}
 
     return freqs,cache
 
@@ -1082,7 +1082,7 @@ def cache_to_psd(cache,ij):
     FFT_slices=cache['FFT_slices']
     FFT_conj_slices=cache['FFT_conj_slices']
     norm_val=cache['norm_val']
-
+    Fs = cache['Fs']
     #This is where the output goes to: 
     Pxx = {}
     all_channels = set()
@@ -1104,7 +1104,8 @@ def cache_to_psd(cache,ij):
             Pxx[i] = np.mean(Pxx[i],0)
 
         Pxx[i] /= norm_val
-    
+        # Correct for the NFFT/2 and DC components:
+        Pxx[i][[0,-1]] /= 2
     
     return Pxx
 
@@ -1193,7 +1194,7 @@ def cache_to_relative_phase(cache,ij):
     channels_i = max(1,max(ij_array[:,0])+1)
     channels_j = max(1,max(ij_array[:,1])+1)
     #Pre-allocate for speed:
-    Phi_xy = np.empty((channels_i,channels_j,freqs),dtype=np.complex)
+    Phi_xy = np.zeros((channels_i,channels_j,freqs),dtype=np.complex)
 
     #These checks take time, so do them up front, not in every iteration:
     if FFT_slices.items()[0][1].shape[0]>1:
@@ -1253,7 +1254,7 @@ def cache_to_coherency(cache,ij):
 
     channels_i = max(1,max(ij_array[:,0])+1)
     channels_j = max(1,max(ij_array[:,1])+1)
-    Cxy = np.empty((channels_i,channels_j,freqs),dtype=np.complex)
+    Cxy = np.zeros((channels_i,channels_j,freqs),dtype=np.complex)
 
     #These checks take time, so do them up front, not in every iteration:
     if FFT_slices.items()[0][1].shape[0]>1:
