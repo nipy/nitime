@@ -1,3 +1,4 @@
+import numpy as np
 
 from nitime import descriptors as desc
 from nitime import utils as tsu
