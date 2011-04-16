@@ -34,193 +34,22 @@ def test_scipy_resample():
     t_dn2 = signaltools.resample(tst, 48)
     npt.assert_array_almost_equal(t_dn2, dn_samp_ana)
 
-def test_coherency_welch():
-    """Tests that the coherency algorithm runs smoothly, using the welch csd
-    routine, that the resulting matrix is symmetric and that the frequency bands
-    in the output make sense"""
-    
-    t = np.linspace(0,16*np.pi,1024)
-    x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + np.random.rand(t.shape[-1])
-    y = x + np.random.rand(t.shape[-1])
-
-    method = {"this_method":'welch',
-              "NFFT":256,
-              "Fs":2*np.pi}
-
-    f,c = tsa.coherency(np.vstack([x,y]),csd_method=method)
-
-    npt.assert_array_almost_equal(c[0,1],c[1,0].conjugate())
-    npt.assert_array_almost_equal(c[0,0],np.ones(f.shape))
-    f_theoretical = ut.get_freqs(method['Fs'],method['NFFT'])
-    npt.assert_array_almost_equal(f,f_theoretical)
-
-def test_coherency_multi_taper():
-    """Tests that the coherency algorithm runs smoothly, using the multi_taper
-    csd routine and that the resulting matrix is symmetric"""
-    
-    t = np.linspace(0,16*np.pi,1024)
-    x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + np.random.rand(t.shape[-1])
-    y = x + np.random.rand(t.shape[-1])
-
-    method = {"this_method":'multi_taper_csd',
-              "Fs":2*np.pi}
-
-    f,c = tsa.coherency(np.vstack([x,y]),csd_method=method)
-
-    npt.assert_array_almost_equal(c[0,1],c[1,0].conjugate())
-    npt.assert_array_almost_equal(c[0,0],np.ones(f.shape))
-
-def test_coherence_welch():
-    """Tests that the code runs and that the resulting matrix is symmetric """  
-
-    t = np.linspace(0,16*np.pi,1024)
-    x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + np.random.rand(t.shape[-1])
-    y = x + np.random.rand(t.shape[-1])
-
-    method = {"this_method":'welch',
-              "NFFT":256,
-              "Fs":2*np.pi}
-    
-    f,c = tsa.coherence(np.vstack([x,y]),csd_method=method)
-    np.testing.assert_array_almost_equal(c[0,1],c[1,0])
-
-    f_theoretical = ut.get_freqs(method['Fs'],method['NFFT'])
-    npt.assert_array_almost_equal(f,f_theoretical)
-
-def test_coherence_multi_taper():
-    """Tests that the code runs and that the resulting matrix is symmetric """  
-
-    t = np.linspace(0,16*np.pi,1024)
-    x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + np.random.rand(t.shape[-1])
-    y = x + np.random.rand(t.shape[-1])
-
-    method = {"this_method":'multi_taper_csd',
-              "Fs":2*np.pi}
-     
-    f,c = tsa.coherence(np.vstack([x,y]),csd_method=method)
-    npt.assert_array_almost_equal(c[0,1],c[1,0])
-
-def test_coherence_partial():
-    """ Test partial coherence"""
-
-    t = np.linspace(0,16*np.pi,1024)
-    x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + np.random.rand(t.shape[-1])
-    y = x + np.random.rand(t.shape[-1])
-    z = x + np.random.rand(t.shape[-1])
-
-    method = {"this_method":'welch',
-              "NFFT":256,
-              "Fs":2*np.pi}
-    f,c = tsa.coherence_partial(np.vstack([x,y]),z,csd_method=method)
-
-    f_theoretical = ut.get_freqs(method['Fs'],method['NFFT'])
-    npt.assert_array_almost_equal(f,f_theoretical)
-    npt.assert_array_almost_equal(c[0,1],c[1,0])
-
-    
-def test_coherency_cached():
-    """Tests that the cached coherency gives the same result as the standard
-    coherency"""
-
-    t = np.linspace(0,16*np.pi,1024)
-    x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + np.random.rand(t.shape[-1])
-    y = x + np.random.rand(t.shape[-1])
-
-    f1,c1 = tsa.coherency(np.vstack([x,y]))
-
-    ij = [(0,1),(1,0)]
-    f2,cache = tsa.cache_fft(np.vstack([x,y]),ij)
-
-    c2 = tsa.cache_to_coherency(cache,ij)
-
-    npt.assert_array_almost_equal(c1[1,0],c2[1,0])
-    npt.assert_array_almost_equal(c1[0,1],c2[0,1])
 
 
-# XXX FIXME: http://github.com/nipy/nitime/issues/issue/1
-@npt.dec.skipif(True) 
-def test_coherence_linear_dependence():
-    """
-    Tests that the coherence between two linearly dependent time-series
-    behaves as expected.
-    
-    From William Wei's book, according to eq. 14.5.34, if two time-series are
-    linearly related through:
-
-    y(t)  = alpha*x(t+time_shift)
-
-    then the coherence between them should be equal to:
-
-    .. :math:
-    
-    C(\nu) = \frac{1}{1+\frac{fft_{noise}(\nu)}{fft_{x}(\nu) \cdot \alpha^2}}
-    
-    """
-    t = np.linspace(0,16*np.pi,2**14)
-    x = np.sin(t) + np.sin(2*t) + np.sin(3*t) + 0.1 *np.random.rand(t.shape[-1])
-    N = x.shape[-1]
-
-    alpha = 10
-    m = 3
-    noise = 0.1 * np.random.randn(t.shape[-1])
-    y = alpha*(np.roll(x,m)) + noise
-
-    f_noise = np.fft.fft(noise)[0:N/2]
-    f_x = np.fft.fft(x)[0:N/2]
-
-    c_t = ( 1/( 1 + ( f_noise/( f_x*(alpha**2)) ) ) )
-
-    method = {"this_method":'welch',
-              "NFFT":2048,
-              "Fs":2*np.pi}
-
-    f,c = tsa.coherence(np.vstack([x,y]),csd_method=method)
-    c_t = np.abs(signaltools.resample(c_t,c.shape[-1]))
-
-    npt.assert_array_almost_equal(c[0,1],c_t,2)
-
-
-@npt.dec.skipif(True)
-def test_coherence_phase_spectrum ():
-    assert False, "Test Not Implemented"
-
-@npt.dec.skipif(True)
-def test_coherency_bavg():
-    assert False, "Test Not Implemented"
-
-@npt.dec.skipif(True)
-def test_coherence_partial():
-    assert False, "Test Not Implemented"
-
-@npt.dec.skipif(True)
-def test_coherence_partial_bavg():
-    assert False, "Test Not Implemented"
-
-#XXX def test_coherency_phase ()
-#XXX def test_coherence_partial_phase()
-
-@npt.dec.skipif(True)
-def test_fir():
-    assert False, "Test Not Implemented"
-
-@npt.dec.skipif(True)
-def test_percent_change():
-    assert False, "Test Not Implemented"
-
-def test_DPSS_windows():
+def test_dpss_windows():
     "Are the eigenvalues representing spectral concentration near unity"
     # these values from Percival and Walden 1993
-    _, l = tsa.DPSS_windows(31, 6, 4)
+    _, l = tsa.dpss_windows(31, 6, 4)
     unos = np.ones(4)
     yield npt.assert_array_almost_equal, l, unos 
-    _, l = tsa.DPSS_windows(31, 7, 4)
+    _, l = tsa.dpss_windows(31, 7, 4)
     yield npt.assert_array_almost_equal, l, unos 
-    _, l = tsa.DPSS_windows(31, 8, 4)
+    _, l = tsa.dpss_windows(31, 8, 4)
     yield npt.assert_array_almost_equal, l, unos
-    _,l =  tsa.DPSS_windows(31, 8, 4.2)
+    _,l =  tsa.dpss_windows(31, 8, 4.2)
     yield npt.assert_array_almost_equal, l, unos
     
-def test_DPSS_matlab():
+def test_dpss_matlab():
     """Do the dpss windows resemble the equivalent matlab result
 
     The variable b is read in from a text file generated by issuing:
@@ -230,32 +59,10 @@ def test_DPSS_matlab():
     in matlab
     
     """
-    a,_ = tsa.DPSS_windows(100,2,4)
+    a,_ = tsa.dpss_windows(100,2,4)
     b = np.loadtxt(os.path.join(test_dir_path,'dpss_matlab.txt'))
     npt.assert_almost_equal(a,b.T)
         
-def test_yule_walker_AR():
-    arsig,_,_ = ut.ar_generator(N=512)
-    avg_pwr = (arsig*arsig.conjugate()).mean()
-    ak,sigma_v = tsa.AR_est_YW(arsig, 8, 1024)
-    w, psd = tsa.AR_psd(ak, sigma_v)
-    # for efficiency, let's leave out the 2PI in the numerator and denominator
-    # for the following integral
-    dw = 1./1024
-    avg_pwr_est = np.trapz(psd, dx=dw)
-    npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
-
-def test_LD_AR():
-    arsig,_,_ = ut.ar_generator(N=512)
-    avg_pwr = (arsig*arsig.conjugate()).mean()
-    ak, sigma_v = tsa.AR_est_LD(arsig, 8, 1024)
-    w, psd = tsa.AR_psd(ak, sigma_v)
-
-    # for efficiency, let's leave out the 2PI in the numerator and denominator
-    # for the following integral
-    dw = 1./1024
-    avg_pwr_est = np.trapz(psd, dx=dw)
-    npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
     
 def test_periodogram():
     arsig,_,_ = ut.ar_generator(N=512)
@@ -348,59 +155,3 @@ def test_psd_matlab():
 
     npt.assert_almost_equal(fxx_mlab,fxx_matlab,decimal=5)
 
-def test_coherence_matlab():
-
-    """ Test against coherence values calculated with matlab's mscohere"""
-
-    ts = np.loadtxt(os.path.join(test_dir_path,'tseries12.txt'))
-
-    ts0 = ts[1]   
-    ts1 = ts[0]  
-
-    method = {}
-    method['this_method']='welch'
-    method['NFFT'] = 64;
-    method['Fs'] = 1.0;
-    method['noverlap'] = method['NFFT']/2
-
-    ttt = np.vstack([ts0,ts1])
-    f,cxy_mlab = tsa.coherence(ttt,csd_method=method)
-    cxy_matlab = np.loadtxt(os.path.join(test_dir_path,'cxy_matlab.txt'))
-
-    npt.assert_almost_equal(cxy_mlab[0][1],cxy_matlab,decimal=5)
-
-def test_cached_coherence():
-    """Testing the cached coherence functions """
-    NFFT = 64 #This is the default behavior
-    n_freqs = NFFT//2 + 1
-    ij = [(0,1),(1,0)]
-    ts = np.loadtxt(os.path.join(test_dir_path,'tseries12.txt'))
-    freqs,cache = tsa.cache_fft(ts,ij)
-
-    #Are the frequencies the right ones?
-    yield npt.assert_equal,freqs,ut.get_freqs(2*np.pi,NFFT)
-                     
-    #Check that the fft of the first window is what we expect:
-    hann = mlab.window_hanning(np.ones(NFFT))
-    w_ts = ts[0][:NFFT]*hann
-    w_ft = np.fft.fft(w_ts)[0:n_freqs]
-
-    #This is the result of the function:
-    first_window_fft = cache['FFT_slices'][0][0]
-    
-    yield npt.assert_equal,w_ft,first_window_fft
-    
-    coh_cached = tsa.cache_to_coherency(cache,ij)[0,1]
-    f,c = tsa.coherency(ts)
-    coh_direct = c[0,1]
-
-    yield npt.assert_almost_equal,coh_direct,coh_cached
-
-#The following test fails because these two are in fact not equal. This is
-#because one is based on calculating the angle of the averaged psd and the
-#other is based on calculating the average of the angles calculated over
-#different windows. Note that this is not the same, because the angle is not a
-#linear functions (arctan):
-##     phase_cached = tsa.cache_to_relative_phase(cache,ij)[0,1]    
-##     f,phase_direct = tsa.coherency_phase_spectrum(ts)
-##     yield npt.assert_almost_equal,phase_cached,phase_direct[0,1]

@@ -545,12 +545,12 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
         
     @desc.setattr_on_read
     def tapers(self):
-        return tsa.DPSS_windows(self.input.shape[-1], self.NW,
+        return tsa.dpss_windows(self.input.shape[-1], self.NW,
                                 2*self.NW-1)[0]
         
     @desc.setattr_on_read
     def eigs(self):
-        return tsa.DPSS_windows(self.input.shape[-1], self.NW,
+        return tsa.dpss_windows(self.input.shape[-1], self.NW,
                                       2*self.NW-1)[1]
     @desc.setattr_on_read
     def df(self):

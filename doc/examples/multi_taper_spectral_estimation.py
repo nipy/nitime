@@ -137,7 +137,7 @@ Discrete prolate spheroidal sequences (DPSS, also known as Slepian sequences)
 [Slepian1978]_ are a class of taper functions which are constructed as a
 solution to the problem of concentrating the spectrum to within a pre-specified
 bandwidth. These tapers can be constructed using
-:func:`algorithms.DPSS_windows`, but for the purpose of spectral estimation, it
+:func:`algorithms.dpss_windows`, but for the purpose of spectral estimation, it
 is sufficient to specify the bandwidth (which defines the boundary between
 narrow-band and broad-band leakage) as an input to
 :func:`algorithms.mutli_taper_psd` and this function will then construct the
@@ -183,7 +183,7 @@ This is the true PSD for this sequence:
 
 """
 
-fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha], Nfreqs=N)
+fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha], n_freqs=N)
 psd = (hz*hz.conj()).real
 
 """

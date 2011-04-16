@@ -152,7 +152,7 @@ def test_lwr():
         l2_r = (rvec**2).sum()**0.5
 
         # compute |Ax-b| / |b| metric
-        yield nt.assert_almost_equal, l2_d/l2_r, 0
+        npt.assert_almost_equal(l2_d/l2_r, 0, decimal=5)
 
 def test_lwr_alternate():
     "test solution of lwr recursion"
