@@ -1,3 +1,6 @@
+
+from inspect import getargspec
+
 from nitime import descriptors as desc
 from nitime import utils as tsu
 from nitime import algorithms as tsa

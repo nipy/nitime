@@ -597,7 +597,7 @@ def multi_taper_psd(s, Fs=2*np.pi, BW = None,  adaptive=False,
     # de-mean this sucker
     s = utils.remove_bias(s, axis=-1)
 
-    #Get the number of tapers from the sampoing rate and the bandwidth:
+    #Get the number of tapers from the sampling rate and the bandwidth:
     if BW is not None:
         NW = BW/(2*Fs) * N
     else:
