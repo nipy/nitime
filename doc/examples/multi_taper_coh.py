@@ -89,7 +89,7 @@ the tapers and the associated eigenvalues of each taper:
 NW = 4
 K = 2*NW-1
 
-tapers, eigs = alg.DPSS_windows(n_samples, NW, 2*NW-1)
+tapers, eigs = alg.dpss_windows(n_samples, NW, 2*NW-1)
 
 """
 

@@ -153,7 +153,7 @@ def test_periodogram_csd():
     f,c = tsa.periodogram_csd(tseries)
     npt.assert_equal(f.shape[0],N) # Should be N, not the one-sided N/2 + 1
 
-def test_DPSS_windows():
+def test_dpss_windows():
     """ Test a funky corner case of DPSS_windows """  
 
     N = 1024
@@ -162,7 +162,7 @@ def test_DPSS_windows():
     Kmax = 7
 
     # But that's corrected by the tsaorithm: 
-    d,w=tsa.DPSS_windows(1024, 0, 7)
+    d,w=tsa.dpss_windows(1024, 0, 7)
     for this_d in d[0::2]:
         npt.assert_equal(this_d.sum(axis=-1)< 0, False)
     
@@ -211,14 +211,14 @@ def test_mtm_cross_spectrum():
 
     N = 2**10
     n_reps = 10
-    Nfreqs=N
+    n_freqs=N
 
-    tapers, eigs = tsa.DPSS_windows(N, NW, 2*NW-1)
+    tapers, eigs = tsa.dpss_windows(N, NW, 2*NW-1)
 
     est_psd = []
     for k in xrange(n_reps):
         data,nz,alpha = utils.ar_generator(N=N)
-        fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha], Nfreqs=Nfreqs)
+        fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha], n_freqs=n_freqs)
         # 'one-sided', so multiply by 2:
         psd = 2*(hz*hz.conj()).real
 
@@ -264,7 +264,7 @@ def test_multi_taper_psd_csd():
     for k in xrange(n_reps):
         ar_seq, nz, alpha = utils.ar_generator(N=N, drop_transients=10)
         ar_seq -= ar_seq.mean()
-        fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha], Nfreqs=N)
+        fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha], n_freqs=N)
         psd.append(2*(hz*hz.conj()).real)
         f, psd_mt, nu = tsa.multi_taper_psd(ar_seq, adaptive=True, jackknife=True)
         est_psd.append(psd_mt)

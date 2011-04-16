@@ -235,7 +235,7 @@ def periodogram(s, Fs=2*np.pi, Sk=None, N=None, sides='default', normalize=True)
     elif sides in ('default', 'onesided'):
         sides='onesided'
 
-    if sides=='onesided':
+    if sides == 'onesided':
         # putative Nyquist freq
         Fn = N/2 + 1
         # last duplicate freq
@@ -356,7 +356,7 @@ def periodogram_csd(s, Fs=2*np.pi, Sk=None, NFFT=None, sides='default', normaliz
     csd_mat[upper_idc] = csd_mat[lower_idc].conj()
     return freqs, csd_mat
 
-def DPSS_windows(N, NW, Kmax):
+def dpss_windows(N, NW, Kmax):
     """Returns the Discrete Prolate Spheroidal Sequences of orders [0,Kmax-1]
     for a given frequency-spacing multiple NW and sequence length N. 
 
@@ -372,7 +372,7 @@ def DPSS_windows(N, NW, Kmax):
 
     Returns
     -------
-    v,e : tuple,
+    v, e : tuple,
         v is an array of DPSS windows shaped (Kmax, N)
         e are the eigenvalues 
 
@@ -605,7 +605,7 @@ def multi_taper_psd(s, Fs=2*np.pi, BW = None,  adaptive=False,
 
     Kmax = int(2*NW)
         
-    v, l = DPSS_windows(N, NW, Kmax)
+    v, l = dpss_windows(N, NW, Kmax)
     if low_bias:
         keepers = (l > 0.9)
         v = v[keepers]
@@ -749,7 +749,7 @@ def multi_taper_csd(s, Fs=2*np.pi, BW=None, low_bias=True,
 
     Kmax = int(2*NW)
 
-    v, l = DPSS_windows(N, NW, Kmax)
+    v, l = dpss_windows(N, NW, Kmax)
     if low_bias:
         keepers = (l > 0.9)
         v = v[keepers]
@@ -787,7 +787,7 @@ def multi_taper_csd(s, Fs=2*np.pi, BW=None, low_bias=True,
     else:
         weights = np.sqrt(l).reshape(Kmax, 1)
 
-    csdfs = np.empty((M,M,last_freq), 'D')
+    csdfs = np.empty((M, M, last_freq), 'D')
     for i in xrange(M):
         if adaptive:
             wi = w[i]
@@ -813,7 +813,7 @@ def multi_taper_csd(s, Fs=2*np.pi, BW=None, low_bias=True,
 
     return freqs, csdfs 
 
-def freq_response(b, a=1., Nfreqs=1024, sides='onesided'):
+def freq_response(b, a=1., n_freqs=1024, sides='onesided'):
     """
     Returns the frequency response of the IIR or FIR filter described
     by beta and alpha coefficients. 
@@ -823,7 +823,7 @@ def freq_response(b, a=1., Nfreqs=1024, sides='onesided'):
 
     b : beta sequence (moving average component)
     a : alpha sequence (autoregressive component)
-    Nfreqs : size of frequency grid
+    n_freqs : size of frequency grid
     sides : {'onesided', 'twosided'}
        compute frequencies between [-PI,PI), or from [0, PI]
 
@@ -839,14 +839,14 @@ def freq_response(b, a=1., Nfreqs=1024, sides='onesided'):
 
     """
     if sides=='onesided':
-        fgrid = np.linspace(0,np.pi,Nfreqs/2+1)
+        fgrid = np.linspace(0,np.pi,n_freqs/2+1)
     else:
-        fgrid = np.linspace(0,2*np.pi,Nfreqs,endpoint=False)
+        fgrid = np.linspace(0,2*np.pi,n_freqs,endpoint=False)
     float_type = type(1.)
     int_type = type(1)
-    Nfreqs = len(fgrid)
+    n_freqs = len(fgrid)
     if isinstance(b, float_type) or isinstance(b, int_type) or len(b) == 1:
-        bw = np.ones(Nfreqs, 'D')*b
+        bw = np.ones(n_freqs, 'D')*b
     else:
         L = len(b)
         # D_mn = exp(-j*omega(m)*n)
@@ -854,7 +854,7 @@ def freq_response(b, a=1., Nfreqs=1024, sides='onesided'):
         DTFT = np.exp(-1j*fgrid[:,np.newaxis]*np.arange(0,L))
         bw = np.dot(DTFT, b)
     if isinstance(a, float_type) or isinstance(a, int_type) or len(a) == 1:
-        aw = np.ones(Nfreqs, 'D')*a
+        aw = np.ones(n_freqs, 'D')*a
     else:
         L = len(a)
         DTFT = np.exp(-1j*fgrid[:,np.newaxis]*np.arange(0,L))

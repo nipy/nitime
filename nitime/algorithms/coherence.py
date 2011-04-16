@@ -19,7 +19,7 @@ import matplotlib.mlab as mlab
 from spectral import get_spectra,get_spectra_bi
 import nitime.utils as utils
 
-def coherency(time_series,csd_method= None):
+def coherency(time_series, csd_method=None):
     r"""
     Compute the coherency between the spectra of n-tuple of time series.
     Input to this function is in the time domain
@@ -355,7 +355,7 @@ def coherence_regularized(time_series,epsilon,alpha,csd_method=None):
     #output:
     c=np.zeros((time_series.shape[0],
                time_series.shape[0],
-               f.shape[0]))
+               f.shape[0]),complex)
     
     for i in xrange(time_series.shape[0]): 
         for j in xrange(i,time_series.shape[0]):

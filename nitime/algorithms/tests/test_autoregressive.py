@@ -76,8 +76,8 @@ def test_MAR_est_LWR():
                      [xy_cov, y_var] ])
 
 
-    Nfreqs = 1024
-    w, Hw = tsa.transfer_function_xy(am, Nfreqs=Nfreqs)
+    n_freqs = 1024
+    w, Hw = tsa.transfer_function_xy(am, n_freqs=n_freqs)
     Sw = tsa.spectral_matrix_xy(Hw, cov)
 
     # This many realizations of the process:
@@ -109,7 +109,7 @@ def test_MAR_est_LWR():
     cov_est = np.mean(cov_est,0)
 
     # This tests transfer_function_xy and spectral_matrix_xy: 
-    w, Hw_est = tsa.transfer_function_xy(a_est, Nfreqs=Nfreqs)
+    w, Hw_est = tsa.transfer_function_xy(a_est, n_freqs=n_freqs)
     Sw_est = tsa.spectral_matrix_xy(Hw_est, cov_est)
 
     # coherence_from_spectral:
@@ -120,11 +120,11 @@ def test_MAR_est_LWR():
 
     w, f_x2y, f_y2x, f_xy, Sw = tsa.granger_causality_xy(am,
                                                          cov,
-                                                         Nfreqs=Nfreqs)
+                                                         n_freqs=n_freqs)
 
     w, f_x2y_est, f_y2x_est, f_xy_est, Sw_est = tsa.granger_causality_xy(a_est,
                                                                      cov_est,
-                                                                     Nfreqs=Nfreqs)
+                                                                     n_freqs=n_freqs)
 
 
     # interdependence_xy

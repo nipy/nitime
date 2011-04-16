@@ -84,9 +84,9 @@ z=exp(j*omega) from omega in [0,pi] )
 
 """
 
-Nfreqs=1024
+n_freqs=1024
 
-w, Hw = alg.transfer_function_xy(am, Nfreqs=Nfreqs)
+w, Hw = alg.transfer_function_xy(am, n_freqs=n_freqs)
 Sw_true = alg.spectral_matrix_xy(Hw, cov)
 
 """
@@ -140,7 +140,7 @@ print a - am
 print 'compare covariance to estimate:'
 print ecov - cov
 
-w, f_x2y, f_y2x, f_xy, Sw = alg.granger_causality_xy(a,ecov,Nfreqs=Nfreqs)
+w, f_x2y, f_y2x, f_xy, Sw = alg.granger_causality_xy(a,ecov,n_freqs=n_freqs)
 
 f = pp.figure()
 c_x = np.empty((L,w.shape[0]))
@@ -202,7 +202,7 @@ ax.set_ylim([0,2.2])
 
 """
 
-.. image:: fig/mar_script_01.png
+.. image:: fig/ar_est_2vars_01.png
 
 
 

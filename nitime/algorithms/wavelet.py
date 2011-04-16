@@ -2,12 +2,6 @@
 
 Wavelets
 
-
-
-XXX TODO:
- * Write tests for various morlet wavelets
- * Possibly write 'full morlet wavelet' function
-
 """ 
 
 import numpy as np

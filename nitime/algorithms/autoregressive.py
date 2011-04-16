@@ -16,7 +16,7 @@ from spectral import freq_response
 def AR_est_YW(s, order, sxx=None):
     """Finds the parameters for an autoregressive model of order norder
     of the process s. Using these parameters, an estimate of the PSD
-    is calculated from [-PI,PI) in Nfreqs, or [0,PI] in {N/2+1}freqs.
+    is calculated from [-PI,PI) in n_freqs, or [0,PI] in {N/2+1}freqs.
     Uses the basic Yule Walker system of equations, and a baised estimate
     of sxx (unless sxx is provided).
 
@@ -55,7 +55,7 @@ def AR_est_YW(s, order, sxx=None):
 def AR_est_LD(s, order, sxx=None):
     """Finds the parameters for an autoregressive model of order norder
     of the process s. Using these parameters, an estimate of the PSD
-    is calculated from [-PI,PI) in Nfreqs, or [0,PI] in {N/2+1}freqs.
+    is calculated from [-PI,PI) in n_freqs, or [0,PI] in {N/2+1}freqs.
     Uses the Levinson-Durbin recursion method, and a baised estimate
     of sxx (unless sxx is provided).
 
@@ -125,13 +125,13 @@ def MAR_est_LWR(s, order, sxx=None):
     a, ecov = utils.lwr(Rxx.transpose(2,0,1))
     return a,ecov
 
-def AR_psd(ak, sigma_v, Nfreqs=1024, sides='onesided'):
+def AR_psd(ak, sigma_v, n_freqs=1024, sides='onesided'):
     """
     Compute the PSD of an AR process, based on the process coefficients and covariance 
 
-    Nfreqs : int
+    n_freqs : int
         The number of spacings on the frequency grid from [-PI,PI).
-        If sides=='onesided', Nfreqs/2+1 frequencies are computed from [0,PI]
+        If sides=='onesided', n_freqs/2+1 frequencies are computed from [0,PI]
 
     sides : str (optional)
         Indicates whether to return a one-sided or two-sided PSD
@@ -153,7 +153,7 @@ def AR_psd(ak, sigma_v, Nfreqs=1024, sides='onesided'):
     # the transfer function here is H(f) = DTFT(w)
     # leading to Sxx(f) = Vxx(f) / |H(f)|**2 = sigma_v / |H(f)|**2
     w, hw = freq_response(sigma_v**0.5, a=np.concatenate(([1], -ak)),
-                     Nfreqs=Nfreqs, sides=sides)
+                     n_freqs=n_freqs, sides=sides)
     ar_psd = (hw*hw.conj()).real
     return (w,2*ar_psd) if sides=='onesided' else (w,ar_psd)
 
@@ -163,7 +163,7 @@ def AR_psd(ak, sigma_v, Nfreqs=1024, sides='onesided'):
 # Granger causality analysis
 #-----------------------------------------------------------------------------
 
-def transfer_function_xy(a, Nfreqs=1024):
+def transfer_function_xy(a, n_freqs=1024):
     """Helper routine to compute the transfer function H(w) based
     on sequence of coefficient matrices A(i). The z transforms
     follow from this definition:
@@ -175,7 +175,7 @@ def transfer_function_xy(a, Nfreqs=1024):
 
     a : ndarray, shape (P, 2, 2)
       sequence of coef matrices describing an mAR process
-    Nfreqs : int, optional
+    n_freqs : int, optional
       number of frequencies to compute in range [0,PI]
 
     Returns
@@ -194,10 +194,10 @@ def transfer_function_xy(a, Nfreqs=1024):
     di = np.r_[1, a[:,1,1]]
 
     # compute A(w) such that A(w)X(w) = Err(w)
-    w, aw = freq_response(ai, Nfreqs=Nfreqs)
-    _, bw = freq_response(bi, Nfreqs=Nfreqs)
-    _, cw = freq_response(ci, Nfreqs=Nfreqs)
-    _, dw = freq_response(di, Nfreqs=Nfreqs)
+    w, aw = freq_response(ai, n_freqs=n_freqs)
+    _, bw = freq_response(bi, n_freqs=n_freqs)
+    _, cw = freq_response(ci, n_freqs=n_freqs)
+    _, dw = freq_response(di, n_freqs=n_freqs)
 
     #A = np.array([ [1-aw, -bw], [-cw, 1-dw] ])
     A = np.array([ [aw, bw], [cw, dw] ])
@@ -223,7 +223,7 @@ def spectral_matrix_xy(Hw, cov):
     Parameters
     ----------
 
-    Hw : ndarray (2, 2, Nfreqs)
+    Hw : ndarray (2, 2, n_freqs)
       Pre-computed transfer function from transfer_function_xy()
 
     cov : ndarray (2, 2)
@@ -299,7 +299,7 @@ def interdependence_xy(Sw):
     Cw = coherence_from_spectral(Sw)
     return -np.log(1-Cw)
 
-def granger_causality_xy(a, cov, Nfreqs=1024):
+def granger_causality_xy(a, cov, n_freqs=1024):
     """Compute the Granger causality between processes X and Y, which
     are linked in a multivariate autoregressive (mAR) model parameterized
     by coefficient matrices a(i) and the innovations covariance matrix
@@ -313,7 +313,7 @@ def granger_causality_xy(a, cov, Nfreqs=1024):
       coefficient matrices characterizing the autoregressive mixing
     cov : ndarray, (2,2)
       covariance matrix characterizing the innovations vector
-    Nfreqs: int
+    n_freqs: int
       number of frequencies to compute in the fourier transform
 
     Returns
@@ -327,7 +327,7 @@ def granger_causality_xy(a, cov, Nfreqs=1024):
       5) spectral density matrix
     """
 
-    w, Hw = transfer_function_xy(a, Nfreqs=Nfreqs)
+    w, Hw = transfer_function_xy(a, n_freqs=n_freqs)
 
     sigma = cov[0,0]; upsilon = cov[0,1]; gamma = cov[1,1]
 

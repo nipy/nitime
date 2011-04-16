@@ -6,7 +6,7 @@ analysis. These algorithms include:
 between time-series.
 
 :func:`get_spectra`, :func:`get_spectra_bi`, :func:`periodogram`,
-:func:`periodogram_csd`, :func:`DPSS_windows`, :func:`multi_taper_psd`,
+:func:`periodogram_csd`, :func:`dpss_windows`, :func:`multi_taper_psd`,
 :func:`multi_taper_csd`, :func:`mtm_cross_spectrum`
 
 2. Coherency: calculate the pairwise correlation between time-series in the
