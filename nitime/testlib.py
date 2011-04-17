@@ -4,12 +4,8 @@
 # Imports
 #-----------------------------------------------------------------------------
 
-# Stdlib
-import sys
-
 # Third-party
 import numpy as np
-import nose
 from nose.core import TestProgram
 
 #-----------------------------------------------------------------------------

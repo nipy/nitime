@@ -107,7 +107,8 @@ def plot_tseries(time_series,fig=None,axis=0,
     
     return fig
 
-def matshow_tseries(time_series,fig=None,axis=0,xtick_n=5):
+def matshow_tseries(time_series,fig=None,axis=0,xtick_n=5,time_unit=None,xlabel=None,
+                ylabel=None):
 
     """Creates an image of the time-series, ordered according to the first
     dimension of the time-series object
@@ -422,7 +423,7 @@ def plot_xcorr(xc,ij,fig=None,line_labels=None,xticks=None,yticks=None,
     if not fig.get_axes():
         ax = fig.add_subplot(1,1,1)
     else:
-        ax = fig.get_axes()[axis]
+        ax = fig.get_axes()[0]
 
     if line_labels is not None:
         #Reverse the order, so that pop() works:
@@ -474,7 +475,7 @@ def draw_matrix(mat,th1=None,th2=None,clim=None,cmap=None):
     """Draw a matrix, optionally thresholding it.
     """
     if th1 is not None:
-        m2 = util.thresholded_arr(mat,th1,th2)
+        m2 = tsu.thresholded_arr(mat,th1,th2)
     else:
         m2 = mat
     ax = plt.matshow(m2,cmap=cmap)
@@ -501,7 +502,7 @@ def draw_arrows(G,pos,edgelist=None,ax=None,edge_color='k',alpha=1.0,
     # set edge positions
     edge_pos = np.asarray([(pos[e[0]],pos[e[1]]) for e in edgelist])
 
-    arrow_colors = ( colorConverter.to_rgba('k', alpha), )
+    arrow_colors = ( colors.colorConverter.to_rgba('k', alpha), )
     a_pos = []
 
     # Radius of the nodes in world coordinates
@@ -681,7 +682,7 @@ def draw_graph(G,
         # Make an object with the colormap API, that maps all input values to
         # the default color (with proper alhpa)
         edge_cmap = ( lambda val, alpha:
-                      colorConverter.to_rgba(default_edge_color,alpha) )
+                      colors.colorConverter.to_rgba(default_edge_color,alpha) )
 
     # if vrange is None, we set the color range from the values, else the user
     # can specify it
@@ -838,7 +839,6 @@ def draw_networkx_edges(G, pos,
 
     """
     try:
-        import matplotlib
         import matplotlib.pylab as pylab
         import matplotlib.cbook as cb
         from matplotlib.colors import colorConverter,Colormap

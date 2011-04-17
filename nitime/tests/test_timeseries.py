@@ -1,6 +1,5 @@
 import numpy as np
 import numpy.testing as npt
-from nitime import utils as ut
 import nitime.timeseries as ts
 import nose.tools as nt
 import decotest

@@ -3,7 +3,6 @@ import os
 import numpy as np
 import numpy.testing as npt
 from scipy.signal import signaltools
-import matplotlib.mlab as mlab
 
 import nitime
 from nitime import algorithms as tsa

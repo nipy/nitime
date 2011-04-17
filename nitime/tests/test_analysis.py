@@ -1,10 +1,7 @@
 import numpy as np
 import numpy.testing as npt
-from nitime import utils as ut
 import nitime.timeseries as ts
 import nitime.analysis as nta
-import nose.tools as nt
-import decotest
 
 def test_SpectralAnalyzer():
 

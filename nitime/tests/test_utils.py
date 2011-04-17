@@ -1,10 +1,6 @@
 import numpy as np
 import numpy.testing as npt
-import nitime.timeseries as ts
-import decotest
 import nose.tools as nt
-
-from scipy.signal import signaltools
 
 from nitime import utils
 

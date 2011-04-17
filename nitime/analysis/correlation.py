@@ -2,7 +2,6 @@ import numpy as np
 
 from nitime import descriptors as desc
 from nitime import utils as tsu
-from nitime import algorithms as tsa
 from nitime import timeseries as ts
 
 from .base import BaseAnalyzer

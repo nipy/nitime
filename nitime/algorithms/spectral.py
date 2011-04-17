@@ -14,7 +14,6 @@ XXX
 import numpy as np
 from matplotlib import mlab
 from scipy import linalg
-from scipy.misc import factorial
 import nitime.utils as utils
 
 def get_spectra(time_series,method=None):

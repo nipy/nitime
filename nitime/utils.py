@@ -898,10 +898,10 @@ def diag_indices_from(arr):
         raise ValueError("input array must be at least 2-d")
     # For more than d=2, the strided formula is only valid for arrays with
     # all dimensions equal, so we check first.
-    if not np.alltrue(np.diff(a.shape)==0):
+    if not np.alltrue(np.diff(arr.shape)==0):
         raise ValueError("All dimensions of input must be of equal length")
 
-    return diag_indices(a.shape[0],a.ndim)
+    return diag_indices(arr.shape[0],arr.ndim)
 
     
 def mask_indices(n,mask_func,k=0):
@@ -1591,7 +1591,7 @@ def hilbert_from_new_scipy(x, N=None, axis=-1):
         raise ValueError, "N must be positive."
     if np.iscomplexobj(x):
         print "Warning: imaginary part of x ignored."
-        x = real(x)
+        x = np.real(x)
     Xf = np.fft.fft(x, N, axis=axis)
     h = np.zeros(N)
     if N % 2 == 0:

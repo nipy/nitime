@@ -2,9 +2,6 @@
 from inspect import getargspec
 
 from nitime import descriptors as desc
-from nitime import utils as tsu
-from nitime import algorithms as tsa
-from nitime import timeseries as ts
 
 class BaseAnalyzer(desc.ResetMixin):
     """
