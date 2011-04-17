@@ -57,44 +57,6 @@ def test_SpectralAnalyzer():
     npt.assert_equal(c.shape,(33,))  #1-d spectrum for the single channels
 
 
-def test_CoherenceAnalyzer():
-    Fs = np.pi
-    t = np.arange(10)
-    x = np.sin(10*t) + np.random.rand(t.shape[-1])
-    y = np.sin(10*t) + np.random.rand(t.shape[-1])
-    T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
-    C = nta.CoherenceAnalyzer(T)
-
-    npt.assert_equal(C.coherence.shape,(2,2,33)) #Default mlab_method
-    #Coherence symmetry:
-    npt.assert_equal(C.coherence[0,1],C.coherence[1,0])
-    #Phase/delay asymmetry:
-    npt.assert_equal(C.phase[0,1],-1*C.phase[1,0])
-    npt.assert_equal(C.delay[0,1][1:],-1*C.delay[1,0][1:]) #The very first one
-                                        #is a nan
-
-    #Calculation of the spectrum is the same as in the default spectral
-    #analyzer: 
-    S = nta.SpectralAnalyzer(T)
-    npt.assert_equal(S.cpsd,(C.frequencies,C.spectrum))
-
-def test_SparseCoherenceAnalyzer():
-    Fs = np.pi
-    t = np.arange(256)
-    x = np.sin(10*t) + np.random.rand(t.shape[-1])
-    y = np.sin(10*t) + np.random.rand(t.shape[-1])
-    T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
-    C1 = nta.SparseCoherenceAnalyzer(T,ij=((0,1),(1,0)))
-
-    #Coherence symmetry:
-    npt.assert_equal(np.abs(C1.coherence[0,1]),np.abs(C1.coherence[1,0]))
-
-    #Make sure you get the same answers as you would from the standard
-    #CoherenceAnalyzer: 
-    C2 = nta.CoherenceAnalyzer(T)
-
-    yield npt.assert_almost_equal, C2.coherence[0,1],C1.coherence[0,1]
-    yield npt.assert_almost_equal, C2.coherence[0,1],C1.coherence[0,1]
 
 def test_CorrelationAnalyzer():
 

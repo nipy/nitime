@@ -62,12 +62,13 @@ class CoherenceAnalyzer(BaseAnalyzer):
 
         #Set the variables for spectral estimation (can also be entered by user):
         if method is None:
-            self.method = {'this_method':'welch'}
+            self.method = {'this_method':'welch',
+                           'Fs':self.input.sampling_rate}
         else:
             self.method = method
 
-        #If an input is provided, get the sampling rate from there, if you want
-        #to over-ride that, input a method with a 'Fs' field specified:
+        # If an input is provided, get the sampling rate from there, if you want
+        # to over-ride that, input a method with a 'Fs' field specified:
         self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
 
         self._unwrap_phases = unwrap_phases
