@@ -280,6 +280,7 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
     def eigs(self):
         return tsa.dpss_windows(self.input.shape[-1], self.NW,
                                       2*self.NW-1)[1]
+
     @desc.setattr_on_read
     def df(self):
         #The degrees of freedom:
@@ -566,7 +567,7 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
             self.method = method
 
 
-        if self.method.has_key('this_method') and self.method['this_method']!='welch':
+        if 'this_method' in self.method.keys() and self.method['this_method']!='welch':
             raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be welch")
 
 

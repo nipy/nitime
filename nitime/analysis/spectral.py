@@ -114,6 +114,7 @@ class SpectralAnalyzer(BaseAnalyzer):
                             noverlap=n_overlap)
 
         return f,psd
+
     @desc.setattr_on_read
     def cpsd(self):
 

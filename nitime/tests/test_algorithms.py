@@ -141,8 +141,8 @@ def test_psd_matlab():
     #Complex signal! 
     ts0 = ts[1] + ts[0]*np.complex(0,1) 
 
-    NFFT = 256;
-    Fs = 1.0;
+    NFFT = 256
+    Fs = 1.0
     noverlap = NFFT/2
 
     fxx, f = mlab.psd(ts0,NFFT=NFFT,Fs=Fs,noverlap=noverlap,
@@ -153,4 +153,3 @@ def test_psd_matlab():
     fxx_matlab = np.loadtxt(os.path.join(test_dir_path,'fxx_matlab.txt'))
 
     npt.assert_almost_equal(fxx_mlab,fxx_matlab,decimal=5)
-

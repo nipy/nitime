@@ -11,7 +11,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys
+import os
 import warnings
 
 # Declare here the things that our documentation build will depend on here, so

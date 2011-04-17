@@ -46,21 +46,22 @@ from nitime import descriptors as desc
 # and easy to read error message.
 
 time_unit_conversion = {
-                        'ps':1, #picosecond 
-                        'ns':10**3,  # nanosecond
-                        'us':10**6,  # microsecond
-                        'ms':10**9,  # millisecond
-                        's':10**12,  # second
-                        None:10**12, # The default is seconds (when constructor
-                                     # doesn't get any input, it defaults to
-                                     # None)
-                        'm':60*10**12,   # minute
-                        'h':3600*10**12,   # hour
-                        'D':24*3600*10**12,   # day
-                        'W':7*24*3600*10**12,   # week #This is not an SI unit
+                        'ps': 1,  # picosecond
+                        'ns': 10 ** 3,  # nanosecond
+                        'us': 10 ** 6,  # microsecond
+                        'ms': 10 ** 9,  # millisecond
+                        's': 10 ** 12,   # second
+                         None: 10 ** 12,  # The default is seconds (when
+                                        # constructor doesn't get any
+                                        # input, it defaults to None)
+                        'm': 60 * 10 ** 12,   # minute
+                        'h': 3600 * 10 ** 12,   # hour
+                        'D': 24 * 3600 * 10 ** 12,   # day
+                        'W': 7 * 24 * 3600 * 10 ** 12,  # week
+                                                        # (not an SI unit)
                         }
 
-# The basic resolution: 
+# The basic resolution:
 base_unit = 'ps'
 
 
@@ -68,7 +69,7 @@ base_unit = 'ps'
 # Class declarations
 #-----------------------------------------------------------------------------
 
-##Time: 
+# Time:
 class TimeInterface(object):
     """ The minimal object interface for time representations
 
@@ -76,11 +77,11 @@ class TimeInterface(object):
 
     time_unit = None
 
+
 def get_time_unit(obj):
     """
     Extract the time unit of the object. If it is an iterable, get the time
     unit of the first element.
-    
     """
 
     # If this is a Time object, no problem:
@@ -89,24 +90,23 @@ def get_time_unit(obj):
 
     # Otherwise, if it is iterable, we recurse on it:
     try:
-        it=iter(obj)
+        it = iter(obj)
     except TypeError:
         return None
     else:
         return get_time_unit(it.next())
-    
 
-    
-class TimeArray(np.ndarray,TimeInterface):
-    """Base-class for time representations, implementing the TimeInterface"""  
+
+class TimeArray(np.ndarray, TimeInterface):
+    """Base-class for time representations, implementing the TimeInterface"""
     def __new__(cls, data, time_unit=None, copy=True):
         """XXX Write a doc-string - in particular, mention the the default
-        time-units to be used are seconds (which is why it is set to None) """ 
+        time-units to be used are seconds (which is why it is set to None) """
 
-        # Check that the time units provided are sensible: 
+        # Check that the time units provided are sensible:
         if time_unit not in time_unit_conversion:
-             raise ValueError('Invalid time unit %s, must be one of %s' %
-                             (time_unit,time_unit_conversion.keys()))         
+            raise ValueError('Invalid time unit %s, must be one of %s' %
+                             (time_unit, time_unit_conversion.keys()))
 
         # Get the conversion factor from the input:
         conv_fac = time_unit_conversion[time_unit]
@@ -126,10 +126,10 @@ class TimeArray(np.ndarray,TimeInterface):
         # We can only honor the copy flag in a very narrow set of cases
         # if data is already a TimeArray or if data is an ndarray with
         # dtype=int64
-        if copy==False:
+        if copy == False:
             if not getattr(data, 'dtype', None) == np.int64:
-                raise ValueError('When copy flag is set to False, must provide a TimeArray object, or int64 times, in %s'%base_unit)
-            time = np.array(data,copy=False)
+                raise ValueError('When copy flag is set to False, must provide a TimeArray object, or int64 times, in %s' % base_unit)
+            time = np.array(data, copy=False)
         else:
             if isinstance(data, TimeInterface):
                 time = data.copy()
@@ -141,84 +141,82 @@ class TimeArray(np.ndarray,TimeInterface):
                     #XXX This will fail when even 64 bit is not large enough to
                     # avoid wrap-around (When you try to make more than 10**6
                     # seconds). XXX this should be mentioned in the docstring
-                    time = data_arr.astype(np.int64)*conv_fac
+                    time = data_arr.astype(np.int64) * conv_fac
                 else:
-                    # Otherwise: first convert, round and then cast to 64 
-                    time=(data_arr*conv_fac).round().astype(np.int64)
+                    # Otherwise: first convert, round and then cast to 64
+                    time = (data_arr * conv_fac).round().astype(np.int64)
 
         # Make sure you have an array on your hands (for example, if you input
         # an integer, you might have reverted to an integer when multiplying
-        # with the conversion factor:            
+        # with the conversion factor:
         time = np.asarray(time).view(cls)
 
         # Make sure time is one-dimensional or 0-d
         if time.ndim > 1:
             raise ValueError('TimeArray can only be one-dimensional or 0-d')
-        
+
         if time_unit is None:
             time_unit = 's'
 
         time.time_unit = time_unit
         time._conversion_factor = time_unit_conversion[time_unit]
         return time
-    
+
     def __array_wrap__(self, out_arr, context=None):
         # When doing comparisons between TimeArrays, make sure that you return a
-        # boolean array, not a time array: 
-        if out_arr.dtype==bool:
+        # boolean array, not a time array:
+        if out_arr.dtype == bool:
             return np.asarray(out_arr)
         else:
             return np.ndarray.__array_wrap__(self, out_arr, context)
 
-    def __array_finalize__(self,obj):
+    def __array_finalize__(self, obj):
         """XXX """
         # Make sure that the TimeArray has the time units set (and not equal to
-        # None): 
+        # None):
         if not hasattr(self, 'time_unit') or self.time_unit is None:
-            if hasattr(obj, 'time_unit'): # looks like view cast
+            if hasattr(obj, 'time_unit'):  # looks like view cast
                 self.time_unit = obj.time_unit
             else:
                 self.time_unit = 's'
 
-        # Make sure that the conversion factor is set properly: 
-        if not hasattr(self,'_conversion_factor'):
-            if hasattr(obj,'_conversion_factor'):
+        # Make sure that the conversion factor is set properly:
+        if not hasattr(self, '_conversion_factor'):
+            if hasattr(obj, '_conversion_factor'):
                 self._conversion_factor = obj._conversion_factor
             else:
-                self._conversion_factor=time_unit_conversion[self.time_unit]
+                self._conversion_factor = time_unit_conversion[self.time_unit]
 
     def __repr__(self):
-       """Pass it through the conversion factor"""
+        """Pass it through the conversion factor"""
 
-       # If the input is a single int/float (with no shape) return a 'scalar'
-       # time-point: 
-       if self.shape == ():
-           return "%r %s"%(int(self)/float(self._conversion_factor),
+        # If the input is a single int/float (with no shape) return a 'scalar'
+        # time-point:
+        if self.shape == ():
+            return "%r %s" % (int(self) / float(self._conversion_factor),
                            self.time_unit)
-       
-       # Otherwise, return the TimeArray representation:
-       else:
-           return np.ndarray.__repr__(self/float(self._conversion_factor)
-            )[:-1] + ", time_unit='%s')" % self.time_unit
+        # Otherwise, return the TimeArray representation:
+        else:
+            return np.ndarray.__repr__(self / float(self._conversion_factor)
+             )[:-1] + ", time_unit='%s')" % self.time_unit
 
-    def __getitem__(self,key):
+    def __getitem__(self, key):
         # return scalar TimeArray in case key is integer
-        if isinstance(key,int):
+        if isinstance(key, int):
             return self[[key]].reshape(())
-        elif isinstance(key,float):
+        elif isinstance(key, float):
             return self.at(key)
-        elif isinstance(key,Epochs):
+        elif isinstance(key, Epochs):
             return self.during(key)
         else:
-            return np.ndarray.__getitem__(self,key)
+            return np.ndarray.__getitem__(self, key)
 
-    def __setitem__(self,key,val):
-        
-       # look at the units - convert the values to what they need to be (in the
-       # base_unit) and then delegate to the ndarray.__setitem__
-       if not hasattr(val,'_conversion_factor'):
-           val *= self._conversion_factor
-       return np.ndarray.__setitem__(self,key,val)
+    def __setitem__(self, key, val):
+        # look at the units - convert the values to what they need to be (in the
+        # base_unit) and then delegate to the ndarray.__setitem__
+        if not hasattr(val, '_conversion_factor'):
+            val *= self._conversion_factor
+        return np.ndarray.__setitem__(self, key, val)
 
     def index_at(self, t, tol=None, mode='closest'):
         """ Returns the integer indices that corresponds to the time t
@@ -251,25 +249,25 @@ class TimeArray(np.ndarray,TimeInterface):
         if not np.iterable(t):
             t = [t]
         t_e = TimeArray(t, time_unit=self.time_unit)
-        if mode=='closest':
+        if mode == 'closest':
             return self._index_closest(t_e, tol)
-        elif mode=='before':
+        elif mode == 'before':
             return self._index_before(t_e)
-        elif mode=='after':
+        elif mode == 'after':
             return self._index_after(t_e)
         else:
             raise ValueError('Invalid mode specification')
 
     def _index_closest(self, t, tol=None):
-        d = np.abs(self-t)
+        d = np.abs(self - t)
         if tol is None:
             # If no tolerance is specified, use one clock tick of the base_unit:
             tol = clock_tick
 
         # tolerance is converted into a time-array, so that it does the
         # right thing:
-        ttol = TimeArray(tol,time_unit=self.time_unit)
-        return np.where(d<=ttol)[0]
+        ttol = TimeArray(tol, time_unit=self.time_unit)
+        return np.where(d <= ttol)[0]
 
     def _index_before(self, t):
         # Use the standard Decorate-Sort-Undecorate (Schwartzian transform)
@@ -288,27 +286,27 @@ class TimeArray(np.ndarray,TimeInterface):
         idx_min = self[cond].argmin()
         return cond[idx_min]
 
-    def slice_during(self,e):
+    def slice_during(self, e):
         """ Returns the slice that corresponds to Epoch e"""
 
-        if not isinstance(e,Epochs):
-            raise ValueError, 'e has to be of Epochs type'
+        if not isinstance(e, Epochs):
+            raise ValueError('e has to be of Epochs type')
 
         if e.data.ndim > 0:
-            raise NotImplementedError, 'e has to be a scalar Epoch'
+            raise NotImplementedError('e has to be a scalar Epoch')
 
         if self.ndim != 1:
-            return NotImplementedError, 'slicing only implemented for 1-d TimeArrays'
+            return NotImplementedError('slicing only implemented for 1-d TimeArrays')
 
-        #These two should be called with modes, such that they catch the right
-        #slice
+        # These two should be called with modes, such that they catch the right
+        # slice
         start = self.index_at(e.start, mode='before')
         stop = self.index_at(e.stop, mode='after')
 
         # If *either* the start or stop index object comes back as the empty
         # array, then it means the condition is not satisfied, we return the
         # slice that does [:0],  i.e., always slices to nothing.
-        if start.shape==(0,) or stop.shape==(0,):
+        if start.shape == (0,) or stop.shape == (0,):
             return slice(0)
 
         # Now,  we know the start/stop are not empty arrays, but they can be
@@ -316,27 +314,27 @@ class TimeArray(np.ndarray,TimeInterface):
         i_start = start if np.isscalar(start) else start.max()
         i_stop = stop if np.isscalar(stop) else stop.min()
 
-        if e.start > self[i_start]: # make sure self[i_start] is in epoch e
+        if e.start > self[i_start]:  # make sure self[i_start] is in epoch e
             i_start += 1
-        if e.stop > self[i_stop]: # make sure to include self[i_stop]
+        if e.stop > self[i_stop]:  # make sure to include self[i_stop]
             i_stop += 1
 
-        return slice(i_start,i_stop)
+        return slice(i_start, i_stop)
 
-    def at(self,t,tol=None):
+    def at(self, t, tol=None):
         """ Returns the values of the TimeArray object at time t"""
-        return self[self.index_at(t,tol=tol)]
+        return self[self.index_at(t, tol=tol)]
 
-    def during(self,e):
+    def during(self, e):
         """ Returns the values of the TimeArray object during Epoch e"""
 
-        if not isinstance(e,Epochs):
-            raise ValueError, 'e has to be of Epochs type'
+        if not isinstance(e, Epochs):
+            raise ValueError('e has to be of Epochs type')
 
         if e.data.ndim > 0:
-            ## TODO: Implement slicing with 1-d Epochs array, 
+            ## TODO: Implement slicing with 1-d Epochs array,
             ## resulting in (ragged/jagged) 2-d TimeArray
-            raise NotImplementedError, 'e has to be a scalar Epoch'
+            raise NotImplementedError('e has to be a scalar Epoch')
 
         return self[self.slice_during(e)]
 
@@ -353,42 +351,42 @@ class TimeArray(np.ndarray,TimeInterface):
 ##         else:
 ##             return self
 
-    def max(self,axis=None,out=None):
+    def max(self, axis=None, out=None):
         """Returns the maximal time"""
         # this is a quick fix to return a time and will
         # be obsolete once we use proper time dtypes
         if axis is not None:
-            raise NotImplementedError, 'axis argument not implemented'
+            raise NotImplementedError('axis argument not implemented')
         if out is not None:
-            raise NotImplementedError, 'out argument not implemented'
+            raise NotImplementedError('out argument not implemented')
         if self.ndim:
             return self[self.argmax()]
         else:
             return self
 
-    def convert_unit(self,time_unit):
+    def convert_unit(self, time_unit):
         """Convert from one time unit to another in place"""
 
-        self.time_unit=time_unit
+        self.time_unit = time_unit
         self._conversion_factor = time_unit_conversion[time_unit]
 
-        
-    def __div__(self,d):
+    def __div__(self, d):
         """Division by another time object eliminates units """
-        if isinstance(d,TimeInterface):
-            return np.divide(np.array(self),np.array(d).astype(float))
-        else: 
-            return np.divide(self,d)           
+        if isinstance(d, TimeInterface):
+            return np.divide(np.array(self), np.array(d).astype(float))
+        else:
+            return np.divide(self, d)
 
 # Globally define a single tick of the base unit:
-clock_tick = TimeArray(1,time_unit=base_unit)
-    
-class UniformTime(np.ndarray,TimeInterface):
+clock_tick = TimeArray(1, time_unit=base_unit)
+
+
+class UniformTime(np.ndarray, TimeInterface):
     """ A representation of time sampled uniformly
 
     Parameters
     ----------
-    
+
     length: int, the number of items in the time-array
 
     duration: float, the duration to be represented (given in the time-unit) of
@@ -398,216 +396,214 @@ class UniformTime(np.ndarray,TimeInterface):
 
     sampling_rate: float, the sampling rate (in 1/time-unit)
 
-    sampling_interval: float, the inverse of the sampling_interval     
+    sampling_interval: float, the inverse of the sampling_interval
 
     t0: the value of the first time-point in the array (in time-unit)
 
     time_unit:
 
-    copy: whether to make a copy of not. Needs to be set to False 
-
-    
-    
+    copy: whether to make a copy of not. Needs to be set to False
 
     XXX continue writing this
     """
 
-    def __new__(cls,data=None,length=None,duration=None,sampling_rate=None,
-                sampling_interval=None,t0=0,time_unit=None, copy=False):
+    def __new__(cls, data=None, length=None, duration=None, sampling_rate=None,
+                sampling_interval=None, t0=0, time_unit=None, copy=False):
         """Create a new UniformTime """
 
         # Sanity checks. There are different valid combinations of inputs
         tspec = tuple(x is not None for x in
-                      [sampling_interval,sampling_rate,length,duration])
+                      [sampling_interval, sampling_rate, length, duration])
 
         # Used in converting tspecs to human readable form
-        tspec_arg_names = ['sampling_interval','sampling_rate','length','duration']
+        tspec_arg_names = ['sampling_interval', 'sampling_rate', 'length', 'duration']
 
-        # The valid configurations 
-        valid_tspecs=[
+        # The valid configurations
+        valid_tspecs = [
             # interval, length:
-            (True,False,True,False),
+            (True, False, True, False),
             # interval, duration:
-            (True,False,False,True),
+            (True, False, False, True),
             # rate, length:
-            (False,True,True,False),
+            (False, True, True, False),
             # rate, duration:
-            (False,True,False,True),
+            (False, True, False, True),
             # length, duration:
-            (False,False,True,True)
+            (False, False, True, True)
             ]
-        
-        if isinstance(data,UniformTime):
+
+        if isinstance(data, UniformTime):
             # Assuming data was given, some other tspecs become valid:
-            tspecs_w_data=dict(
-                    nothing=(False,False,False,False),
-                    sampling_interval= (True,False,False,False),
-                    sampling_rate= (False,True,False,False),
-                    length= (False,False,True,False),
-                    duration=(False,False,False,True))
+            tspecs_w_data = dict(
+                    nothing=(False, False, False, False),
+                    sampling_interval=(True, False, False, False),
+                    sampling_rate=(False, True, False, False),
+                    length=(False, False, True, False),
+                    duration=(False, False, False, True))
             # preserve the order of the keys
-            valid_tspecs.append( tspecs_w_data['nothing'])
+            valid_tspecs.append(tspecs_w_data['nothing'])
             for name in tspec_arg_names:
-                valid_tspecs.append( tspecs_w_data[name])
+                valid_tspecs.append(tspecs_w_data[name])
 
         if (tspec not in valid_tspecs):
-            l = ['sampling_interval','sampling_rate','length','duration']
+            l = ['sampling_interval', 'sampling_rate', 'length', 'duration']
             #args = [arg for t,arg in zip(tspec,l) if t]
             raise ValueError("Invalid time specification.\n" +
                 "You provided: %s \n"
-                "%s \nsee docstring for more info." 
-                %(str_tspec(tspec,tspec_arg_names), str_valid_tspecs(valid_tspecs,tspec_arg_names)))
-            
-        if isinstance(data,UniformTime):
+                "%s \nsee docstring for more info."
+                % (str_tspec(tspec, tspec_arg_names),
+                  str_valid_tspecs(valid_tspecs,
+                                   tspec_arg_names)))
+
+        if isinstance(data, UniformTime):
             # Get attributes from the UniformTime object and transfer those over:
-            if tspec==tspecs_w_data['nothing']:
-                sampling_rate=data.sampling_rate
+            if tspec == tspecs_w_data['nothing']:
+                sampling_rate = data.sampling_rate
                 duration = data.duration
-            elif tspec==tspecs_w_data['sampling_interval']:
-                duration==data.duration
-            elif tspec==tspecs_w_data['sampling_rate']:
-                if isinstance(sampling_rate,Frequency):
-                    sampling_interval=sampling_rate.to_period()
+            elif tspec == tspecs_w_data['sampling_interval']:
+                duration == data.duration
+            elif tspec == tspecs_w_data['sampling_rate']:
+                if isinstance(sampling_rate, Frequency):
+                    sampling_interval = sampling_rate.to_period()
                 else:
-                    sampling_interval = 1.0/sampling_rate
-                duration=data.duration
-            elif tspec==tspecs_w_data['length']:
-                duration=length*data.sampling_interval
-                sampling_rate=data.sampling_rate
-            elif tspec==tspecs_w_data['duration']:
-                sampling_rate=data.sampling_rate
+                    sampling_interval = 1.0 / sampling_rate
+                duration = data.duration
+            elif tspec == tspecs_w_data['length']:
+                duration = length * data.sampling_interval
+                sampling_rate = data.sampling_rate
+            elif tspec == tspecs_w_data['duration']:
+                sampling_rate = data.sampling_rate
             if time_unit is None:
                 # If the user didn't ask to change the time-unit, use the
                 # time-unit from the object you got:
                 time_unit = data.time_unit
-        
-        # Check that the time units provided are sensible: 
+
+        # Check that the time units provided are sensible:
         if time_unit not in time_unit_conversion:
             raise ValueError('Invalid time unit %s, must be one of %s' %
-                         (time_unit,time_unit_conversion.keys()))         
+                         (time_unit, time_unit_conversion.keys()))
 
         # Make sure you have a time unit:
         if time_unit is None:
-            #If you gave us a duration with time_unit attached 
-            if isinstance(duration,TimeInterface):
+            #If you gave us a duration with time_unit attached
+            if isinstance(duration, TimeInterface):
                 time_unit = duration.time_unit
             #Otherwise, you might have given us a sampling_interval with a
             #time_unit attached:
-            elif isinstance(sampling_interval,TimeInterface):
+            elif isinstance(sampling_interval, TimeInterface):
                 time_unit = sampling_interval.time_unit
             else:
                 time_unit = 's'
 
         # Calculate the sampling_interval or sampling_rate:
         if sampling_interval is None:
-            if isinstance(sampling_rate,Frequency):
+            if isinstance(sampling_rate, Frequency):
                 c_f = time_unit_conversion[time_unit]
-                sampling_interval=sampling_rate.to_period()/float(c_f)
+                sampling_interval = sampling_rate.to_period() / float(c_f)
             elif sampling_rate is None:
-                sampling_interval = float(duration)/length
-                sampling_rate = Frequency(1.0/sampling_interval,
-                                             time_unit=time_unit)
+                sampling_interval = float(duration) / length
+                sampling_rate = Frequency(1.0 / sampling_interval,
+                                          time_unit=time_unit)
             else:
                 c_f = time_unit_conversion[time_unit]
-                sampling_rate = Frequency(sampling_rate,time_unit='s')
-                sampling_interval = sampling_rate.to_period()/float(c_f)
+                sampling_rate = Frequency(sampling_rate, time_unit='s')
+                sampling_interval = sampling_rate.to_period() / float(c_f)
         else:
-            if isinstance(sampling_interval,TimeInterface):
+            if isinstance(sampling_interval, TimeInterface):
                 c_f = time_unit_conversion[sampling_interval.time_unit]
-                sampling_rate = Frequency(1.0/(float(sampling_interval)/c_f),
+                sampling_rate = Frequency(1.0 / (float(sampling_interval) / c_f),
                                           time_unit=sampling_interval.time_unit)
             else:
-                sampling_rate = Frequency(1.0/sampling_interval,
+                sampling_rate = Frequency(1.0 / sampling_interval,
                                           time_unit=time_unit)
 
         # Calculate the duration, if that is not defined:
         if duration is None:
-            duration=length*sampling_interval
-
+            duration = length * sampling_interval
 
         # 'cast' the time inputs as TimeArray
-        duration=TimeArray(duration,time_unit=time_unit)
+        duration = TimeArray(duration, time_unit=time_unit)
         #XXX If data is given - the t0 should be taken from there:
-        t0=TimeArray(t0,time_unit=time_unit)
-        sampling_interval=TimeArray(sampling_interval,time_unit=time_unit)
-        
+        t0 = TimeArray(t0, time_unit=time_unit)
+        sampling_interval = TimeArray(sampling_interval, time_unit=time_unit)
+
         # in order for time[-1]-time[0]==duration to be true (which it should)
-        # add the samling_interval to the stop value: 
+        # add the samling_interval to the stop value:
         # time = np.arange(np.int64(t0),np.int64(t0+duration+sampling_interval),
         #                  np.int64(sampling_interval),dtype=np.int64)
 
         # But it's unclear whether that's really the behavior we want?
-        time = np.arange(np.int64(t0),np.int64(t0+duration),
-                         np.int64(sampling_interval),dtype=np.int64)
+        time = np.arange(np.int64(t0), np.int64(t0 + duration),
+                         np.int64(sampling_interval), dtype=np.int64)
 
         time = np.asarray(time).view(cls)
-        time.time_unit=time_unit
-        time._conversion_factor=time_unit_conversion[time_unit]
+        time.time_unit = time_unit
+        time._conversion_factor = time_unit_conversion[time_unit]
         time.duration = duration
-        time.sampling_rate=Frequency(sampling_rate)
-        time.sampling_interval=sampling_interval
+        time.sampling_rate = Frequency(sampling_rate)
+        time.sampling_interval = sampling_interval
         time.t0 = t0
-        
+
         return time
 
     def __array_wrap__(self, out_arr, context=None):
         # When doing comparisons between UniformTime, make sure that you retun a
-        # boolean array, not a time array: 
-        if out_arr.dtype==bool:
+        # boolean array, not a time array:
+        if out_arr.dtype == bool:
             return np.asarray(out_arr)
         else:
             return np.ndarray.__array_wrap__(self, out_arr, context)
 
-    def __array_finalize__(self,obj):
+    def __array_finalize__(self, obj):
         """XXX """
         # Make sure that the UniformTime has the time units set (and not equal to
-        # None): 
+        # None):
         if not hasattr(self, 'time_unit') or self.time_unit is None:
-            if hasattr(obj, 'time_unit'): # looks like view cast
+            if hasattr(obj, 'time_unit'):  # looks like view cast
                 self.time_unit = obj.time_unit
             else:
                 self.time_unit = 's'
 
-        # Make sure that the conversion factor is set properly: 
-        if not hasattr(self,'_conversion_factor'):
-            if hasattr(obj,'_conversion_factor'):
+        # Make sure that the conversion factor is set properly:
+        if not hasattr(self, '_conversion_factor'):
+            if hasattr(obj, '_conversion_factor'):
                 self._conversion_factor = obj._conversion_factor
             else:
-                self._conversion_factor=time_unit_conversion[self.time_unit]
+                self._conversion_factor = time_unit_conversion[self.time_unit]
 
         # Make sure that t0 attribute is set properly:
         for attr in ['t0', 'sampling_rate', 'sampling_interval', 'duration']:
-            if not hasattr(self,attr) and hasattr(obj, attr):
+            if not hasattr(self, attr) and hasattr(obj, attr):
                 setattr(self, attr, getattr(obj, attr))
 
     def __repr__(self):
-       """Pass it through the conversion factor"""
+        """Pass it through the conversion factor"""
 
-       #If the input is a single int/float (with no shape) return a 'scalar'
-       #time-point: 
-       if self.shape == ():
-           return "%r %s"%(int(self)/float(self._conversion_factor),
-                           self.time_unit)
-       
-       #Otherwise, return the UniformTime representation:
-       else:
-           return np.ndarray.__repr__(self/float(self._conversion_factor)
-            )[:-1] + ", time_unit='%s')" % self.time_unit
+        #If the input is a single int/float (with no shape) return a 'scalar'
+        #time-point:
+        if self.shape == ():
+            return "%r %s" % (int(self) / float(self._conversion_factor),
+                            self.time_unit)
 
-    def __getitem__(self,key):
+        #Otherwise, return the UniformTime representation:
+        else:
+            return np.ndarray.__repr__(self / float(self._conversion_factor)
+             )[:-1] + ", time_unit='%s')" % self.time_unit
+
+    def __getitem__(self, key):
         # return scalar TimeArray in case key is integer
-        if isinstance(key,int):
+        if isinstance(key, int):
             return self[[key]].reshape(()).view(TimeArray)
-        elif isinstance(key,float) or isinstance(key, TimeInterface):
+        elif isinstance(key, float) or isinstance(key, TimeInterface):
             return self.at(key)
-        elif isinstance(key,Epochs):
+        elif isinstance(key, Epochs):
             return self.during(key)
         else:
-            return np.ndarray.__getitem__(self,key)
+            return np.ndarray.__getitem__(self, key)
 
-    def __setitem__(self,key,val):
+    def __setitem__(self, key, val):
        # look at the units - convert the values to what they need to be (in the
-       # base_unit) and then delegate to the ndarray.__setitem__    
+       # base_unit) and then delegate to the ndarray.__setitem__
        if not hasattr(val,'_conversion_factor'):
            val *= self._conversion_factor
        return np.ndarray.__setitem__(self,key,val)

@@ -89,6 +89,3 @@ def boxcar_filter(time_series,lb=0,ub=0.5,n_iterations=2):
             #to 0 
 
     return time_series.squeeze()
-
-
-

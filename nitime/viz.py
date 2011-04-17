@@ -909,7 +909,8 @@ def draw_networkx_edges(G, pos,
 
     # need 0.87.7 or greater for edge colormaps
     if edge_colors is None:
-        if edge_cmap is not None: assert(isinstance(edge_cmap, Colormap))
+        if edge_cmap is not None:
+            assert(isinstance(edge_cmap, Colormap))
         edge_collection.set_array(np.asarray(edge_color))
         edge_collection.set_cmap(edge_cmap)
         if edge_vmin is not None or edge_vmax is not None:

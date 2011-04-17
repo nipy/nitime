@@ -97,7 +97,8 @@ def AR_est_LD(s, order, sxx=None):
             phi[j,k] = phi[j,k-1] - phi[k,k]*phi[k-j,k-1]
         sig[k] = sig[k-1]*(1 - phi[k,k]**2)
 
-    sigma_v = sig[-1]; ak = phi[1:,-1]
+    sigma_v = sig[-1]
+    ak = phi[1:,-1]
     return ak, sigma_v
 
 def MAR_est_LWR(s, order, sxx=None):
@@ -329,7 +330,9 @@ def granger_causality_xy(a, cov, n_freqs=1024):
 
     w, Hw = transfer_function_xy(a, n_freqs=n_freqs)
 
-    sigma = cov[0,0]; upsilon = cov[0,1]; gamma = cov[1,1]
+    sigma = cov[0,0]
+    upsilon = cov[0,1]
+    gamma = cov[1,1]
 
     # this transformation of the transfer functions computes the
     # Granger causality of Y on X

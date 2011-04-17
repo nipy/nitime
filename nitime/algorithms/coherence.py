@@ -252,11 +252,11 @@ def coherency_regularized(time_series,epsilon,alpha,csd_method=None):
 
     f,fxy = get_spectra(time_series,csd_method)
 
-    #A container for the coherences, with the size and shape of the expected
-    #output:
+    # A container for the coherences, with the size and shape of the expected
+    # output:
     c=np.zeros((time_series.shape[0],
                time_series.shape[0],
-               f.shape[0]), dtype = complex)  #Make sure it's complex
+               f.shape[0]), dtype = complex)  # Make sure it's complex
     
     for i in xrange(time_series.shape[0]): 
         for j in xrange(i,time_series.shape[0]):
@@ -987,7 +987,8 @@ def cache_fft(time_series,ij,lb=0,ub=None,
     # checking the ij tuples
     all_channels = set()
     for i,j in ij:
-        all_channels.add(i); all_channels.add(j)
+        all_channels.add(i)
+        all_channels.add(j)
     n_channels = len(all_channels)
 
     # for real time_series, ignore the negative frequencies
@@ -1087,7 +1088,8 @@ def cache_to_psd(cache,ij):
     Pxx = {}
     all_channels = set()
     for i,j in ij:
-        all_channels.add(i); all_channels.add(j)
+        all_channels.add(i)
+        all_channels.add(j)
     n_channels = len(all_channels)
 
     for i in all_channels:
@@ -1140,7 +1142,8 @@ def cache_to_phase(cache,ij):
 
     all_channels = set()
     for i,j in ij:
-        all_channels.add(i); all_channels.add(j)
+        all_channels.add(i)
+        all_channels.add(j)
     n_channels = len(all_channels)
 
     for i in all_channels:
@@ -1308,5 +1311,3 @@ def cache_to_coherency(cache,ij):
         
 
     return Cxy
-
-

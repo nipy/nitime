@@ -16,18 +16,18 @@ def test_SpectralAnalyzer():
 
     f,c = C.psd
 
-    npt.assert_equal(f.shape,(33,)) #This is the setting for this analyzer
-                                    #(window-length of 64)
+    npt.assert_equal(f.shape,(33,)) # This is the setting for this analyzer
+                                    # (window-length of 64)
     npt.assert_equal(c.shape,(2,33))
 
     f,c = C.cpsd
-    npt.assert_equal(f.shape,(33,)) #This is the setting for this analyzer
-                                    #(window-length of 64)
+    npt.assert_equal(f.shape,(33,)) # This is the setting for this analyzer
+                                    # (window-length of 64)
     npt.assert_equal(c.shape,(2,2,33))
 
     f,c = C.cpsd
-    npt.assert_equal(f.shape,(33,)) #This is the setting for this analyzer
-                                    #(window-length of 64)
+    npt.assert_equal(f.shape,(33,)) # This is the setting for this analyzer
+                                    # (window-length of 64)
     npt.assert_equal(c.shape,(2,2,33))
     
     f,c = C.spectrum_fourier
@@ -50,8 +50,8 @@ def test_SpectralAnalyzer():
     C = nta.SpectralAnalyzer(T)
     f,c = C.psd
 
-    npt.assert_equal(f.shape,(33,)) #Same length for the frequencies 
-    npt.assert_equal(c.shape,(33,))  #1-d spectrum for the single channels
+    npt.assert_equal(f.shape,(33,))  # Same length for the frequencies
+    npt.assert_equal(c.shape,(33,))  # 1-d spectrum for the single channels
 
 
 
@@ -66,26 +66,26 @@ def test_CorrelationAnalyzer():
 
     C = nta.CorrelationAnalyzer(T)
 
-    #Test the symmetry: correlation(x,y)==correlation(y,x) 
+    # Test the symmetry: correlation(x,y)==correlation(y,x)
     npt.assert_equal(C.corrcoef[0,1],C.corrcoef[1,0])
-    #Test the self-sameness: correlation(x,x)==1
+    # Test the self-sameness: correlation(x,x)==1
     npt.assert_equal(C.corrcoef[0,0],1)
     npt.assert_equal(C.corrcoef[1,1],1)
 
-    #Test the cross-correlation:
-    #First the symmetry:
+    # Test the cross-correlation:
+    # First the symmetry:
     npt.assert_array_almost_equal(C.xcorr.data[0,1],C.xcorr.data[1,0])
     
-    #Test the normalized cross-correlation
-    #The cross-correlation should be equal to the correlation at time-lag 0
+    # Test the normalized cross-correlation
+    # The cross-correlation should be equal to the correlation at time-lag 0
     npt.assert_equal(C.xcorr_norm.data[0,1,C.xcorr_norm.time==0]
                             ,C.corrcoef[0,1])
 
-    #And the auto-correlation should be equal to 1 at 0 time-lag:
+    # And the auto-correlation should be equal to 1 at 0 time-lag:
     npt.assert_equal(C.xcorr_norm.data[0,0,C.xcorr_norm.time==0],1)
 
-    #Does it depend on having an even number of time-points?
-    #make another time-series with an odd number of items:
+    # Does it depend on having an even number of time-points?
+    # make another time-series with an odd number of items:
     t = np.arange(1023)
     x = np.sin(10*t) + np.random.rand(t.shape[-1])
     y = np.sin(10*t) + np.random.rand(t.shape[-1])
@@ -105,48 +105,48 @@ def test_EventRelatedAnalyzer():
     t = np.arange(0,2*np.pi+unit,unit)
     signal = np.sin(cycles*t)
     events = np.zeros(t.shape)
-    #Zero crossings: 
+    # Zero crossings:
     idx = np.where(np.abs(signal)<0.03)[0]
-    #An event occurs at the beginning of every cycle:
+    # An event occurs at the beginning of every cycle:
     events[idx[:-2:2]]=1
-    #and another kind of event at the end of each cycle:
+    # and another kind of event at the end of each cycle:
     events[idx[1:-1:2]]=2
 
     T_signal = ts.TimeSeries(signal,sampling_rate=1)
     T_events = ts.TimeSeries(events,sampling_rate=1)
     ETA = nta.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).eta
 
-    #This looks good, but doesn't pass unless you consider 3 digits:
+    # This looks good, but doesn't pass unless you consider 3 digits:
     npt.assert_almost_equal(ETA.data[0],signal[:ETA.data.shape[-1]],3)
     npt.assert_almost_equal(ETA.data[1],-1*signal[:ETA.data.shape[-1]],3)
 
-    #Same should be true for the FIR analysis: 
+    # Same should be true for the FIR analysis:
     FIR = nta.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).FIR
     npt.assert_almost_equal(FIR.data[0],signal[:FIR.data.shape[-1]],3)
     npt.assert_almost_equal(FIR.data[1],-1*signal[:FIR.data.shape[-1]],3)
 
-    #Same should be true for 
+    # Same should be true for
     XCORR = nta.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).xcorr_eta
     npt.assert_almost_equal(XCORR.data[0],signal[:XCORR.data.shape[-1]],3)
     npt.assert_almost_equal(XCORR.data[1],-1*signal[:XCORR.data.shape[-1]],3)
     
-    #More dimensions: 
+    # More dimensions:
     T_signal = ts.TimeSeries(np.vstack([signal,signal]),sampling_rate=1)
     T_events = ts.TimeSeries(np.vstack([events,events]),sampling_rate=1)
     ETA = nta.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).eta
 
-    #The events input and the time-series input have different dimensions:
+    # The events input and the time-series input have different dimensions:
     T_events = ts.TimeSeries(events,sampling_rate=1)
     ETA = nta.EventRelatedAnalyzer(T_signal,T_events,l/(cycles*2)).eta
     npt.assert_almost_equal(ETA.data[0][0],signal[:ETA.data.shape[-1]],3)
     npt.assert_almost_equal(ETA.data[1][1],-1*signal[:ETA.data.shape[-1]],3)
     
-    #Input is an Events object, instead of a time-series:
+    # Input is an Events object, instead of a time-series:
     ts1 = ts.TimeSeries(np.arange(100),sampling_rate=1)
     ev = ts.Events([10,20,30])
     et = nta.EventRelatedAnalyzer(ts1,ev,5)
 
-    #The five points comprising the average of the three sequences:
+    # The five points comprising the average of the three sequences:
     npt.assert_equal(et.eta.data,[20.,21.,22.,23.,24.])
 
     ts2 = ts.TimeSeries(np.arange(200).reshape(2,100),sampling_rate=1)
@@ -157,8 +157,8 @@ def test_EventRelatedAnalyzer():
                                   [ 120.,  121.,  122.,  123.,  124.]])
 
 
-    #Test that providing the analyzer with an array, instead of an Events or a
-    #TimeSeries object throws an error:
+    # Test that providing the analyzer with an array, instead of an Events or a
+    # TimeSeries object throws an error:
     npt.assert_raises(ValueError,nta.EventRelatedAnalyzer,ts2,events,10)
      
     
@@ -307,4 +307,3 @@ def test_SeedCoherenceAnalyzer():
     C2 = nta.CoherenceAnalyzer(T3)
 
     npt.assert_almost_equal(C2.coherency[2,0],C1.coherency[0])
-
