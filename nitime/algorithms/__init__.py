@@ -14,7 +14,7 @@ frequency domain and related quantities.
 
 :func:`coherency`, :func:`coherence`, :func:`coherence_regularized`,
 :func:`coherency_regularized`, :func:`coherency_bavg`, :func:`coherence_bavg`,
-:func:`coherence_partial`, :func:`coherence_partial_bavg`, 
+:func:`coherence_partial`, :func:`coherence_partial_bavg`,
 :func:`coherency_phase_spectrum`, :func:`coherency_phase_delay`,
 :func:`coherency_phase_delay_bavg`, :func:`correlation_spectrum`
 
