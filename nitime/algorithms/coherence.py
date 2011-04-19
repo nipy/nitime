@@ -5,7 +5,8 @@ domain. This is a useful quantity for describing a system of oscillators
 coupled with delay. This is because the coherency captures not only the
 magnitude of the time-shift-independent correlation between the time-series
 (termed 'coherence'), but can also be used in order to estimate the size of the
-time-delay (the phase-delay between the time-series in a particular frequency band).
+time-delay (the phase-delay between the time-series in a particular frequency
+band).
 
 This library contains the following functions:
 
@@ -16,8 +17,9 @@ XXX
 import numpy as np
 import matplotlib.mlab as mlab
 
-from spectral import get_spectra,get_spectra_bi
+from spectral import get_spectra, get_spectra_bi
 import nitime.utils as utils
+
 
 def coherency(time_series, csd_method=None):
     r"""
@@ -35,20 +37,20 @@ def coherency(time_series, csd_method=None):
 
     Returns
     -------
-    
+
     f : float array
         The central frequencies for the frequency bands for which the spectra
-        are estimated 
+        are estimated
 
     c : float array
         This is a symmetric matrix with the coherencys of the signals. The
         coherency of signal i and signal j is in f[i][j]. Note that f[i][j] =
-        f[j][i].conj() 
+        f[j][i].conj()
 
     Notes
     -----
-    
-    This is an implementation of equation (1) of [Sun2005]_: 
+
+    This is an implementation of equation (1) of [Sun2005]_:
 
     .. math::
 
@@ -61,44 +63,45 @@ def coherency(time_series, csd_method=None):
 
     """
     if csd_method is None:
-        csd_method = {'this_method':'welch'} #The default
-  
-    f,fxy = get_spectra(time_series,csd_method)
+        csd_method = {'this_method': 'welch'}  # The default
+
+    f, fxy = get_spectra(time_series, csd_method)
 
     #A container for the coherencys, with the size and shape of the expected
     #output:
-    c=np.zeros((time_series.shape[0],
-               time_series.shape[0],
-               f.shape[0]), dtype = complex) #Make sure it's complex
-    
-    for i in xrange(time_series.shape[0]): 
-        for j in xrange(i,time_series.shape[0]):
-            c[i][j] = coherency_calculate(fxy[i][j], fxy[i][i], fxy[j][j])  
+    c = np.zeros((time_series.shape[0],
+                  time_series.shape[0],
+                  f.shape[0]), dtype=complex)  # Make sure it's complex
 
-    idx = np.tril_indices(time_series.shape[0],-1)
-    c[idx[0],idx[1],...] = c[idx[1],idx[0],...].conj() #Make it symmetric
-    
-    return f,c 
+    for i in xrange(time_series.shape[0]):
+        for j in xrange(i, time_series.shape[0]):
+            c[i][j] = coherency_calculate(fxy[i][j], fxy[i][i], fxy[j][j])
 
-def coherency_calculate(fxy, fxx, fyy): 
+    idx = np.tril_indices(time_series.shape[0], -1)
+    c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
+
+    return f, c
+
+
+def coherency_calculate(fxy, fxx, fyy):
     r"""
-    Compute the coherency between the spectra of two time series. 
+    Compute the coherency between the spectra of two time series.
 
     Input to this function is in the frequency domain.
-    
+
     Parameters
     ----------
-    
+
     fxy : float array
-         The cross-spectrum of the time series 
-    
+         The cross-spectrum of the time series
+
     fyy,fxx : float array
          The spectra of the signals
-    
-    Returns 
+
+    Returns
     -------
-    
-    complex array 
+
+    complex array
         the frequency-band-dependent coherency
 
     See also
@@ -106,7 +109,8 @@ def coherency_calculate(fxy, fxx, fyy):
     :func:`coherency`
     """
 
-    return fxy / np.sqrt(fxx*fyy)
+    return fxy / np.sqrt(fxx * fyy)
+
 
 def coherence(time_series, csd_method=None):
     r"""Compute the coherence between the spectra of an n-tuple of time_series.
@@ -124,21 +128,21 @@ def coherence(time_series, csd_method=None):
     Returns
     -------
     f : float array
-        The central frequencies for the frequency bands for which the spectra are
-        estimated 
+        The central frequencies for the frequency bands for which the spectra
+        are estimated
 
     c : float array
         This is a symmetric matrix with the coherencys of the signals. The
-        coherency of signal i and signal j is in f[i][j].  
-    
+        coherency of signal i and signal j is in f[i][j].
+
     Notes
     -----
-    
+
     This is an implementation of equation (2) of [Sun2005]_:
 
     .. math::
 
-        Coh_{xy}(\lambda) = |{R_{xy}(\lambda)}|^2 = 
+        Coh_{xy}(\lambda) = |{R_{xy}(\lambda)}|^2 =
         \frac{|{f_{xy}(\lambda)}|^2}{f_{xx}(\lambda) \cdot f_{yy}(\lambda)}
 
     .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
@@ -151,57 +155,58 @@ def coherence(time_series, csd_method=None):
 
     """
     if csd_method is None:
-        csd_method = {'this_method':'welch'} #The default
+        csd_method = {'this_method': 'welch'}  # The default
 
-    f,fxy = get_spectra(time_series,csd_method)
+    f, fxy = get_spectra(time_series, csd_method)
 
     #A container for the coherences, with the size and shape of the expected
     #output:
-    c=np.zeros((time_series.shape[0],
-               time_series.shape[0],
-               f.shape[0]))
+    c = np.zeros((time_series.shape[0],
+                  time_series.shape[0],
+                  f.shape[0]))
 
     for i in xrange(time_series.shape[0]):
-        for j in xrange(i,time_series.shape[0]):
+        for j in xrange(i, time_series.shape[0]):
             c[i][j] = coherence_calculate(fxy[i][j], fxy[i][i], fxy[j][j])
 
-    idx = np.tril_indices(time_series.shape[0],-1)
-    c[idx[0],idx[1],...] = c[idx[1],idx[0],...].conj() #Make it symmetric
+    idx = np.tril_indices(time_series.shape[0], -1)
+    c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
 
-    return f,c
+    return f, c
+
 
 def coherence_calculate(fxy, fxx, fyy):
     r"""
-    Compute the coherence between the spectra of two time series. 
+    Compute the coherence between the spectra of two time series.
 
     Parameters of this function are in the frequency domain.
 
     Parameters
     ----------
-    
+
     fxy : array
-         The cross-spectrum of the time series 
+         The cross-spectrum of the time series
 
     fyy,fxx : array
-         The spectra of the signals 
-    
-    Returns 
+         The spectra of the signals
+
+    Returns
     -------
-    
+
     float : a frequency-band-dependent measure of the linear association
         between the two time series
-         
+
     See also
     --------
     :func:`coherence`
-         
     """
 
-    c = (np.abs(fxy))**2 / (fxx * fyy)
+    c = (np.abs(fxy)) ** 2 / (fxx * fyy)
 
-    return c  
+    return c
 
-def coherency_regularized(time_series,epsilon,alpha,csd_method=None):
+
+def coherency_regularized(time_series, epsilon, alpha, csd_method=None):
     r"""
     Compute a regularized measure of the coherence.
 
@@ -209,18 +214,19 @@ def coherency_regularized(time_series,epsilon,alpha,csd_method=None):
 
     Parameters
     ----------
-    
+
     time_series: float array
         The time series data for which the regularized coherence is
-        calculated. Time as the last dimension.  
+        calculated. Time as the last dimension.
 
     epsilon: float
         Small regularization parameter. Should be much smaller than any
         meaningful value of coherence you might encounter
 
     alpha: float
-        Large regularization parameter. Should be much larger than any meaningful
-        value of coherence you might encounter (preferably much larger than 1).
+        Large regularization parameter. Should be much larger than any
+        meaningful value of coherence you might encounter (preferably much
+        larger than 1).
 
     csd_method: dict, optional.
         See :func:`get_spectra` documentation for details
@@ -229,12 +235,12 @@ def coherency_regularized(time_series,epsilon,alpha,csd_method=None):
     -------
     f: float array
         The central frequencies for the frequency bands for which the spectra
-        are estimated 
+        are estimated
 
     c: float array
         This is a symmetric matrix with the coherencys of the signals. The
         coherency of signal i and signal j is in f[i][j]. Note that f[i][j] =
-        f[j][i].conj() 
+        f[j][i].conj()
 
 
     Notes
@@ -243,30 +249,32 @@ def coherency_regularized(time_series,epsilon,alpha,csd_method=None):
 
     .. math::
 
-        Coh_{xy}^R = \frac{(\alpha f_{xx} + \epsilon) ^2}{\alpha^{2}(f_{xx}+\epsilon)(f_{yy}+\epsilon)}
+        Coh_{xy}^R = \frac{(\alpha f_{xx} + \epsilon) ^2}
+                          {\alpha^{2}(f_{xx}+\epsilon)(f_{yy}+\epsilon)}
 
 
     """
     if csd_method is None:
-        csd_method = {'this_method':'welch'} #The default
+        csd_method = {'this_method': 'welch'}  # The default
 
-    f,fxy = get_spectra(time_series,csd_method)
+    f, fxy = get_spectra(time_series, csd_method)
 
     # A container for the coherences, with the size and shape of the expected
     # output:
-    c=np.zeros((time_series.shape[0],
-               time_series.shape[0],
-               f.shape[0]), dtype = complex)  # Make sure it's complex
-    
-    for i in xrange(time_series.shape[0]): 
-        for j in xrange(i,time_series.shape[0]):
+    c = np.zeros((time_series.shape[0],
+                  time_series.shape[0],
+                  f.shape[0]), dtype=complex)  # Make sure it's complex
+
+    for i in xrange(time_series.shape[0]):
+        for j in xrange(i, time_series.shape[0]):
             c[i][j] = coherency_reqularized_calculate(fxy[i][j], fxy[i][i],
-                                                      fxy[j][j], epsilon, alpha)
+                                                fxy[j][j], epsilon, alpha)
 
-    idx = np.tril_indices(time_series.shape[0],-1)
-    c[idx[0],idx[1],...] = c[idx[1],idx[0],...].conj() #Make it symmetric
+    idx = np.tril_indices(time_series.shape[0], -1)
+    c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
 
-    return f,c 
+    return f, c
+
 
 def coherency_reqularized_calculate(fxy, fxx, fyy, epsilon, alpha):
 
@@ -289,7 +297,7 @@ def coherency_reqularized_calculate(fxy, fxx, fyy, epsilon, alpha):
     alpha: float
         Second regularization parameter. Should be much larger than any
         meaningful value of coherence you might encounter (preferably much
-        larger than 1). 
+        larger than 1).
 
     Returns
     -------
@@ -297,28 +305,30 @@ def coherency_reqularized_calculate(fxy, fxx, fyy, epsilon, alpha):
         The coherence values
 
     """
-    
-    return ( ( (alpha*fxy + epsilon) ) /
-         np.sqrt( ((alpha**2) * (fxx+epsilon) * (fyy + epsilon) ) ) )
 
-def coherence_regularized(time_series,epsilon,alpha,csd_method=None):
+    return (((alpha * fxy + epsilon)) /
+         np.sqrt(((alpha ** 2) * (fxx + epsilon) * (fyy + epsilon))))
+
+
+def coherence_regularized(time_series, epsilon, alpha, csd_method=None):
     r"""
     Same as coherence, except regularized in order to overcome numerical
     imprecisions
 
     Parameters
     ----------
-    
+
     time_series: n-d float array
-       The time series data for which the regularized coherence is calculated 
+       The time series data for which the regularized coherence is calculated
 
     epsilon: float
        Small regularization parameter. Should be much smaller than any
-       meaningful value of coherence you might encounter 
+       meaningful value of coherence you might encounter
 
     alpha: float
-       large regularization parameter. Should be much larger than any meaningful
-       value of coherence you might encounter (preferably much larger than 1).
+       large regularization parameter. Should be much larger than any
+       meaningful value of coherence you might encounter (preferably much
+       larger than 1).
 
     csd_method: dict, optional.
        See :func:`get_spectra` documentation for details
@@ -327,12 +337,12 @@ def coherence_regularized(time_series,epsilon,alpha,csd_method=None):
     -------
     f: float array
        The central frequencies for the frequency bands for which the spectra
-       are estimated 
+       are estimated
 
     c: n-d array
        This is a symmetric matrix with the coherencys of the signals. The
-       coherency of signal i and signal j is in f[i][j]. 
-    
+       coherency of signal i and signal j is in f[i][j].
+
     Returns
     -------
     frequencies, coherence
@@ -342,30 +352,31 @@ def coherence_regularized(time_series,epsilon,alpha,csd_method=None):
     The regularization scheme is as follows:
 
     .. math::
-    
-        C_{x,y} = \frac{(\alpha f_{xx} + \epsilon)^2}{\alpha^{2}((f_{xx}+\epsilon)(f_{yy}+\epsilon))}
-        
+
+        C_{x,y} = \frac{(\alpha f_{xx} + \epsilon)^2}
+        {\alpha^{2}((f_{xx}+\epsilon)(f_{yy}+\epsilon))}
+
     """
     if csd_method is None:
-        csd_method = {'this_method':'welch'} #The default
+        csd_method = {'this_method': 'welch'}  # The default
 
-    f,fxy = get_spectra(time_series,csd_method)
+    f, fxy = get_spectra(time_series, csd_method)
 
     #A container for the coherences, with the size and shape of the expected
     #output:
-    c=np.zeros((time_series.shape[0],
-               time_series.shape[0],
-               f.shape[0]),complex)
-    
-    for i in xrange(time_series.shape[0]): 
-        for j in xrange(i,time_series.shape[0]):
+    c = np.zeros((time_series.shape[0],
+                  time_series.shape[0],
+                  f.shape[0]), complex)
+
+    for i in xrange(time_series.shape[0]):
+        for j in xrange(i, time_series.shape[0]):
             c[i][j] = coherence_reqularized_calculate(fxy[i][j], fxy[i][i],
-                                                      fxy[j][j], epsilon, alpha)
+                                                fxy[j][j], epsilon, alpha)
 
-    idx = np.tril_indices(time_series.shape[0],-1)
-    c[idx[0],idx[1],...] = c[idx[1],idx[0],...].conj() #Make it symmetric
+    idx = np.tril_indices(time_series.shape[0], -1)
+    c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
 
-    return f,c 
+    return f, c
 
 
 def coherence_reqularized_calculate(fxy, fxx, fyy, epsilon, alpha):
@@ -513,7 +524,7 @@ def coherency_bavg_calculate(fxy, fxx, fyy):
     return  m_bavg * (np.cos(p_bavg) + np.sin(p_bavg) *1j) #recombine
                                         #according to z = r(cos(phi)+sin(phi)i)
 
-def coherence_bavg (time_series,lb=0,ub=None,csd_method=None):
+def coherence_bavg(time_series, lb=0, ub=None, csd_method=None):
     r"""
     Compute the band-averaged coherence between the spectra of two time series. 
 
@@ -735,7 +746,7 @@ def coherency_phase_spectrum (time_series,csd_method=None):
                f.shape[0]))
     
     for i in xrange(time_series.shape[0]): 
-      for j in xrange(i+1,time_series.shape[0]):
+      for j in xrange(i + 1, time_series.shape[0]):
           p[i][j] = coherency_phase_spectrum_calculate(fxy[i][j])
           p[j][i] = coherency_phase_spectrum_calculate(fxy[i][j].conjugate())
          
@@ -824,7 +835,7 @@ def coherency_phase_delay(time_series,lb=0,ub=None,csd_method=None):
                                            fxy[i][j][lb_idx:ub_idx].conjugate())
 
 
-    return f[lb_idx:ub_idx],p
+    return f[lb_idx:ub_idx], p
 
 def coherency_phase_delay_calculate(f,fxy):
     r"""
