@@ -105,6 +105,8 @@ PACKAGES            = ['nitime',
                        'nitime.tests',
                        'nitime.fmri',
                        'nitime.fmri.tests',
+                       'nitime.algorithms',
+                       'nitime.algorithms.tests',
                        ]
 PACKAGE_DATA        = {"nitime": ["LICENSE", "tests/*.txt",
                                   "fmri/tests/*.nii.gz"]}
