@@ -382,7 +382,7 @@ def coherence_regularized(time_series, epsilon, alpha, csd_method=None):
 def coherence_reqularized_calculate(fxy, fxx, fyy, epsilon, alpha):
 
     r"""A regularized version of the calculation of coherence, which is more
-    robust to numerical noise than the standard calculation. 
+    robust to numerical noise than the standard calculation.
 
     Input to this function is in the frequency domain
 
@@ -399,21 +399,21 @@ def coherence_reqularized_calculate(fxy, fxx, fyy, epsilon, alpha):
     alpha: float
         Second regularization parameter. Should be much larger than any
         meaningful value of coherence you might encounter (preferably much
-        larger than 1) 
+        larger than 1)
 
     Returns
     -------
     float array
        The coherence values
 
-"""
-    
-    return ( ( (alpha*np.abs(fxy) + epsilon)**2 ) /
-         ((alpha**2) * (fxx+epsilon) * (fyy + epsilon) ) )
+    """
+    return (((alpha * np.abs(fxy) + epsilon) ** 2) /
+         ((alpha ** 2) * (fxx + epsilon) * (fyy + epsilon)))
 
-def coherency_bavg(time_series,lb=0,ub=None,csd_method=None):
+
+def coherency_bavg(time_series, lb=0, ub=None, csd_method=None):
     r"""
-    Compute the band-averaged coherency between the spectra of two time series. 
+    Compute the band-averaged coherency between the spectra of two time series.
 
     Input to this function is in the time domain.
 
@@ -429,104 +429,104 @@ def coherency_bavg(time_series,lb=0,ub=None,csd_method=None):
     csd_method: dict, optional.
        See :func:`get_spectra` documentation for details
 
-    Returns 
+    Returns
     -------
     c: float array
         This is an upper-diagonal array, where c[i][j] is the band-averaged
         coherency between time_series[i] and time_series[j]
-    
+
     Notes
     -----
-    
-    This is an implementation of equation (A4) of [Sun2005]_: 
+
+    This is an implementation of equation (A4) of [Sun2005]_:
 
     .. math::
 
         \bar{Coh_{xy}} (\bar{\lambda}) =
         \frac{\left|{\sum_\lambda{\hat{f_{xy}}}}\right|^2}
-        {\sum_\lambda{\hat{f_{xx}}}\cdot sum_\lambda{\hat{f_{yy}}}} 
+        {\sum_\lambda{\hat{f_{xx}}}\cdot sum_\lambda{\hat{f_{yy}}}}
 
     .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
         temporal dynamics of functional networks using phase spectrum of fMRI
         data. Neuroimage, 28: 227-37.
-        
     """
     if csd_method is None:
-        csd_method = {'this_method':'welch'} #The default
+        csd_method = {'this_method': 'welch'}  # The default
 
-    f,fxy = get_spectra(time_series,csd_method)
+    f, fxy = get_spectra(time_series, csd_method)
 
-    lb_idx,ub_idx = utils.get_bounds(f,lb,ub)
+    lb_idx, ub_idx = utils.get_bounds(f, lb, ub)
 
-    if lb==0:
-        lb_idx = 1 #The lowest frequency band should be f0
+    if lb == 0:
+        lb_idx = 1  # The lowest frequency band should be f0
 
     c = np.zeros((time_series.shape[0],
-               time_series.shape[0]), dtype = complex)
-    
-    for i in xrange(time_series.shape[0]): 
-        for j in xrange(i,time_series.shape[0]):
+                  time_series.shape[0]), dtype=complex)
+
+    for i in xrange(time_series.shape[0]):
+        for j in xrange(i, time_series.shape[0]):
             c[i][j] = coherency_bavg_calculate(fxy[i][j][lb_idx:ub_idx],
                                                fxy[i][i][lb_idx:ub_idx],
                                                fxy[j][j][lb_idx:ub_idx])
 
-    idx = np.tril_indices(time_series.shape[0],-1)
-    c[idx[0],idx[1],...] = c[idx[1],idx[0],...].conj() #Make it symmetric
+    idx = np.tril_indices(time_series.shape[0], -1)
+    c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
 
     return c
 
-def coherency_bavg_calculate(fxy, fxx, fyy): 
+
+def coherency_bavg_calculate(fxy, fxx, fyy):
     r"""
-    Compute the band-averaged coherency between the spectra of two time series. 
+    Compute the band-averaged coherency between the spectra of two time series.
 
     Input to this function is in the frequency domain.
 
     Parameters
     ----------
-    
+
     fxy : float array
-         The cross-spectrum of the time series 
-    
+         The cross-spectrum of the time series
+
     fyy,fxx : float array
          The spectra of the signals
- 
-    Returns 
+
+    Returns
     -------
-    
+
     float
         the band-averaged coherency
 
     Notes
     -----
-    
-    This is an implementation of equation (A4) of [Sun2005]_: 
+
+    This is an implementation of equation (A4) of [Sun2005]_:
 
     .. math::
 
         \bar{Coh_{xy}} (\bar{\lambda}) =
         \frac{\left|{\sum_\lambda{\hat{f_{xy}}}}\right|^2}
-        {\sum_\lambda{\hat{f_{xx}}}\cdot sum_\lambda{\hat{f_{yy}}}} 
+        {\sum_\lambda{\hat{f_{xx}}}\cdot sum_\lambda{\hat{f_{yy}}}}
 
     .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
         temporal dynamics of functional networks using phase spectrum of fMRI
         data. Neuroimage, 28: 227-37.
     """
 
-    #Average the phases and the magnitudes separately and then
-    #recombine:
+    # Average the phases and the magnitudes separately and then recombine:
 
-    p = coherency_phase_spectrum_calculate(fxy) 
+    p = coherency_phase_spectrum_calculate(fxy)
     p_bavg = np.mean(p)
 
-    m = np.abs(coherency_calculate(fxy,fxx,fyy))
+    m = np.abs(coherency_calculate(fxy, fxx, fyy))
     m_bavg = np.mean(m)
 
-    return  m_bavg * (np.cos(p_bavg) + np.sin(p_bavg) *1j) #recombine
-                                        #according to z = r(cos(phi)+sin(phi)i)
+    # Recombine according to z = r(cos(phi)+sin(phi)i):
+    return  m_bavg * (np.cos(p_bavg) + np.sin(p_bavg) * 1j)
+
 
 def coherence_bavg(time_series, lb=0, ub=None, csd_method=None):
     r"""
-    Compute the band-averaged coherence between the spectra of two time series. 
+    Compute the band-averaged coherence between the spectra of two time series.
 
     Input to this function is in the time domain.
 
@@ -542,69 +542,71 @@ def coherence_bavg(time_series, lb=0, ub=None, csd_method=None):
     csd_method: dict, optional.
        See :func:`get_spectra` documentation for details
 
-    Returns 
+    Returns
     -------
-    c : float 
+    c : float
        This is an upper-diagonal array, where c[i][j] is the band-averaged
        coherency between time_series[i] and time_series[j]
     """
 
     if csd_method is None:
-        csd_method = {'this_method':'welch'} #The default
+        csd_method = {'this_method': 'welch'}  # The default
 
-    f,fxy = get_spectra(time_series,csd_method)
-    
-    lb_idx,ub_idx = utils.get_bounds(f,lb,ub)
+    f, fxy = get_spectra(time_series, csd_method)
 
-    if lb==0:
-        lb_idx = 1 #The lowest frequency band should be f0
+    lb_idx, ub_idx = utils.get_bounds(f, lb, ub)
+
+    if lb == 0:
+        lb_idx = 1  # The lowest frequency band should be f0
 
     c = np.zeros((time_series.shape[0],
-                time_series.shape[0]))
-    
-    for i in xrange(time_series.shape[0]): 
-        for j in xrange(i,time_series.shape[0]):
+                  time_series.shape[0]))
+
+    for i in xrange(time_series.shape[0]):
+        for j in xrange(i, time_series.shape[0]):
             c[i][j] = coherence_bavg_calculate(fxy[i][j][lb_idx:ub_idx],
                                                fxy[i][i][lb_idx:ub_idx],
                                                fxy[j][j][lb_idx:ub_idx])
 
-    idx = np.tril_indices(time_series.shape[0],-1)
-    c[idx[0],idx[1],...] = c[idx[1],idx[0],...].conj() #Make it symmetric
+    idx = np.tril_indices(time_series.shape[0], -1)
+    c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
 
     return c
 
+
 def coherence_bavg_calculate(fxy, fxx, fyy):
     r"""
-    Compute the band-averaged coherency between the spectra of two time series. 
+    Compute the band-averaged coherency between the spectra of two time series.
     input to this function is in the frequency domain
 
     Parameters
     ----------
-    
+
     fxy : float array
-         The cross-spectrum of the time series 
-    
+         The cross-spectrum of the time series
+
     fyy,fxx : float array
          The spectra of the signals
- 
-    Returns 
+
+    Returns
     -------
-    
+
     float :
         the band-averaged coherence
     """
 
-    return ( ( np.abs( fxy.sum() )**2 ) /
-             ( fxx.sum() * fyy.sum() ) )
+    return ((np.abs(fxy.sum()) ** 2) /
+            (fxx.sum() * fyy.sum()))
 
-def coherence_partial(time_series,r,csd_method=None):
+
+def coherence_partial(time_series, r, csd_method=None):
     r"""
     Compute the band-specific partial coherence between the spectra of
     two time series.
 
     The partial coherence is the part of the coherence between x and
-    y, which cannot be attributed to a common cause, r. 
-    
+    y, which cannot be attributed to a common cause, r.
+
     Input to this function is in the time domain.
 
     Parameters
@@ -612,7 +614,7 @@ def coherence_partial(time_series,r,csd_method=None):
 
     time_series: float array
        An array of time-series, with time as the last dimension.
-    
+
     r: float array
         This array represents the temporal sequence of the common cause to be
         partialed out, sampled at the same rate as time_series
@@ -621,19 +623,21 @@ def coherence_partial(time_series,r,csd_method=None):
        See :func:`get_spectra` documentation for details
 
 
-    Returns 
+    Returns
     -------
     f: array,
-        The mid-frequencies of the frequency bands in the spectral decomposition
+        The mid-frequencies of the frequency bands in the spectral
+        decomposition
+
     c: float array
        The frequency dependent partial coherence between time_series i and
-       time_series j in c[i][j] and in c[j][i], with r partialed out 
-     
+       time_series j in c[i][j] and in c[j][i], with r partialed out
+
 
     Notes
     -----
-    
-    This is an implementation of equation (2) of [Sun2004]_: 
+
+    This is an implementation of equation (2) of [Sun2004]_:
 
     .. math::
 
@@ -644,88 +648,87 @@ def coherence_partial(time_series,r,csd_method=None):
     interregional functional connectivity using coherence and partial coherence
     analyses of fMRI data Neuroimage, 21: 647-58.
     """
-    
+
     if csd_method is None:
-        csd_method = {'this_method':'welch'} #The default
+        csd_method = {'this_method': 'welch'}  # The default
 
-    f,fxy = get_spectra(time_series,csd_method)
+    f, fxy = get_spectra(time_series, csd_method)
 
-    #Initialize c according to the size of f:
-    
-    c=np.zeros((time_series.shape[0],
-                time_series.shape[0],
-                f.shape[0]), dtype = complex)       
+    # Initialize c according to the size of f:
+    c = np.zeros((time_series.shape[0],
+                  time_series.shape[0],
+                  f.shape[0]), dtype=complex)
 
-    for i in xrange(time_series.shape[0]): 
-        for j in xrange(i,time_series.shape[0]):
-            f,fxx,frr,frx = get_spectra_bi(time_series[i],r,csd_method)
-            f,fyy,frr,fry = get_spectra_bi(time_series[j],r,csd_method)
-            c[i,j] = coherence_partial_calculate(fxy[i][j],fxy[i][i],fxy[j][j],
-                                        frx,fry,frr)
+    for i in xrange(time_series.shape[0]):
+        for j in xrange(i, time_series.shape[0]):
+            f, fxx, frr, frx = get_spectra_bi(time_series[i], r, csd_method)
+            f, fyy, frr, fry = get_spectra_bi(time_series[j], r, csd_method)
+            c[i, j] = coherence_partial_calculate(fxy[i][j], fxy[i][i],
+                                                  fxy[j][j], frx, fry, frr)
 
-    idx = np.tril_indices(time_series.shape[0],-1)
-    c[idx[0],idx[1],...] = c[idx[1],idx[0],...].conj() #Make it symmetric
+    idx = np.tril_indices(time_series.shape[0], -1)
+    c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
 
-    return f,c
+    return f, c
 
-def coherence_partial_calculate(fxy,fxx,fyy,fxr,fry,frr): 
+
+def coherence_partial_calculate(fxy, fxx, fyy, fxr, fry, frr):
     r"""
     Compute the band-specific partial coherence between the spectra of
-    two time series. See :func:`partial_coherence`. 
+    two time series. See :func:`partial_coherence`.
 
     Input to this function is in the frequency domain.
 
     Parameters
     ----------
     fxy : float array
-         The cross-spectrum of the time series 
-    
+         The cross-spectrum of the time series
+
     fyy,fxx : float array
          The spectra of the signals
 
     fxr,fry : float array
          The cross-spectra of the signals with the event
-    
-    Returns 
+
+    Returns
     -------
     float
         the band-averaged coherency
-
     """
     abs = np.abs
     coh = coherency_calculate
-    Rxr = coh(fxr,fxx,frr)
-    Rry = coh(fry,fyy,frr)
-    Rxy = coh(fxy,fxx,fyy)
+    Rxr = coh(fxr, fxx, frr)
+    Rry = coh(fry, fyy, frr)
+    Rxy = coh(fxy, fxx, fyy)
 
-    return (( (np.abs(Rxy-Rxr*Rry))**2 ) /
-           ( (1-((np.abs(Rxr))**2)) * (1-((np.abs(Rry))**2)) ) )
+    return (((np.abs(Rxy - Rxr * Rry)) ** 2) /
+           ((1 - ((np.abs(Rxr)) ** 2)) * (1 - ((np.abs(Rry)) ** 2))))
 
 
-def coherency_phase_spectrum (time_series,csd_method=None):
+def coherency_phase_spectrum(time_series, csd_method=None):
     """
-    Compute the phase spectrum of the cross-spectrum between two time series. 
+    Compute the phase spectrum of the cross-spectrum between two time series.
 
     The parameters of this function are in the time domain.
 
     Parameters
     ----------
-    
+
     time_series: n*t float array
     The time series, with t, time, as the last dimension
-        
-    Returns 
+
+    Returns
     -------
-    
+
     f: mid frequencies of the bands
-    
+
     p: an array with the pairwise phase spectrum between the time
     series, where p[i][j] is the phase spectrum between time series[i] and
     time_series[j]
-    
+
     Notes
     -----
-    
+
     This is an implementation of equation (3) of Sun et al. (2005) [Sun2005]_:
 
     .. math::
@@ -737,43 +740,44 @@ def coherency_phase_spectrum (time_series,csd_method=None):
         data.  Neuroimage, 28: 227-37.
     """
     if csd_method is None:
-        csd_method = {'this_method':'welch'} #The default
-         
-    f,fxy = get_spectra(time_series,csd_method)
+        csd_method = {'this_method': 'welch'}  # The default
 
-    p=np.zeros((time_series.shape[0],
-               time_series.shape[0],
-               f.shape[0]))
-    
-    for i in xrange(time_series.shape[0]): 
-      for j in xrange(i + 1, time_series.shape[0]):
-          p[i][j] = coherency_phase_spectrum_calculate(fxy[i][j])
-          p[j][i] = coherency_phase_spectrum_calculate(fxy[i][j].conjugate())
-         
-    return f,p
+    f, fxy = get_spectra(time_series, csd_method)
+
+    p = np.zeros((time_series.shape[0],
+                  time_series.shape[0],
+                  f.shape[0]))
+
+    for i in xrange(time_series.shape[0]):
+        for j in xrange(i + 1, time_series.shape[0]):
+            p[i][j] = coherency_phase_spectrum_calculate(fxy[i][j])
+            p[j][i] = coherency_phase_spectrum_calculate(fxy[i][j].conjugate())
+
+    return f, p
+
 
 def coherency_phase_spectrum_calculate(fxy):
     r"""
-    Compute the phase spectrum of the cross-spectrum between two time series. 
+    Compute the phase spectrum of the cross-spectrum between two time series.
 
     The parameters of this function are in the frequency domain.
 
     Parameters
     ----------
-    
+
     fxy : float array
-         The cross-spectrum of the time series 
-        
-    Returns 
+         The cross-spectrum of the time series
+
+    Returns
     -------
-    
+
     float
         a frequency-band-dependent measure of the phase between the two
-        time-series 
-         
+        time-series
+
     Notes
     -----
-    
+
     This is an implementation of equation (3) of Sun et al. (2005) [Sun2005]_:
 
     .. math::
@@ -785,10 +789,11 @@ def coherency_phase_spectrum_calculate(fxy):
         data.  Neuroimage, 28: 227-37.
     """
     phi = np.angle(fxy)
-    
+
     return phi
 
-def coherency_phase_delay(time_series,lb=0,ub=None,csd_method=None):
+
+def coherency_phase_delay(time_series, lb=0, ub=None, csd_method=None):
     """
     The temporal delay calculated from the coherency phase spectrum.
 
@@ -809,65 +814,67 @@ def coherency_phase_delay(time_series,lb=0,ub=None,csd_method=None):
     -------
     f : float array
        The mid-frequencies for the frequency bands over which the calculation
-       is done. 
+       is done.
     p : float array
-       Pairwise temporal delays between time-series (in seconds).    
-    
+       Pairwise temporal delays between time-series (in seconds).
+
     """
     if csd_method is None:
-        csd_method = {'this_method':'welch'} #The default
+        csd_method = {'this_method': 'welch'}  # The default
 
-    f,fxy = get_spectra(time_series,csd_method)
+    f, fxy = get_spectra(time_series, csd_method)
 
-    lb_idx,ub_idx = utils.get_bounds(f,lb,ub)
+    lb_idx, ub_idx = utils.get_bounds(f, lb, ub)
 
     if lb_idx == 0:
         lb_idx = 1
-    
-    p = np.zeros((time_series.shape[0],time_series.shape[0],
+
+    p = np.zeros((time_series.shape[0], time_series.shape[0],
                   f[lb_idx:ub_idx].shape[-1]))
 
-    for i in xrange(time_series.shape[0]): 
-        for j in xrange(i,time_series.shape[0]):
+    for i in xrange(time_series.shape[0]):
+        for j in xrange(i, time_series.shape[0]):
             p[i][j] = coherency_phase_delay_calculate(f[lb_idx:ub_idx],
-                                                      fxy[i][j][lb_idx:ub_idx])
+                                                fxy[i][j][lb_idx:ub_idx])
             p[j][i] = coherency_phase_delay_calculate(f[lb_idx:ub_idx],
-                                           fxy[i][j][lb_idx:ub_idx].conjugate())
-
+                                    fxy[i][j][lb_idx:ub_idx].conjugate())
 
     return f[lb_idx:ub_idx], p
 
-def coherency_phase_delay_calculate(f,fxy):
+
+def coherency_phase_delay_calculate(f, fxy):
     r"""
     Compute the phase delay between the spectra of two signals. The input to
-    this function is in the frequency domain. 
+    this function is in the frequency domain.
 
     Parameters
     ----------
 
     f: float array
-         The frequencies 
-         
+         The frequencies
+
     fxy : float array
-         The cross-spectrum of the time series 
-    
-    Returns 
+         The cross-spectrum of the time series
+
+    Returns
     -------
-    
+
     float array
         the phase delay (in sec) for each frequency band.
-        
+
     """
 
     phi = coherency_phase_spectrum_calculate(fxy)
-    
-    t =  (phi)  / (2*np.pi*f)
-        
+
+    t = (phi) / (2 * np.pi * f)
+
     return t
-    
-def correlation_spectrum(x1,x2, Fs=2*np.pi, norm=False):
-    """Calculate the spectral decomposition of the correlation.
-    
+
+
+def correlation_spectrum(x1, x2, Fs=2 * np.pi, norm=False):
+    """
+    Calculate the spectral decomposition of the correlation.
+
     Parameters
     ----------
     x1,x2: ndarray
@@ -879,7 +886,7 @@ def correlation_spectrum(x1,x2, Fs=2*np.pi, norm=False):
 
     norm: bool, optional
        When this is true, the spectrum is normalized to sum to 1
-    
+
     Returns
     -------
     f: ndarray
@@ -887,43 +894,43 @@ def correlation_spectrum(x1,x2, Fs=2*np.pi, norm=False):
 
     ccn: ndarray
        The spectral decomposition of the correlation
-    
+
     Notes
     -----
 
     This method is described in full in [Cordes2000]_
-    
+
     .. [Cordes2000] D Cordes, V M Haughton, K Arfanakis, G J Wendt, P A Turski,
     C H Moritz, M A Quigley, M E Meyerand (2000). Mapping functionally related
     regions of brain with functional connectivity MR imaging. AJNR American
     journal of neuroradiology 21:1636-44
-    
+
     """
 
     x1 = x1 - np.mean(x1)
     x2 = x2 - np.mean(x2)
     x1_f = np.fft.fft(x1)
     x2_f = np.fft.fft(x2)
-    D = np.sqrt( np.sum(x1**2) * np.sum(x2**2) )
+    D = np.sqrt(np.sum(x1 ** 2) * np.sum(x2 ** 2))
     n = x1.shape[0]
 
-    ccn =( ( np.real(x1_f) * np.real(x2_f) +
-             np.imag(x1_f) * np.imag(x2_f) ) /
-           (D*n) )
+    ccn = ((np.real(x1_f) * np.real(x2_f) +
+           np.imag(x1_f) * np.imag(x2_f)) /
+           (D * n))
 
     if norm:
-        ccn = ccn / np.sum(ccn) * 2 #Only half of the sum is sent back because
-                                    #of the freq domain symmetry. XXX Does
-                                    #normalization make this strictly positive? 
+        ccn = ccn / np.sum(ccn) * 2  # Only half of the sum is sent back
+                                     # because of the freq domain symmetry.
+                                     # XXX Does normalization make this
+                                     # strictly positive?
 
-    f = utils.get_freqs(Fs,n)
-    return f,ccn[0:(n/2+1)]
+    f = utils.get_freqs(Fs, n)
+    return f, ccn[0:(n / 2 + 1)]
 
 
-
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------
 #Coherency calculated using cached spectra
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------
 """The idea behind this set of functions is to keep a cache of the windowed fft
 calculations of each time-series in a massive collection of time-series, so
 that this calculation doesn't have to be repeated each time a cross-spectrum is
@@ -932,8 +939,9 @@ takes the cached spectra and calculates PSDs and CSDs, which are then passed to
 coherency_calculate and organized in a data structure similar to the one
 created by coherence"""
 
-def cache_fft(time_series,ij,lb=0,ub=None,
-                  method=None,prefer_speed_over_memory=False,
+
+def cache_fft(time_series, ij, lb=0, ub=None,
+                  method=None, prefer_speed_over_memory=False,
                   scale_by_freq=True):
     """compute and cache the windowed FFTs of the time_series, in such a way
     that computing the psd and csd of any combination of them can be done
@@ -949,15 +957,15 @@ def cache_fft(time_series,ij,lb=0,ub=None,
       Each tuple in this variable should contain a pair of
       indices of the form (i,j). The resulting cache will contain the fft of
       time-series in the rows indexed by the unique elements of the union of i
-      and j 
-    
+      and j
+
     lb,ub: float
        Define a frequency band of interest, for which the fft will be cached
 
     method: dict, optional
         See :func:`get_spectra` for details on how this is used. For this set
-        of functions, 'this_method' has to be 'welch' 
-    
+        of functions, 'this_method' has to be 'welch'
+
 
     Returns
     -------
@@ -971,106 +979,108 @@ def cache_fft(time_series,ij,lb=0,ub=None,
     -----
 
     - For these functions, only the Welch windowed periodogram ('welch') is
-      available. 
+      available.
 
     - Detrending the input is not an option here, in order to save
       time on an empty function call.
-    
+
     """
     if method is None:
-        method = {'this_method':'welch'} #The default
-    
-    this_method = method.get('this_method','welch')
+        method = {'this_method': 'welch'}  # The default
+
+    this_method = method.get('this_method', 'welch')
 
     if this_method == 'welch':
-        NFFT = method.get('NFFT',64)
-        Fs = method.get('Fs',2*np.pi)
-        window = method.get('window',mlab.window_hanning)
-        n_overlap = method.get('n_overlap',int(np.ceil(NFFT/2.0)))
+        NFFT = method.get('NFFT', 64)
+        Fs = method.get('Fs', 2 * np.pi)
+        window = method.get('window', mlab.window_hanning)
+        n_overlap = method.get('n_overlap', int(np.ceil(NFFT / 2.0)))
     else:
-        raise ValueError("For cache_fft, spectral estimation method must be welch")
-    time_series = utils.zero_pad(time_series,NFFT)
-    
+        e_s = "For cache_fft, spectral estimation method must be welch"
+        raise ValueError(e_s)
+    time_series = utils.zero_pad(time_series, NFFT)
+
     #The shape of the zero-padded version:
     n_channels, n_time_points = time_series.shape
 
     # get all the unique channels in time_series that we are interested in by
     # checking the ij tuples
     all_channels = set()
-    for i,j in ij:
+    for i, j in ij:
         all_channels.add(i)
         all_channels.add(j)
     n_channels = len(all_channels)
 
     # for real time_series, ignore the negative frequencies
-    if np.iscomplexobj(time_series): n_freqs = NFFT
-    else: n_freqs = NFFT//2+1
+    if np.iscomplexobj(time_series):
+        n_freqs = NFFT
+    else:
+        n_freqs = NFFT // 2 + 1
 
     #Which frequencies
-    freqs = utils.get_freqs(Fs,NFFT)
+    freqs = utils.get_freqs(Fs, NFFT)
 
     #If there are bounds, limit the calculation to within that band,
     #potentially include the DC component:
-    lb_idx,ub_idx = utils.get_bounds(freqs,lb,ub)
+    lb_idx, ub_idx = utils.get_bounds(freqs, lb, ub)
 
-    n_freqs=ub_idx-lb_idx
+    n_freqs = ub_idx - lb_idx
     #Make the window:
     if mlab.cbook.iterable(window):
         assert(len(window) == NFFT)
         window_vals = window
     else:
         window_vals = window(np.ones(NFFT, time_series.dtype))
-        
+
     #Each fft needs to be normalized by the square of the norm of the window
     #and, for consistency with newer versions of mlab.csd (which, in turn, are
     #consistent with Matlab), normalize also by the sampling rate:
-   
+
     if scale_by_freq:
         #This is the normalization factor for one-sided estimation, taking into
         #account the sampling rate. This makes the PSD a density function, with
         #units of dB/Hz, so that integrating over frequencies gives you the RMS
         #(XXX this should be in the tests!).
-        norm_val = (np.abs(window_vals)**2).sum()*(Fs/2)
-        
+        norm_val = (np.abs(window_vals) ** 2).sum() * (Fs / 2)
+
     else:
-        norm_val = (np.abs(window_vals)**2).sum()/2
-   
+        norm_val = (np.abs(window_vals) ** 2).sum() / 2
+
     # cache the FFT of every windowed, detrended NFFT length segement
     # of every channel.  If prefer_speed_over_memory, cache the conjugate
     # as well
-        
-    i_times = range(0, n_time_points-NFFT+1, NFFT-n_overlap)
+
+    i_times = range(0, n_time_points - NFFT + 1, NFFT - n_overlap)
     n_slices = len(i_times)
     FFT_slices = {}
     FFT_conj_slices = {}
     Pxx = {}
-    
+
     for i_channel in all_channels:
         #dbg:
         #print i_channel
-        Slices = np.zeros( (n_slices,n_freqs), dtype=np.complex)
+        Slices = np.zeros((n_slices, n_freqs), dtype=np.complex)
         for iSlice in xrange(n_slices):
             thisSlice = time_series[i_channel,
-                                    i_times[iSlice]:i_times[iSlice]+NFFT]
+                                    i_times[iSlice]:i_times[iSlice] + NFFT]
 
-            
-            #Windowing: 
-            thisSlice = window_vals*thisSlice #No detrending
+            #Windowing:
+            thisSlice = window_vals * thisSlice  # No detrending
             #Derive the fft for that slice:
-            Slices[iSlice,:] = (np.fft.fft(thisSlice)[lb_idx:ub_idx])
-            
-        FFT_slices[i_channel] = Slices
+            Slices[iSlice, :] = (np.fft.fft(thisSlice)[lb_idx:ub_idx])
 
+        FFT_slices[i_channel] = Slices
 
         if prefer_speed_over_memory:
             FFT_conj_slices[i_channel] = np.conjugate(Slices)
 
-    cache = {'FFT_slices':FFT_slices,'FFT_conj_slices':FFT_conj_slices,
-             'norm_val':norm_val,'Fs':Fs,'scale_by_freq':scale_by_freq}
+    cache = {'FFT_slices': FFT_slices, 'FFT_conj_slices': FFT_conj_slices,
+             'norm_val': norm_val, 'Fs': Fs, 'scale_by_freq': scale_by_freq}
 
-    return freqs,cache
+    return freqs, cache
 
-def cache_to_psd(cache,ij):
+
+def cache_to_psd(cache, ij):
     """
     From a set of cached windowed fft, calculate the psd
 
@@ -1086,19 +1096,19 @@ def cache_to_psd(cache,ij):
     -------
     Pxx : dict
         The phases for the intersection of (time_series[i],time_series[j]). The
-        keys are the intersection of i,j values in the parameter ij 
+        keys are the intersection of i,j values in the parameter ij
 
     """
 
     #This is the way it is saved by cache_spectra:
-    FFT_slices=cache['FFT_slices']
-    FFT_conj_slices=cache['FFT_conj_slices']
-    norm_val=cache['norm_val']
+    FFT_slices = cache['FFT_slices']
+    FFT_conj_slices = cache['FFT_conj_slices']
+    norm_val = cache['norm_val']
     Fs = cache['Fs']
-    #This is where the output goes to: 
+    #This is where the output goes to:
     Pxx = {}
     all_channels = set()
-    for i,j in ij:
+    for i, j in ij:
         all_channels.add(i)
         all_channels.add(j)
     n_channels = len(all_channels)
@@ -1111,23 +1121,24 @@ def cache_to_psd(cache,ij):
             Pxx[i] = FFT_slices[i] * FFT_conj_slices[i]
         else:
             Pxx[i] = FFT_slices[i] * np.conjugate(FFT_slices[i])
-        
+
         #If there is more than one window
-        if FFT_slices[i].shape[0]>1:
-            Pxx[i] = np.mean(Pxx[i],0)
+        if FFT_slices[i].shape[0] > 1:
+            Pxx[i] = np.mean(Pxx[i], 0)
 
         Pxx[i] /= norm_val
         # Correct for the NFFT/2 and DC components:
-        Pxx[i][[0,-1]] /= 2
-    
+        Pxx[i][[0, -1]] /= 2
+
     return Pxx
 
-def cache_to_phase(cache,ij):
+
+def cache_to_phase(cache, ij):
     """ From a set of cached set of windowed fft's, calculate the
     frequency-band dependent phase for each of the channels in ij.
     Note that this returns the absolute phases of the time-series, not the
     relative phases between them. In order to get relative phases, use
-    cache_to_relative_phase 
+    cache_to_relative_phase
 
     Parameters
     ----------
@@ -1136,7 +1147,7 @@ def cache_to_phase(cache,ij):
 
     ij: list
        A list of tuples of the form (i,j) for all the indices for which to
-       calculate the phases 
+       calculate the phases
 
     Returns
     -------
@@ -1144,30 +1155,31 @@ def cache_to_phase(cache,ij):
     Phase : dict
          The individual phases, keys are all the i and j in ij, such that
          Phase[i] gives you the phase for the time-series i in the input to
-         :func:`cache_fft` 
+         :func:`cache_fft`
 
     """
-    FFT_slices=cache['FFT_slices']
-    
+    FFT_slices = cache['FFT_slices']
+
     Phase = {}
 
     all_channels = set()
-    for i,j in ij:
+    for i, j in ij:
         all_channels.add(i)
         all_channels.add(j)
     n_channels = len(all_channels)
 
     for i in all_channels:
         Phase[i] = np.angle(FFT_slices[i])
-        #If there is more than one window, average over all the windows: 
-        if FFT_slices[i].shape[0]>1:
-            Phase[i] = np.mean(Phase[i],0)
-    
+        #If there is more than one window, average over all the windows:
+        if FFT_slices[i].shape[0] > 1:
+            Phase[i] = np.mean(Phase[i], 0)
+
     return Phase
 
-def cache_to_relative_phase(cache,ij):
+
+def cache_to_relative_phase(cache, ij):
     """ From a set of cached set of windowed fft's, calculate the
-    frequency-band dependent relative phase for the combinations ij. 
+    frequency-band dependent relative phase for the combinations ij.
 
     Parameters
     ----------
@@ -1175,15 +1187,15 @@ def cache_to_relative_phase(cache,ij):
         The return value from :func:`cache_fft`
 
     ij: list
-       A list of tuples of the form (i,j), all the pairs of indices for which to
-       calculate the relative phases 
+       A list of tuples of the form (i,j), all the pairs of indices for which
+       to calculate the relative phases
 
     Returns
     -------
 
     Phi_xy : dict
         The relative phases between the time-series i and j. Such that
-        Phi_xy[i,j] is the phase from time_series[i] to time_series[j]. 
+        Phi_xy[i,j] is the phase from time_series[i] to time_series[j].
 
     Note
     ----
@@ -1192,49 +1204,49 @@ def cache_to_relative_phase(cache,ij):
     :func:`coherency_phase_spectrum`. This is because
     :func:`coherency_phase_spectrum` calculates the angle based on the average
     psd, whereas this function calculates the average of the angles calculated
-    on individual windows.   
+    on individual windows.
 
     """
-        
     #This is the way it is saved by cache_spectra:
-    FFT_slices=cache['FFT_slices']
-    FFT_conj_slices=cache['FFT_conj_slices']
-    norm_val=cache['norm_val']
+    FFT_slices = cache['FFT_slices']
+    FFT_conj_slices = cache['FFT_conj_slices']
+    norm_val = cache['norm_val']
 
     freqs = cache['FFT_slices'][ij[0][0]].shape[-1]
 
     ij_array = np.array(ij)
 
-    channels_i = max(1,max(ij_array[:,0])+1)
-    channels_j = max(1,max(ij_array[:,1])+1)
+    channels_i = max(1, max(ij_array[:, 0]) + 1)
+    channels_j = max(1, max(ij_array[:, 1]) + 1)
     #Pre-allocate for speed:
-    Phi_xy = np.zeros((channels_i,channels_j,freqs),dtype=np.complex)
+    Phi_xy = np.zeros((channels_i, channels_j, freqs), dtype=np.complex)
 
     #These checks take time, so do them up front, not in every iteration:
-    if FFT_slices.items()[0][1].shape[0]>1:
+    if FFT_slices.items()[0][1].shape[0] > 1:
         if FFT_conj_slices:
-            for i,j in ij:
+            for i, j in ij:
                 phi = np.angle(FFT_slices[i] * FFT_conj_slices[j])
-                Phi_xy[i,j] = np.mean(phi,0)
-                
+                Phi_xy[i, j] = np.mean(phi, 0)
+
         else:
-            for i,j in ij:
+            for i, j in ij:
                 phi = np.angle(FFT_slices[i] * np.conjugate(FFT_slices[j]))
-                Phi_xy[i,j] = np.mean(phi,0)
-                
+                Phi_xy[i, j] = np.mean(phi, 0)
+
     else:
         if FFT_conj_slices:
-            for i,j in ij:
-                Phi_xy[i,j] = np.angle(FFT_slices[i] * FFT_conj_slices[j])
-                
+            for i, j in ij:
+                Phi_xy[i, j] = np.angle(FFT_slices[i] * FFT_conj_slices[j])
+
         else:
-            for i,j in ij:
-              Phi_xy[i,j] = np.angle(FFT_slices[i]*np.conjugate(FFT_slices[j]))
-        
+            for i, j in ij:
+                Phi_xy[i, j] = np.angle(FFT_slices[i] *
+                                        np.conjugate(FFT_slices[j]))
+
     return Phi_xy
 
 
-def cache_to_coherency(cache,ij):
+def cache_to_coherency(cache, ij):
     """From a set of cached spectra, calculate the coherency
     relationships
 
@@ -1245,7 +1257,7 @@ def cache_to_coherency(cache,ij):
 
     ij: list
       a list of (i,j) tuples, the pairs of indices for which the
-      cross-coherency is to be calculated 
+      cross-coherency is to be calculated
 
     Returns
     -------
@@ -1254,71 +1266,69 @@ def cache_to_coherency(cache,ij):
        takes the form Cxy[i,j] in order to extract the coherency between
        time-series i and time-series j in the original input to
        :func:`cache_fft`
-    
     """
-        
+
     #This is the way it is saved by cache_spectra:
-    FFT_slices=cache['FFT_slices']
-    FFT_conj_slices=cache['FFT_conj_slices']
-    norm_val=cache['norm_val']
+    FFT_slices = cache['FFT_slices']
+    FFT_conj_slices = cache['FFT_conj_slices']
+    norm_val = cache['norm_val']
 
     freqs = cache['FFT_slices'][ij[0][0]].shape[-1]
-    
+
     ij_array = np.array(ij)
 
-    channels_i = max(1,max(ij_array[:,0])+1)
-    channels_j = max(1,max(ij_array[:,1])+1)
-    Cxy = np.zeros((channels_i,channels_j,freqs),dtype=np.complex)
+    channels_i = max(1, max(ij_array[:, 0]) + 1)
+    channels_j = max(1, max(ij_array[:, 1]) + 1)
+    Cxy = np.zeros((channels_i, channels_j, freqs), dtype=np.complex)
 
     #These checks take time, so do them up front, not in every iteration:
-    if FFT_slices.items()[0][1].shape[0]>1:
+    if FFT_slices.items()[0][1].shape[0] > 1:
         if FFT_conj_slices:
-            for i,j in ij:
+            for i, j in ij:
                 #dbg:
                 #print i,j
                 Pxy = FFT_slices[i] * FFT_conj_slices[j]
                 Pxx = FFT_slices[i] * FFT_conj_slices[i]
                 Pyy = FFT_slices[j] * FFT_conj_slices[j]
-                Pxx = np.mean(Pxx,0)
-                Pyy = np.mean(Pyy,0)
-                Pxy = np.mean(Pxy,0)
+                Pxx = np.mean(Pxx, 0)
+                Pyy = np.mean(Pyy, 0)
+                Pxy = np.mean(Pxy, 0)
                 Pxy /= norm_val
                 Pxx /= norm_val
                 Pyy /= norm_val
-                Cxy[i,j] = Pxy / np.sqrt(Pxx*Pyy)
-                
+                Cxy[i, j] = Pxy / np.sqrt(Pxx * Pyy)
+
         else:
-            for i,j in ij:
+            for i, j in ij:
                 Pxy = FFT_slices[i] * np.conjugate(FFT_slices[j])
                 Pxx = FFT_slices[i] * np.conjugate(FFT_slices[i])
                 Pyy = FFT_slices[j] * np.conjugate(FFT_slices[j])
-                Pxx = np.mean(Pxx,0)
-                Pyy = np.mean(Pyy,0)
-                Pxy = np.mean(Pxy,0)
+                Pxx = np.mean(Pxx, 0)
+                Pyy = np.mean(Pyy, 0)
+                Pxy = np.mean(Pxy, 0)
                 Pxy /= norm_val
                 Pxx /= norm_val
                 Pyy /= norm_val
-                Cxy[i,j] =  Pxy / np.sqrt(Pxx*Pyy)
+                Cxy[i, j] = Pxy / np.sqrt(Pxx * Pyy)
     else:
         if FFT_conj_slices:
-            for i,j in ij:
+            for i, j in ij:
                 Pxy = FFT_slices[i] * FFT_conj_slices[j]
                 Pxx = FFT_slices[i] * FFT_conj_slices[i]
                 Pyy = FFT_slices[j] * FFT_conj_slices[j]
                 Pxy /= norm_val
                 Pxx /= norm_val
                 Pyy /= norm_val
-                Cxy[i,j] = Pxy / np.sqrt(Pxx*Pyy)
-                
+                Cxy[i, j] = Pxy / np.sqrt(Pxx * Pyy)
+
         else:
-            for i,j in ij:
+            for i, j in ij:
                 Pxy = FFT_slices[i] * np.conjugate(FFT_slices[j])
                 Pxx = FFT_slices[i] * np.conjugate(FFT_slices[i])
                 Pyy = FFT_slices[j] * np.conjugate(FFT_slices[j])
                 Pxy /= norm_val
                 Pxx /= norm_val
                 Pyy /= norm_val
-                Cxy[i,j] =  Pxy / np.sqrt(Pxx*Pyy)
-        
+                Cxy[i, j] = Pxy / np.sqrt(Pxx * Pyy)
 
     return Cxy
