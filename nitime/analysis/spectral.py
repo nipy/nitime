@@ -477,7 +477,7 @@ class HilbertAnalyzer(BaseAnalyzer):
         sampling_rate = self.input.sampling_rate
         #If you have scipy with the fixed scipy.signal.hilbert (r6205 and
         #later)
-        if scipy.__version__ > ='0.9':
+        if scipy.__version__ >= '0.9':
             hilbert = signal.hilbert
         else:
             hilbert = tsu.hilbert_from_new_scipy
