@@ -1,16 +1,18 @@
 import numpy as np
 import scipy.stats.distributions as dist
 
+import nitime.timeseries as ts
 from nitime import descriptors as desc
 from nitime import utils as tsu
 from nitime import algorithms as tsa
 
 from .base import BaseAnalyzer
 
+
 class CoherenceAnalyzer(BaseAnalyzer):
     """Analyzer object for coherence/coherency analysis """
 
-    def __init__(self,input=None,method=None,unwrap_phases=False):
+    def __init__(self, input=None, method=None, unwrap_phases=False):
         """
 
         Parameters
@@ -32,23 +34,35 @@ class CoherenceAnalyzer(BaseAnalyzer):
         Examples
         --------
         >>> np.set_printoptions(precision=4)  # for doctesting
-        >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),sampling_rate=np.pi)
+        >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),
+        ...                                 sampling_rate=np.pi)
         >>> c1 = CoherenceAnalyzer(t1)
         >>> c1.method['Fs']
         3.14159265359 Hz
         >>> c1.method['this_method']
         'welch'
-        >>> c1.coherency[0,1]
-        array([ 0.9499+0.j    ,  0.9495-0.0332j,  0.8696-0.4571j,  0.8918-0.3848j,
-                0.9099-0.3191j,  0.9217-0.2679j,  0.9294-0.2285j,  0.9346-0.1977j,
-                0.9382-0.1732j,  0.9407-0.1533j,  0.9426-0.1367j,  0.9441-0.1226j,
-                0.9452-0.1106j,  0.9460-0.1001j,  0.9467-0.0908j,  0.9473-0.0826j,
-                0.9477-0.0752j,  0.9481-0.0684j,  0.9484-0.0623j,  0.9487-0.0566j,
-                0.9489-0.0513j,  0.9491-0.0465j,  0.9492-0.0419j,  0.9494-0.0376j,
-                0.9495-0.0336j,  0.9496-0.0298j,  0.9497-0.0263j,  0.9497-0.0232j,
-                0.9498-0.0205j,  0.9498-0.0187j,  0.9498-0.0188j,  0.9497-0.0266j,
-                1.0000+0.j    ])
+        >> c1.coherence
+        array([[[ 1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
+                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
+                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
+                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
+                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ],
+                [ 0.9024,  0.9027,  0.9652,  0.9433,  0.9297,  0.9213,  0.9161,
+                  0.9126,  0.9102,  0.9085,  0.9072,  0.9063,  0.9055,  0.905 ,
+                  0.9045,  0.9041,  0.9038,  0.9036,  0.9034,  0.9032,  0.9031,
+                  0.9029,  0.9028,  0.9027,  0.9027,  0.9026,  0.9026,  0.9025,
+                  0.9025,  0.9025,  0.9025,  0.9026,  1.    ]],
 
+               [[ 0.9024,  0.9027,  0.9652,  0.9433,  0.9297,  0.9213,  0.9161,
+                  0.9126,  0.9102,  0.9085,  0.9072,  0.9063,  0.9055,  0.905 ,
+                  0.9045,  0.9041,  0.9038,  0.9036,  0.9034,  0.9032,  0.9031,
+                  0.9029,  0.9028,  0.9027,  0.9027,  0.9026,  0.9026,  0.9025,
+                  0.9025,  0.9025,  0.9025,  0.9026,  1.    ],
+                [ 1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
+                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
+                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
+                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
+                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ]]])
         >>> c1.phase[0,1]
         array([ 0.    , -0.035 , -0.4839, -0.4073, -0.3373, -0.2828, -0.241 ,
                -0.2085, -0.1826, -0.1615, -0.144 , -0.1292, -0.1164, -0.1054,
@@ -57,18 +71,19 @@ class CoherenceAnalyzer(BaseAnalyzer):
                -0.0216, -0.0197, -0.0198, -0.028 ,  0.    ])
 
         """
-        BaseAnalyzer.__init__(self,input)
+        BaseAnalyzer.__init__(self, input)
 
-        #Set the variables for spectral estimation (can also be entered by user):
+        #Set the variables for spectral estimation (can also be entered by
+        #user):
         if method is None:
-            self.method = {'this_method':'welch',
-                           'Fs':self.input.sampling_rate}
+            self.method = {'this_method': 'welch',
+                           'Fs': self.input.sampling_rate}
         else:
             self.method = method
 
-        # If an input is provided, get the sampling rate from there, if you want
-        # to over-ride that, input a method with a 'Fs' field specified:
-        self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
+        # If an input is provided, get the sampling rate from there, if you
+        # want to over-ride that, input a method with a 'Fs' field specified:
+        self.method['Fs'] = self.method.get('Fs', self.input.sampling_rate)
 
         self._unwrap_phases = unwrap_phases
 
@@ -79,43 +94,39 @@ class CoherenceAnalyzer(BaseAnalyzer):
         tseries_length = data.shape[0]
         spectrum_length = self.spectrum.shape[-1]
 
-        coherency=np.zeros((tseries_length,
-                            tseries_length,
-                            spectrum_length),dtype=complex)
+        coherency = np.zeros((tseries_length,
+                              tseries_length,
+                              spectrum_length), dtype=complex)
 
         for i in xrange(tseries_length):
-            for j in xrange(i,tseries_length):
+            for j in xrange(i, tseries_length):
                 coherency[i][j] = tsa.coherency_calculate(self.spectrum[i][j],
-                                                      self.spectrum[i][i],
-                                                      self.spectrum[j][j])
+                                                          self.spectrum[i][i],
+                                                          self.spectrum[j][j])
 
-        idx = tsu.tril_indices(tseries_length,-1)
-        coherency[idx[0],idx[1],...] = coherency[idx[1],idx[0],...].conj()
+        idx = tsu.tril_indices(tseries_length, -1)
+        coherency[idx[0], idx[1], ...] = coherency[idx[1], idx[0], ...].conj()
 
         return coherency
 
     @desc.setattr_on_read
     def spectrum(self):
         """
-
         The spectra of each of the channels and cross-spectra between
         different channles  in the input TimeSeries object
-
         """
-        f,spectrum = tsa.get_spectra(self.input.data,method=self.method)
+        f, spectrum = tsa.get_spectra(self.input.data, method=self.method)
         return spectrum
 
     @desc.setattr_on_read
     def frequencies(self):
         """
-
         The central frequencies in the bands
-
         """
 
         #XXX Use NFFT in the method in order to calculate these, without having
         #to calculate the spectrum:
-        f,spectrum = tsa.get_spectra(self.input.data,method=self.method)
+        f, spectrum = tsa.get_spectra(self.input.data, method=self.method)
         return f
 
     @desc.setattr_on_read
@@ -123,7 +134,6 @@ class CoherenceAnalyzer(BaseAnalyzer):
         """
         The coherence between the different channels in the input TimeSeries
         object
-
         """
 
         #XXX Calculate this from the standard output, instead of recalculating
@@ -131,21 +141,20 @@ class CoherenceAnalyzer(BaseAnalyzer):
 
         tseries_length = self.input.data.shape[0]
         spectrum_length = self.spectrum.shape[-1]
-        coherence=np.zeros((tseries_length,
-                            tseries_length,
-                            spectrum_length))
+        coherence = np.zeros((tseries_length,
+                              tseries_length,
+                              spectrum_length))
 
         for i in xrange(tseries_length):
-            for j in xrange(i,tseries_length):
+            for j in xrange(i, tseries_length):
                 coherence[i][j] = tsa.coherence_calculate(self.spectrum[i][j],
-                                                      self.spectrum[i][i],
-                                                      self.spectrum[j][j])
+                                                          self.spectrum[i][i],
+                                                          self.spectrum[j][j])
 
-        idx = tsu.tril_indices(tseries_length,-1)
-        coherence[idx[0],idx[1],...] = coherence[idx[1],idx[0],...].conj()
+        idx = tsu.tril_indices(tseries_length, -1)
+        coherence[idx[0], idx[1], ...] = coherence[idx[1], idx[0], ...].conj()
 
         return coherence
-
 
     @desc.setattr_on_read
     def phase(self):
@@ -162,12 +171,12 @@ class CoherenceAnalyzer(BaseAnalyzer):
                             spectrum_length))
 
         for i in xrange(tseries_length):
-            for j in xrange(i,tseries_length):
-                phase[i][j] = tsa.coherency_phase_spectrum_calculate\
-                        (self.spectrum[i][j])
+            for j in xrange(i, tseries_length):
+                phase[i][j] = tsa.coherency_phase_spectrum_calculate(
+                    self.spectrum[i][j])
 
-                phase[j][i] = tsa.coherency_phase_spectrum_calculate\
-                        (self.spectrum[i][j].conjugate())
+                phase[j][i] = tsa.coherency_phase_spectrum_calculate(
+                    self.spectrum[i][j].conjugate())
         return phase
 
     @desc.setattr_on_read
@@ -177,12 +186,12 @@ class CoherenceAnalyzer(BaseAnalyzer):
         delay = np.zeros(self.phase.shape)
         for i in xrange(p_shape[0]):
             for j in xrange(p_shape[1]):
-                this_phase = self.phase[i,j]
+                this_phase = self.phase[i, j]
                 #If requested, unwrap the phases:
                 if self._unwrap_phases:
                     this_phase = tsu.unwrap_phases(this_phase)
 
-                delay[i,j] = this_phase / (2*np.pi*self.frequencies)
+                delay[i, j] = this_phase / (2 * np.pi * self.frequencies)
 
         return delay
 
@@ -194,18 +203,18 @@ class CoherenceAnalyzer(BaseAnalyzer):
         tseries_length = self.input.data.shape[0]
         spectrum_length = self.spectrum.shape[-1]
 
-        p_coherence=np.zeros((tseries_length,
-                              tseries_length,
-                              tseries_length,
-                              spectrum_length))
+        p_coherence = np.zeros((tseries_length,
+                                tseries_length,
+                                tseries_length,
+                                spectrum_length))
 
         for i in xrange(tseries_length):
             for j in xrange(tseries_length):
                 for k in xrange(tseries_length):
-                    if j==k or i==k:
+                    if j == k or i == k:
                         pass
                     else:
-                        p_coherence[i][j][k]=tsa.coherence_partial_calculate(
+                        p_coherence[i][j][k] = tsa.coherence_partial_calculate(
                             self.spectrum[i][j],
                             self.spectrum[i][i],
                             self.spectrum[j][j],
@@ -213,10 +222,12 @@ class CoherenceAnalyzer(BaseAnalyzer):
                             self.spectrum[j][k],
                             self.spectrum[k][k])
 
-        idx = tsu.tril_indices(tseries_length,-1)
-        p_coherence[idx[0],idx[1],...] = p_coherence[idx[1],idx[0],...].conj()
+        idx = tsu.tril_indices(tseries_length, -1)
+        p_coherence[idx[0], idx[1], ...] =\
+                            p_coherence[idx[1], idx[0], ...].conj()
 
         return p_coherence
+
 
 class MTCoherenceAnalyzer(BaseAnalyzer):
     """ Analyzer for multi-taper coherence analysis, including jack-knife
@@ -253,7 +264,7 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
 
         """
 
-        BaseAnalyzer.__init__(self,input)
+        BaseAnalyzer.__init__(self, input)
 
         if input is None:
             self.NW = 4
@@ -262,41 +273,40 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
             N = input.shape[-1]
             Fs = self.input.sampling_rate
             if bandwidth is not None:
-                self.NW = bandwidth/(2*Fs) * N
+                self.NW = bandwidth / (2 * Fs) * N
             else:
                 self.NW = 4
-                self.bandwidth = self.NW * (2*Fs) / N
+                self.bandwidth = self.NW * (2 * Fs) / N
 
         self.alpha = alpha
-        self._L = self.input.data.shape[-1]/2 + 1
+        self._L = self.input.data.shape[-1] / 2 + 1
         self._adaptive = adaptive
 
     @desc.setattr_on_read
     def tapers(self):
         return tsa.dpss_windows(self.input.shape[-1], self.NW,
-                                2*self.NW-1)[0]
+                                2 * self.NW - 1)[0]
 
     @desc.setattr_on_read
     def eigs(self):
         return tsa.dpss_windows(self.input.shape[-1], self.NW,
-                                      2*self.NW-1)[1]
+                                      2 * self.NW - 1)[1]
 
     @desc.setattr_on_read
     def df(self):
         #The degrees of freedom:
-        return 2*self.NW-1
+        return 2 * self.NW - 1
 
     @desc.setattr_on_read
     def spectra(self):
-        tdata = self.tapers[None,:,:] *self.input.data[:,None,:]
+        tdata = self.tapers[None, :, :] * self.input.data[:, None, :]
         tspectra = np.fft.fft(tdata)
         return tspectra
 
     @desc.setattr_on_read
     def weights(self):
         channel_n = self.input.data.shape[0]
-        w = np.empty( (channel_n, self.df,self._L) )
-
+        w = np.empty((channel_n, self.df, self._L))
 
         if self._adaptive:
             mag_sqr_spectra = np.abs(self.spectra)
@@ -312,8 +322,8 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
             wshape = [1] * len(self.spectra.shape)
             wshape[0] = channel_n
             wshape[-2] = int(self.df)
-            pre_w = np.sqrt(self.eigs) + np.zeros( (wshape[0],
-                                                    self.eigs.shape[0]) )
+            pre_w = np.sqrt(self.eigs) + np.zeros((wshape[0],
+                                                    self.eigs.shape[0]))
 
             w = pre_w.reshape(*wshape)
 
@@ -322,29 +332,27 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def coherence(self):
         nrows = self.input.data.shape[0]
-        psd_mat = np.zeros((2, nrows,nrows,self._L), 'd')
-        coh_mat = np.zeros((nrows,nrows,self._L), 'd')
+        psd_mat = np.zeros((2, nrows, nrows, self._L), 'd')
+        coh_mat = np.zeros((nrows, nrows, self._L), 'd')
 
         for i in xrange(self.input.data.shape[0]):
-           for j in xrange(i):
-              sxy = tsa.mtm_cross_spectrum(self.spectra[i],self.spectra[j],
-                                           (self.weights[i],self.weights[j]),
+            for j in xrange(i):
+                sxy = tsa.mtm_cross_spectrum(self.spectra[i], self.spectra[j],
+                                           (self.weights[i], self.weights[j]),
                                            sides='onesided')
-
-              sxx = tsa.mtm_cross_spectrum(self.spectra[i],self.spectra[i],
+                sxx = tsa.mtm_cross_spectrum(self.spectra[i], self.spectra[i],
                                            (self.weights[i], self.weights[i]),
                                            sides='onesided').real
-
-              syy = tsa.mtm_cross_spectrum(self.spectra[j], self.spectra[j],
+                syy = tsa.mtm_cross_spectrum(self.spectra[j], self.spectra[j],
                                            (self.weights[i], self.weights[j]),
                                            sides='onesided').real
-              psd_mat[0,i,j] = sxx
-              psd_mat[1,i,j] = syy
-              coh_mat[i,j] = np.abs(sxy)**2
-              coh_mat[i,j] /= (sxx * syy)
+                psd_mat[0, i, j] = sxx
+                psd_mat[1, i, j] = syy
+                coh_mat[i, j] = np.abs(sxy) ** 2
+                coh_mat[i, j] /= (sxx * syy)
 
-        idx = tsu.triu_indices(self.input.data.shape[0],1)
-        coh_mat[idx[0],idx[1],...] = coh_mat[idx[1],idx[0],...].conj()
+        idx = tsu.triu_indices(self.input.data.shape[0], 1)
+        coh_mat[idx[0], idx[1], ...] = coh_mat[idx[1], idx[0], ...].conj()
 
         return coh_mat
 
@@ -355,44 +363,48 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
                             self.input.data.shape[0],
                             self._L), 'd')
         for i in xrange(self.input.data.shape[0]):
-           for j in xrange(i):
-               if i != j:
-                   coh_var[i,j] = tsu.jackknifed_coh_variance(self.spectra[i],
-                                                              self.spectra[j],
-                                weights=(self.weights[i], self.weights[j]),
-                                                        last_freq=self._L)
+            for j in xrange(i):
+                if i != j:
+                    coh_var[i, j] = tsu.jackknifed_coh_variance(
+                        self.spectra[i],
+                        self.spectra[j],
+                        weights=(self.weights[i], self.weights[j]),
+                        last_freq=self._L)
 
-        idx = tsu.triu_indices(self.input.data.shape[0],1)
-        coh_var[idx[0],idx[1],...] = coh_var[idx[1],idx[0],...].conj()
+        idx = tsu.triu_indices(self.input.data.shape[0], 1)
+        coh_var[idx[0], idx[1], ...] = coh_var[idx[1], idx[0], ...].conj()
 
-        coh_mat_xform = tsu.normalize_coherence(self.coherence, 2*self.df-2)
+        coh_mat_xform = tsu.normalize_coherence(self.coherence,
+                                                2 * self.df - 2)
 
-        lb = coh_mat_xform + dist.t.ppf(self.alpha/2,
-                                                self.df-1)*np.sqrt(coh_var)
-        ub = coh_mat_xform + dist.t.ppf(1-self.alpha/2,
-                                                self.df-1)*np.sqrt(coh_var)
+        lb = coh_mat_xform + dist.t.ppf(self.alpha / 2,
+                                        self.df - 1) * np.sqrt(coh_var)
+        ub = coh_mat_xform + dist.t.ppf(1 - self.alpha / 2,
+                                        self.df - 1) * np.sqrt(coh_var)
 
         # convert this measure with the normalizing function
-        tsu.normal_coherence_to_unit(lb, 2*self.df-2, lb)
-        tsu.normal_coherence_to_unit(ub, 2*self.df-2, ub)
+        tsu.normal_coherence_to_unit(lb, 2 * self.df - 2, lb)
+        tsu.normal_coherence_to_unit(ub, 2 * self.df - 2, ub)
 
-        return ub-lb
+        return ub - lb
 
     @desc.setattr_on_read
     def frequencies(self):
-        return np.linspace(0, self.input.sampling_rate/2, self._L)
+        return np.linspace(0, self.input.sampling_rate / 2, self._L)
 
 
 class SparseCoherenceAnalyzer(BaseAnalyzer):
-    """This analyzer is intended for analysis of large sets of data, in which
+    """
+    This analyzer is intended for analysis of large sets of data, in which
     possibly only a subset of combinations of time-series needs to be compared.
     The constructor for this class receives as input not only a time-series
     object, but also a list of tuples with index combinations (i,j) for the
     combinations. Importantly, this class implements only the mlab csd function
-    and cannot use other methods of spectral estimation"""
+    and cannot use other methods of spectral estimation
+    """
 
-    def __init__(self,time_series=None,ij=(0,0),method=None,lb=0,ub=None,
-                 prefer_speed_over_memory=True,scale_by_freq=True):
+    def __init__(self, time_series=None, ij=(0, 0), method=None, lb=0, ub=None,
+                 prefer_speed_over_memory=True, scale_by_freq=True):
         """The constructor for the SparseCoherenceAnalyzer
 
         Parameters
@@ -419,21 +431,22 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
 
         """
 
-        BaseAnalyzer.__init__(self,time_series)
+        BaseAnalyzer.__init__(self, time_series)
         #Initialize variables from the time series
         self.ij = ij
 
         #Set the variables for spectral estimation (can also be entered by
         #user):
         if method is None:
-            self.method = {'this_method':'welch'}
+            self.method = {'this_method': 'welch'}
 
         else:
             self.method = method
 
-        if self.method['this_method']!='welch':
-            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be welch")
-
+        if self.method['this_method'] != 'welch':
+            e_s = "For SparseCoherenceAnalyzer, "
+            e_s += "spectral estimation method must be welch"
+            raise ValueError(e_s)
 
         #Additional parameters for the coherency estimation:
         self.lb = lb
@@ -445,14 +458,14 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     def coherency(self):
         """ The default behavior is to calculate the cache, extract it and then
         output the coherency"""
-        coherency = tsa.cache_to_coherency(self.cache,self.ij)
+        coherency = tsa.cache_to_coherency(self.cache, self.ij)
 
         return coherency
 
     @desc.setattr_on_read
     def coherence(self):
         """ The coherence values for the output"""
-        coherence = np.abs(self.coherency**2)
+        coherence = np.abs(self.coherency ** 2)
 
         return coherence
 
@@ -462,11 +475,13 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         SparseCoherenceAnalyzer. Calculate only once and reuse
         """
         data = self.input.data
-        f,cache = tsa.cache_fft(data,self.ij,
-                        lb=self.lb,ub=self.ub,
-                        method=self.method,
+        f, cache = tsa.cache_fft(data,
+                                self.ij,
+                                lb=self.lb,
+                                ub=self.ub,
+                                method=self.method,
                         prefer_speed_over_memory=self.prefer_speed_over_memory,
-                        scale_by_freq=self.scale_by_freq)
+                                scale_by_freq=self.scale_by_freq)
 
         return cache
 
@@ -474,8 +489,8 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     def spectrum(self):
         """get the spectrum for the collection of time-series in this analyzer
         """
-        self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
-        spectrum = tsa.cache_to_psd(self.cache,self.ij)
+        self.method['Fs'] = self.method.get('Fs', self.input.sampling_rate)
+        spectrum = tsa.cache_to_psd(self.cache, self.ij)
 
         return spectrum
 
@@ -484,7 +499,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         """The frequency-band dependent phases of the spectra of each of the
            time -series i,j in the analyzer"""
 
-        phase = tsa.cache_to_phase(self.cache,self.ij)
+        phase = tsa.cache_to_phase(self.cache, self.ij)
 
         return phase
 
@@ -497,20 +512,21 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def delay(self):
         """ The delay in seconds between the two time series """
-        return self.relative_phases / (2*np.pi*self.frequencies)
+        return self.relative_phases / (2 * np.pi * self.frequencies)
 
     @desc.setattr_on_read
     def frequencies(self):
         """Get the central frequencies for the frequency bands, given the
            method of estimating the spectrum """
 
-        self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
-        NFFT = self.method.get('NFFT',64)
+        self.method['Fs'] = self.method.get('Fs', self.input.sampling_rate)
+        NFFT = self.method.get('NFFT', 64)
         Fs = self.method.get('Fs')
-        freqs = tsu.get_freqs(Fs,NFFT)
-        lb_idx,ub_idx = tsu.get_bounds(freqs,self.lb,self.ub)
+        freqs = tsu.get_freqs(Fs, NFFT)
+        lb_idx, ub_idx = tsu.get_bounds(freqs, self.lb, self.ub)
 
         return freqs[lb_idx:ub_idx]
+
 
 class SeedCoherenceAnalyzer(BaseAnalyzer):
     """
@@ -527,8 +543,8 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
 
     """
 
-    def __init__(self,seed_time_series=None,target_time_series=None,
-                 method=None,lb=0,ub=None,prefer_speed_over_memory=True,
+    def __init__(self, seed_time_series=None, target_time_series=None,
+                 method=None, lb=0, ub=None, prefer_speed_over_memory=True,
                  scale_by_freq=True):
 
         """
@@ -553,7 +569,7 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
 
         """
 
-        BaseAnalyzer.__init__(self,seed_time_series)
+        BaseAnalyzer.__init__(self, seed_time_series)
 
         self.seed = seed_time_series
         self.target = target_time_series
@@ -561,15 +577,16 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
         #Set the variables for spectral estimation (can also be entered by
         #user):
         if method is None:
-            self.method = {'this_method':'welch'}
+            self.method = {'this_method': 'welch'}
 
         else:
             self.method = method
 
-
-        if 'this_method' in self.method.keys() and self.method['this_method']!='welch':
-            raise ValueError("For SparseCoherenceAnalyzer, spectral estimation method must be welch")
-
+        if ('this_method' in self.method.keys() and
+            self.method['this_method'] != 'welch'):
+            e_s = "For SparseCoherenceAnalyzer, "
+            e_s += "spectral estimation method must be welch"
+            raise ValueError(e_s)
 
         #Additional parameters for the coherency estimation:
         self.lb = lb
@@ -584,18 +601,18 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
         all the channels of the target time-series.
 
         """
-        return np.abs(self.coherency)**2
+        return np.abs(self.coherency) ** 2
 
     @desc.setattr_on_read
     def frequencies(self):
         """Get the central frequencies for the frequency bands, given the
            method of estimating the spectrum """
 
-        self.method['Fs'] = self.method.get('Fs',self.input.sampling_rate)
-        NFFT = self.method.get('NFFT',64)
+        self.method['Fs'] = self.method.get('Fs', self.input.sampling_rate)
+        NFFT = self.method.get('NFFT', 64)
         Fs = self.method.get('Fs')
-        freqs = tsu.get_freqs(Fs,NFFT)
-        lb_idx,ub_idx = tsu.get_bounds(freqs,self.lb,self.ub)
+        freqs = tsu.get_freqs(Fs, NFFT)
+        lb_idx, ub_idx = tsu.get_bounds(freqs, self.lb, self.ub)
 
         return freqs[lb_idx:ub_idx]
 
@@ -607,27 +624,26 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
         #target.
 
         #This is the kind of input that cache_fft expects:
-        ij = zip(np.arange(data.shape[0]),np.arange(data.shape[0]))
+        ij = zip(np.arange(data.shape[0]), np.arange(data.shape[0]))
 
-        f,cache = tsa.cache_fft(data,ij,lb=self.lb,ub=self.ub,
-                        method=self.method,
+        f, cache = tsa.cache_fft(data, ij, lb=self.lb, ub=self.ub,
+                                 method=self.method,
                         prefer_speed_over_memory=self.prefer_speed_over_memory,
                         scale_by_freq=self.scale_by_freq)
 
         return cache
 
-
     @desc.setattr_on_read
     def coherency(self):
 
         #Pre-allocate the final result:
-        if len(self.seed.shape)>1:
+        if len(self.seed.shape) > 1:
             Cxy = np.empty((self.seed.data.shape[0],
                             self.target.data.shape[0],
-                            self.frequencies.shape[0]),dtype=np.complex)
+                            self.frequencies.shape[0]), dtype=np.complex)
         else:
             Cxy = np.empty((self.target.data.shape[0],
-                            self.frequencies.shape[0]),dtype=np.complex)
+                            self.frequencies.shape[0]), dtype=np.complex)
 
         #Get the fft window cache for the target time-series:
         cache = self.target_cache
@@ -638,50 +654,54 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
         #This is a list of indices into the cached fft window libraries,
         #setting the index of the seed to be -1, so that it is easily
         #distinguished from the target indices:
-        ij = zip(np.ones_like(target_chan_idx)*-1,target_chan_idx)
+        ij = zip(np.ones_like(target_chan_idx) * -1, target_chan_idx)
 
         #If there is more than one channel in the seed time-series:
-        if len(self.seed.shape)>1:
-            for seed_idx,this_seed in enumerate(self.seed.data):
+        if len(self.seed.shape) > 1:
+            for seed_idx, this_seed in enumerate(self.seed.data):
                 #Here ij is 0, because it is just one channel and we stack the
                 #channel onto itself in order for the input to the function to
                 #make sense:
-                f,seed_cache = tsa.cache_fft(np.vstack([this_seed,this_seed]),
-                        [(0,0)],
-                        lb=self.lb,ub=self.ub,
-                        method=self.method,
-                        prefer_speed_over_memory=self.prefer_speed_over_memory,
-                        scale_by_freq=self.scale_by_freq)
+                f, seed_cache = tsa.cache_fft(
+                    np.vstack([this_seed, this_seed]),
+                    [(0, 0)],
+                    lb=self.lb,
+                    ub=self.ub,
+                    method=self.method,
+                    prefer_speed_over_memory=self.prefer_speed_over_memory,
+                    scale_by_freq=self.scale_by_freq)
 
                 #Insert the seed_cache into the target_cache:
-                cache['FFT_slices'][-1]=seed_cache['FFT_slices'][0]
+                cache['FFT_slices'][-1] = seed_cache['FFT_slices'][0]
 
                 #If this is true, the cache contains both FFT_slices and
                 #FFT_conj_slices:
                 if self.prefer_speed_over_memory:
-                    cache['FFT_conj_slices'][-1]=\
+                    cache['FFT_conj_slices'][-1] = \
                                             seed_cache['FFT_conj_slices'][0]
 
                 #This performs the caclulation for this seed:
-                Cxy[seed_idx] = tsa.cache_to_coherency(cache,ij)
+                Cxy[seed_idx] = tsa.cache_to_coherency(cache, ij)
 
         #In the case where there is only one channel in the seed time-series:
         else:
-            f,seed_cache = tsa.cache_fft(np.vstack([self.seed.data,
-                                                    self.seed.data]),
-                        [(0,0)],
-                        lb=self.lb,ub=self.ub,
-                        method=self.method,
-                        prefer_speed_over_memory=self.prefer_speed_over_memory,
-                        scale_by_freq=self.scale_by_freq)
+            f, seed_cache = tsa.cache_fft(
+                np.vstack([self.seed.data,
+                           self.seed.data]),
+                [(0, 0)],
+                lb=self.lb,
+                ub=self.ub,
+                method=self.method,
+                prefer_speed_over_memory=self.prefer_speed_over_memory,
+                scale_by_freq=self.scale_by_freq)
 
-            cache['FFT_slices'][-1]=seed_cache['FFT_slices'][0]
+            cache['FFT_slices'][-1] = seed_cache['FFT_slices'][0]
 
             if self.prefer_speed_over_memory:
-                cache['FFT_conj_slices'][-1]=\
+                cache['FFT_conj_slices'][-1] = \
                                             seed_cache['FFT_conj_slices'][0]
 
-            Cxy=tsa.cache_to_coherency(cache,ij)
+            Cxy = tsa.cache_to_coherency(cache, ij)
 
         return Cxy.squeeze()
 
@@ -694,4 +714,4 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def delay(self):
         """ The delay in seconds between the two time series """
-        return self.relative_phases / (2*np.pi*self.frequencies)
+        return self.relative_phases / (2 * np.pi * self.frequencies)
