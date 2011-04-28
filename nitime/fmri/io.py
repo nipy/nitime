@@ -2,17 +2,19 @@
 
 try:
     from nibabel import load
-except ImportError: 
-        raise ImportError("nibabel required for fmri I/O. See http://nipy.org/nibabel")
+except ImportError:
+    e_s = "nibabel required for fmri I/O. See http://nipy.org/nibabel"
+    raise ImportError(e_s)
 
-import nitime.timeseries as ts 
+import nitime.timeseries as ts
 import nitime.analysis as tsa
 import numpy as np
 
-def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
-                          filter=None,verbose=False):
+
+def time_series_from_file(nifti_files, coords, TR, normalize=None,
+                          average=False, filter=None, verbose=False):
     """ Make a time series from a Analyze file, provided coordinates into the
-            file 
+            file
 
     Parameters
     ----------
@@ -20,15 +22,15 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
     nifti_files: a string or a list/tuple of strings.
         The full path(s) to the file(s) from which the time-series is (are)
         extracted
-     
+
     coords: ndarray or list/tuple of ndarray
         x,y,z (inplane,inplane,slice) coordinates of the ROI(s) from which the
         time-series is (are) derived.
-        
+
     TR: float, optional
         The TR of the fmri measurement
-        
-    normalize: bool, optional 
+
+    normalize: bool, optional
         Whether to normalize the activity in each voxel, defaults to
         None, in which case the original fMRI signal is used. Other options
         are: 'percent': the activity in each voxel is converted to percent
@@ -44,13 +46,13 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
 
        {'lb':float or 0, 'ub':float or None, 'method':'fourier','boxcar' 'fir'
        or 'iir' }
-       
+
        each voxel's data will be filtered into the frequency range [lb,ub] with
        nitime.analysis.FilterAnalyzer, using the method chosen here (defaults
        to 'fir')
-       
+
     verbose: Whether to report on ROI and file being read.
-    
+
     Returns
     -------
 
@@ -60,104 +62,112 @@ def time_series_from_file(nifti_files,coords,TR,normalize=None,average=False,
     ----
 
     Normalization occurs before averaging on a voxel-by-voxel basis, followed
-    by the averaging. 
+    by the averaging.
 
     """
-    
     if normalize is not None:
-        if normalize not in ('percent','zscore'):
-            raise ValueError("Normalization of fMRI time-series can only be done using 'percent' or 'zscore' as input")
+        if normalize not in ('percent', 'zscore'):
+            e_s = "Normalization of fMRI time-series can only be done"
+            e_s += " using 'percent' or 'zscore' as input"
+            raise ValueError(e_s)
     #If just one string was provided:
-    if isinstance(nifti_files,str):
+    if isinstance(nifti_files, str):
         if verbose:
-            print "Reading %s"%nifti_files
+            print "Reading %s" % nifti_files
         im = load(nifti_files)
         data = im.get_data()
         #If the input is the coords of several ROIs
-        if isinstance(coords,tuple) or isinstance(coords,list):
+        if isinstance(coords, tuple) or isinstance(coords, list):
             n_roi = len(coords)
             out_data = [[]] * n_roi
             tseries = [[]] * n_roi
             for i in xrange(n_roi):
-                tseries[i] = _tseries_from_nifti_helper(np.array(coords[i]).astype(int),
-                                                        data,TR,
-                                                        filter,
-                                                        normalize,
-                                                        average)
+                tseries[i] = _tseries_from_nifti_helper(
+                    np.array(coords[i]).astype(int),
+                    data,
+                    TR,
+                    filter,
+                    normalize,
+                    average)
         else:
-            tseries = _tseries_from_nifti_helper(coords.astype(int),data,TR,
-                                                 filter,normalize,average)
-                
+            tseries = _tseries_from_nifti_helper(coords.astype(int), data, TR,
+                                                 filter, normalize, average)
+
     #Otherwise loop over the files and concatenate:
-    elif isinstance(nifti_files,tuple) or isinstance(nifti_files,list):
+    elif isinstance(nifti_files, tuple) or isinstance(nifti_files, list):
         tseries_list = []
         for f in nifti_files:
             if verbose:
-                print "Reading %s"%f
+                print "Reading %s" % f
             im = load(f)
             data = im.get_data()
-            
+
             #If the input is the coords of several ROIs
-            if isinstance(coords,tuple) or isinstance(coords,list):
+            if isinstance(coords, tuple) or isinstance(coords, list):
                 n_roi = len(coords)
                 out_data = [[]] * n_roi
                 tseries_list.append([[]] * n_roi)
                 for i in xrange(n_roi):
                     tseries_list[-1][i] = _tseries_from_nifti_helper(
-                                                np.array(coords[i]).astype(int),
-                                                data,TR,filter,normalize,average)
+                        np.array(coords[i]).astype(int),
+                        data,
+                        TR,
+                        filter,
+                        normalize,
+                        average)
 
-                
-                
             else:
                 tseries_list.append(_tseries_from_nifti_helper(
-                                                       np.array(coords).astype(int),
-                                                       data,TR,
-                                                       filter,normalize,average))
+                    np.array(coords).astype(int),
+                    data,
+                    TR,
+                    filter,
+                    normalize,
+                    average))
 
         #Concatenate the time-series from the different scans:
-                                    
-        if isinstance(coords,tuple) or isinstance(coords,list):
-            tseries = [[]] *n_roi
+        if isinstance(coords, tuple) or isinstance(coords, list):
+            tseries = [[]] * n_roi
             #Do this per ROI
             for i in xrange(n_roi):
                 tseries[i] = ts.concatenate_time_series(
                     [tseries_list[k][i] for k in xrange(len(tseries_list))])
-            
+
         else:
             tseries = ts.concatenate_time_series(tseries_list)
 
     return tseries
 
-def _tseries_from_nifti_helper(coords,data,TR,filter,normalize,average):
+
+def _tseries_from_nifti_helper(coords, data, TR, filter, normalize, average):
     """
 
     Helper function for the function time_series_from_nifti, which does the
     core operations of pulling out data from a data array given coords and then
-    normalizing and averaging if needed 
-
-    """ 
-    out_data = np.asarray(data[coords[0],coords[1],coords[2]])
-    tseries = ts.TimeSeries(out_data,sampling_interval=TR)
+    normalizing and averaging if needed
+    """
+    out_data = np.asarray(data[coords[0], coords[1], coords[2]])
+    tseries = ts.TimeSeries(out_data, sampling_interval=TR)
 
     if filter is not None:
-        if filter['method'] not in ('boxcar','fourier','fir','iir'):
-           raise ValueError("Filter method %s is not recognized"%filter['method'])
-
+        if filter['method'] not in ('boxcar', 'fourier', 'fir', 'iir'):
+            e_s = "Filter method %s is not recognized" % filter['method']
+            raise ValueError(e_s)
         else:
             #Construct the key-word arguments to FilterAnalyzer:
-            kwargs = dict(lb=filter.get('lb',0),ub=filter.get('ub',None),
-                          boxcar_iterations=filter.get('boxcar_iterations',2),
-                          filt_order=filter.get('filt_order',64),
-                          gpass=filter.get('gpass',1),
-                          gstop=filter.get('gstop',60),
-                          iir_ftype=filter.get('iir_ftype','ellip'),
-                          fir_win=filter.get('fir_win','hamming'))
-                          
-            F = tsa.FilterAnalyzer(tseries,**kwargs)
+            kwargs = dict(lb=filter.get('lb', 0),
+                          ub=filter.get('ub', None),
+                          boxcar_iterations=filter.get('boxcar_iterations', 2),
+                          filt_order=filter.get('filt_order', 64),
+                          gpass=filter.get('gpass', 1),
+                          gstop=filter.get('gstop', 60),
+                          iir_ftype=filter.get('iir_ftype', 'ellip'),
+                          fir_win=filter.get('fir_win', 'hamming'))
+
+            F = tsa.FilterAnalyzer(tseries, **kwargs)
 
         if filter['method'] == 'boxcar':
-            tseries=F.filtered_boxcar
+            tseries = F.filtered_boxcar
         elif filter['method'] == 'fourier':
             tseries = F.filtered_fourier
         elif filter['method'] == 'fir':
@@ -165,16 +175,17 @@ def _tseries_from_nifti_helper(coords,data,TR,filter,normalize,average):
         elif filter['method'] == 'iir':
             tseries = F.iir
 
-    if normalize=='percent':
+    if normalize == 'percent':
             tseries = tsa.NormalizationAnalyzer(tseries).percent_change
-    elif normalize=='zscore':
+    elif normalize == 'zscore':
             tseries = tsa.NormalizationAnalyzer(tseries).z_score
     if average:
-            tseries.data = np.mean(tseries.data,0)
+            tseries.data = np.mean(tseries.data, 0)
 
     return tseries
 
-def nifti_from_time_series(volume,coords,time_series,nifti_path):
+
+def nifti_from_time_series(volume, coords, time_series, nifti_path):
     """Makes a Nifti file out of a time_series object
 
     Parameters
@@ -191,7 +202,6 @@ def nifti_from_time_series(volume,coords,time_series,nifti_path):
        The time-series to be inserted into the file
 
     nifti_path: the full path to the file name which will be created
-    
-       """
-    # XXX Implement! 
+    """
+    # XXX Implement!
     raise NotImplementedError
