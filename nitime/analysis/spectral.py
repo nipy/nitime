@@ -10,9 +10,10 @@ from nitime import timeseries as ts
 
 from .base import BaseAnalyzer
 
+
 class SpectralAnalyzer(BaseAnalyzer):
     """ Analyzer object for spectral analysis"""
-    def __init__(self,input=None,method=None,BW=None,adaptive=False):
+    def __init__(self, input=None, method=None, BW=None, adaptive=False):
         """
         The initialization of the
 
@@ -55,16 +56,16 @@ class SpectralAnalyzer(BaseAnalyzer):
         >>> s[0,0]   # doctest: +ELLIPSIS
         1128276.92538360...
         """
-        BaseAnalyzer.__init__(self,input)
+        BaseAnalyzer.__init__(self, input)
 
-        self.method=method
+        self.method = method
 
         if self.method is None:
-            self.method = {'this_method':'welch',
-                           'Fs':self.input.sampling_rate}
+            self.method = {'this_method': 'welch',
+                           'Fs': self.input.sampling_rate}
 
-        self.BW=BW
-        self.adaptive=adaptive
+        self.BW = BW
+        self.adaptive = adaptive
 
     @desc.setattr_on_read
     def psd(self):
@@ -74,30 +75,29 @@ class SpectralAnalyzer(BaseAnalyzer):
         and s is the PSD calculated using :func:`mlab.psd`.
 
         """
-
-        NFFT = self.method.get('NFFT',64)
+        NFFT = self.method.get('NFFT', 64)
         Fs = self.input.sampling_rate
-        detrend = self.method.get('detrend',tsa.mlab.detrend_none)
-        window = self.method.get('window',tsa.mlab.window_hanning)
-        n_overlap = self.method.get('n_overlap',int(np.ceil(NFFT/2.0)))
+        detrend = self.method.get('detrend', tsa.mlab.detrend_none)
+        window = self.method.get('window', tsa.mlab.window_hanning)
+        n_overlap = self.method.get('n_overlap', int(np.ceil(NFFT / 2.0)))
 
         if np.iscomplexobj(self.input.data):
             psd_len = NFFT
             dt = complex
         else:
-            psd_len = NFFT/2.0 + 1
+            psd_len = NFFT / 2.0 + 1
             dt = float
         psd = np.empty((self.input.shape[0],
-                       psd_len),dtype=dt)
+                       psd_len), dtype=dt)
 
         #If multi-channel data:
-        if len(self.input.data.shape)>1:
+        if len(self.input.data.shape) > 1:
             for i in xrange(self.input.data.shape[0]):
                 #'f' are the center frequencies of the frequency bands
                 #represented in the psd. These are identical in each iteration
                 #of the loop, so they get reassigned into the same variable in
                 #each iteration:
-                temp,f =  tsa.mlab.psd(self.input.data[i],
+                temp, f = tsa.mlab.psd(self.input.data[i],
                             NFFT=NFFT,
                             Fs=Fs,
                             detrend=detrend,
@@ -106,18 +106,17 @@ class SpectralAnalyzer(BaseAnalyzer):
                 psd[i] = temp.squeeze()
 
         else:
-            psd,f = tsa.mlab.psd(self.input.data,
+            psd, f = tsa.mlab.psd(self.input.data,
                             NFFT=NFFT,
                             Fs=Fs,
                             detrend=detrend,
                             window=window,
                             noverlap=n_overlap)
 
-        return f,psd
+        return f, psd
 
     @desc.setattr_on_read
     def cpsd(self):
-
         """
         This outputs both the PSD and the CSD calculated using
         :func:`algorithms.get_spectra`.
@@ -129,16 +128,14 @@ class SpectralAnalyzer(BaseAnalyzer):
            f: Frequency bands over which the psd/csd are calculated and
            s: the n by n by len(f) matrix of PSD (on the main diagonal) and CSD
            (off diagonal)
-
         """
-
         self.welch_method = self.method
         self.welch_method['this_method'] = 'welch'
         self.welch_method['Fs'] = self.input.sampling_rate
-        f,spectrum_welch = tsa.get_spectra(self.input.data,
+        f, spectrum_welch = tsa.get_spectra(self.input.data,
                                            method=self.welch_method)
 
-        return f,spectrum_welch
+        return f, spectrum_welch
 
     @desc.setattr_on_read
     def periodogram(self):
@@ -150,10 +147,9 @@ class SpectralAnalyzer(BaseAnalyzer):
         -------
         (f,spectrum): f is an array with the frequencies and spectrum is the
         complex-valued FFT.
-
         """
-
-        return tsa.periodogram(self.input.data,Fs=self.input.sampling_rate)
+        return tsa.periodogram(self.input.data,
+                               Fs=self.input.sampling_rate)
 
     @desc.setattr_on_read
     def spectrum_fourier(self):
@@ -172,9 +168,9 @@ class SpectralAnalyzer(BaseAnalyzer):
         sampling_rate = self.input.sampling_rate
 
         fft = np.fft.fft
-        f = tsu.get_freqs(sampling_rate,data.shape[-1])
-        spectrum_fourier = fft(data)[...,:f.shape[0]]
-        return f,spectrum_fourier
+        f = tsu.get_freqs(sampling_rate, data.shape[-1])
+        spectrum_fourier = fft(data)[..., :f.shape[0]]
+        return f, spectrum_fourier
 
     @desc.setattr_on_read
     def spectrum_multi_taper(self):
@@ -186,31 +182,30 @@ class SpectralAnalyzer(BaseAnalyzer):
         """
         #Initialize the output
         spectrum_multi_taper = np.empty((self.input.shape[0],
-                                         self.input.shape[-1]/2+1))
+                                         self.input.shape[-1] / 2 + 1))
 
         #If multi-channel data:
-        if len(self.input.data.shape)>1:
+        if len(self.input.data.shape) > 1:
             for i in xrange(self.input.data.shape[0]):
                 # 'f' are the center frequencies of the frequency bands
-                # represented in the MT psd. These are identical in each iteration
-                # of the loop, so they get reassigned into the same variable in
-                # each iteration:
-                f,spectrum_multi_taper[i],_ =  tsa.multi_taper_psd(self.input.data[i],
-                                                                Fs=self.input.sampling_rate,
-                                                                BW=self.BW,
-                                                                adaptive=self.adaptive)
-
+                # represented in the MT psd. These are identical in each
+                # iteration of the loop, so they get reassigned into the same
+                # variable in each iteration:
+                f, spectrum_multi_taper[i], _ = tsa.multi_taper_psd(
+                    self.input.data[i],
+                    Fs=self.input.sampling_rate,
+                    BW=self.BW,
+                    adaptive=self.adaptive)
         else:
-            f,spectrum_multi_taper = tsa.multi_taper_psd(self.input.data,
+            f, spectrum_multi_taper = tsa.multi_taper_psd(self.input.data,
                                         Fs=self.input.sampling_rate,
                                         BW=self.BW,
                                         adaptive=self.adaptive)
 
-        return f,spectrum_multi_taper
+        return f, spectrum_multi_taper
 
 
 class FilterAnalyzer(desc.ResetMixin):
-
     """ A class for performing filtering operations on time-series and
     producing the filtered versions of the time-series
 
@@ -251,24 +246,25 @@ class FilterAnalyzer(desc.ResetMixin):
     signal.
 
     """
-    def __init__(self,time_series,lb=0,ub=None,boxcar_iterations=2,
-                 filt_order=64,gpass=1,gstop=60,iir_ftype='ellip',fir_win='hamming'):
+    def __init__(self, time_series, lb=0, ub=None, boxcar_iterations=2,
+                 filt_order=64, gpass=1, gstop=60, iir_ftype='ellip',
+                 fir_win='hamming'):
 
         #Initialize all the local variables you will need for all the different
         #filtering methods:
         self.data = time_series.data
         self.sampling_rate = time_series.sampling_rate
-        self.ub=ub
-        self.lb=lb
-        self.time_unit=time_series.time_unit
-        self._boxcar_iterations=boxcar_iterations
+        self.ub = ub
+        self.lb = lb
+        self.time_unit = time_series.time_unit
+        self._boxcar_iterations = boxcar_iterations
         self._gstop = gstop
         self._gpass = gpass
         self._filt_order = filt_order
         self._ftype = iir_ftype
         self._win = fir_win
 
-    def filtfilt(self,b,a,in_ts=None):
+    def filtfilt(self, b, a, in_ts=None):
 
         """
         Zero-phase delay filtering (either iir or fir).
@@ -278,8 +274,9 @@ class FilterAnalyzer(desc.ResetMixin):
 
         a,b: filter coefficients
 
-        in_ts: time-series object. This allows to replace the input. Instead
-        of analyzing this analyzers input data, analyze some other time-series object
+        in_ts: time-series object.
+           This allows to replace the input. Instead of analyzing this
+           analyzers input data, analyze some other time-series object
 
         Note
         ----
@@ -299,16 +296,16 @@ class FilterAnalyzer(desc.ResetMixin):
 
         #filtfilt only operates channel-by-channel, so we need to loop over the
         #channels, if the data is multi-channel data:
-        if len(data.shape)>1:
+        if len(data.shape) > 1:
             out_data = np.empty(data.shape)
             for i in xrange(data.shape[0]):
-                out_data[i] = signal.filtfilt(b,a,data[i])
+                out_data[i] = signal.filtfilt(b, a, data[i])
                 #Make sure to preserve the DC:
                 dc = np.mean(data[i])
                 out_data[i] -= np.mean(out_data[i])
                 out_data[i] += dc
         else:
-            out_data = signal.filtfilt(b,a,data)
+            out_data = signal.filtfilt(b, a, data)
             #Make sure to preserve the DC:
             dc = np.mean(data)
             out_data -= np.mean(out_data)
@@ -318,7 +315,6 @@ class FilterAnalyzer(desc.ResetMixin):
                              sampling_rate=Fs,
                              time_unit=self.time_unit)
 
-
     @desc.setattr_on_read
     def fir(self):
         """
@@ -326,42 +322,47 @@ class FilterAnalyzer(desc.ResetMixin):
         back and forth (using scipy.signal.filtfilt) to achieve zero phase
         delay
         """
-
         #Passband and stop-band are expressed as fraction of the Nyquist
         #frequency:
         if self.ub is not None:
-            ub_frac = self.ub/(self.sampling_rate/2.)
+            ub_frac = self.ub / (self.sampling_rate / 2.)
         else:
             ub_frac = 1.0
 
-        lb_frac = self.lb/(self.sampling_rate/2.)
+        lb_frac = self.lb / (self.sampling_rate / 2.)
 
-        if lb_frac<0 or ub_frac>1:
-            raise ValueError("The lower-bound or upper bound used to filter are beyond the range 0-Nyquist. You asked for a filter between %s and %s percent of the Nyquist frequency"%(lb_frac*100,ub_frac*100))
+        if lb_frac < 0 or ub_frac > 1:
+            e_s = "The lower-bound or upper bound used to filter"
+            e_s += " are beyond the range 0-Nyquist. You asked for"
+            e_s += " a filter between"
+            e_s += "%s and %s percent of" % (lb_frac * 100, ub_frac * 100)
+            e_s += "the Nyquist frequency"
+            raise ValueError(e_s)
 
         n_taps = self._filt_order + 1
 
         #This means the filter order you chose was too large (needs to be
         #shorter than a 1/3 of your time-series )
-        if n_taps>self.data.shape[-1]*3:
-            raise ValueError("The filter order chosen is too large for this time-series")
+        if n_taps > self.data.shape[-1] * 3:
+            e_s = "The filter order chosen is too large for this time-series"
+            raise ValueError(e_s)
 
         # a is always 1:
         a = [1]
 
-        sig = ts.TimeSeries(data=self.data,sampling_rate=self.sampling_rate)
+        sig = ts.TimeSeries(data=self.data, sampling_rate=self.sampling_rate)
 
         #Lowpass:
-        if ub_frac<1:
-            b = signal.firwin(n_taps,ub_frac,self._win)
-            sig = self.filtfilt(b,a,sig)
+        if ub_frac < 1:
+            b = signal.firwin(n_taps, ub_frac, self._win)
+            sig = self.filtfilt(b, a, sig)
 
         #High-pass
-        if lb_frac>0:
+        if lb_frac > 0:
             #Includes a spectral inversion:
-            b = -1 * signal.firwin(n_taps,lb_frac,self._win)
-            b[n_taps/2] = b[n_taps/2] + 1
-            sig = self.filtfilt(b,a,sig)
+            b = -1 * signal.firwin(n_taps, lb_frac, self._win)
+            b[n_taps / 2] = b[n_taps / 2] + 1
+            sig = self.filtfilt(b, a, sig)
 
         return sig
 
@@ -376,21 +377,22 @@ class FilterAnalyzer(desc.ResetMixin):
         #Passband and stop-band are expressed as fraction of the Nyquist
         #frequency:
         if self.ub is not None:
-            ub_frac = self.ub/(self.sampling_rate/2.)
+            ub_frac = self.ub / (self.sampling_rate / 2.)
         else:
             ub_frac = 1.0
 
-        lb_frac = self.lb/(self.sampling_rate/2.)
+        lb_frac = self.lb / (self.sampling_rate / 2.)
 
-        wp = [lb_frac,ub_frac]
+        wp = [lb_frac, ub_frac]
 
         #Make sure to not exceed the interval 0-1:
-        ws = [np.max([lb_frac-0.1,0]),
-              np.min([ub_frac+0.1,1.0])]
+        ws = [np.max([lb_frac - 0.1, 0]),
+              np.min([ub_frac + 0.1, 1.0])]
 
-        b,a = signal.iirdesign(wp,ws,self._gpass,self._gstop,ftype=self._ftype)
+        b, a = signal.iirdesign(wp, ws, self._gpass, self._gstop,
+                                ftype=self._ftype)
 
-        return self.filtfilt(b,a)
+        return self.filtfilt(b, a)
 
     @desc.setattr_on_read
     def filtered_fourier(self):
@@ -401,26 +403,26 @@ class FilterAnalyzer(desc.ResetMixin):
 
         """
 
-        freqs = tsu.get_freqs(self.sampling_rate,self.data.shape[-1])
+        freqs = tsu.get_freqs(self.sampling_rate, self.data.shape[-1])
 
         if self.ub is None:
             self.ub = freqs[-1]
 
         power = np.fft.fft(self.data)
-        idx_0 = np.hstack([np.where(freqs<self.lb)[0],
-                           np.where(freqs>self.ub)[0]])
+        idx_0 = np.hstack([np.where(freqs < self.lb)[0],
+                           np.where(freqs > self.ub)[0]])
 
         #Make sure that you keep the DC component:
-        keep_dc = np.copy(power[...,0])
-        power[...,idx_0] = 0
-        power[...,-1*idx_0] = 0 #Take care of the negative frequencies
-        power[...,0] = keep_dc #And put the DC back in when you're done:
+        keep_dc = np.copy(power[..., 0])
+        power[..., idx_0] = 0
+        power[..., -1 * idx_0] = 0  # Take care of the negative frequencies
+        power[..., 0] = keep_dc  # And put the DC back in when you're done:
 
         data_out = np.fft.ifft(power)
 
-        data_out = np.real(data_out) #In order to make sure that you are not
-                                      #left with float-precision residual
-                                      #complex parts
+        data_out = np.real(data_out)  # In order to make sure that you are not
+                                      # left with float-precision residual
+                                      # complex parts
 
         return ts.TimeSeries(data=data_out,
                              sampling_rate=self.sampling_rate,
@@ -438,24 +440,26 @@ class FilterAnalyzer(desc.ResetMixin):
         """
 
         if self.ub is not None:
-            ub = self.ub/self.sampling_rate
+            ub = self.ub / self.sampling_rate
         else:
-            ub=1.0
+            ub = 1.0
 
-        lb = self.lb/self.sampling_rate
+        lb = self.lb / self.sampling_rate
 
-        data_out = tsa.boxcar_filter(np.copy(self.data),lb=lb,ub=ub,
+        data_out = tsa.boxcar_filter(np.copy(self.data),
+                                     lb=lb, ub=ub,
                                      n_iterations=self._boxcar_iterations)
 
         return ts.TimeSeries(data=data_out,
                                  sampling_rate=self.sampling_rate,
                                  time_unit=self.time_unit)
 
+
 class HilbertAnalyzer(BaseAnalyzer):
 
     """Analyzer class for extracting the Hilbert transform """
 
-    def __init__(self,input=None):
+    def __init__(self, input=None):
         """Constructor function for the Hilbert analyzer class.
 
         Parameters
@@ -464,50 +468,51 @@ class HilbertAnalyzer(BaseAnalyzer):
         input: TimeSeries
 
         """
-        BaseAnalyzer.__init__(self,input)
+        BaseAnalyzer.__init__(self, input)
 
     @desc.setattr_on_read
     def analytic(self):
         """The natural output for this analyzer is the analytic signal """
         data = self.input.data
         sampling_rate = self.input.sampling_rate
-        #If you have scipy with the fixed scipy.signal.hilbert (r6205 and later)
-        if scipy.__version__>='0.9':
+        #If you have scipy with the fixed scipy.signal.hilbert (r6205 and
+        #later)
+        if scipy.__version__ > ='0.9':
             hilbert = signal.hilbert
         else:
             hilbert = tsu.hilbert_from_new_scipy
 
         return ts.TimeSeries(data=hilbert(data),
-                                        sampling_rate=sampling_rate)
+                             sampling_rate=sampling_rate)
 
     @desc.setattr_on_read
     def amplitude(self):
         return ts.TimeSeries(data=np.abs(self.analytic.data),
-                                 sampling_rate=self.analytic.sampling_rate)
+                             sampling_rate=self.analytic.sampling_rate)
 
     @desc.setattr_on_read
     def phase(self):
         return ts.TimeSeries(data=np.angle(self.analytic.data),
-                                 sampling_rate=self.analytic.sampling_rate)
+                             sampling_rate=self.analytic.sampling_rate)
 
     @desc.setattr_on_read
     def real(self):
         return ts.TimeSeries(data=self.analytic.data.real,
-                                    sampling_rate=self.analytic.sampling_rate)
+                             sampling_rate=self.analytic.sampling_rate)
 
     @desc.setattr_on_read
     def imag(self):
         return ts.TimeSeries(data=self.analytic.data.imag,
-                                    sampling_rate=self.analytic.sampling_rate)
+                             sampling_rate=self.analytic.sampling_rate)
 
 
 class MorletWaveletAnalyzer(BaseAnalyzer):
 
     """Analyzer class for extracting the (complex) Morlet wavelet transform """
 
-    def __init__(self,input=None,freqs=None,sd_rel=.2,sd=None,f_min=None,
-                 f_max=None,nfreqs=None,log_spacing=False, log_morlet=False):
-        """Constructor function for the Hilbert analyzer class.
+    def __init__(self, input=None, freqs=None, sd_rel=.2, sd=None, f_min=None,
+                 f_max=None, nfreqs=None, log_spacing=False, log_morlet=False):
+        """Constructor function for the Wavelet analyzer class.
 
         Parameters
         ----------
@@ -540,7 +545,7 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
           If True, a log-Morlet wavelet is used, if False, a regular Morlet
           wavelet is used. Default: False
         """
-        BaseAnalyzer.__init__(self,input)
+        BaseAnalyzer.__init__(self, input)
         self.freqs = freqs
         self.sd_rel = sd_rel
         self.sd = sd
@@ -562,12 +567,13 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
                 self.freqs = np.logspace(np.log10(f_min), np.log10(f_max),
                                          num=nfreqs, endpoint=True)
             else:
-                self.freqs = np.linspace(f_min,f_max,num=nfreqs,endpoint=True)
+                self.freqs = np.linspace(f_min, f_max, num=nfreqs,
+                                         endpoint=True)
         else:
             raise NotImplementedError
 
         if sd is None:
-            self.sd = self.freqs*self.sd_rel
+            self.sd = self.freqs * self.sd_rel
 
     @desc.setattr_on_read
     def analytic(self):
@@ -576,42 +582,44 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
         sampling_rate = self.input.sampling_rate
 
         a_signal =\
-    ts.TimeSeries(data=np.zeros(self.freqs.shape+data.shape,
-                                        dtype='D'),sampling_rate=sampling_rate)
+    ts.TimeSeries(data=np.zeros(self.freqs.shape + data.shape,
+                                dtype='D'), sampling_rate=sampling_rate)
         if self.freqs.ndim == 0:
-            w = self.wavelet(self.freqs,self.sd,
-                             sampling_rate=sampling_rate,ns=5,
-                                                     normed='area')
+            w = self.wavelet(self.freqs, self.sd,
+                             sampling_rate=sampling_rate, ns=5,
+                             normed='area')
 
-            nd = (w.shape[0]-1)/2
-            a_signal.data[...] = (np.convolve(data,np.real(w),mode='same') +
-                                  1j*np.convolve(data,np.imag(w),mode='same'))
+            nd = (w.shape[0] - 1) / 2
+            a_signal.data[...] = (np.convolve(data, np.real(w), mode='same') +
+                            1j * np.convolve(data, np.imag(w), mode='same'))
         else:
-            for i,(f,sd) in enumerate(zip(self.freqs,self.sd)):
-                w = self.wavelet(f,sd,sampling_rate=sampling_rate,
-                                 ns=5,normed='area')
+            for i, (f, sd) in enumerate(zip(self.freqs, self.sd)):
+                w = self.wavelet(f, sd, sampling_rate=sampling_rate,
+                                 ns=5, normed='area')
 
-                nd = (w.shape[0]-1)/2
-                a_signal.data[i,...] = (np.convolve(data,np.real(w),mode='same')+1j*np.convolve(data,np.imag(w),mode='same'))
+                nd = (w.shape[0] - 1) / 2
+                a_signal.data[i, ...] = (
+                    np.convolve(data, np.real(w), mode='same') +
+                    1j * np.convolve(data, np.imag(w), mode='same'))
 
         return a_signal
 
     @desc.setattr_on_read
     def amplitude(self):
         return ts.TimeSeries(data=np.abs(self.analytic.data),
-                                    sampling_rate=self.analytic.sampling_rate)
+                             sampling_rate=self.analytic.sampling_rate)
 
     @desc.setattr_on_read
     def phase(self):
         return ts.TimeSeries(data=np.angle(self.analytic.data),
-                                    sampling_rate=self.analytic.sampling_rate)
+                             sampling_rate=self.analytic.sampling_rate)
 
     @desc.setattr_on_read
     def real(self):
         return ts.TimeSeries(data=self.analytic.data.real,
-                                    sampling_rate=self.analytic.sampling_rate)
+                             sampling_rate=self.analytic.sampling_rate)
 
     @desc.setattr_on_read
     def imag(self):
         return ts.TimeSeries(data=self.analytic.data.imag,
-                                    sampling_rate=self.analytic.sampling_rate)
+                             sampling_rate=self.analytic.sampling_rate)
