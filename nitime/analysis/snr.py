@@ -19,19 +19,19 @@ def signal_noise(response):
        The data here are individual responses of a single unit to the same
        stimulus, with repetitions being the first dimension and time as the
        last dimension
-
     """
 
-    signal = np.mean(response.data,0) #The estimate of the signal is the average
-                                 #response
+    signal = np.mean(response.data, 0)  # The estimate of the signal is the
+                                       # average response
 
-    noise =  response.data - signal #Noise is the individual
-                               #repetition's deviation from the
-                               #estimate of the signal
+    noise = response.data - signal  # Noise is the individual
+                               # repetition's deviation from the
+                               # estimate of the signal
 
-    #Return TimeSeries objects with the sampling rate of the input:
-    return  (ts.TimeSeries(signal,sampling_rate=response.sampling_rate),
-             ts.TimeSeries(noise,sampling_rate=response.sampling_rate))
+    # Return TimeSeries objects with the sampling rate of the input:
+    return  (ts.TimeSeries(signal, sampling_rate=response.sampling_rate),
+             ts.TimeSeries(noise, sampling_rate=response.sampling_rate))
+
 
 class SNRAnalyzer(BaseAnalyzer):
     """
@@ -44,10 +44,9 @@ class SNRAnalyzer(BaseAnalyzer):
 
     .. [Borst1999] Borst A and Theunissen FE (1999) Information theory and
     neural coding. Nat Neurosci 2:947-957
-
     """
-
-    def __init__(self,input=None,bandwidth=None,adaptive=False,low_bias=False):
+    def __init__(self, input=None, bandwidth=None, adaptive=False,
+                 low_bias=False):
         """
         Initializer for the multi_taper_SNR object
 
@@ -77,51 +76,53 @@ class SNRAnalyzer(BaseAnalyzer):
 
         """
         self.input = input
-        self.signal,self.noise = signal_noise(input)
+        self.signal, self.noise = signal_noise(input)
         self.bandwidth = bandwidth
         self.adaptive = adaptive
         self.low_bias = low_bias
 
     @desc.setattr_on_read
     def mt_frequencies(self):
-        return np.linspace(0, self.input.sampling_rate/2,
-                           self.input.data.shape[-1]/2 + 1)
+        return np.linspace(0, self.input.sampling_rate / 2,
+                           self.input.data.shape[-1] / 2 + 1)
 
     @desc.setattr_on_read
     def mt_signal_psd(self):
-        _,p,_ = tsa.multi_taper_psd(self.signal.data,
+        _, p, _ = tsa.multi_taper_psd(self.signal.data,
                                     Fs=self.input.sampling_rate,
-                                    BW=self.bandwidth,adaptive=self.adaptive,
+                                    BW=self.bandwidth,
+                                    adaptive=self.adaptive,
                                     low_bias=self.low_bias)
         return p
 
     @desc.setattr_on_read
     def mt_noise_psd(self):
         p = np.empty((self.noise.data.shape[0],
-                     self.noise.data.shape[-1]/2+1))
+                     self.noise.data.shape[-1] / 2 + 1))
 
         for i in xrange(p.shape[0]):
-            _,p[i],_ = tsa.multi_taper_psd(self.noise.data[i],
+            _, p[i], _ = tsa.multi_taper_psd(self.noise.data[i],
                                     Fs=self.input.sampling_rate,
-                                    BW=self.bandwidth,adaptive=self.adaptive,
+                                    BW=self.bandwidth,
+                                    adaptive=self.adaptive,
                                     low_bias=self.low_bias)
-        return np.mean(p,0)
+        return np.mean(p, 0)
 
     @desc.setattr_on_read
     def mt_coherence(self):
         """ """
-        return self.mt_signal_psd/(self.mt_signal_psd + self.mt_noise_psd)
+        return self.mt_signal_psd / (self.mt_signal_psd + self.mt_noise_psd)
 
     @desc.setattr_on_read
     def mt_information(self):
-        df = self.mt_frequencies[1]-self.mt_frequencies[0]
-        return -1*np.log2(1-self.mt_coherence) * df
+        df = self.mt_frequencies[1] - self.mt_frequencies[0]
+        return -1 * np.log2(1 - self.mt_coherence) * df
         #These two formulations should be equivalent
         #return np.log2(1+self.mt_snr)
 
     @desc.setattr_on_read
     def mt_snr(self):
-        return self.mt_signal_psd/self.mt_noise_psd
+        return self.mt_signal_psd / self.mt_noise_psd
 
     @desc.setattr_on_read
     def correlation(self):
@@ -133,10 +134,9 @@ class SNRAnalyzer(BaseAnalyzer):
         (r,e) : tuple
            r is the mean correlation and e is the mean error of the correlation
            (with df = n_trials - 1)
-
         """
 
         c = np.corrcoef(self.input.data)
-        c = c[np.tril_indices_from(c,-1)]
+        c = c[np.tril_indices_from(c, -1)]
 
         return np.mean(c), stats.sem(c)
