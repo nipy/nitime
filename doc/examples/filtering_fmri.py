@@ -16,11 +16,11 @@ differ between different voxels for 'uninteresting' reasons, such as local
 blood-flow differences and signal amplitude differences due to the distance
 from the receive coil. In the following, we will demonstrate usage of nitimes
 analyzer objects for spectral estimation, filtering and normalization on fMRI
-data. 
+data.
 
 
 We start by importing the needed modules. First modules from the standard lib
-and from 3rd parties: 
+and from 3rd parties:
 
 """
 
@@ -33,48 +33,48 @@ from matplotlib.mlab import csv2rec
 
 """
 
-Next, the particular nitime classes we will be using in this example: 
+Next, the particular nitime classes we will be using in this example:
 
 """
 
 import nitime
 
-# Import the time-series objects: 
+# Import the time-series objects:
 from nitime.timeseries import TimeSeries
 
 # Import the analysis objects:
-from nitime.analysis import SpectralAnalyzer,FilterAnalyzer,NormalizationAnalyzer
+from nitime.analysis import SpectralAnalyzer, FilterAnalyzer, NormalizationAnalyzer
 
 """
 
 For starters, let's analyze data that has been preprocessed and is extracted
 into indivudal ROIs. This is the same data used in :ref:`multi-taper-coh` and
-in :ref:`resting-state` (see these examples for details). 
+in :ref:`resting-state` (see these examples for details).
 
 We start by setting the TR and reading the data from the CSV table into which
 the data was saved:
 
-""" 
+"""
 
-TR=1.89
+TR = 1.89
 data_rec = csv2rec('data/fmri_timeseries.csv')
 
 # Extract ROI information from the csv file headers:
-roi_names= np.array(data_rec.dtype.names)
+roi_names = np.array(data_rec.dtype.names)
 
 # This is the number of samples in each ROI:
 n_samples = data_rec.shape[0]
 
 # Make an empty container for the data
-data = np.zeros((len(roi_names),n_samples))
+data = np.zeros((len(roi_names), n_samples))
 
 # Insert the data from each ROI into a row in the data:
 for n_idx, roi in enumerate(roi_names):
     data[n_idx] = data_rec[roi]
 
-# Initialize TimeSeries object: 
-T = TimeSeries(data,sampling_interval=TR)
-T.metadata['roi'] = roi_names 
+# Initialize TimeSeries object:
+T = TimeSeries(data, sampling_interval=TR)
+T.metadata['roi'] = roi_names
 
 
 """
@@ -88,7 +88,7 @@ S_original = SpectralAnalyzer(T)
 
 # Initialize a figure to put the results into:
 fig01 = plt.figure()
-ax01 = fig01.add_subplot(1,1,1)
+ax01 = fig01.add_subplot(1, 1, 1)
 
 
 """
@@ -100,15 +100,25 @@ frequency bins in the spectrum and the second item in the tuple are the
 magnitude of the spectrum in that frequency bin. For the purpose of this
 example, we will only plot the data from the 10th ROI (by indexing into the
 spectra). We compare all the methods of spectral estimation by plotting them
-together: 
+together:
 
 """
 
-ax01.plot(S_original.psd[0],S_original.psd[1][9],label='Welch PSD')
-ax01.plot(S_original.spectrum_fourier[0],S_original.spectrum_fourier[1][9],label='FFT')
-ax01.plot(S_original.periodogram[0],S_original.periodogram[1][9],label='Periodogram')
+ax01.plot(S_original.psd[0],
+          S_original.psd[1][9],
+          label='Welch PSD')
+
+ax01.plot(S_original.spectrum_fourier[0],
+          S_original.spectrum_fourier[1][9],
+          label='FFT')
+
+ax01.plot(S_original.periodogram[0],
+          S_original.periodogram[1][9],
+          label='Periodogram')
+
 ax01.plot(S_original.spectrum_multi_taper[0],
-          S_original.spectrum_multi_taper[1][9],label='Multi-taper')
+          S_original.spectrum_multi_taper[1][9],
+          label='Multi-taper')
 
 ax01.set_xlabel('Frequency (Hz)')
 ax01.set_ylabel('Power')
@@ -127,7 +137,7 @@ the other methods provide different granularity of information, traded-off with
 the robustness of the estimation. The cadillac of spectral estimates is the
 multi-taper estimation, which provides both robustness and granularity, but
 notice that this estimate requires more computation than other estimates
-(certainly more estimates than the FFT). 
+(certainly more estimates than the FFT).
 
 We note that a lot of the power in the fMRI data seems to be concentrated in
 frequencies below 0.02 Hz. These extremely low fluctuations in signal are often
@@ -141,18 +151,18 @@ filter the data into this range, using different methods.
 
 We start by initializing a FilterAnalyzer. This is initialized with the
 time-series containing the data and with the upper and lower bounds of the
-range into which we wish to filter (in Hz): 
+range into which we wish to filter (in Hz):
 
 """
 
-F = FilterAnalyzer(T,ub=0.15,lb=0.02)
+F = FilterAnalyzer(T, ub=0.15, lb=0.02)
 
-# Initialize a figure to display the results: 
+# Initialize a figure to display the results:
 fig02 = plt.figure()
-ax02 = fig02.add_subplot(1,1,1)
+ax02 = fig02.add_subplot(1, 1, 1)
 
 # Plot the original, unfiltered data:
-ax02.plot(F.data[0],label='unfiltered')
+ax02.plot(F.data[0], label='unfiltered')
 
 """
 
@@ -168,7 +178,7 @@ used for filtering. We use the following methods:
 
 """
 
-ax02.plot(F.filtered_boxcar.data[0],label='Boxcar filter')
+ax02.plot(F.filtered_boxcar.data[0], label='Boxcar filter')
 
 """
 
@@ -183,31 +193,31 @@ ax02.plot(F.filtered_boxcar.data[0],label='Boxcar filter')
 
 """
 
-ax02.plot(F.fir.data[0],label='FIR')
+ax02.plot(F.fir.data[0], label='FIR')
 
 """
 
 - IIR filter: A digital filter with an infinite impulse response function. Per
   default an elliptic filter is used here, but this can be changed, by setting
-  the 'iir_type' key word argument used when initializing the FilterAnalyzer. 
+  the 'iir_type' key word argument used when initializing the FilterAnalyzer.
 
 For both FIR filters and IIR filters, :func:`scipy.signal.filtfilt` is used in
 order to achieve zero phase delay filtering.
 
 """
 
-ax02.plot(F.iir.data[0],label='IIR')
+ax02.plot(F.iir.data[0], label='IIR')
 
 """
 
 - Fourier filter: this is a quick and dirty filter. The data is FFT-ed into the
   frequency domain. The power in the unwanted frequency bins is removed (by
   replacing the power in these bins with zero) and the data is IFFT-ed back
-  into the time-domain. 
+  into the time-domain.
 
 """
 
-ax02.plot(F.filtered_fourier.data[0],label='Fourier')
+ax02.plot(F.filtered_fourier.data[0], label='Fourier')
 ax02.legend()
 ax02.set_xlabel('Time (TR)')
 ax02.set_ylabel('Signal amplitude (a.u.)')
@@ -232,7 +242,7 @@ ease of compariso, we only plot the spectra using the multi-taper spectral
 estimation. At the level of granularity provided by this method, the diferences
 between the methods are emphasized:
 
-""" 
+"""
 
 S_fourier = SpectralAnalyzer(F.filtered_fourier)
 S_boxcar = SpectralAnalyzer(F.filtered_boxcar)
@@ -240,22 +250,27 @@ S_fir = SpectralAnalyzer(F.fir)
 S_iir = SpectralAnalyzer(F.iir)
 
 fig03 = plt.figure()
-ax03 = fig03.add_subplot(1,1,1)
+ax03 = fig03.add_subplot(1, 1, 1)
 
 ax03.plot(S_original.spectrum_multi_taper[0],
-          S_original.spectrum_multi_taper[1][9],label='Original')
+          S_original.spectrum_multi_taper[1][9],
+          label='Original')
 
 ax03.plot(S_fourier.spectrum_multi_taper[0],
-          S_fourier.spectrum_multi_taper[1][9],label='Fourier')
+          S_fourier.spectrum_multi_taper[1][9],
+          label='Fourier')
 
 ax03.plot(S_boxcar.spectrum_multi_taper[0],
-          S_boxcar.spectrum_multi_taper[1][9],label='Boxcar')
+          S_boxcar.spectrum_multi_taper[1][9],
+          label='Boxcar')
 
 ax03.plot(S_fir.spectrum_multi_taper[0],
-          S_fir.spectrum_multi_taper[1][9],label='FIR')
+          S_fir.spectrum_multi_taper[1][9],
+          label='FIR')
 
 ax03.plot(S_iir.spectrum_multi_taper[0],
-          S_iir.spectrum_multi_taper[1][9],label='IIR')
+          S_iir.spectrum_multi_taper[1][9],
+          label='IIR')
 
 ax03.legend()
 
@@ -280,21 +295,21 @@ analyzer can be used as the input to the other:
 """
 
 fig04 = plt.figure()
-ax04 = fig04.add_subplot(1,1,1)
+ax04 = fig04.add_subplot(1, 1, 1)
 
-ax04.plot(NormalizationAnalyzer(F.fir).percent_change.data[0],label='% change')
-ax04.plot(NormalizationAnalyzer(F.fir).z_score.data[0],label='Z score')
+ax04.plot(NormalizationAnalyzer(F.fir).percent_change.data[0], label='% change')
+ax04.plot(NormalizationAnalyzer(F.fir).z_score.data[0], label='Z score')
 ax04.legend()
 ax04.set_xlabel('Time (TR)')
 ax04.set_ylabel('Amplitude (% change or Z-score)')
 
-"""     
+"""
 
 .. image:: fig/filtering_fmri_04.png
 
 
 Notice that the same methods of filtering and normalization can be applied to
-fMRI data, upon reading it from a nifti file, using :mod:`nitime.fmri.io`. 
+fMRI data, upon reading it from a nifti file, using :mod:`nitime.fmri.io`.
 
 We demonstrate that in what follows.[Notice that nibabel
 (http://nipy.org/nibabel) is required in order to run the following
@@ -302,7 +317,7 @@ examples. An error will be thrown if nibabel is not installed]
 
 """
 
-try: 
+try:
     from nibabel import load
 except ImportError:
     raise ImportError('You need nibabel (http:/nipy.org/nibabel/) in order to run this example')
@@ -311,9 +326,9 @@ import nitime.fmri.io as io
 
 """
 
-We define the TR of the analysis and the frequency band of interest: 
+We define the TR of the analysis and the frequency band of interest:
 
-""" 
+"""
 
 TR = 1.35
 f_lb = 0.02
@@ -330,7 +345,7 @@ the following line will find the path to this data on the specific computer:
 data_file_path = test_dir_path = os.path.join(nitime.__path__[0],
                                               'fmri/tests/')
 
-fmri_file = os.path.join(data_file_path,'fmri1.nii.gz')
+fmri_file = os.path.join(data_file_path, 'fmri1.nii.gz')
 
 
 """
@@ -339,7 +354,7 @@ Read in the dimensions of the data, using nibabel:
 
 """
 
-fmri_data = load(fmri_file) 
+fmri_data = load(fmri_file)
 volume_shape = fmri_data.shape[:-1]
 coords = list(np.ndindex(volume_shape))
 coords = np.array(coords).T
@@ -352,7 +367,7 @@ coordinates in the data file. Notice that normalization method is provided as a
 string input to the keyword argument 'normalize' and the filter and its
 properties are provided as a dict to the keyword argument 'filter':
 
-""" 
+"""
 
 T_unfiltered = io.time_series_from_file(fmri_file,
                                         coords,
@@ -386,21 +401,19 @@ T_boxcar = io.time_series_from_file(fmri_file,
                                           method='boxcar',
                                           filt_order=10))
 
-
-
 fig05 = plt.figure()
-ax05 = fig05.add_subplot(1,1,1)
+ax05 = fig05.add_subplot(1, 1, 1)
 S_unfiltered = SpectralAnalyzer(T_unfiltered).spectrum_multi_taper
 S_fir = SpectralAnalyzer(T_fir).spectrum_multi_taper
 S_iir = SpectralAnalyzer(T_iir).spectrum_multi_taper
 S_boxcar = SpectralAnalyzer(T_boxcar).spectrum_multi_taper
 
-random_voxel = np.random.randint(0,np.prod(volume_shape))
+random_voxel = np.random.randint(0, np.prod(volume_shape))
 
-ax05.plot(S_unfiltered[0],S_unfiltered[1][random_voxel],label='Unfiltered')
-ax05.plot(S_fir[0],S_fir[1][random_voxel],label='FIR filtered')
-ax05.plot(S_iir[0],S_iir[1][random_voxel],label='IIR filtered')
-ax05.plot(S_boxcar[0],S_boxcar[1][random_voxel],label='Boxcar filtered')
+ax05.plot(S_unfiltered[0], S_unfiltered[1][random_voxel], label='Unfiltered')
+ax05.plot(S_fir[0], S_fir[1][random_voxel], label='FIR filtered')
+ax05.plot(S_iir[0], S_iir[1][random_voxel], label='IIR filtered')
+ax05.plot(S_boxcar[0], S_boxcar[1][random_voxel], label='Boxcar filtered')
 ax05.legend()
 
 """

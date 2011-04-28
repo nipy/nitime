@@ -3,7 +3,7 @@
 Autoregressive processes are processes of the form:
 
 
-This module contains functions for the estimation of 
+This module contains functions for the estimation of
 """
 
 
@@ -12,6 +12,7 @@ from scipy import linalg
 
 import nitime.utils as utils
 from spectral import freq_response
+
 
 def AR_est_YW(s, order, sxx=None):
     """Finds the parameters for an autoregressive model of order norder
@@ -42,15 +43,16 @@ def AR_est_YW(s, order, sxx=None):
 
     """
     if sxx is not None and type(sxx) == np.ndarray:
-        sxx_m = sxx[:order+1]
+        sxx_m = sxx[:order + 1]
     else:
-        sxx_m = utils.autocov(s)[:order+1]
+        sxx_m = utils.autocov(s)[:order + 1]
 
     R = linalg.toeplitz(sxx_m[:order].conj())
     y = sxx_m[1:].conj()
-    ak = linalg.solve(R,y)
+    ak = linalg.solve(R, y)
     sigma_v = sxx_m[0] - np.dot(sxx_m[1:], ak)
     return ak, sigma_v
+
 
 def AR_est_LD(s, order, sxx=None):
     """Finds the parameters for an autoregressive model of order norder
@@ -75,30 +77,33 @@ def AR_est_LD(s, order, sxx=None):
     sxx : ndarray (optional)
         An optional, possibly unbiased estimate of the autocovariance of s
 
-    
+
     Returns
     -------
     a, ecov: The system coefficients and the estimated covariance
 
     """
     if sxx is not None and type(sxx) == np.ndarray:
-        sxx_m = sxx[:order+1]
+        sxx_m = sxx[:order + 1]
     else:
-        sxx_m = utils.autocov(s)[:order+1]
-    
-    phi = np.zeros((order+1, order+1), 'd')
-    sig = np.zeros(order+1)
-    # initial points for the recursion
-    phi[1,1] = sxx_m[1]/sxx_m[0]
-    sig[1] = sxx_m[0] - phi[1,1]*sxx_m[1]
-    for k in xrange(2,order+1):
-        phi[k,k] = (sxx_m[k]-np.dot(phi[1:k,k-1], sxx_m[1:k][::-1]))/sig[k-1]
-        for j in xrange(1,k):
-            phi[j,k] = phi[j,k-1] - phi[k,k]*phi[k-j,k-1]
-        sig[k] = sig[k-1]*(1 - phi[k,k]**2)
+        sxx_m = utils.autocov(s)[:order + 1]
 
-    sigma_v = sig[-1]; ak = phi[1:,-1]
+    phi = np.zeros((order + 1, order + 1), 'd')
+    sig = np.zeros(order + 1)
+    # initial points for the recursion
+    phi[1, 1] = sxx_m[1] / sxx_m[0]
+    sig[1] = sxx_m[0] - phi[1, 1] * sxx_m[1]
+    for k in xrange(2, order + 1):
+        phi[k, k] = ((sxx_m[k] - np.dot(phi[1:k, k - 1], sxx_m[1:k][::-1])) /
+                     sig[k - 1])
+        for j in xrange(1, k):
+            phi[j, k] = phi[j, k - 1] - phi[k, k] * phi[k - j, k - 1]
+        sig[k] = sig[k - 1] * (1 - phi[k, k] ** 2)
+
+    sigma_v = sig[-1]
+    ak = phi[1:, -1]
     return ak, sigma_v
+
 
 def MAR_est_LWR(s, order, sxx=None):
 
@@ -122,12 +127,14 @@ def MAR_est_LWR(s, order, sxx=None):
     a, ecov: The system coefficients and the estimated covariance
     """
     Rxx = utils.autocov_vector(s, nlags=order)
-    a, ecov = utils.lwr(Rxx.transpose(2,0,1))
-    return a,ecov
+    a, ecov = utils.lwr(Rxx.transpose(2, 0, 1))
+    return a, ecov
+
 
 def AR_psd(ak, sigma_v, n_freqs=1024, sides='onesided'):
     """
-    Compute the PSD of an AR process, based on the process coefficients and covariance 
+    Compute the PSD of an AR process, based on the process coefficients and
+    covariance
 
     n_freqs : int
         The number of spacings on the frequency grid from [-PI,PI).
@@ -152,17 +159,15 @@ def AR_psd(ak, sigma_v, n_freqs=1024, sides='onesided'):
     # where w0 = 1, and wk = -ak for k>0
     # the transfer function here is H(f) = DTFT(w)
     # leading to Sxx(f) = Vxx(f) / |H(f)|**2 = sigma_v / |H(f)|**2
-    w, hw = freq_response(sigma_v**0.5, a=np.concatenate(([1], -ak)),
+    w, hw = freq_response(sigma_v ** 0.5, a=np.concatenate(([1], -ak)),
                      n_freqs=n_freqs, sides=sides)
-    ar_psd = (hw*hw.conj()).real
-    return (w,2*ar_psd) if sides=='onesided' else (w,ar_psd)
-
+    ar_psd = (hw * hw.conj()).real
+    return (w, 2 * ar_psd) if sides == 'onesided' else (w, ar_psd)
 
 
 #-----------------------------------------------------------------------------
 # Granger causality analysis
 #-----------------------------------------------------------------------------
-
 def transfer_function_xy(a, n_freqs=1024):
     """Helper routine to compute the transfer function H(w) based
     on sequence of coefficient matrices A(i). The z transforms
@@ -188,10 +193,10 @@ def transfer_function_xy(a, n_freqs=1024):
     """
     # these concatenations follow from the observation that A(0) is
     # implicitly the identity matrix
-    ai = np.r_[1, a[:,0,0]]
-    bi = np.r_[0, a[:,0,1]]
-    ci = np.r_[0, a[:,1,0]]
-    di = np.r_[1, a[:,1,1]]
+    ai = np.r_[1, a[:, 0, 0]]
+    bi = np.r_[0, a[:, 0, 1]]
+    ci = np.r_[0, a[:, 1, 0]]
+    di = np.r_[1, a[:, 1, 1]]
 
     # compute A(w) such that A(w)X(w) = Err(w)
     w, aw = freq_response(ai, n_freqs=n_freqs)
@@ -200,14 +205,15 @@ def transfer_function_xy(a, n_freqs=1024):
     _, dw = freq_response(di, n_freqs=n_freqs)
 
     #A = np.array([ [1-aw, -bw], [-cw, 1-dw] ])
-    A = np.array([ [aw, bw], [cw, dw] ])
+    A = np.array([[aw, bw], [cw, dw]])
     # compute the transfer function from Err to X. Since Err(w) is 1(w),
     # the transfer function H(w) = A^(-1)(w)
     # (use 2x2 matrix shortcut)
-    detA = (A[0,0]*A[1,1] - A[0,1]*A[1,0])
-    Hw = np.array( [ [dw, -bw], [-cw, aw] ] )
+    detA = (A[0, 0] * A[1, 1] - A[0, 1] * A[1, 0])
+    Hw = np.array([[dw, -bw], [-cw, aw]])
     Hw /= detA
     return w, Hw
+
 
 def spectral_matrix_xy(Hw, cov):
     """Compute the spectral matrix S(w), from the convention:
@@ -239,26 +245,27 @@ def spectral_matrix_xy(Hw, cov):
     nw = Hw.shape[-1]
     # now compute specral density function estimate
     # S(w) = H(w)SigH*(w)
-    Sw = np.empty( (2,2,nw), 'D')
+    Sw = np.empty((2, 2, nw), 'D')
 
     # do a shortcut for 2x2:
     # compute T(w) = SigH*(w)
     # t00 = Sig[0,0] * H*_00(w) + Sig[0,1] * H*_10(w)
-    t00 = cov[0,0]*Hw[0,0].conj() + cov[0,1]*Hw[0,1].conj()
+    t00 = cov[0, 0] * Hw[0, 0].conj() + cov[0, 1] * Hw[0, 1].conj()
     # t01 = Sig[0,0] * H*_01(w) + Sig[0,1] * H*_11(w)
-    t01 = cov[0,0]*Hw[1,0].conj() + cov[0,1]*Hw[1,1].conj()
+    t01 = cov[0, 0] * Hw[1, 0].conj() + cov[0, 1] * Hw[1, 1].conj()
     # t10 = Sig[1,0] * H*_00(w) + Sig[1,1] * H*_10(w)
-    t10 = cov[1,0]*Hw[0,0].conj() + cov[1,1]*Hw[0,1].conj()
+    t10 = cov[1, 0] * Hw[0, 0].conj() + cov[1, 1] * Hw[0, 1].conj()
     # t11 = Sig[1,0] * H*_01(w) + Sig[1,1] * H*_11(w)
-    t11 = cov[1,0]*Hw[1,0].conj() + cov[1,1]*Hw[1,1].conj()
+    t11 = cov[1, 0] * Hw[1, 0].conj() + cov[1, 1] * Hw[1, 1].conj()
 
     # now S(w) = H(w)T(w)
-    Sw[0,0] = Hw[0,0]*t00 + Hw[0,1]*t10
-    Sw[0,1] = Hw[0,0]*t01 + Hw[0,1]*t11
-    Sw[1,0] = Hw[1,0]*t00 + Hw[1,1]*t10
-    Sw[1,1] = Hw[1,0]*t01 + Hw[1,1]*t11
+    Sw[0, 0] = Hw[0, 0] * t00 + Hw[0, 1] * t10
+    Sw[0, 1] = Hw[0, 0] * t01 + Hw[0, 1] * t11
+    Sw[1, 0] = Hw[1, 0] * t00 + Hw[1, 1] * t10
+    Sw[1, 1] = Hw[1, 0] * t01 + Hw[1, 1] * t11
 
     return Sw
+
 
 def coherence_from_spectral(Sw):
     """Compute the spectral coherence between processes X and Y,
@@ -271,13 +278,14 @@ def coherence_from_spectral(Sw):
       spectral matrix
     """
 
-    Sxx = Sw[0,0].real
-    Syy = Sw[1,1].real
+    Sxx = Sw[0, 0].real
+    Syy = Sw[1, 1].real
 
-    Sxy_mod_sq = (Sw[0,1]*Sw[1,0]).real
+    Sxy_mod_sq = (Sw[0, 1] * Sw[1, 0]).real
     Sxy_mod_sq /= Sxx
     Sxy_mod_sq /= Syy
     return Sxy_mod_sq
+
 
 def interdependence_xy(Sw):
     """Compute the 'total interdependence' between processes X and Y,
@@ -297,7 +305,8 @@ def interdependence_xy(Sw):
     """
 
     Cw = coherence_from_spectral(Sw)
-    return -np.log(1-Cw)
+    return -np.log(1 - Cw)
+
 
 def granger_causality_xy(a, cov, n_freqs=1024):
     """Compute the Granger causality between processes X and Y, which
@@ -329,41 +338,42 @@ def granger_causality_xy(a, cov, n_freqs=1024):
 
     w, Hw = transfer_function_xy(a, n_freqs=n_freqs)
 
-    sigma = cov[0,0]; upsilon = cov[0,1]; gamma = cov[1,1]
+    sigma = cov[0, 0]
+    upsilon = cov[0, 1]
+    gamma = cov[1, 1]
 
     # this transformation of the transfer functions computes the
     # Granger causality of Y on X
-    gamma2 = gamma - upsilon**2/sigma
+    gamma2 = gamma - upsilon ** 2 / sigma
 
-    Hxy = Hw[0,1]
-    Hxx_hat = Hw[0,0] + (upsilon/sigma)*Hxy
+    Hxy = Hw[0, 1]
+    Hxx_hat = Hw[0, 0] + (upsilon / sigma) * Hxy
 
-    xx_auto_component = (sigma*Hxx_hat*Hxx_hat.conj()).real
-    cross_component = gamma2*Hxy*Hxy.conj()
+    xx_auto_component = (sigma * Hxx_hat * Hxx_hat.conj()).real
+    cross_component = gamma2 * Hxy * Hxy.conj()
     Sxx = xx_auto_component + cross_component
-    f_y_on_x = np.log( Sxx.real / xx_auto_component )
-
+    f_y_on_x = np.log(Sxx.real / xx_auto_component)
 
     # this transformation computes the Granger causality of X on Y
-    sigma2 = sigma - upsilon**2/gamma
+    sigma2 = sigma - upsilon ** 2 / gamma
 
-    Hyx = Hw[1,0]
-    Hyy_hat = Hw[1,1] + (upsilon/gamma)*Hyx
-    yy_auto_component = (gamma*Hyy_hat*Hyy_hat.conj()).real
-    cross_component = sigma2*Hyx*Hyx.conj()
+    Hyx = Hw[1, 0]
+    Hyy_hat = Hw[1, 1] + (upsilon / gamma) * Hyx
+    yy_auto_component = (gamma * Hyy_hat * Hyy_hat.conj()).real
+    cross_component = sigma2 * Hyx * Hyx.conj()
     Syy = yy_auto_component + cross_component
-    f_x_on_y = np.log( Syy.real / yy_auto_component )
+    f_x_on_y = np.log(Syy.real / yy_auto_component)
 
     # now compute cross densities, using the latest transformation
-    Hxx = Hw[0,0]
-    Hyx = Hw[1,0]
-    Hxy_hat = Hw[0,1] + (upsilon/gamma)*Hxx
-    Sxy = sigma2*Hxx*Hyx.conj() + gamma*Hxy_hat*Hyy_hat.conj()
-    Syx = sigma2*Hyx*Hxx.conj() + gamma*Hyy_hat*Hxy_hat.conj()
+    Hxx = Hw[0, 0]
+    Hyx = Hw[1, 0]
+    Hxy_hat = Hw[0, 1] + (upsilon / gamma) * Hxx
+    Sxy = sigma2 * Hxx * Hyx.conj() + gamma * Hxy_hat * Hyy_hat.conj()
+    Syx = sigma2 * Hyx * Hxx.conj() + gamma * Hyy_hat * Hxy_hat.conj()
 
     # can safely throw away imaginary part
     # since Sxx and Syy are real, and Sxy == Syx*
-    detS = (Sxx*Syy - Sxy*Syx).real
+    detS = (Sxx * Syy - Sxy * Syx).real
     f_xy = xx_auto_component * yy_auto_component
     f_xy /= detS
     f_xy = np.log(f_xy)

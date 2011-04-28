@@ -40,7 +40,7 @@ spike-times are given in micro-seconds:
 """
 
 spike_times = np.loadtxt('data/grasshopper_spike_times1.txt')
-spike_ev = ts.Events(spike_times,time_unit='us')
+spike_ev = ts.Events(spike_times, time_unit='us')
 
 
 """
@@ -62,11 +62,12 @@ The stimulus needs to be transformed from Volts to dB:
 
 """
 
-def volt2dB(stim,maxdB=100):
-    stim = (20*1/np.log(10))*(np.log(stim[:,1]/2.0e-5))
-    return maxdB-stim.max()+stim
 
-stim = volt2dB(stim, maxdB=76.4286) #maxdB taken from the spike file header 
+def volt2dB(stim, maxdB=100):
+    stim = (20 * 1 / np.log(10)) * (np.log(stim[:, 1] / 2.0e-5))
+    return maxdB - stim.max() + stim
+
+stim = volt2dB(stim, maxdB=76.4286)  # maxdB taken from the spike file header
 
 
 """
@@ -75,27 +76,31 @@ We create a time-series object for the stimulus, which was sampled at 20 kHz:
 
 """
 
-stim_time_series = ts.TimeSeries(t0=0,data=stim,sampling_interval=50,
+stim_time_series = ts.TimeSeries(t0=0,
+                                 data=stim,
+                                 sampling_interval=50,
                                  time_unit='us')
-
-""" 
-
-Note that the time-representation will not change if we now convert the
-time-unit into ms. The only thing this accomplishes is to use this time-unit in
-subsequent visualization of the resulting time-series 
 
 """
 
-stim_time_series.time_unit='ms'
+Note that the time-representation will not change if we now convert the
+time-unit into ms. The only thing this accomplishes is to use this time-unit in
+subsequent visualization of the resulting time-series
+
+"""
+
+stim_time_series.time_unit = 'ms'
 
 """
 
 Next, we initialize an EventRelatedAnalyzer:
 
-""" 
+"""
 
-event_related = tsa.EventRelatedAnalyzer(stim_time_series,spike_ev,len_et=200,
-                                                                  offset=-200)
+event_related = tsa.EventRelatedAnalyzer(stim_time_series,
+                                         spike_ev,
+                                         len_et=200,
+                                         offset=-200)
 
 """
 
@@ -104,11 +109,11 @@ and the result gets input directly into the plotting function:
 
 """
 
-fig01 = viz.plot_tseries(event_related.eta,ylabel='Amplitude (dB SPL)')
+fig01 = viz.plot_tseries(event_related.eta, ylabel='Amplitude (dB SPL)')
 
 """
 
-We prettify the plot a bit by adding a dashed line at the mean of the stimulus 
+We prettify the plot a bit by adding a dashed line at the mean of the stimulus
 
 """
 
@@ -116,7 +121,7 @@ ax = fig01.get_axes()[0]
 xlim = ax.get_xlim()
 ylim = ax.get_ylim()
 mean_stim = np.mean(stim_time_series.data)
-ax.plot([xlim[0],xlim[1]],[mean_stim,mean_stim],'k--')
+ax.plot([xlim[0], xlim[1]], [mean_stim, mean_stim], 'k--')
 
 
 """
@@ -126,13 +131,13 @@ ax.plot([xlim[0],xlim[1]],[mean_stim,mean_stim],'k--')
 In the following example, a second channel has been added to both the stimulus
 and the spike-train time-series. This is the response of the same cell, to a
 different stimulus, in which the frequency modulation has a higher frequency
-cut-off (800 Hz). 
+cut-off (800 Hz).
 
 """
 
 
 stim2 = np.loadtxt('data/grasshopper_stimulus2.txt')
-stim2 = volt2dB(stim2,maxdB=76.4286)
+stim2 = volt2dB(stim2, maxdB=76.4286)
 spike_times2 = np.loadtxt('data/grasshopper_spike_times2.txt')
 
 
@@ -147,41 +152,42 @@ We loop over the two spike-time events and stimulus time-series:
 
 et = []
 means = []
-for stim,spike in zip([stim,stim2],[spike_times,spike_times2]):
-    stim_time_series = ts.TimeSeries(t0=0,data=stim,sampling_interval=50,
-                                 time_unit='us')
-    
+for stim, spike in zip([stim, stim2], [spike_times, spike_times2]):
+    stim_time_series = ts.TimeSeries(t0=0, data=stim, sampling_interval=50,
+                                     time_unit='us')
+
     stim_time_series.time_unit = 'ms'
 
-    spike_ev = ts.Events(spike,time_unit='us')
+    spike_ev = ts.Events(spike, time_unit='us')
     #Initialize the event-related analyzer
-    event_related = tsa.EventRelatedAnalyzer(stim_time_series,spike_ev,
+    event_related = tsa.EventRelatedAnalyzer(stim_time_series,
+                                             spike_ev,
                                              len_et=200,
                                              offset=-200)
 
+    """
+
+    This is the line which actually executes the analysis
 
     """
-    
-    This is the line which actually executes the analysis 
 
-    """
-    
     et.append(event_related.eta)
     means.append(np.mean(stim_time_series.data))
 
 """
 
-Stack the data from both time-series, initialize a new time-series and plot it: 
+Stack the data from both time-series, initialize a new time-series and plot it:
 
-""" 
+"""
 
-fig02 =viz.plot_tseries(ts.TimeSeries(data=np.vstack([et[0].data,et[1].data]),
-                               sampling_rate=et[0].sampling_rate,time_unit='ms'))
+fig02 = viz.plot_tseries(
+    ts.TimeSeries(data=np.vstack([et[0].data, et[1].data]),
+                  sampling_rate=et[0].sampling_rate, time_unit='ms'))
 
 ax = fig02.get_axes()[0]
 xlim = ax.get_xlim()
-ax.plot([xlim[0],xlim[1]],[means[0],means[0]],'b--')
-ax.plot([xlim[0],xlim[1]],[means[1],means[1]],'g--')
+ax.plot([xlim[0], xlim[1]], [means[0], means[0]], 'b--')
+ax.plot([xlim[0], xlim[1]], [means[1], means[1]], 'g--')
 
 
 """

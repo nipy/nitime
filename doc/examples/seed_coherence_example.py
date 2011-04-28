@@ -9,11 +9,11 @@ Seed coherence analysis is the analysis of coherence between one time-series
 (termed the 'seed') and many other time-series (termed the 'targets'). This is
 a rather typical strategy in the analysis of fMRI data where one might look for
 all the areas of the brain that exhibit high level of connectivity to a
-particular region of interest. 
+particular region of interest.
 
 
 We start by importing the needed modules. First modules from the standard lib
-and from 3rd parties: 
+and from 3rd parties:
 
 """
 
@@ -23,7 +23,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-"""     
+"""
 
 Notice that nibabel (http://nipy.org.nibabel) is required in order to run this
 example, so we test whether the user has that installed and throw an
@@ -31,7 +31,7 @@ informative error if not:
 
 """
 
-try: 
+try:
     from nibabel import load
 except ImportError:
     raise ImportError('You need nibabel (http:/nipy.org/nibabel/) in order to run this example')
@@ -48,9 +48,9 @@ import nitime.fmri.io as io
 
 """
 
-We define the TR of the analysis and the frequency band of interest: 
+We define the TR of the analysis and the frequency band of interest:
 
-""" 
+"""
 
 TR = 1.35
 f_lb = 0.02
@@ -61,14 +61,14 @@ f_ub = 0.15
 
 An fMRI data file with some actual fMRI data is shipped as part of the
 distribution, the following line will find the path to this data on the
-specific setup: 
+specific setup:
 
 """
 
 data_file_path = test_dir_path = os.path.join(nitime.__path__[0],
                                               'fmri/tests/')
 
-fmri_file = os.path.join(data_file_path,'fmri1.nii.gz')
+fmri_file = os.path.join(data_file_path, 'fmri1.nii.gz')
 
 
 """
@@ -77,7 +77,7 @@ Read in the data, using nibabel:
 
 """
 
-fmri_data = load(fmri_file) 
+fmri_data = load(fmri_file)
 
 
 """
@@ -105,14 +105,14 @@ We choose some number of random voxels to serve as seed voxels:
 
 n_seeds = 3
 
-#Choose n_seeds random voxels to be the seed voxels
-seeds = np.random.randint(0,len(coords),n_seeds)
+# Choose n_seeds random voxels to be the seed voxels
+seeds = np.random.randint(0, len(coords), n_seeds)
 coords_seeds = np.array(coords)[seeds].T
 
 
 """
 
-The entire volume is chosen to be the target: 
+The entire volume is chosen to be the target:
 
 """
 
@@ -122,11 +122,11 @@ coords_target = np.array(coords).T
 """
 
 We use nitime.fmri.io in order to generate TimeSeries objects from spatial
-coordinates in the data file: 
+coordinates in the data file:
 
-""" 
+"""
 
-#Make the seed time series:
+# Make the seed time series:
 time_series_seed = io.time_series_from_file(fmri_file,
                                 coords_seeds,
                                 TR=TR,
@@ -135,7 +135,7 @@ time_series_seed = io.time_series_from_file(fmri_file,
                                             ub=f_ub,
                                             method='boxcar'))
 
-#Make the target time series: 
+# Make the target time series:
 time_series_target = io.time_series_from_file(fmri_file,
                                           coords_target,
                                           TR=TR,
@@ -155,16 +155,16 @@ used for the coherence estimation:
 
 """
 
-A=nta.SeedCoherenceAnalyzer(time_series_seed, time_series_target,
+A = nta.SeedCoherenceAnalyzer(time_series_seed, time_series_target,
                             method=dict(NFFT=20))
 
 """
 
-We are only interested in the physiologically relevant frequency band: 
+We are only interested in the physiologically relevant frequency band:
 
 """
 
-freq_idx = np.where((A.frequencies>f_lb) * (A.frequencies<f_ub))[0]
+freq_idx = np.where((A.frequencies > f_lb) * (A.frequencies < f_ub))[0]
 
 
 """
@@ -173,20 +173,20 @@ The result of the coherence is a list, with an ndarray in each item in the
 list, corresponding to one of the channels in the seed TimeSeries. We extract
 the coherence values for each one of the seeds:
 
-""" 
+"""
 
 coh = []
 
 for this_coh in range(n_seeds):
-    #Extract the coherence and average across these frequency bands: 
-    coh.append(np.mean(A.coherence[this_coh][:,freq_idx],-1)) #Averaging on the
-                                                              #last dimension
+    # Extract the coherence and average across these frequency bands:
+    coh.append(np.mean(A.coherence[this_coh][:, freq_idx], -1))  # Averaging on the
+                                                                 # last dimension
 
 
 """
 
 We then put the coherence values back into arrays that have the original shape
-of the volume from which the data was extracted:  
+of the volume from which the data was extracted:
 
 """
 
@@ -201,12 +201,12 @@ for this_vol in range(n_seeds):
 
 """
 
-We visualize this by choosing a random slice from the data: 
+We visualize this by choosing a random slice from the data:
 
 """
 
 #Choose a random slice to display:
-random_slice = np.random.randint(0,volume_shape[-1],1)
+random_slice = np.random.randint(0, volume_shape[-1], 1)
 
 
 """
@@ -219,11 +219,13 @@ And displaying the coherence values for each seed voxel in this slice:
 fig = plt.figure()
 ax = []
 for this_vox in range(n_seeds):
-    ax.append(fig.add_subplot(1,n_seeds,this_vox+1))
-    ax[-1].matshow(vol[this_vox][:,:,random_slice].squeeze())
-    ax[-1].set_title('Seed coords: %s'%coords_seeds[:,this_vox])
+    ax.append(fig.add_subplot(1, n_seeds, this_vox + 1))
+    ax[-1].matshow(vol[this_vox][:, :, random_slice].squeeze())
+    ax[-1].set_title('Seed coords: %s' % coords_seeds[:, this_vox])
 
-fig.suptitle('Coherence between all the voxels in slice: %i and seed voxels'%random_slice)
+suptit = 'Coherence between all the voxels in slice: '
+suptit += '%i and seed voxels' % random_slice
+fig.suptitle(suptit)
 
 
 """

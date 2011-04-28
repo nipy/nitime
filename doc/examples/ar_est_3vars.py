@@ -8,19 +8,20 @@ np.random.seed(1981)
 
 # simulate two mAR systems:
 
-cov = np.diag( [0.3, 1.0, 0.2] )
+cov = np.diag([0.3, 1.0, 0.2])
 
 # X(t) = 0.8X(t-1) - 0.5X(t-2) + 0.4Z(t-1) + Ex(t)
 # Y(t) = 0.9Y(t-1) - 0.8Y(t-2) + Ey(t)
 # Z(t) = 0.5Z(t-1) - 0.2Z(t-2) + 0.5Y(t-1) + Ez(t)
 
 
-a1 = -np.array([ [0.8, 0.0, 0.4],
+a1 = -np.array([[0.8, 0.0, 0.4],
                  [0.0, 0.9, 0.0],
-                 [0.0, 0.5, 0.5] ])
-a2 = -np.array([ [-0.5, 0.0, 0.0],
+                 [0.0, 0.5, 0.5]])
+a2 = -np.array([[-0.5, 0.0, 0.0],
                  [0.0, -0.8, 0.0],
-                 [0.0, 0.0, -0.2] ])
+                 [0.0, 0.0, -0.2]])
+
 a = np.array([a1.copy(), a2.copy()])
 
 # X(t) = 0.8X(t-1) - 0.5X(t-2) + 0.4Z(t-1) + 0.2Y(t-2) + Ex(t)
@@ -28,13 +29,14 @@ a = np.array([a1.copy(), a2.copy()])
 # Z(t) = 0.5Z(t-1) -0.2Z(t-2) + 0.5Y(t-1) + Ez(t)
 # just add some feedback from Y to X at 2 lags
 
-a2[0,1] = -0.2
+a2[0, 1] = -0.2
 
 b = np.array([a1.copy(), a2.copy()])
 
+
 def extract_ij(i, j, m):
-    m_ij_rows = m[[i,j]]
-    return m_ij_rows[:,[i,j]]
+    m_ij_rows = m[[i, j]]
+    return m_ij_rows[:, [i, j]]
 
 w, Haw = alg.transfer_function_xy(a)
 w, Hbw = alg.transfer_function_xy(b)
@@ -55,8 +57,8 @@ for i in xrange(N):
 # try to estimate the 2nd order (m)AR coefficients--
 # average together N estimates of auto-covariance at lags k=0,1,2
 
-Raxx = np.empty((N,3,3,3))
-Rbxx = np.empty((N,3,3,3))
+Raxx = np.empty((N, 3, 3, 3))
+Rbxx = np.empty((N, 3, 3, 3))
 
 for i in xrange(N):
     Raxx[i] = utils.autocov_vector(za[i], nlags=3)
@@ -76,17 +78,17 @@ yzRb = extract_ij(1, 2, Rbxx)
 
 # now estimate mAR coefficients and covariance from the full and
 # pairwise relationships
-Raxx = Raxx.transpose(2,0,1)
+Raxx = Raxx.transpose(2, 0, 1)
 a_est, cov_est1 = utils.lwr(Raxx)
-a_xy_est, cov_xy_est1 = utils.lwr(xyRa.transpose(2,0,1))
-a_xz_est, cov_xz_est1 = utils.lwr(xzRa.transpose(2,0,1))
-a_yz_est, cov_yz_est1 = utils.lwr(yzRa.transpose(2,0,1))
+a_xy_est, cov_xy_est1 = utils.lwr(xyRa.transpose(2, 0, 1))
+a_xz_est, cov_xz_est1 = utils.lwr(xzRa.transpose(2, 0, 1))
+a_yz_est, cov_yz_est1 = utils.lwr(yzRa.transpose(2, 0, 1))
 
-Rbxx = Rbxx.transpose(2,0,1)
+Rbxx = Rbxx.transpose(2, 0, 1)
 b_est, cov_est2 = utils.lwr(Rbxx)
-b_xy_est, cov_xy_est2 = utils.lwr(xyRb.transpose(2,0,1))
-b_xz_est, cov_xz_est2 = utils.lwr(xzRb.transpose(2,0,1))
-b_yz_est, cov_yz_est2 = utils.lwr(yzRb.transpose(2,0,1))
+b_xy_est, cov_xy_est2 = utils.lwr(xyRb.transpose(2, 0, 1))
+b_xz_est, cov_xz_est2 = utils.lwr(xzRb.transpose(2, 0, 1))
+b_yz_est, cov_yz_est2 = utils.lwr(yzRb.transpose(2, 0, 1))
 
 fig = pp.figure()
 
@@ -98,12 +100,12 @@ ax = fig.add_subplot(321)
 ax.plot(w, x2y_a, 'b--')
 ax.plot(w, x2y_b, 'b')
 ax.set_title('x to y')
-ax.set_ylim((0,6))
+ax.set_ylim((0, 6))
 ax = fig.add_subplot(322)
 ax.plot(w, y2x_a, 'b--')
 ax.plot(w, y2x_b, 'b')
 ax.set_title('y to x')
-ax.set_ylim((0,6))
+ax.set_ylim((0, 6))
 
 ## w, y2z_a, z2y_a = pairwise_causality(1, 2, a_est, cov_est1)
 ## w, y2z_b, z2y_b = pairwise_causality(1, 2, b_est, cov_est2)
@@ -113,12 +115,12 @@ ax = fig.add_subplot(323)
 ax.plot(w, y2z_a, 'b--')
 ax.plot(w, y2z_b, 'b')
 ax.set_title('y to z')
-ax.set_ylim((0,6))
+ax.set_ylim((0, 6))
 ax = fig.add_subplot(324)
 ax.plot(w, z2y_a, 'b--')
 ax.plot(w, z2y_b, 'b')
 ax.set_title('z to y')
-ax.set_ylim((0,6))
+ax.set_ylim((0, 6))
 
 ## w, x2z_a, z2x_a = pairwise_causality(0, 2, a_est, cov_est1)
 ## w, x2z_b, z2x_b = pairwise_causality(0, 2, b_est, cov_est2)
@@ -128,11 +130,11 @@ ax = fig.add_subplot(325)
 ax.plot(w, x2z_a, 'b--')
 ax.plot(w, x2z_b, 'b')
 ax.set_title('x to z')
-ax.set_ylim((0,6))
+ax.set_ylim((0, 6))
 ax = fig.add_subplot(326)
 ax.plot(w, z2x_a, 'b--')
 ax.plot(w, z2x_b, 'b')
 ax.set_title('z to x')
-ax.set_ylim((0,6))
+ax.set_ylim((0, 6))
 
 pp.show()

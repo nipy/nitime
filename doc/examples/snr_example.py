@@ -1,6 +1,6 @@
 """
 ==============================================
-Caclulation of Signal to noise and information 
+Caclulation of Signal to noise and information
 ==============================================
 
 This method is based on ideas described in [Borst1999]_ (Figure 2) and
@@ -17,13 +17,13 @@ The estimate of the information is based on the formula
 
 Where $SNR(\omega)$ is the ratio of the signal power and the noise power at the
 frequency band centered on $\omega$.This equation holde true for a Gaussian
-channel and is an upper bound for all other cases. 
+channel and is an upper bound for all other cases.
 
 The signal power is estimated as the power of the mean response to repeated
 presentations of the same signal and the noise power is calculated as the
 average of the power in the deviation from this average in each trial
 
-We import the neccesary modules: 
+We import the neccesary modules:
 
 """
 
@@ -46,7 +46,7 @@ ar_seq -= ar_seq.mean()
 """
 
 The signal will be repeated several times, adding noise to the signal in each
-repetition: 
+repetition:
 
 """
 
@@ -64,22 +64,22 @@ the calculated information
 
 """
 
-for idx,noise in enumerate([1,10,50,100]):
+for idx, noise in enumerate([1, 10, 50, 100]):
 
     """
 
     Make n_trials repetitions of the signal:
 
-    """ 
+    """
 
-    sample.append(np.ones((n_trials,ar_seq.shape[-1]))+ar_seq)
+    sample.append(np.ones((n_trials, ar_seq.shape[-1])) + ar_seq)
     n_points = sample[-1].shape[-1]
 
     """
 
     Add noise:
 
-    """ 
+    """
 
     for trial in  xrange(n_trials):
         sample[-1][trial] += np.random.randn(sample[-1][trial].shape[0]) * noise
@@ -90,25 +90,25 @@ for idx,noise in enumerate([1,10,50,100]):
 
     """
 
-    sample_mean = np.mean(sample[-1],0)
+    sample_mean = np.mean(sample[-1], 0)
 
     """
 
     We plot a comparison of the actual signal (blue) and this estimate(blue). The
-    thinner lines n other colors, represent the individual trials: 
+    thinner lines n other colors, represent the individual trials:
 
     """
 
     fig_tseries.append(plt.figure())
-    ax = fig_tseries[-1].add_subplot(1,1,1)
+    ax = fig_tseries[-1].add_subplot(1, 1, 1)
     ax.plot(sample[-1].T)
-    ax.plot(ar_seq,'b',linewidth=4)
-    ax.plot(sample_mean,'r',linewidth=4)
+    ax.plot(ar_seq, 'b', linewidth=4)
+    ax.plot(sample_mean, 'r', linewidth=4)
     ax.set_xlabel('Time')
     ax.set_ylabel('Amplitude')
 
     """
-    
+
     We present this at different levels of noise. With low noise, the estimate
     of the signal and also the response of the system at different repetitions
     is very similar to the original signal.
@@ -119,11 +119,11 @@ for idx,noise in enumerate([1,10,50,100]):
     display the signal power (blue) and the noise power (green), both in the left
     sub-plot. In addition, the SNR (blue) and the cumulative information (as a
     function of frequency bands, starting from low frequencies, in red) are
-    dislplayed in the right subplot. 
-    
-    """ 
+    dislplayed in the right subplot.
 
-    tseries = ts.TimeSeries(sample[-1],sampling_rate=1.)
+    """
+
+    tseries = ts.TimeSeries(sample[-1], sampling_rate=1.)
     fig_snr.append(viz.plot_snr(tseries))
 
 """
@@ -161,9 +161,9 @@ transmission (on the left) and the signal to noise ratio (on the right) between
 the two last noise levels:
 """
 
-ts1 = ts.TimeSeries(sample[-1],sampling_rate=1.)
-ts2 = ts.TimeSeries(sample[-2],sampling_rate=1.)
-fig_compare = viz.plot_snr_diff(ts1,ts2)
+ts1 = ts.TimeSeries(sample[-1], sampling_rate=1.)
+ts2 = ts.TimeSeries(sample[-2], sampling_rate=1.)
+fig_compare = viz.plot_snr_diff(ts1, ts2)
 plt.show()
 
 """
@@ -171,7 +171,7 @@ plt.show()
 .. image:: fig/snr_example_09.png
 
 
-References 
+References
 
     .. [Hsu2004] Hsu A, Borst A and Theunissen, FE (2004) Quantifying
     variability in neural responses ans its application for the validation of
@@ -182,4 +182,3 @@ References
 
 
 """
-
