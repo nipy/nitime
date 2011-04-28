@@ -12,6 +12,7 @@ from nitime import descriptors as desc
 # Support classes and functions
 #-----------------------------------------------------------------------------
 
+
 class A(desc.ResetMixin):
     @desc.auto_attr
     def y(self):
@@ -27,6 +28,7 @@ class A(desc.ResetMixin):
 #-----------------------------------------------------------------------------
 # Test functions
 #-----------------------------------------------------------------------------
+
 
 def test():
     a = A(10)
