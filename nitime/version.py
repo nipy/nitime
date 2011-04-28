@@ -106,7 +106,10 @@ PACKAGES = ['nitime',
             'nitime.fmri',
             'nitime.fmri.tests',
             'nitime.algorithms',
-            'nitime.algorithms.tests']
+            'nitime.algorithms.tests',
+            'nitime.analysis',
+            'nitime.analysis.tests',
+            ]
 PACKAGE_DATA = {"nitime": ["LICENSE", "tests/*.txt",
                                   "fmri/tests/*.nii.gz"]}
 REQUIRES = ["numpy", "matplotlib", "scipy"]
