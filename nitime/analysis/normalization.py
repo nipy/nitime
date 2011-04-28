@@ -4,12 +4,12 @@ from nitime import timeseries as ts
 
 from .base import BaseAnalyzer
 
-class NormalizationAnalyzer(BaseAnalyzer):
 
+class NormalizationAnalyzer(BaseAnalyzer):
     """ A class for performing normalization operations on time-series and
     producing the renormalized versions of the time-series"""
 
-    def __init__(self,input=None):
+    def __init__(self, input=None):
         """Constructor function for the Normalization analyzer class.
 
         Parameters
@@ -18,16 +18,16 @@ class NormalizationAnalyzer(BaseAnalyzer):
         input: TimeSeries object
 
         """
-        BaseAnalyzer.__init__(self,input)
+        BaseAnalyzer.__init__(self, input)
 
     @desc.setattr_on_read
     def percent_change(self):
         return ts.TimeSeries(tsu.percent_change(self.input.data),
                              sampling_rate=self.input.sampling_rate,
-                             time_unit = self.input.time_unit)
+                             time_unit=self.input.time_unit)
 
     @desc.setattr_on_read
     def z_score(self):
         return ts.TimeSeries(tsu.zscore(self.input.data),
                              sampling_rate=self.input.sampling_rate,
-                             time_unit = self.input.time_unit)
+                             time_unit=self.input.time_unit)
