@@ -24,7 +24,7 @@ several problems [NR2007]_:
   resolution of our estimate and sampling at a finer rate will change the
   Nyquist frequency, the highest frequency for which the spectrum can be
   estimated. Thus, these changes do not improve the estimate at frequency
-  $f_k$.  
+  $f_k$.
 
 The inefficiency problem can be solved by treating different parts of the
 signal as different samples from the same distribution, while assuming
@@ -51,7 +51,7 @@ following problem:
   leakage induced by this operation is demonstrated in the following example.
 
 
-We start by importing the modules/functions we will need in this example 
+We start by importing the modules/functions we will need in this example
 
 
 """
@@ -77,7 +77,7 @@ fig01 = plt.figure()
 # Boxcar with zeroed out fraction
 b = sig.boxcar(npts)
 zfrac = 0.15
-zi = int(npts*zfrac)
+zi = int(npts * zfrac)
 b[:zi] = b[-zi:] = 0
 name = 'Boxcar - zero fraction=%.2f' % zfrac
 winspect(b, fig01, name)
@@ -102,7 +102,7 @@ fig02 = plt.figure()
 # Boxcar with zeroed out fraction
 b = sig.boxcar(npts)
 zfrac = 0.15
-zi = int(npts*zfrac)
+zi = int(npts * zfrac)
 b[:zi] = b[-zi:] = 0
 name = 'Boxcar - zero fraction=%.2f' % zfrac
 winspect(b, fig02, name)
@@ -111,7 +111,7 @@ winspect(sig.hanning(npts), fig02, 'Hanning')
 winspect(sig.bartlett(npts), fig02, 'Bartlett')
 winspect(sig.barthann(npts), fig02, 'Modified Bartlett-Hann')
 
-""" 
+"""
 
 .. image:: fig/multi_taper_spectral_estimation_02.png
 
@@ -122,7 +122,7 @@ windowing functions have different spectral attenuation profiles, trading off
 attenuation of leakage from frequency bands near the frequency of interest
 (narrow-band leakage) with leakage from faraway frequency bands (broad-band
 leakage) they are all superior in both of these respects to the boxcar window
-used in the naive periodogram. 
+used in the naive periodogram.
 
 Another approach which deals with both the inefficiency problem and with the
 spectral leakage problem is the use of taper functions. In this approach, the
@@ -141,14 +141,15 @@ bandwidth. These tapers can be constructed using
 is sufficient to specify the bandwidth (which defines the boundary between
 narrow-band and broad-band leakage) as an input to
 :func:`algorithms.mutli_taper_psd` and this function will then construct the
-appropriate windows, calculate the tapered spectra and average them. 
+appropriate windows, calculate the tapered spectra and average them.
 
 We will demonstrate the use of DPSS in spectral estimation on a time-series
 with known spectral properties generated from an auto-regressive process.
 
-We start by defining a function which will be used throughout this example: 
+We start by defining a function which will be used throughout this example:
 
 """
+
 
 def dB(x, out=None):
     if out is None:
@@ -160,7 +161,7 @@ def dB(x, out=None):
 
 """
 
-And the conversion factor from ln to dB: 
+And the conversion factor from ln to dB:
 
 """
 
@@ -179,12 +180,12 @@ ar_seq -= ar_seq.mean()
 
 """
 
-This is the true PSD for this sequence: 
+This is the true PSD for this sequence:
 
 """
 
 fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha], n_freqs=N)
-psd = (hz*hz.conj()).real
+psd = (hz * hz.conj()).real
 
 """
 
@@ -222,15 +223,15 @@ the method used in order to calculate the PSD, but the default method is 'welch'
 """
 
 welch_freqs, welch_psd = tsa.get_spectra(ar_seq,
-                                         method=dict(this_method='welch',NFFT=N))
-welch_freqs *= (np.pi/welch_freqs.max())
+                                         method=dict(this_method='welch', NFFT=N))
+welch_freqs *= (np.pi / welch_freqs.max())
 welch_psd = welch_psd.squeeze()
 dB(welch_psd, welch_psd)
 
 fig04 = plot_spectral_estimate(freqs, psd, (welch_psd,), elabels=("Welch",))
 
 
-""" 
+"""
 
 .. image:: fig/multi_taper_spectral_estimation_04.png
 
@@ -247,28 +248,28 @@ dB(psd_mt, psd_mt)
 
 """
 
-And get the number of tapers from here: 
+And get the number of tapers from here:
 
 """
 
-Kmax = nu[0]/2
+Kmax = nu[0] / 2
 
 
 """
 
 We calculate a hypothetical 5% confidence interval from a chi-square distribution
-with 2*Kmax degrees of freedom (see [Percival1993]_ eq 258) 
+with 2*Kmax degrees of freedom (see [Percival1993]_ eq 258)
 
 
 """
 
-p975 = dist.chi2.ppf(.975, 2*Kmax)
-p025 = dist.chi2.ppf(.025, 2*Kmax)
+p975 = dist.chi2.ppf(.975, 2 * Kmax)
+p025 = dist.chi2.ppf(.025, 2 * Kmax)
 
-l1 = ln2db * np.log(2*Kmax/p975)
-l2 = ln2db * np.log(2*Kmax/p025)
+l1 = ln2db * np.log(2 * Kmax / p975)
+l2 = ln2db * np.log(2 * Kmax / p025)
 
-hyp_limits = (psd_mt + l1, psd_mt + l2 )
+hyp_limits = (psd_mt + l1, psd_mt + l2)
 
 fig05 = plot_spectral_estimate(freqs, psd, (psd_mt,), hyp_limits,
               elabels=('MT with hypothetical 5% interval',))
@@ -333,9 +334,9 @@ And degrees of freedom which depend on the number of tapers used (Kmax-1):
 
 _, _, jk_var = tsa.multi_taper_psd(ar_seq, adaptive=False, jackknife=True)
 
-jk_p = (dist.t.ppf(.975, Kmax-1) * np.sqrt(jk_var)) * ln2db
+jk_p = (dist.t.ppf(.975, Kmax - 1) * np.sqrt(jk_var)) * ln2db
 
-jk_limits = ( psd_mt - jk_p, psd_mt + jk_p )
+jk_limits = (psd_mt - jk_p, psd_mt + jk_p)
 
 
 fig07 = plot_spectral_estimate(freqs, psd, (psd_mt,),
@@ -348,7 +349,7 @@ fig07 = plot_spectral_estimate(freqs, psd, (psd_mt,),
 .. image:: fig/multi_taper_spectral_estimation_07.png
 
 In addition, if the 'adaptive' flag is set to True, an iterative adaptive
-method is used in order to correct bias in the spectrum. 
+method is used in order to correct bias in the spectrum.
 
 Finally, we combine the adaptive estimation of the weights with the
 jack-knifing procedure.
@@ -361,11 +362,11 @@ _, _, adaptive_jk_var = tsa.multi_taper_psd(
     )
 
 # find 95% confidence limits from inverse of t-dist CDF
-jk_p = (dist.t.ppf(.975, Kmax-1)*np.sqrt(adaptive_jk_var)) * ln2db
+jk_p = (dist.t.ppf(.975, Kmax - 1) * np.sqrt(adaptive_jk_var)) * ln2db
 
-adaptive_jk_limits = ( adaptive_psd_mt - jk_p, adaptive_psd_mt + jk_p )
+adaptive_jk_limits = (adaptive_psd_mt - jk_p, adaptive_psd_mt + jk_p)
 
-fig08 = plot_spectral_estimate(freqs, psd,(adaptive_psd_mt, ),
+fig08 = plot_spectral_estimate(freqs, psd, (adaptive_psd_mt,),
               adaptive_jk_limits,
               elabels=('adaptive-MT with JK 5% interval',))
 
@@ -376,7 +377,7 @@ fig08 = plot_spectral_estimate(freqs, psd,(adaptive_psd_mt, ),
 
 We call plt.show() in order to show all the figures:
 
-""" 
+"""
 
 plt.show()
 
@@ -385,23 +386,23 @@ plt.show()
 References
 
 .. [NR2007] W.H. Press, S.A. Teukolsky, W.T Vetterling and B.P. Flannery (2007)
-   	    Numerical Recipes: The Art of Scientific Computing. Cambridge:
-   	    Cambridge University Press. 3rd Ed.
+            Numerical Recipes: The Art of Scientific Computing. Cambridge:
+            Cambridge University Press. 3rd Ed.
 
 .. [Thomson2007] D.J. Thomson, Jackknifing Multitaper Spectrum Estimates, IEEE
-   		 Signal Processing Magazine, 2007, pp. 20-30.
+                 Signal Processing Magazine, 2007, pp. 20-30.
 
 .. [Welch1967] P.D. Welch (1967), The use of the fast fourier transform for the
-   	       estimation of power spectra: a method based on time averaging
-   	       over short modified periodograms. IEEE Transcations on Audio and
-   	       Electroacoustics.
+               estimation of power spectra: a method based on time averaging
+               over short modified periodograms. IEEE Transcations on Audio and
+               Electroacoustics.
 
 .. [Slepian1978] Slepian, D. Prolate spheroidal wave functions, Fourier
-		 analysis, and uncertainty V: The discrete case. Bell System
-		 Technical Journal, Volume 57 (1978), 1371430
+                 analysis, and uncertainty V: The discrete case. Bell System
+                 Technical Journal, Volume 57 (1978), 1371430
 
 .. [Percival1993] Percival D.B. and Walden A.T. (1993) Spectral Analysis for
                   Physical Applications: Multitaper and Conventional Univariate
-                  Techniques. Cambridge University Press  
+                  Techniques. Cambridge University Press
 
 """

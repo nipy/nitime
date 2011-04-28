@@ -1,12 +1,12 @@
 """
 =================
-Simple AR fitting 
+Simple AR fitting
 =================
 
-This example demonstrates simple AR(p) fitting with the Yule Walker equations. 
+This example demonstrates simple AR(p) fitting with the Yule Walker equations.
 
 We start off with imports from numpy, matplotlib and import :mod:`nitime.utils` as
-well as :mod:`nitime.algorithms:` 
+well as :mod:`nitime.algorithms:`
 
 """
 
@@ -21,7 +21,7 @@ from nitime import algorithms as alg
 We define some variables, which will be used in generating the AR process:
 """
 
-npts = 2048*10
+npts = 2048 * 10
 sigma = 1
 drop_transients = 1024
 coefs = np.array([0.9, -0.5])
@@ -31,7 +31,7 @@ coefs = np.array([0.9, -0.5])
 
 This generates an AR(2) time series:
 
-""" 
+"""
 
 X, v, _ = utils.ar_generator(npts, sigma, coefs, drop_transients)
 
@@ -41,7 +41,7 @@ X, v, _ = utils.ar_generator(npts, sigma, coefs, drop_transients)
 import nitime.timeseries as ts
 from nitime.viz import plot_tseries
 
-fig_noise = plot_tseries(ts.TimeSeries(v,sampling_rate=1000,time_unit='s'))
+fig_noise = plot_tseries(ts.TimeSeries(v, sampling_rate=1000, time_unit='s'))
 fig_noise.suptitle('noise')
 
 """
@@ -50,7 +50,7 @@ fig_noise.suptitle('noise')
 
 """
 
-fig_ar = plot_tseries(ts.TimeSeries(X,sampling_rate=1000,time_unit='s'))
+fig_ar = plot_tseries(ts.TimeSeries(X, sampling_rate=1000, time_unit='s'))
 fig_ar.suptitle('AR signal')
 
 """

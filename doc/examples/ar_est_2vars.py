@@ -8,10 +8,10 @@ Mulitvariate auto-regressive modeling
 =====================================
 
 
-This example is based on Ding, Chen and Bressler 2006 [Ding2006]_. 
+This example is based on Ding, Chen and Bressler 2006 [Ding2006]_.
 
 
-We start by importing the required libraries: 
+We start by importing the required libraries:
 
 
 """
@@ -46,11 +46,11 @@ The example data from _[Ding2006] pg 18 (eq 55)
 
 """
 
-a1 = np.array([ [0.9, 0],
-                [0.16, 0.8] ])
+a1 = np.array([[0.9, 0],
+               [0.16, 0.8]])
 
-a2 = np.array([ [-0.5, 0],
-                [-0.2, -0.5] ])
+a2 = np.array([[-0.5, 0],
+               [-0.2, -0.5]])
 
 """
 
@@ -67,13 +67,13 @@ where $Z[t] = [X[t]$, $Y[t]]^t$ and $Err[t] ~ N(mu, cov=[ [x_var, xy_cov], [xy_c
 
 """
 
-am = np.array([ -a1, -a2 ])
+am = np.array([-a1, -a2])
 
 x_var = 1
 y_var = 0.7
 xy_cov = 0.4
-cov = np.array([ [x_var, xy_cov],
-                 [xy_cov, y_var] ])
+cov = np.array([[x_var, xy_cov],
+                [xy_cov, y_var]])
 
 
 """
@@ -84,7 +84,7 @@ z=exp(j*omega) from omega in [0,pi] )
 
 """
 
-n_freqs=1024
+n_freqs = 1024
 
 w, Hw = alg.transfer_function_xy(am, n_freqs=n_freqs)
 Sw_true = alg.spectral_matrix_xy(Hw, cov)
@@ -121,17 +121,17 @@ for i in xrange(N):
 # Rxx_11(k) is E{ z1(t)z1*(t-k) }
 # So only Rxx(0) is symmetric
 
-Rxx = np.empty((N,n_process,n_process,n_lags))
+Rxx = np.empty((N, n_process, n_process, n_lags))
 
 for i in xrange(N):
-    Rxx[i] = utils.autocov_vector(z[i],nlags=n_lags)
+    Rxx[i] = utils.autocov_vector(z[i], nlags=n_lags)
 
 Rxx = Rxx.mean(axis=0)
 
-R0 = Rxx[...,0]
-Rm = Rxx[...,1:]
+R0 = Rxx[..., 0]
+Rm = Rxx[..., 1:]
 
-Rxx = Rxx.transpose(2,0,1)
+Rxx = Rxx.transpose(2, 0, 1)
 
 a, ecov = utils.lwr(Rxx)
 
@@ -140,29 +140,34 @@ print a - am
 print 'compare covariance to estimate:'
 print ecov - cov
 
-w, f_x2y, f_y2x, f_xy, Sw = alg.granger_causality_xy(a,ecov,n_freqs=n_freqs)
+w, f_x2y, f_y2x, f_xy, Sw = alg.granger_causality_xy(a,
+                                                     ecov,
+                                                     n_freqs=n_freqs)
 
 f = pp.figure()
-c_x = np.empty((L,w.shape[0]))
-c_y = np.empty((L,w.shape[0]))
+c_x = np.empty((L, w.shape[0]))
+c_y = np.empty((L, w.shape[0]))
 
 for i in xrange(N):
-    frex,c_x[i],nu = alg.multi_taper_psd(z[i][0])
-    frex,c_y[i],nu = alg.multi_taper_psd(z[i][1])
+    frex, c_x[i], nu = alg.multi_taper_psd(z[i][0])
+    frex, c_y[i], nu = alg.multi_taper_psd(z[i][1])
 
 # power plot
 ax = f.add_subplot(321)
 # correct for one-sided spectral density functions
-Sxx_true = Sw_true[0,0].real; Syy_true = Sw_true[1,1].real
-Sxx_est = np.abs(Sw[0,0]); Syy_est = np.abs(Sw[1,1])
+Sxx_true = Sw_true[0, 0].real
+Syy_true = Sw_true[1, 1].real
+Sxx_est = np.abs(Sw[0, 0])
+Syy_est = np.abs(Sw[1, 1])
+
 #ax.plot(w, Sxx_true, 'b', label='true Sxx(w)')
 ax.plot(w, Sxx_est, 'b--', label='estimated Sxx(w)')
 #ax.plot(w, Syy_true, 'g', label='true Syy(w)')
 ax.plot(w, Syy_est, 'g--', label='estimated Syy(w)')
 
 #scaler = np.mean(Sxx_est/np.mean(c_x,0))
-ax.plot(w,np.mean(c_x,0),'r',label='Sxx(w) - MT PSD')
-ax.plot(w,np.mean(c_y,0),'r--',label='Syy(w) - MT PSD')
+ax.plot(w, np.mean(c_x, 0), 'r', label='Sxx(w) - MT PSD')
+ax.plot(w, np.mean(c_y, 0), 'r--', label='Syy(w) - MT PSD')
 
 ax.legend()
 
@@ -174,31 +179,31 @@ ax = f.add_subplot(322)
 f_id = alg.interdependence_xy(Sw)
 ax.plot(w, f_id)
 ax.set_title('interdependence')
-ax.set_ylim([0,2.2])
+ax.set_ylim([0, 2.2])
 
 # x causes y plot
 ax = f.add_subplot(323)
 ax.plot(w, f_x2y)
 ax.set_title('g. causality X on Y')
-ax.set_ylim([0,0.1])
+ax.set_ylim([0, 0.1])
 
 # y causes x plot
 ax = f.add_subplot(324)
 ax.plot(w, f_y2x)
 ax.set_title('g. causality Y on X')
-ax.set_ylim([0,0.01])
+ax.set_ylim([0, 0.01])
 
 # instantaneous causality
 ax = f.add_subplot(325)
 ax.plot(w, f_xy)
 ax.set_title('instantaneous causality')
-ax.set_ylim([0,2.2])
+ax.set_ylim([0, 2.2])
 
 # total causality
 ax = f.add_subplot(326)
 ax.plot(w, f_xy + f_x2y + f_y2x)
 ax.set_title('total causality')
-ax.set_ylim([0,2.2])
+ax.set_ylim([0, 2.2])
 
 """
 

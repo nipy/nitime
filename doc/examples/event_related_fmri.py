@@ -32,8 +32,8 @@ import nitime.timeseries as ts
 import nitime.analysis as nta
 import nitime.viz as viz
 
-TR=2.
-len_et = 15 #This is given in number of samples, not time!
+TR = 2.
+len_et = 15  # This is given in number of samples, not time!
 
 """
 
@@ -41,18 +41,17 @@ Next, we load the data into a recarray from the csv file, using csv2rec
 
 """
 
-data =csv2rec('data/event_related_fmri.csv')
+data = csv2rec('data/event_related_fmri.csv')
 
 
 """
 
 We initialize TimeSeries objects with the data and the TR:
 
-One TimeSeries is initialized for the BOLD data: 
+One TimeSeries is initialized for the BOLD data:
 """
 
-t1 = ts.TimeSeries(data.bold,sampling_interval=TR)
-
+t1 = ts.TimeSeries(data.bold, sampling_interval=TR)
 
 """
 
@@ -60,7 +59,7 @@ And another one for the events (the different stimuli):
 
 """
 
-t2 = ts.TimeSeries(data.events,sampling_interval=TR)
+t2 = ts.TimeSeries(data.events, sampling_interval=TR)
 
 """
 
@@ -74,7 +73,7 @@ different kinds of events).
 
 """
 
-E = nta.EventRelatedAnalyzer(t1,t2,len_et)
+E = nta.EventRelatedAnalyzer(t1, t2, len_et)
 
 """
 
@@ -90,7 +89,7 @@ which plots the result:
 
 """
 
-fig01 = viz.plot_tseries(E.eta,ylabel='BOLD (% signal change)',yerror=E.ets)
+fig01 = viz.plot_tseries(E.eta, ylabel='BOLD (% signal change)', yerror=E.ets)
 
 """
 
@@ -102,9 +101,9 @@ the event-related activity, based on the finite impulse-response
 model (see [Burock2000]_ for details)
 
 
-""" 
+"""
 
-fig02 = viz.plot_tseries(E.FIR,ylabel='BOLD (% signal change)')
+fig02 = viz.plot_tseries(E.FIR, ylabel='BOLD (% signal change)')
 
 
 """
@@ -120,7 +119,7 @@ expensive convolution-like operation
 
 """
 
-fig03 = viz.plot_tseries(E.xcorr_eta,ylabel='BOLD (% signal change)')
+fig03 = viz.plot_tseries(E.xcorr_eta, ylabel='BOLD (% signal change)')
 
 
 """
