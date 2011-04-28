@@ -3,6 +3,7 @@ from inspect import getargspec
 
 from nitime import descriptors as desc
 
+
 class BaseAnalyzer(desc.ResetMixin):
     """
     Analyzer that implements the default data flow.
@@ -22,7 +23,8 @@ class BaseAnalyzer(desc.ResetMixin):
 
     @property
     def parameters(self):
-        return dict([(p,getattr(self,p,'MISSING')) for p in self.parameterlist])
+        return dict([(p,
+                    getattr(self, p, 'MISSING')) for p in self.parameterlist])
 
     def __init__(self, input=None):
         self.input = input
@@ -35,7 +37,7 @@ class BaseAnalyzer(desc.ResetMixin):
         self.input = input
 
     def __repr__(self):
-        params = ', '.join(['%s=%r'%(p,getattr(self,p,'MISSING'))
-                                    for p in self.parameterlist])
+        params = ', '.join(['%s=%r' % (p, getattr(self, p, 'MISSING'))
+                            for p in self.parameterlist])
 
-        return '%s(%s)'%(self.__class__.__name__,params)
+        return '%s(%s)' % (self.__class__.__name__, params)
