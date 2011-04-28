@@ -44,6 +44,7 @@ from compiler.consts import CO_GENERATOR
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+
 # Simple example of the basic idea
 def as_unittest(func):
     """Decorator to make a simple function into a normal test via unittest."""
@@ -116,7 +117,7 @@ class ParametricTestCase(unittest.TestCase):
                     ok = False
                 if ok:
                     result.addSuccess(self)
-                
+
             finally:
                 result.stopTest(self)
                 # Since the startTest() method must be called (above) before we
@@ -125,12 +126,12 @@ class ParametricTestCase(unittest.TestCase):
                 # this case, we must adjust the number down by one.
                 if finished_iteration:
                     result.testsRun -= 1
-                    
+
     def run(self, result=None):
         if result is None:
             result = self.defaultTestResult()
         testMethod = getattr(self, self._testMethodName)
-        
+
         # Depending on the type of test method, either:
         if isgenerator(testMethod):
             # For generators, we manually iterate test generators
@@ -170,4 +171,4 @@ def count_failures(runner):
     except:
         from _doctest26 import TestResults
 
-    return [TestResults(f, t) for f, t in runner._name2ft.values() if f > 0 ]
+    return [TestResults(f, t) for f, t in runner._name2ft.values() if f > 0]
