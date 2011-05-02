@@ -114,11 +114,13 @@ def test_EventRelatedAnalyzer():
 
     T_signal = ts.TimeSeries(signal, sampling_rate=1)
     T_events = ts.TimeSeries(events, sampling_rate=1)
-    ETA = nta.EventRelatedAnalyzer(T_signal, T_events, l / (cycles * 2)).eta
+    for correct_baseline in [True,False]:
+        ETA = nta.EventRelatedAnalyzer(T_signal, T_events, l / (cycles * 2),
+                                       correct_baseline=correct_baseline).eta
+        # This should hold
+        npt.assert_almost_equal(ETA.data[0], signal[:ETA.data.shape[-1]], 3)
+        npt.assert_almost_equal(ETA.data[1], -1 * signal[:ETA.data.shape[-1]], 3)
 
-    # This looks good, but doesn't pass unless you consider 3 digits:
-    npt.assert_almost_equal(ETA.data[0], signal[:ETA.data.shape[-1]], 3)
-    npt.assert_almost_equal(ETA.data[1], -1 * signal[:ETA.data.shape[-1]], 3)
 
     # Same should be true for the FIR analysis:
     FIR = nta.EventRelatedAnalyzer(T_signal, T_events, l / (cycles * 2)).FIR
@@ -156,10 +158,27 @@ def test_EventRelatedAnalyzer():
     npt.assert_equal(et.eta.data, [[20., 21., 22., 23., 24.],
                                   [120., 121., 122., 123., 124.]])
 
+
+    # The event-triggered SEM should be approximately zero:
+    for correct_baseline in [True,False]:
+        EA = nta.EventRelatedAnalyzer(T_signal, T_events, l / (cycles * 2),
+                                      correct_baseline=correct_baseline)
+
+        npt.assert_almost_equal(EA.ets.data[0],
+                                np.zeros_like(EA.ets.data[0]),
+                                decimal=2)
+    # Test the et_data method:
+    npt.assert_almost_equal(EA.et_data[0][0].data[0],
+                            signal[:ETA.data.shape[-1]])
+
     # Test that providing the analyzer with an array, instead of an Events or a
     # TimeSeries object throws an error:
     npt.assert_raises(ValueError, nta.EventRelatedAnalyzer, ts2, events, 10)
 
+    # This is not yet implemented, so this should simply throw an error, for
+    # now:
+    npt.assert_raises(NotImplementedError,
+                      nta.EventRelatedAnalyzer.FIR_estimate, EA)
 
 def test_HilbertAnalyzer():
     """Testing the HilbertAnalyzer (analytic signal)"""
