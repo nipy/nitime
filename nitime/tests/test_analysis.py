@@ -50,9 +50,12 @@ def test_SpectralAnalyzer():
     T = ts.TimeSeries(x, sampling_rate=Fs)
     C = nta.SpectralAnalyzer(T)
     f, c = C.psd
-
     npt.assert_equal(f.shape, (33,))  # Same length for the frequencies
     npt.assert_equal(c.shape, (33,))  # 1-d spectrum for the single channels
+
+    f, c = C.spectrum_multi_taper
+    npt.assert_equal(f.shape, (t.shape[0] / 2 + 1,))  # Same length for the frequencies
+    npt.assert_equal(c.shape, (t.shape[0] / 2 + 1,))  # 1-d spectrum for the single channels
 
 
 def test_CorrelationAnalyzer():

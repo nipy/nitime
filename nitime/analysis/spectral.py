@@ -13,7 +13,7 @@ from .base import BaseAnalyzer
 
 class SpectralAnalyzer(BaseAnalyzer):
     """ Analyzer object for spectral analysis"""
-    def __init__(self, input=None, method=None, BW=None, adaptive=False):
+    def __init__(self, input=None, method=None, BW=None, adaptive=False, low_bias=False):
         """
         The initialization of the
 
@@ -35,6 +35,10 @@ class SpectralAnalyzer(BaseAnalyzer):
         adaptive : {True/False}
            In 'spectrum_multi_taper', use an adaptive weighting routine to
            combine the PSD estimates of different tapers.
+
+        low_bias: {True/False}
+           In spectrum_multi_taper, use bias correction
+
 
         Examples
         --------
@@ -66,6 +70,8 @@ class SpectralAnalyzer(BaseAnalyzer):
 
         self.BW = BW
         self.adaptive = adaptive
+        self.low_bias = low_bias
+
 
     @desc.setattr_on_read
     def psd(self):
@@ -195,12 +201,14 @@ class SpectralAnalyzer(BaseAnalyzer):
                     self.input.data[i],
                     Fs=self.input.sampling_rate,
                     BW=self.BW,
-                    adaptive=self.adaptive)
+                    adaptive=self.adaptive,
+                    low_bias=self.low_bias)
         else:
-            f, spectrum_multi_taper = tsa.multi_taper_psd(self.input.data,
-                                        Fs=self.input.sampling_rate,
-                                        BW=self.BW,
-                                        adaptive=self.adaptive)
+            f, spectrum_multi_taper, _ = tsa.multi_taper_psd(self.input.data,
+                                                          Fs=self.input.sampling_rate,
+                                                          BW=self.BW,
+                                                          adaptive=self.adaptive,
+                                                          low_bias=self.low_bias)
 
         return f, spectrum_multi_taper
 
