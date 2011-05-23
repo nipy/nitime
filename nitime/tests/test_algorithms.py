@@ -159,3 +159,14 @@ def test_psd_matlab():
     fxx_matlab = np.loadtxt(os.path.join(test_dir_path, 'fxx_matlab.txt'))
 
     npt.assert_almost_equal(fxx_mlab, fxx_matlab, decimal=5)
+
+def test_long_dpss_win():
+    """ Test that very long dpss windows can be generated (using interpolation)"""
+
+    # This one is generated using interpolation:
+    a,e = tsa.dpss_windows(166800, 4, 8)
+
+    test_dir_path = os.path.join(nitime.__path__[0], 'tests')
+
+    matlab_long_dpss = np.loadtxt(os.path.join(test_dir_path, 'long_dpss_matlab.txt'))
+    npt.assert_almost_equal(a[0], matlab_long_dpss, decimal=5)

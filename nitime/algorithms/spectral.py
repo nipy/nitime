@@ -15,6 +15,7 @@ import numpy as np
 from matplotlib import mlab
 from scipy import linalg
 from scipy import signal as sig
+from scipy import interpolate
 import nitime.utils as utils
 
 
@@ -367,7 +368,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
     return freqs, csd_mat
 
 
-def dpss_windows(N, NW, Kmax):
+def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
     """
     Returns the Discrete Prolate Spheroidal Sequences of orders [0,Kmax-1]
     for a given frequency-spacing multiple NW and sequence length N.
@@ -381,6 +382,16 @@ def dpss_windows(N, NW, Kmax):
         but with dt taken as 1
     Kmax : int
         number of DPSS windows to return is Kmax (orders 0 through Kmax-1)
+    interp_from: int (optional)
+        The dpss will can calculated using interpolation from a set of dpss
+        with the same NW and Kmax, but shorter N. This is the length of this
+        shorter set of dpss windows.
+    interp_kind: str (optional)
+        This input variable is passed to scipy.interpolate.interp1d and
+        specifies the kind of interpolation as a string ('linear', 'nearest',
+        'zero', 'slinear', 'quadratic, 'cubic') or as an integer specifying the
+        order of the spline interpolator to use.
+
 
     Returns
     -------
@@ -396,44 +407,69 @@ def dpss_windows(N, NW, Kmax):
     uncertainty V: The discrete case. Bell System Technical Journal,
     Volume 57 (1978), 1371430
     """
-    # here we want to set up an optimization problem to find a sequence
-    # whose energy is maximally concentrated within band [-W,W].
-    # Thus, the measure lambda(T,W) is the ratio between the energy within
-    # that band, and the total energy. This leads to the eigen-system
-    # (A - (l1)I)v = 0, where the eigenvector corresponding to the largest
-    # eigenvalue is the sequence with maximally concentrated energy. The
-    # collection of eigenvectors of this system are called Slepian sequences,
-    # or discrete prolate spheroidal sequences (DPSS). Only the first K,
-    # K = 2NW/dt orders of DPSS will exhibit good spectral concentration
-    # [see http://en.wikipedia.org/wiki/Spectral_concentration_problem]
-
-    # Here I set up an alternative symmetric tri-diagonal eigenvalue problem
-    # such that
-    # (B - (l2)I)v = 0, and v are our DPSS (but eigenvalues l2 != l1)
-    # the main diagonal = ([N-1-2*t]/2)**2 cos(2PIW), t=[0,1,2,...,N-1]
-    # and the first off-diagonal = t(N-t)/2, t=[1,2,...,N-1]
-    # [see Percival and Walden, 1993]
     Kmax = int(Kmax)
     W = float(NW) / N
     nidx = np.arange(N, dtype='d')
-    diagonal = ((N - 1 - 2 * nidx) / 2.) ** 2 * np.cos(2 * np.pi * W)
-    off_diag = np.zeros_like(nidx)
-    off_diag[:-1] = nidx[1:] * (N - nidx[1:]) / 2.
-    # put the diagonals in LAPACK "packed" storage
-    ab = np.zeros((2, N), 'd')
-    ab[1] = diagonal
-    ab[0, 1:] = off_diag[:-1]
-    # only calculate the highest Kmax eigenvalues
-    w = linalg.eigvals_banded(ab, select='i', select_range=(N - Kmax, N - 1))
-    w = w[::-1]
 
-    # find the corresponding eigenvectors via inverse iteration
-    t = np.linspace(0, np.pi, N)
-    dpss = np.zeros((Kmax, N), 'd')
-    for k in xrange(Kmax):
-        dpss[k] = utils.tridi_inverse_iteration(
-            diagonal, off_diag, w[k], x0=np.sin((k+1)*t)
-            )
+    # In this case, we create the dpss windows of the smaller size
+    # (interp_from) and then interpolate to the larger size (N)
+    if interp_from is not None:
+        if interp_from>N:
+            e_s = 'In dpss_windows, interp_from is: %s ' % interp_from
+            e_s += 'and N is: %s. ' % N
+            e_s += 'Please enter interp_from smaller than N.'
+            raise ValueError(e_s)
+        dpss = []
+        d, e = dpss_windows(interp_from, NW, Kmax)
+        for this_d in d:
+            x = np.arange(this_d.shape[-1])
+            I = interpolate.interp1d(x, this_d, kind=interp_kind)
+            d_temp = I(np.arange(0, this_d.shape[-1] - 1,
+                                 float(this_d.shape[-1] - 1) / N))
+
+            # Rescale:
+            d_temp = d_temp / np.sqrt(np.sum(d_temp ** 2))
+
+            dpss.append(d_temp)
+
+        dpss = np.array(dpss)
+
+    else:
+        # here we want to set up an optimization problem to find a sequence
+        # whose energy is maximally concentrated within band [-W,W].
+        # Thus, the measure lambda(T,W) is the ratio between the energy within
+        # that band, and the total energy. This leads to the eigen-system
+        # (A - (l1)I)v = 0, where the eigenvector corresponding to the largest
+        # eigenvalue is the sequence with maximally concentrated energy. The
+        # collection of eigenvectors of this system are called Slepian sequences,
+        # or discrete prolate spheroidal sequences (DPSS). Only the first K,
+        # K = 2NW/dt orders of DPSS will exhibit good spectral concentration
+        # [see http://en.wikipedia.org/wiki/Spectral_concentration_problem]
+
+        # Here I set up an alternative symmetric tri-diagonal eigenvalue problem
+        # such that
+        # (B - (l2)I)v = 0, and v are our DPSS (but eigenvalues l2 != l1)
+        # the main diagonal = ([N-1-2*t]/2)**2 cos(2PIW), t=[0,1,2,...,N-1]
+        # and the first off-diagonal = t(N-t)/2, t=[1,2,...,N-1]
+        # [see Percival and Walden, 1993]
+        diagonal = ((N - 1 - 2 * nidx) / 2.) ** 2 * np.cos(2 * np.pi * W)
+        off_diag = np.zeros_like(nidx)
+        off_diag[:-1] = nidx[1:] * (N - nidx[1:]) / 2.
+        # put the diagonals in LAPACK "packed" storage
+        ab = np.zeros((2, N), 'd')
+        ab[1] = diagonal
+        ab[0, 1:] = off_diag[:-1]
+        # only calculate the highest Kmax eigenvalues
+        w = linalg.eigvals_banded(ab, select='i', select_range=(N - Kmax, N - 1))
+        w = w[::-1]
+
+        # find the corresponding eigenvectors via inverse iteration
+        t = np.linspace(0, np.pi, N)
+        dpss = np.zeros((Kmax, N), 'd')
+        for k in xrange(Kmax):
+            dpss[k] = utils.tridi_inverse_iteration(
+                diagonal, off_diag, w[k], x0=np.sin((k + 1) * t)
+                )
 
     # By convention (Percival and Walden, 1993 pg 379)
     # * symmetric tapers (k=0,2,4,...) should have a positive average.

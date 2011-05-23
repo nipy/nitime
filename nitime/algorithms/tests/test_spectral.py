@@ -161,7 +161,7 @@ def test_dpss_windows():
            # the symmetric tapers have a negative average
     Kmax = 7
 
-    # But that's corrected by the tsaorithm: 
+    # But that's corrected by the algorithm:
     d,w=tsa.dpss_windows(1024, 0, 7)
     for this_d in d[0::2]:
         npt.assert_equal(this_d.sum(axis=-1)< 0, False)
