@@ -14,6 +14,7 @@ XXX
 import numpy as np
 from matplotlib import mlab
 from scipy import linalg
+from scipy import signal as sig
 import nitime.utils as utils
 
 
@@ -175,16 +176,16 @@ def get_spectra_bi(x, y, method=None):
 
 
 # The following spectrum estimates are normalized to the following convention..
-# By definition, Sxx(f) = DTFT{sxx(n)}, where sxx(n) is the autocovariance
-# function of s(n). Therefore the integral from
-# [-PI, PI] of Sxx/(2PI) is sxx(0)
-# And from the definition of sxx(n),
-# sxx(0) = Expected-Value{s(n)s*(n)} = Expected-Value{ Var(s) },
-# which is estimated simply as (s*s.conj()).mean()
+# By definition, Sxx(w) = DTFT{Rxx(n)}, where Rxx(n) is the autocovariance
+# function of x(n). Therefore the integral from
+# [-PI, PI] of Sxx(w)/(2PI) is Rxx(0)
+# And from the definition of Rxx(n),
+# Rxx(0) = Expected-Value{x(n)x*(n)} = Expected-Value{ |x|^2 },
+# which is estimated as (x*x.conj()).mean()
 
 
-def periodogram(s, Fs=2 * np.pi, Sk=None, N=None, sides='default',
-                normalize=True):
+def periodogram(s, Fs=2 * np.pi, Sk=None, N=None,
+                sides='default', normalize=True):
     """Takes an N-point periodogram estimate of the PSD function. The
     number of points N, or a precomputed FFT Sk may be provided. By default,
     the PSD function returned is normalized so that the integral of the PSD
@@ -247,10 +248,10 @@ def periodogram(s, Fs=2 * np.pi, Sk=None, N=None, sides='default',
         pshape[-1] = Fn
         P = np.zeros(pshape, 'd')
         freqs = np.linspace(0, Fs / 2, Fn)
-        P[..., 0] = (Sk[..., 0] * Sk[..., 0].conj())
-        P[..., 1:Fl] = 2 * (Sk[..., 1:Fl] * Sk[..., 1:Fl].conj())
+        P[..., 0] = (Sk[..., 0] * Sk[..., 0].conj()).real
+        P[..., 1:Fl] = 2 * (Sk[..., 1:Fl] * Sk[..., 1:Fl].conj()).real
         if Fn > Fl:
-            P[..., Fn - 1] = (Sk[..., Fn - 1] * Sk[..., Fn - 1].conj())
+            P[..., Fn - 1] = (Sk[..., Fn - 1] * Sk[..., Fn - 1].conj()).real
     else:
         P = (Sk * Sk.conj()).real
         freqs = np.linspace(0, Fs, N, endpoint=False)
@@ -410,17 +411,29 @@ def dpss_windows(N, NW, Kmax):
     # such that
     # (B - (l2)I)v = 0, and v are our DPSS (but eigenvalues l2 != l1)
     # the main diagonal = ([N-1-2*t]/2)**2 cos(2PIW), t=[0,1,2,...,N-1]
-    # and the first off-diangonal = t(N-t)/2, t=[1,2,...,N-1]
+    # and the first off-diagonal = t(N-t)/2, t=[1,2,...,N-1]
     # [see Percival and Walden, 1993]
     Kmax = int(Kmax)
     W = float(NW) / N
+    nidx = np.arange(N, dtype='d')
+    diagonal = ((N - 1 - 2 * nidx) / 2.) ** 2 * np.cos(2 * np.pi * W)
+    off_diag = np.zeros_like(nidx)
+    off_diag[:-1] = nidx[1:] * (N - nidx[1:]) / 2.
+    # put the diagonals in LAPACK "packed" storage
     ab = np.zeros((2, N), 'd')
-    nidx = np.arange(N)
-    ab[0, 1:] = nidx[1:] * (N - nidx[1:]) / 2.
-    ab[1] = ((N - 1 - 2 * nidx) / 2.) ** 2 * np.cos(2 * np.pi * W)
-    # only calculate the highest Kmax-1 eigenvectors
-    l, v = linalg.eig_banded(ab, select='i', select_range=(N - Kmax, N - 1))
-    dpss = v.transpose()[::-1]
+    ab[1] = diagonal
+    ab[0, 1:] = off_diag[:-1]
+    # only calculate the highest Kmax eigenvalues
+    w = linalg.eigvals_banded(ab, select='i', select_range=(N - Kmax, N - 1))
+    w = w[::-1]
+
+    # find the corresponding eigenvectors via inverse iteration
+    t = np.linspace(0, np.pi, N)
+    dpss = np.zeros((Kmax, N), 'd')
+    for k in xrange(Kmax):
+        dpss[k] = utils.tridi_inverse_iteration(
+            diagonal, off_diag, w[k], x0=np.sin((k+1)*t)
+            )
 
     # By convention (Percival and Walden, 1993 pg 379)
     # * symmetric tapers (k=0,2,4,...) should have a positive average.
@@ -434,14 +447,12 @@ def dpss_windows(N, NW, Kmax):
         if f:
             dpss[2 * i + 1] *= -1
 
-    # Now find the eigenvalues of the original Use the autocovariance sequence
-    # technique from Percival and Walden, 1993 pg 390
-    #XXX : why debias false?
-    # it's all messed up o.w., even with means on the order of 1e-2
-    acvs = utils.autocov(dpss, debias=False) * N
+    # Now find the eigenvalues of the original spectral concentration problem
+    # Use the autocorr sequence technique from Percival and Walden, 1993 pg 390
+    dpss_rxx = utils.autocorr(dpss) * N
     r = 4 * W * np.sinc(2 * W * nidx)
     r[0] = 2 * W
-    eigvals = np.dot(acvs, r)
+    eigvals = np.dot(dpss_rxx, r)
 
     return dpss, eigvals
 
@@ -830,7 +841,6 @@ def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
 
     return freqs, csdfs
 
-
 def freq_response(b, a=1., n_freqs=1024, sides='onesided'):
     """
     Returns the frequency response of the IIR or FIR filter described
@@ -856,25 +866,6 @@ def freq_response(b, a=1., n_freqs=1024, sides='onesided'):
     see
     http://en.wikipedia.org/wiki/Z-transform
     """
-    if sides == 'onesided':
-        fgrid = np.linspace(0, np.pi, n_freqs / 2 + 1)
-    else:
-        fgrid = np.linspace(0, 2 * np.pi, n_freqs, endpoint=False)
-    float_type = type(1.)
-    int_type = type(1)
-    n_freqs = len(fgrid)
-    if isinstance(b, float_type) or isinstance(b, int_type) or len(b) == 1:
-        bw = np.ones(n_freqs, 'D') * b
-    else:
-        L = len(b)
-        # D_mn = exp(-j*omega(m)*n)
-        # (D_mn * b) computes b(omega(m)) = sum_{n=0}^L b(n)exp(-j*omega(m)*n)
-        DTFT = np.exp(-1j * fgrid[:, np.newaxis] * np.arange(0, L))
-        bw = np.dot(DTFT, b)
-    if isinstance(a, float_type) or isinstance(a, int_type) or len(a) == 1:
-        aw = np.ones(n_freqs, 'D') * a
-    else:
-        L = len(a)
-        DTFT = np.exp(-1j * fgrid[:, np.newaxis] * np.arange(0, L))
-        aw = np.dot(DTFT, a)
-    return fgrid, bw / aw
+    # transitioning to scipy freqz
+    real_n = n_freqs/2 + 1 if sides=='onesided' else n_freqs
+    return sig.freqz(b, a=a, worN=real_n, whole=sides != 'onesided')

@@ -5,8 +5,7 @@ XXX wrie top level doc-string
 """
 import numpy as np
 import scipy.linalg as linalg
-from numpy.linalg import inv
-
+import scipy.signal as sig
 
 #-----------------------------------------------------------------------------
 # Spectral estimation testing utilities
@@ -104,7 +103,21 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     """
     This generates a signal u(n) = a1*u(n-1) + a2*u(n-2) + ... + v(n)
     where v(n) is a stationary stochastic process with zero mean
-    and variance = sigma.
+    and variance = sigma. XXX: confusing variance notation
+
+    Parameters
+    ----------
+
+    N: int
+      sequence length
+    sigma: float
+      power of the white noise driving process
+    coefs: sequence
+      AR coefficients for k = 1, 2, ..., P
+    drop_transients: int
+      number of initial IIR filter transient terms to drop
+    v: ndarray
+      custom noise process
 
     Returns
     -------
@@ -112,13 +125,15 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     u: ndarray
        the AR sequence
     v: ndarray
-       the additive noise sequence
+       the unit-variance innovations sequence
     coefs: ndarray
        feedback coefficients from k=1,len(coefs)
 
     The form of the feedback coefficients is a little different than
-    the normal linear constant-coefficient difference equation. For
-    example ...
+    the normal linear constant-coefficient difference equation. Therefore
+    the transfer function implemented in this method is
+
+    H(z) = sigma**0.5 / ( 1 - sum_k coefs(k)z**(-k) )    1 <= k <= P
 
     Examples
     --------
@@ -142,14 +157,12 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     # Typically uses just pass sigma in, but optionally they can provide their
     # own noise vector, case in which we use it
     if v is None:
-        v = np.random.normal(size=N, scale=sigma ** 0.5)
+        v = np.random.normal(size=N)
+        v -= v[drop_transients:].mean()
 
-    u = np.zeros(N)
-    P = len(coefs)
-    for l in xrange(P):
-        u[l] = v[l] + np.dot(u[:l][::-1], coefs[:l])
-    for l in xrange(P, N):
-        u[l] = v[l] + np.dot(u[l - P:l][::-1], coefs)
+    b = [sigma ** 0.5]
+    a = np.r_[1, -coefs]
+    u = sig.lfilter(b, a, v)
 
     # Only return the data after the drop_transients terms
     return u[drop_transients:], v[drop_transients:], coefs
@@ -187,6 +200,18 @@ def circularize(x, bottom=0, top=2 * np.pi, deg=False):
 
     return np.squeeze(circularize(x, bottom=bottom, top=top))
 
+
+def dB(x, power=True):
+    """Convert the values in x to decibels.
+    If the values in x are in 'power'-like units, then set the power
+    flag accordingly
+    
+    1) dB(x) = 10log10(x)                     (if power==True)
+    2) dB(x) = 10log10(|x|^2) = 20log10(|x|)  (if power==False)
+    """    
+    if not power:
+        return 20*np.log10(np.abs(x))
+    return 10*np.log10(np.abs(x))
 
 #-----------------------------------------------------------------------------
 # Stats utils
@@ -486,6 +511,94 @@ def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
     nu /= (weights ** 4).sum(axis=-2)
     return weights, nu
 
+#-----------------------------------------------------------------------------
+# Eigensystem utils
+#-----------------------------------------------------------------------------
+
+def tridisolve(d, e, b, overwrite_b=True):
+    """
+    Symmetric tridiagonal system solver, from Golub and Van Loan pg 157
+
+    Parameters
+    ----------
+
+    d: ndarray
+      main diagonal stored in d[:]
+    e: ndarray
+      superdiagonal stored in e[:-1]
+    b: ndarray
+      RHS vector
+
+    Returns
+    -------
+
+    x: ndarray
+      Solution to Ax = b (if overwrite_b is False). Otherwise solution is
+      stored in previous RHS vector b
+
+    """
+    N = len(b)
+    # work vectors
+    dw = d.copy()
+    ew = e.copy()
+    if overwrite_b:
+        x = b
+    else:
+        x = b.copy()
+    for k in xrange(1, N):
+        # e^(k-1) = e(k-1) / d(k-1)
+        # d(k) = d(k) - e^(k-1)e(k-1) / d(k-1)
+        t = ew[k-1]
+        ew[k-1] = t/dw[k-1]
+        dw[k] = dw[k] - t*ew[k-1]
+    for k in xrange(1, N):
+        x[k] = x[k] - ew[k-1]*x[k-1]
+    x[N-1] = x[N-1]/dw[N-1]
+    for k in xrange(N-2, -1, -1):
+        x[k] = x[k]/dw[k] - ew[k]*x[k+1]
+
+    if not overwrite_b:
+        return x
+
+def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
+    """Perform an inverse iteration to find the eigenvector corresponding
+    to the given eigenvalue in a symmetric tridiagonal system.
+
+    Parameters
+    ----------
+
+    d: ndarray
+      main diagonal of the tridiagonal system
+    e: ndarray
+      offdiagonal stored in e[:-1]
+    w: float
+      eigenvalue of the eigenvector
+    x0: ndarray
+      initial point to start the iteration
+    rtol: float
+      tolerance for the norm of the difference of iterates
+
+    Returns
+    -------
+
+    e: ndarray
+      The converged eigenvector
+
+    """
+    eig_diag = d - w
+    if x0 is None:
+        x0 = np.random.randn(len(d))
+    x_prev = np.zeros_like(x0)
+    norm_x = np.linalg.norm(x0)
+    # the eigenvector is unique up to sign change, so iterate
+    # until || |x^(n)| - |x^(n-1)| ||^2 < rtol
+    x0 /= norm_x
+    while np.linalg.norm( np.abs(x0) - np.abs(x_prev) ) > rtol:
+        x_prev = x0.copy()
+        tridisolve(eig_diag, e, x0)
+        norm_x = np.linalg.norm(x0)
+        x0 /= norm_x
+    return x0
 
 #-----------------------------------------------------------------------------
 # Correlation/Covariance utils
@@ -498,8 +611,7 @@ def remove_bias(x, axis):
     mn = np.mean(x, axis=axis)
     return x - mn[tuple(padded_slice)]
 
-
-def crosscov(x, y, axis=-1, all_lags=False, debias=True):
+def crosscov(x, y, axis=-1, all_lags=False, debias=True, normalize=True):
     """Returns the crosscovariance sequence between two ndarrays.
     This is performed by calling fftconvolve on x, y[::-1]
 
@@ -515,13 +627,28 @@ def crosscov(x, y, axis=-1, all_lags=False, debias=True):
        is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2
     debias: {True/False}
        Always removes an estimate of the mean along the axis, unless
-       told not to.
+       told not to (eg X and Y are known zero-mean)
+
+    Returns
+    -------
+
+    cxy: ndarray
+       The crosscovariance function
 
     Notes
     -----
 
-    cross covariance is defined as
-    sxy[k] := E{X[t]*Y[t+k]}, where X,Y are zero mean random processes
+    cross covariance of processes x and y is defined as
+
+    .. math::
+
+    C_{xy}[k]=E\{(X(n+k)-E\{X\})(Y(n)-E\{Y\})^{*}\} 
+    
+    where X and Y are discrete, stationary (or ergodic) random processes
+
+    Also note that this routine is the workhorse for all auto/cross/cov/corr
+    functions.
+    
     """
     if x.shape[axis] != y.shape[axis]:
         raise ValueError(
@@ -531,14 +658,15 @@ def crosscov(x, y, axis=-1, all_lags=False, debias=True):
         x = remove_bias(x, axis)
         y = remove_bias(y, axis)
     slicing = [slice(d) for d in x.shape]
-    slicing[axis] = slice(None, None, -1)
-    sxy = fftconvolve(x, y[tuple(slicing)], axis=axis, mode='full')
+    slicing[axis] = slice(None,None,-1)
+    cxy = fftconvolve(x, y[tuple(slicing)].conj(), axis=axis, mode='full')
     N = x.shape[axis]
-    sxy /= N
+    if normalize:
+        cxy /= N
     if all_lags:
-        return sxy
+        return cxy
     slicing[axis] = slice(N - 1, 2 * N - 1)
-    return sxy[tuple(slicing)]
+    return cxy[tuple(slicing)]
 
 
 def crosscorr(x, y, **kwargs):
@@ -557,65 +685,99 @@ def crosscorr(x, y, **kwargs):
        to be the length of x and y. If False, then the zero lag correlation
        is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2
 
+    Returns
+    -------
+
+    rxy: ndarray
+       The crosscorrelation function
+
     Notes
     -----
 
     cross correlation is defined as
-    rxy[k] := E{X[t]*Y[t+k]}/(E{X*X}E{Y*Y})**.5,
-    where X,Y are zero mean random processes. It is the noramlized cross
-    covariance.
+
+    .. math::
+
+    R_{xy}[k]=E\{X[n+k]Y^{*}[n]\} 
+
+    where X and Y are discrete, stationary (ergodic) random processes
     """
-    sxy = crosscov(x, y, **kwargs)
-    # estimate sigma_x, sigma_y to normalize
-    sx = np.std(x)
-    sy = np.std(y)
-    return sxy / (sx * sy)
+    # just make the same computation as the crosscovariance,
+    # but without subtracting the mean
+    kwargs['debias'] = False
+    rxy = crosscov(x, y, **kwargs)
+    return rxy
 
-
-def autocov(s, **kwargs):
+def autocov(x, **kwargs):
     """Returns the autocovariance of signal s at all lags.
 
+    Parameters
+    ----------
+
+    x: ndarray
+    axis: time axis
+    all_lags: {True/False}
+       whether to return all nonzero lags, or to clip the length of r_xy
+       to be the length of x and y. If False, then the zero lag correlation
+       is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2    
+
+    Returns
+    -------
+
+    cxx: ndarray
+       The autocovariance function
+
     Notes
     -----
 
     Adheres to the definition
-    sxx[k] = E{S[n]S[n+k]} = cov{S[n],S[n+k]}
-    where E{} is the expectation operator, and S is a zero mean process
+
+    .. math::
+
+    C_{xx}[k]=E\{(X[n+k]-E\{X\})(X[n]-E\{X\})^{*}\}
+    
+    where X is a discrete, stationary (ergodic) random process
     """
     # only remove the mean once, if needed
     debias = kwargs.pop('debias', True)
     axis = kwargs.get('axis', -1)
     if debias:
-        s = remove_bias(s, axis)
+        x = remove_bias(x, axis)
     kwargs['debias'] = False
-    return crosscov(s, s, **kwargs)
+    return crosscov(x, x, **kwargs)
 
 
-def autocorr(s, **kwargs):
+def autocorr(x, **kwargs):
     """Returns the autocorrelation of signal s at all lags.
 
+    Parameters
+    ----------
+
+    x: ndarray
+    axis: time axis
+    all_lags: {True/False}
+       whether to return all nonzero lags, or to clip the length of r_xy
+       to be the length of x and y. If False, then the zero lag correlation
+       is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2    
+
     Notes
     -----
 
     Adheres to the definition
-    rxx[k] = E{S[n]S[n+k]}/E{S*S} = cov{S[n],S[n+k]}/sigma**2
-    where E{} is the expectation operator, and S is a zero mean process
+
+    .. math::
+
+    R_{xx}[k]=E\{X[n+k]X^{*}[n]\} 
+
+    where X is a discrete, stationary (ergodic) random process
+
+
+    
     """
-    # only remove the mean once, if needed
-    debias = kwargs.pop('debias', True)
-    axis = kwargs.get('axis', -1)
-    if debias:
-        s = remove_bias(s, axis)
-        kwargs['debias'] = False
-    sxx = autocov(s, **kwargs)
-    all_lags = kwargs.get('all_lags', False)
-    if all_lags:
-        i = (2 * s.shape[axis] - 1) / 2
-        sxx_0 = sxx[i]
-    else:
-        sxx_0 = sxx[0]
-    sxx /= sxx_0
-    return sxx
+    # do same computation as autocovariance,
+    # but without subtracting the mean
+    kwargs['debias'] = False
+    return autocov(x, **kwargs)
 
 
 def fftconvolve(in1, in2, mode="full", axis=None):
@@ -1706,146 +1868,6 @@ def autocov_vector(x, nlags=None):
     """
     return crosscov_vector(x, x, nlags=nlags)
 
-
-def lwr(r):
-    """Perform a Levinson-Wiggins[Whittle]-Robinson recursion to
-    find the coefficients a(i) that satisfy the system of equations:
-
-    sum_{k=0}^{p} a(k)r(j-k) = 0, for j = {1,2,...,p}
-
-    with the additional equation
-
-    sum_{k=0}^{p} a(k)r(-k) = V
-
-    where V is the covariance matrix of the innovations process
-
-    Also note that r is defined as:
-
-    r(k) = E{ X(t)X*(t-k) } ( * = conjugate transpose )
-    r(-k) = r(k).T
-
-
-    This routine adapts the algorithm found in eqs (1)-(11)
-    in Morf, Vieira, Kailath 1978
-
-    Parameters
-    ----------
-
-    r : ndarray, shape (P+1, nc, nc)
-
-    Returns
-    -------
-
-    a : ndarray (P,nc,nc)
-      coefficient sequence of order P
-    sigma : ndarray (nc,nc)
-      covariance estimate
-
-    """
-
-    # r is (P+1, nc, nc)
-    nc = r.shape[1]
-    P = r.shape[0] - 1
-
-    a = np.zeros((P, nc, nc))  # ar coefs
-    b = np.zeros_like(a)  # lp coefs
-    sigb = np.zeros_like(r[0])  # forward prediction error covariance
-    sigf = np.zeros_like(r[0])  # backward prediction error covariance
-    delta = np.zeros_like(r[0])
-
-    # initialize
-    idnt = np.eye(nc)
-    sigf[:] = r[0]
-    sigb[:] = r[0]
-
-    # iteratively find sequences A_{p+1}(i) and B_{p+1}(i)
-    for p in xrange(P):
-
-        # calculate delta_{p+1}
-        # delta_{p+1} = r(p+1) + sum_{i=1}^{p} a(i)r(p+1-i)
-        delta[:] = r[p + 1]
-        for i in xrange(1, p + 1):
-            delta += np.dot(a[i - 1], r[p + 1 - i])
-
-        # intermediate values
-        ka = np.dot(delta, inv(sigb))
-        kb = np.dot(delta.T, inv(sigf))
-
-        # store a_{p} before updating sequence to a_{p+1}
-        ao = a.copy()
-        # a_{p+1}(i) = a_{p}(i) - ka*b_{p}(p+1-i) for i in {1,2,...,p}
-        # b_{p+1}(i) = b_{p}(i) - kb*a_{p}(p+1-i) for i in {1,2,...,p}
-        for i in xrange(1, p + 1):
-            a[i - 1] -= np.dot(ka, b[p - i])
-        for i in xrange(1, p + 1):
-            b[i - 1] -= np.dot(kb, ao[p - i])
-
-        a[p] = -ka
-        b[p] = -kb
-
-        sigf = np.dot(idnt - np.dot(ka, kb), sigf)
-        sigb = np.dot(idnt - np.dot(kb, ka), sigb)
-
-    return a, sigf
-
-
-def lwr_alternate(r):
-    # r(k) = E{ X(t)X*(t+k) } ( * = conjugate transpose )
-    # r(-k) = r(k).T
-    # this routine solves the system of equations
-    # sum_{k=0}^{p} A(k)r(k-j) = 0, for j = {1,2,...,p}
-    # with the additional equation
-    # sum_{k=0}^{p} A(k)r(k) = V
-    # where V is the covariance matrix of the innovations process
-    #
-    # This routine adjusts the algorithm found in eqs (1)-(11)
-    # in Morf, Vieira, Kailath 1978 to reflect that this system
-    # is composed in a slightly different way (due to the conflicting
-    # definition of autocovariance)
-
-    # r is (P+1, nc, nc)
-    nc = r.shape[1]
-    P = r.shape[0] - 1
-
-    a = np.zeros((P, nc, nc))  # ar coefs
-    b = np.zeros_like(a)  # lp coefs
-    sigb = np.zeros_like(r[0])  # forward prediction error covariance
-    sigf = np.zeros_like(r[0])  # backward prediction error covariance
-    delta = np.zeros_like(r[0])
-
-    # initialize
-    idnt = np.eye(nc)
-    sigf[:] = r[0]
-    sigb[:] = r[0]
-
-    # iteratively find sequences A_{p+1}(i) and B_{p+1}(i)
-    for p in xrange(P):
-
-        # calculate delta_{p+1}
-        delta[:] = r[p + 1]
-        for i in xrange(1, p + 1):
-            delta += np.dot(r[p + 1 - i], a[i - 1].T)
-
-        # intermediate values
-        ka = np.dot(delta.T, inv(sigb).T)  # (inv(sigb)*del)'
-        kb = np.dot(delta, inv(sigf).T)    # (inv(sigf)*del')'
-
-        # store a_{p} before updating sequence to a_{p+1}
-        ao = a.copy()
-        for i in xrange(1, p + 1):
-            a[i - 1] -= np.dot(ka, b[p - i])
-        for i in xrange(1, p + 1):
-            b[i - 1] -= np.dot(kb, ao[p - i])
-
-        a[p] = -ka
-        b[p] = -kb
-
-        sigf = np.dot(sigf, (idnt - np.dot(ka, kb).T))
-        sigb = np.dot(sigb, (idnt - np.dot(kb, ka).T))
-
-    return a, sigf
-
-
 def generate_mar(a, cov, N):
     """
     Generates a multivariate autoregressive dataset given the formula:
@@ -1940,6 +1962,7 @@ def akaike_information_criterion(x, m):
 
     See also: http://en.wikipedia.org/wiki/Akaike_information_criterion
     """
+    import nitime.algorithms.autoregressive as ar
 
     N = x.shape[0]
     p = x.shape[1]
@@ -1951,7 +1974,7 @@ def akaike_information_criterion(x, m):
 
     Rxx = Rxx.mean(axis=0)
     Rxx = Rxx.transpose(2, 0, 1)
-    _, sigma = lwr(Rxx)
+    _, sigma = ar.lwr_recursion(Rxx)
 
     #The total number of data points:
     Ntotal = np.prod(x.shape)
@@ -2047,6 +2070,8 @@ def bayesian_information_criterion(x, m):
     See http://en.wikipedia.org/wiki/Schwarz_criterion
 
     """
+    import nitime.algorithms.autoregressive as ar
+    
     N = x.shape[0]
     p = x.shape[1]
 
@@ -2057,7 +2082,7 @@ def bayesian_information_criterion(x, m):
 
     Rxx = Rxx.mean(axis=0)
     Rxx = Rxx.transpose(2, 0, 1)
-    _, sigma = lwr(Rxx)
+    _, sigma = ar.lwr_recursion(Rxx)
 
     #The total number of data points:
     Ntotal = np.prod(x.shape)

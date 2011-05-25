@@ -44,6 +44,42 @@ def test_percent_change():
           [-16.66666667, -8.33333333, 0., 8.33333333, 16.66666667],
           [-11.76470588, -5.88235294, 0., 5.88235294, 11.76470588]])
 
+def test_tridi_inverse_iteration():
+    import scipy.linalg as la
+    from scipy.sparse import spdiags
+    # set up a spectral concentration eigenvalue problem for testing
+    N = 2000
+    NW = 4
+    K = 8
+    W = float(NW) / N
+    nidx = np.arange(N, dtype='d')
+    ab = np.zeros((2, N), 'd')
+    # store this separately for tridisolve later
+    sup_diag = np.zeros((N,), 'd')
+    sup_diag[:-1] = nidx[1:] * (N - nidx[1:]) / 2.
+    ab[0, 1:] = sup_diag[:-1]
+    ab[1] = ((N - 1 - 2 * nidx) / 2.) ** 2 * np.cos(2 * np.pi * W)
+    # only calculate the highest Kmax-1 eigenvalues
+    w = la.eigvals_banded(ab, select='i', select_range=(N - K, N - 1))
+    w = w[::-1]
+    E = np.zeros((K, N), 'd')
+    t = np.linspace(0, np.pi, N)
+    # make sparse tridiagonal matrix for eigenvector check
+    sp_data = np.zeros((3,N), 'd')
+    sp_data[0, :-1] = sup_diag[:-1]
+    sp_data[1] = ab[1]
+    sp_data[2, 1:] = sup_diag[:-1]
+    A = spdiags(sp_data, [-1, 0, 1], N, N)
+    for j in xrange(K):
+        e = utils.tridi_inverse_iteration(
+            ab[1], sup_diag, w[j], x0=np.sin((j+1)*t)
+            )
+        b = A*e
+        yield (nt.assert_true,
+               np.linalg.norm(np.abs(b) - np.abs(w[j]*e)) < 1e-8,
+               'Inverse iteration eigenvector solution is inconsistent with '\
+               'given eigenvalue'
+               )
 
 def test_debias():
     x = np.arange(64).reshape(4, 4, 4)
@@ -82,11 +118,11 @@ def test_autocorr():
     N = 128
     ar_seq, _, _ = utils.ar_generator(N=N)
     rxx = utils.autocorr(ar_seq)
-    yield nt.assert_true, rxx[0] == 1, \
-          'Zero lag autocorrelation is not equal to 1'
+    yield nt.assert_true, rxx[0] == rxx.max(), \
+          'Zero lag autocorrelation is not maximum autocorrelation'
     rxx = utils.autocorr(ar_seq, all_lags=True)
-    yield nt.assert_true, rxx[127] == 1, \
-          'Zero lag autocorrelation is not equal to 1'
+    yield nt.assert_true, rxx[127] == rxx.max(), \
+          'Zero lag autocorrelation is not maximum autocorrelation'
 
 
 # Should this really be in the tests?
@@ -111,84 +147,6 @@ def plot_savings():
     pp.legend()
     pp.show()
 
-
-def test_lwr():
-    "test solution of lwr recursion"
-    for trial in xrange(3):
-        nc = np.random.randint(2, high=10)
-        P = np.random.randint(2, high=6)
-        # nc is channels, P is lags (order)
-        r = np.random.randn(P + 1, nc, nc)
-        r[0] = np.dot(r[0], r[0].T)  # force r0 to be symmetric
-
-        a, Va = utils.lwr(r)
-        # Verify the "orthogonality" principle of the mAR system
-        # Set up a system in blocks to compute, for each k
-        #   sum_{i=1}^{P} A(i)R(k-i) = -R(k) k > 0
-        # = sum_{i=1}^{P} R(k-i)^T A(i)^T = -R(k)^T
-        # = sum_{i=1}^{P} R(i-k)A(i)^T = -R(k)^T
-        rmat = np.zeros((nc * P, nc * P))
-        for k in xrange(1, P + 1):
-            for i in xrange(1, P + 1):
-                im = i - k
-                if im < 0:
-                    r1 = r[-im].T
-                else:
-                    r1 = r[im]
-                rmat[(k - 1) * nc:k * nc, (i - 1) * nc:i * nc] = r1
-
-        rvec = np.zeros((nc * P, nc))
-        avec = np.zeros((nc * P, nc))
-        for m in xrange(P):
-            rvec[m * nc:(m + 1) * nc] = -r[m + 1].T
-            avec[m * nc:(m + 1) * nc] = a[m].T
-
-        l2_d = np.dot(rmat, avec) - rvec
-        l2_d = (l2_d ** 2).sum() ** 0.5
-        l2_r = (rvec ** 2).sum() ** 0.5
-
-        # compute |Ax-b| / |b| metric
-        npt.assert_almost_equal(l2_d / l2_r, 0, decimal=5)
-
-
-def test_lwr_alternate():
-    "test solution of lwr recursion"
-
-    for trial in xrange(3):
-        nc = np.random.randint(2, high=10)
-        P = np.random.randint(2, high=6)
-        # nc is channels, P is lags (order)
-        r = np.random.randn(P + 1, nc, nc)
-        r[0] = np.dot(r[0], r[0].T)  # force r0 to be symmetric
-
-        a, Va = utils.lwr_alternate(r)
-        # Verify the "orthogonality" principle of the mAR system
-        # Set up a system in blocks to compute, for each k
-        #   sum_{i=1}^{P} A(i)R(-k+i) = -R(-k)  k > 0
-        # = sum_{i=1}^{P} (R(-k+i)^T A^T(i))^T = -R(-k) = -R(k)^T
-        # = sum_{i=1}^{P} R(k-i)A.T(i) = -R(k)
-        rmat = np.zeros((nc * P, nc * P))
-        for k in xrange(1, P + 1):
-            for i in xrange(1, P + 1):
-                im = k - i
-                if im < 0:
-                    r1 = r[-im].T
-                else:
-                    r1 = r[im]
-                rmat[(k - 1) * nc:k * nc, (i - 1) * nc:i * nc] = r1
-
-        rvec = np.zeros((nc * P, nc))
-        avec = np.zeros((nc * P, nc))
-        for m in xrange(P):
-            rvec[m * nc:(m + 1) * nc] = -r[m + 1]
-            avec[m * nc:(m + 1) * nc] = a[m].T
-
-        l2_d = np.dot(rmat, avec) - rvec
-        l2_d = (l2_d ** 2).sum() ** 0.5
-        l2_r = (rvec ** 2).sum() ** 0.5
-
-        # compute |Ax-b| / |b| metric
-        yield nt.assert_almost_equal, l2_d / l2_r, 0
 
 
 def test_information_criteria():

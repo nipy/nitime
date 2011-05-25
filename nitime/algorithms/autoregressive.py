@@ -1,111 +1,295 @@
 """
 
-Autoregressive processes are processes of the form:
+Autoregressive (AR) processes are processes of the form:
 
+x(n) = a(1)x(n-1) + a(2)x(n-2) + ... + a(P)x(n-P) + e(n)
 
-This module contains functions for the estimation of
+where e(n) is a white noise process. The usage of 'e' suggests interpreting
+the linear combination of P past values of x(n) as the minimum mean square
+error linear predictor of x(n) Thus
+
+e(n) = x(n) - a(1)x(n-1) - a(2)x(n-2) - ... - a(P)x(n-P)
+
+Due to whiteness, e(n) is also pointwise uncorrelated--ie,
+
+(i)   E{e(n)e*(n-m)} = delta(n-m)
+(ii)  E{e(n)x*(m)} = 0, m != n
+(iii) E{|e|**2} = E{e(n)e*(n)} = E{e(n)x*(n)}
+
+These principles form the basis of the methods in this module for
+estimating the AR coefficients and the error/innovations power.
 """
 
 
 import numpy as np
-from scipy import linalg
+import scipy.linalg as linalg
+import scipy.signal as sig
 
 import nitime.utils as utils
 from spectral import freq_response
 
 
-def AR_est_YW(s, order, sxx=None):
-    """Finds the parameters for an autoregressive model of order norder
-    of the process s. Using these parameters, an estimate of the PSD
-    is calculated from [-PI,PI) in n_freqs, or [0,PI] in {N/2+1}freqs.
-    Uses the basic Yule Walker system of equations, and a baised estimate
-    of sxx (unless sxx is provided).
+def AR_est_YW(x, order, rxx=None):
+    """Determine the autoregressive (AR) model of a random process x using
+    the Yule Walker equations. The AR model takes this convention:
+    
+    x(n) = a(1)x(n-1) + a(2)x(n-2) + ... + a(P)x(n-P) + e(n)
 
-    The model for the autoregressive process takes this convention:
-    s[n] = a1*s[n-1] + a2*s[n-2] + ... aP*s[n-P] + v[n]
+    where e(n) is a zero-mean white noise process with variance sig_sq,
+    and P is the order of the AR model. This method returns the a_i and
+    sigma
 
-    where v[n] is a zero-mean white noise process with variance=sigma_v
+    The orthogonality property of minimum mean square error estimates
+    yields the Yule Walker equations:
+
+    .. math::
+
+    E\{e(n)x^{*}(n-k)\} = 0\quad 1\leq k\leq p
+    E\{e(n)x^{*}(n-k)\} = R_{xx}(k)-\sum_{i=1}^{p}a(i)R_{xx}(k-i)
+    \left(\begin{array}{cccc}
+    R_{0} & R_{1}^{*} & \cdots & R_{p-1}^{*}\\
+    R_{1} & R_{0} & \cdots & R_{p-2}^{*}\\
+    \vdots & \vdots & \ddots & \vdots\\
+    R_{p-1}^{*} & R_{p-2}^{*} & \cdots & R_{0}
+    \end{array}\right)\left(\begin{array}{c}
+    a_{1}\\
+    a_{2}\\
+    \vdots\\
+    a_{p}
+    \end{array}\right)=\left(\begin{array}{c}
+    R_{1}\\
+    R_{2}\\
+    \vdots\\
+    R_{p}
+    \end{array}\right)
+
+    E\{e(n)e^{*}(n)\}&=&E\{e(n)x^{*}(n)\}=&R_{xx}(0)-\sum_{i=1}^{p}a(i)R^{*}(i)
+    
 
     Parameters
     ----------
-    s : ndarray
+    x : ndarray
         The sampled autoregressive random process
 
     order : int
         The order P of the AR system
 
-    sxx : ndarray (optional)
-        An optional, possibly unbiased estimate of the autocovariance of s
+    rxx : ndarray (optional)
+        An optional, possibly unbiased estimate of the autocorrelation of x
 
     Returns
     -------
-    a, ecov: The system coefficients and the estimated covariance
+    ak, sig_sq: The estimated AR coefficients and innovations variance
 
     """
-    if sxx is not None and type(sxx) == np.ndarray:
-        sxx_m = sxx[:order + 1]
+    if rxx is not None and type(rxx) == np.ndarray:
+        r_m = rxx[:order + 1]
     else:
-        sxx_m = utils.autocov(s)[:order + 1]
+        r_m = utils.autocorr(x)[:order + 1]
 
-    R = linalg.toeplitz(sxx_m[:order].conj())
-    y = sxx_m[1:].conj()
-    ak = linalg.solve(R, y)
-    sigma_v = sxx_m[0] - np.dot(sxx_m[1:], ak)
+    Tm = linalg.toeplitz(r_m[:order])
+    y = r_m[1:]
+    ak = linalg.solve(Tm, y)
+    sigma_v = r_m[0].real - np.dot(r_m[1:].conj(), ak).real
     return ak, sigma_v
 
+def AR_est_LD(x, order, rxx=None):
+    """Levinson-Durbin algorithm for solving the Hermitian Toeplitz
+    system R[m]w[m]=r[m+1]: (XXX review this definition for complex)
 
-def AR_est_LD(s, order, sxx=None):
-    """Finds the parameters for an autoregressive model of order norder
-    of the process s. Using these parameters, an estimate of the PSD
-    is calculated from [-PI,PI) in n_freqs, or [0,PI] in {N/2+1}freqs.
-    Uses the Levinson-Durbin recursion method, and a baised estimate
-    of sxx (unless sxx is provided).
+    
+           [[r(0)  r(1) r(2)    ...     r(m-1)],
+    R[m] =  [r*(1) r(0) r(1)    ...     r(m-2)],
+            [...                              ],
+            [r*(m-1) r*(m-2) r*(m-3)... r(0)  ]]
 
-    The model for the autoregressive process takes this convention:
-    s[n] = a1*s[n-1] + a2*s[n-2] + ... aP*s[n-P] + v[n]
+    r[m+1] = [r(1), r(2), ..., r(m)].T
 
-    where v[n] is a zero-mean white noise process with variance=sigma_v
+    r(k) = E{X(t+k)X*(t)}
+
+    and w[m] is the vector of m AR coefficients
 
     Parameters
     ----------
-    s : ndarray
-        The sampled autoregressive random process
 
+    x: ndarray
+      the zero-mean stochastic process
     order : int
-        The order P of the AR system
-
-    sxx : ndarray (optional)
-        An optional, possibly unbiased estimate of the autocovariance of s
-
+      the AR model order--IE the rank of the system. 
+    rxx : ndarray, optional
+      (at least) order+1 samples of the autocorrelation sequence
 
     Returns
     -------
-    a, ecov: The system coefficients and the estimated covariance
+
+    ak, sig_sq
+      The AR coefficients for 1 <= k <= P, and the variance of the
+      driving white noise process
+    
+    """
+
+    if rxx is not None and type(rxx) == np.ndarray:
+        rxx_m = rxx[:order + 1]
+    else:
+        rxx_m = utils.autocorr(x)[:order + 1]
+    w = np.zeros((order+1,), rxx_m.dtype)
+    # intialize the recursion with the R[0]w[1]=r[1] solution (p=1)
+    b = rxx_m[0].real
+    w_k = rxx_m[1]/b
+    w[1] = w_k
+    p = 2
+    while p<=order:
+        b *= (1-(w_k*w_k.conj()).real)
+        w_k = (rxx_m[p] - (w[1:p]*rxx_m[1:p][::-1]).sum())/b
+        # update w_k from k=1,2,...,p-1
+        # with a correction from w*_i i=p-1,p-2,...,1
+        w[1:p] = w[1:p] - w_k*(w[1:p][::-1].conj())
+        w[p] = w_k
+        p += 1
+    b *= (1 - (w_k*w_k.conj()).real)
+    return w[1:], b
+
+def lwr_recursion(r):
+    """Perform a Levinson-Wiggins[Whittle]-Robinson recursion to
+    find the coefficients a(i) that satisfy the matrix version
+    of the Yule-Walker system of P+1 equations:
+
+    sum_{i=0}^{P} a(i)r(k-i) = 0, for k = {1,2,...,P}
+
+    with the additional equation
+
+    sum_{i=0}^{P} a(i)r(-k) = V
+
+    where V is the covariance matrix of the innovations process,
+    and a(0) is fixed at the identity matrix
+
+    Also note that r is defined as:
+
+    r(k) = E{ X(t)X*(t-k) } ( * = conjugate transpose )
+    r(-k) = r*(k)
+
+
+    This routine adapts the algorithm found in eqs (1)-(11)
+    in Morf, Vieira, Kailath 1978
+
+    Parameters
+    ----------
+
+    r : ndarray, shape (P+1, nc, nc)
+
+    Returns
+    -------
+
+    a : ndarray (P,nc,nc)
+      coefficient sequence of order P
+    sigma : ndarray (nc,nc)
+      covariance estimate
 
     """
-    if sxx is not None and type(sxx) == np.ndarray:
-        sxx_m = sxx[:order + 1]
-    else:
-        sxx_m = utils.autocov(s)[:order + 1]
 
-    phi = np.zeros((order + 1, order + 1), 'd')
-    sig = np.zeros(order + 1)
-    # initial points for the recursion
-    phi[1, 1] = sxx_m[1] / sxx_m[0]
-    sig[1] = sxx_m[0] - phi[1, 1] * sxx_m[1]
-    for k in xrange(2, order + 1):
-        phi[k, k] = ((sxx_m[k] - np.dot(phi[1:k, k - 1], sxx_m[1:k][::-1])) /
-                     sig[k - 1])
-        for j in xrange(1, k):
-            phi[j, k] = phi[j, k - 1] - phi[k, k] * phi[k - j, k - 1]
-        sig[k] = sig[k - 1] * (1 - phi[k, k] ** 2)
+    # r is (P+1, nc, nc)
+    nc = r.shape[1]
+    P = r.shape[0] - 1
 
-    sigma_v = sig[-1]
-    ak = phi[1:, -1]
-    return ak, sigma_v
+    a = np.zeros((P, nc, nc))  # ar coefs
+    b = np.zeros_like(a)  # lp coefs
+    sigb = np.zeros_like(r[0])  # forward prediction error covariance
+    sigf = np.zeros_like(r[0])  # backward prediction error covariance
+    delta = np.zeros_like(r[0])
 
+    # initialize
+    idnt = np.eye(nc)
+    sigf[:] = r[0]
+    sigb[:] = r[0]
 
-def MAR_est_LWR(s, order, sxx=None):
+    # iteratively find sequences A_{p+1}(i) and B_{p+1}(i)
+    for p in xrange(P):
+
+        # calculate delta_{p+1}
+        # delta_{p+1} = r(p+1) + sum_{i=1}^{p} a(i)r(p+1-i)
+        delta[:] = r[p + 1]
+        for i in xrange(1, p + 1):
+            delta += np.dot(a[i - 1], r[p + 1 - i])
+
+        # intermediate values XXX: should turn these into solution-problems
+        ka = np.dot(delta, linalg.inv(sigb))
+        kb = np.dot(delta.conj().T, linalg.inv(sigf))
+
+        # store a_{p} before updating sequence to a_{p+1}
+        ao = a.copy()
+        # a_{p+1}(i) = a_{p}(i) - ka*b_{p}(p+1-i) for i in {1,2,...,p}
+        # b_{p+1}(i) = b_{p}(i) - kb*a_{p}(p+1-i) for i in {1,2,...,p}
+        for i in xrange(1, p + 1):
+            a[i - 1] -= np.dot(ka, b[p - i])
+        for i in xrange(1, p + 1):
+            b[i - 1] -= np.dot(kb, ao[p - i])
+
+        a[p] = -ka
+        b[p] = -kb
+
+        sigf = np.dot(idnt - np.dot(ka, kb), sigf)
+        sigb = np.dot(idnt - np.dot(kb, ka), sigb)
+
+    return a, sigf
+
+# XXX probably can delete this
+def lwr_alternate(r):
+    # r(k) = E{ X(t)X*(t+k) } ( * = conjugate transpose )
+    # r(-k) = r(k).T
+    # this routine solves the system of equations
+    # sum_{k=0}^{p} A(k)r(k-j) = 0, for j = {1,2,...,p}
+    # with the additional equation
+    # sum_{k=0}^{p} A(k)r(k) = V
+    # where V is the covariance matrix of the innovations process
+    #
+    # This routine adjusts the algorithm found in eqs (1)-(11)
+    # in Morf, Vieira, Kailath 1978 to reflect that this system
+    # is composed in a slightly different way (due to the conflicting
+    # definition of autocovariance)
+
+    # r is (P+1, nc, nc)
+    nc = r.shape[1]
+    P = r.shape[0] - 1
+
+    a = np.zeros((P, nc, nc))  # ar coefs
+    b = np.zeros_like(a)  # lp coefs
+    sigb = np.zeros_like(r[0])  # forward prediction error covariance
+    sigf = np.zeros_like(r[0])  # backward prediction error covariance
+    delta = np.zeros_like(r[0])
+
+    # initialize
+    idnt = np.eye(nc)
+    sigf[:] = r[0]
+    sigb[:] = r[0]
+
+    # iteratively find sequences A_{p+1}(i) and B_{p+1}(i)
+    for p in xrange(P):
+
+        # calculate delta_{p+1}
+        delta[:] = r[p + 1]
+        for i in xrange(1, p + 1):
+            delta += np.dot(r[p + 1 - i], a[i - 1].T)
+
+        # intermediate values
+        ka = np.dot(delta.T, linalg.inv(sigb).T)  # (linalg.inv(sigb)*del)'
+        kb = np.dot(delta, linalg.inv(sigf).T)    # (linalg.inv(sigf)*del')'
+
+        # store a_{p} before updating sequence to a_{p+1}
+        ao = a.copy()
+        for i in xrange(1, p + 1):
+            a[i - 1] -= np.dot(ka, b[p - i])
+        for i in xrange(1, p + 1):
+            b[i - 1] -= np.dot(kb, ao[p - i])
+
+        a[p] = -ka
+        b[p] = -kb
+
+        sigf = np.dot(sigf, (idnt - np.dot(ka, kb).T))
+        sigb = np.dot(sigb, (idnt - np.dot(kb, ka).T))
+
+    return a, sigf
+
+def MAR_est_LWR(x, order, rxx=None):
 
     """
     MAR estimation, using the LWR algorithm, as in Morf et al.
@@ -113,21 +297,21 @@ def MAR_est_LWR(s, order, sxx=None):
 
     Parameters
     ----------
-    s : ndarray
+    x : ndarray
         The sampled autoregressive random process
 
     order : int
         The order P of the AR system
 
-    sxx : ndarray (optional)
-        An optional, possibly unbiased estimate of the autocovariance of s
+    rxx : ndarray (optional)
+        An optional, possibly unbiased estimate of the autocovariance of x
 
     Returns
     -------
     a, ecov: The system coefficients and the estimated covariance
     """
-    Rxx = utils.autocov_vector(s, nlags=order)
-    a, ecov = utils.lwr(Rxx.transpose(2, 0, 1))
+    Rxx = utils.autocov_vector(x, nlags=order)
+    a, ecov = lwr_recursion(Rxx.transpose(2, 0, 1))
     return a, ecov
 
 
@@ -152,15 +336,16 @@ def AR_psd(ak, sigma_v, n_freqs=1024, sides='onesided'):
 
 
     """
-    # compute the psd as |h(f)|**2, where h(f) is the transfer function..
+    # compute the psd as |H(f)|**2, where H(f) is the transfer function
     # for this model s[n] = a1*s[n-1] + a2*s[n-2] + ... aP*s[n-P] + v[n]
-    # Taken as a FIR system from s[n] to v[n],
-    # v[n] = w0*s[n] + w1*s[n-1] + w2*s[n-2] + ... + wP*s[n-P],
-    # where w0 = 1, and wk = -ak for k>0
+    # Taken as a IIR system with unit-variance white noise input e[n]
+    # and output s[n],
+    # b0*e[n] = w0*s[n] + w1*s[n-1] + w2*s[n-2] + ... + wP*s[n-P],
+    # where b0 = sqrt(VAR{v[n]}), w0 = 1, and wk = -ak for k>0
     # the transfer function here is H(f) = DTFT(w)
-    # leading to Sxx(f) = Vxx(f) / |H(f)|**2 = sigma_v / |H(f)|**2
-    w, hw = freq_response(sigma_v ** 0.5, a=np.concatenate(([1], -ak)),
-                     n_freqs=n_freqs, sides=sides)
+    # leading to Sxx(f)/Exx(f) = |H(f)|**2 = VAR{v[n]} / |W(f)|**2
+    w, hw = freq_response(sigma_v ** 0.5, a=np.r_[1, -ak],
+                          n_freqs=n_freqs, sides=sides)
     ar_psd = (hw * hw.conj()).real
     return (w, 2 * ar_psd) if sides == 'onesided' else (w, ar_psd)
 
