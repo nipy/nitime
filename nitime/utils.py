@@ -250,6 +250,28 @@ def normal_coherence_to_unit(y, dof, out=None):
     np.tanh(x, x)
     return x
 
+def expected_jk_variance(K):
+    """Compute the expected value of the jackknife variance estimate
+    over K windows below. This expected value formula is based on the
+    asymptotic expansion of the trigamma function derived in
+    [Thompson_1994]
+
+    Paramters
+    ---------
+
+    K: int
+      Number of tapers used in the multitaper method
+
+    Returns
+    -------
+
+    evar: float
+      Expected value of the jackknife variance estimator
+    
+    """
+
+    kf = float(K)
+    return (1/kf) * (k-1)/(k-0.5) * ( (k-1)/(k-2) )**2 * (k-3)/(k-2)
 
 def jackknifed_sdf_variance(sdfs, weights=None, last_freq=None):
     r"""
