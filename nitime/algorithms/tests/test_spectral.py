@@ -165,6 +165,11 @@ def test_dpss_windows():
     d,w=tsa.dpss_windows(1024, 0, 7)
     for this_d in d[0::2]:
         npt.assert_equal(this_d.sum(axis=-1)< 0, False)
+
+# make a test for
+# * the DPSS conventions
+# * DPSS orthonormality
+# * DPSS eigenvalues
     
 def test_get_spectra_bi():
     """

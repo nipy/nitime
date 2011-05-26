@@ -653,8 +653,7 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
     # don't normalize the periodograms by 1/N as normal.. since the taper
     # windows are orthonormal, they effectively scale the signal by 1/N
 
-##     f,tapered_sdf = periodogram(tapered, sides=sides, normalize=False)
-
+    # XXX: scipy fft is faster
     tapered_spectra = np.fft.fft(tapered)
 
     last_freq = N / 2 + 1 if sides == 'onesided' else N

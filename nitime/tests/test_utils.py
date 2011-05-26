@@ -70,6 +70,7 @@ def test_tridi_inverse_iteration():
     sp_data[1] = ab[1]
     sp_data[2, 1:] = sup_diag[:-1]
     A = spdiags(sp_data, [-1, 0, 1], N, N)
+    E = np.zeros((K,N), 'd')
     for j in xrange(K):
         e = utils.tridi_inverse_iteration(
             ab[1], sup_diag, w[j], x0=np.sin((j+1)*t)
@@ -80,6 +81,11 @@ def test_tridi_inverse_iteration():
                'Inverse iteration eigenvector solution is inconsistent with '\
                'given eigenvalue'
                )
+        E[j] = e
+
+    # also test orthonormality of the eigenvectors
+    ident = np.dot(E, E.T)
+    yield npt.assert_almost_equal, ident, np.eye(K)
 
 def test_debias():
     x = np.arange(64).reshape(4, 4, 4)
