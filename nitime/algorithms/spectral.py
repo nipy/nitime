@@ -669,10 +669,10 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
                 mag_sqr_spectra[i], l, last_freq
                 )
     else:
-        # let the weights simply be the square-root of the eigenvalues
-        wshape = [1] * len(tapered.shape)
-        wshape[-2] = Kmax
-        weights = np.sqrt(l).reshape(*wshape)
+        # let the weights simply be the square-root of the eigenvalues.
+        # repeat these values across all n_chan channels of data
+        n_chan = tapered.shape[0]
+        weights = np.tile(np.sqrt(l), n_chan).reshape(n_chan, Kmax, 1)
         nu.fill(2 * Kmax)
 
     if jackknife:
