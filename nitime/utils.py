@@ -434,7 +434,7 @@ def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
     ----------
 
     sdfs: ndarray, (K x L)
-       The K estimators
+       The K full-band estimators (ie, not half band)
     eigvals: ndarray, length-K
        The eigenvalues of the DPSS tapers
     N: int,
@@ -452,7 +452,7 @@ def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
     -----
 
     The weights to use for making the multitaper estimate, such that
-    :math:`S_{mt} = \sum_{k} w_k^2S_k^{mt} / \sum_{k} |w_k|^2`
+    :math:`S_{mt} = \sum_{k} |w_k|^2S_k^{mt} / \sum_{k} |w_k|^2`
 
     If there are less than 3 tapers, then the adaptive weights are not
     found. The square root of the eigenvalues are returned as weights,
@@ -479,6 +479,19 @@ def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
     sdf /= eigvals.sum()
     var_est = np.trapz(sdf, dx=1.0 / N)
 
+    # The process is to iteratively switch solving for the following
+    # two expressions:
+    # (1) Adaptive Multitaper SDF:
+    # S^{mt}(f) = [ sum |d_k(f)|^2 S_k(f) ]/ sum |d_k(f)|^2
+    #
+    # (2) Weights
+    # d_k(f) = [sqrt(lam_k) S^{mt}(f)] / [lam_k S^{mt}(f) + E{B_k(f)}]
+    #
+    # Where lam_k are the eigenvalues corresponding to the DPSS tapers,
+    # and the expected value of the broadband bias function
+    # E{B_k(f)} is replaced by its full-band integration
+    # (1/2pi) int_{-pi}^{pi} E{B_k(f)} = sig^2(1-lam_k)
+
     # start with an estimate from incomplete data--the first 2 tapers
     sdf_iter = (sdfs[:2, :last_freq] * l[:2, None]).sum(axis=-2)
     sdf_iter /= l[:2].sum()
@@ -490,25 +503,28 @@ def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
         d_k = sdf_iter[None, :] / (l[:, None] * sdf_iter[None, :] + \
                                   (1 - l[:, None]) * var_est)
         d_k *= rt_l[:, None]
-        # test for convergence --
-        # Take the RMS error across frequencies, for each taper..
-        # if the maximum RMS error across tapers is less than 1e-10, then
-        # we're converged
+        # Test for convergence -- this is overly conservative, since
+        # iteration only stops when all frequencies have converged.
+        # A better approach is to iterate separately for each freq, but
+        # that is a nonvectorized algorithm.
+        # Take the RMS difference in weights from the previous iterate
+        # across frequencies. If the maximum RMS error across freqs is
+        # less than 1e-10, then we're converged
         err -= d_k
-##         if (( (err**2).mean(axis=1) )**.5).max() < 1e-10:
-##             break
         if (err ** 2).mean(axis=0).max() < 1e-10:
             break
         # update the iterative estimate with this d_k
-        sdf_iter = (d_k ** 2 * sdfs[:, :last_freq]).sum(axis=0)
-        sdf_iter /= (d_k ** 2).sum(axis=0)
+        sdf_iter = (np.abs(d_k) ** 2 * sdfs[:, :last_freq]).sum(axis=0)
+        sdf_iter /= (np.abs(d_k) ** 2).sum(axis=0)
         err = d_k
     else:  # If you have reached maximum number of iterations
+        # XXX: could probably just return non-converged weights
         raise ValueError('breaking due to iterative meltdown')
 
     weights = d_k
-    nu = 2 * (weights ** 2).sum(axis=-2) ** 2
-    nu /= (weights ** 4).sum(axis=-2)
+    nu = 2 * (weights ** 2).sum(axis=-2)
+##     nu = 2 * (weights ** 2).sum(axis=-2) ** 2
+##     nu /= (weights ** 4).sum(axis=-2)
     return weights, nu
 
 #-----------------------------------------------------------------------------
@@ -1787,17 +1803,17 @@ def crosscov_vector(x, y, nlags=None):
 
     .. math::
 
-    R_{xy}(k) = E{ x(t)y^{*}(t-k) } = E{ x(t+k)y^{*}(k) }
+    R_{xy}(k) = E{ x(t)y^{*}(t-k) } = E{ x(t+k)y^{*}(t) }
     k \in {0, 1, ..., nlags-1}
 
     (* := conjugate transpose)
 
-    Note: In the case where x==y (autocovariance), this is related to
-    the other commonly used definition for vector autocovariance
+    Note: This is related to the other commonly used definition
+    for vector crosscovariance 
 
     .. math::
 
-    R_{xx}^{(2)}(k) = E{ x(t-k)x^{*}(k) } = R_{xx}^{*}(k) = R_{xx}(-k)
+    R_{xy}^{(2)}(k) = E{ x(t-k)y^{*}(t) } = R_{xy}^(-k) = R_{yx}^{*}(k)
 
     Parameters
     ----------
@@ -1840,7 +1856,7 @@ def autocov_vector(x, nlags=None):
 
     .. math::
 
-    R_{xx}(k) = E{ x(t)x^{*}(t-k) } = E{ x(t+k)x^{*}(k) }
+    R_{xx}(k) = E{ x(t)x^{*}(t-k) } = E{ x(t+k)x^{*}(t) }
     k \in {0, 1, ..., nlags-1}
 
     (* := conjugate transpose)
@@ -1850,7 +1866,7 @@ def autocov_vector(x, nlags=None):
 
     .. math::
 
-    R_{xx}^{(2)}(k) = E{ x(t-k)x^{*}(k) } = R_{xx}^{*}(k) = R_{xx}(-k)
+    R_{xx}^{(2)}(k) = E{ x(t-k)x^{*}(t) } = R_{xx}(-k) = R_{xx}^{*}(k)
 
     Parameters
     ----------

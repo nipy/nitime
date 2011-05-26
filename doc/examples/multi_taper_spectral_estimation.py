@@ -291,8 +291,16 @@ f, adaptive_psd_mt, nu = tsa.multi_taper_psd(
     )
 dB(adaptive_psd_mt, adaptive_psd_mt)
 
-fig06 = plot_spectral_estimate(freqs, psd, (psd_mt,),
-                       elabels=('MT with adaptive weighting',))
+p975 = dist.chi2.ppf(.975, nu)
+p025 = dist.chi2.ppf(.025, nu)
+
+l1 = ln2db * np.log(nu / p975)
+l2 = ln2db * np.log(nu / p025)
+
+hyp_limits = (adaptive_psd_mt + l1, adaptive_psd_mt + l2)
+
+fig06 = plot_spectral_estimate(freqs, psd, (adaptive_psd_mt,), hyp_limits,
+                       elabels=('MT with adaptive weighting and 5% interval',))
 
 
 """
