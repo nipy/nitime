@@ -1385,7 +1385,8 @@ def plot_spectral_estimate(f, sdf, sdf_ests, limits=None, elabels=()):
     """
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    ax_limits = 2 * sdf.min(), 1.25 * sdf.max()
+    ax_limits = (sdf.min() - 2*np.abs(sdf.min()),
+                 sdf.max() + 1.25*np.abs(sdf.max()))
     ax.plot(f, sdf, 'c', label='True S(f)')
 
     if not elabels:

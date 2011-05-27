@@ -208,7 +208,7 @@ def dB(x, power=True):
     
     1) dB(x) = 10log10(x)                     (if power==True)
     2) dB(x) = 10log10(|x|^2) = 20log10(|x|)  (if power==False)
-    """    
+    """
     if not power:
         return 20*np.log10(np.abs(x))
     return 10*np.log10(np.abs(x))
@@ -275,8 +275,8 @@ def expected_jk_variance(K):
 
 def jackknifed_sdf_variance(yk, eigvals, sides='onesided', adaptive=True):
     r"""
-    Returns the log-variance estimated through jack-knifing a group of
-    independent sdf estimates.
+    Returns the variance of the log-sdf estimated through jack-knifing
+    a group of independent sdf estimates.
 
     Parameters
     ----------
@@ -295,7 +295,7 @@ def jackknifed_sdf_variance(yk, eigvals, sides='onesided', adaptive=True):
     -------
 
     var:
-       The estimate for sdf variance
+       The estimate for log-sdf variance
 
     Notes
     -----
@@ -356,7 +356,7 @@ def jackknifed_sdf_variance(yk, eigvals, sides='onesided', adaptive=True):
     return jk_var
 
 
-def jackknifed_coh_variance(tx, ty, weights=None, last_freq=None):
+def jackknifed_coh_variance(tx, ty, eigvals, adaptive=True):
     """
     Returns the variance of the coherency between x and y, estimated
     through jack-knifing the tapered samples in {tx, ty}.
@@ -368,11 +368,8 @@ def jackknifed_coh_variance(tx, ty, weights=None, last_freq=None):
        The K complex spectra of tapered timeseries x
     ty: ndarray, (K, L)
        The K complex spectra of tapered timeseries y
-    weights: ndarray, or sequence-of-ndarrays 2 x (K, [N]), optional
-       The weights to use for combining the K spectra in tx and ty
-    last_freq: int, optional
-       The last frequency for which to compute variance (e.g., if only
-       computing half of the coherence spectrum)
+    eigvals: ndarray (K,)
+       The eigenvalues associated with the K DPSS tapers
 
     Returns
     -------
@@ -383,25 +380,11 @@ def jackknifed_coh_variance(tx, ty, weights=None, last_freq=None):
     """
 
     K = tx.shape[0]
-    L = tx.shape[1] if last_freq is None else last_freq
-    tx = tx[:, :L]
-    ty = ty[:, :L]
-    # prepare weights
-    if weights is None:
-        weights = (np.ones(K), np.ones(K))
-    if len(weights) != 2:
-        raise ValueError('Must provide 2 sets of weights')
-    weights_x, weights_y = weights
-    if len(weights_x.shape) < 2:
-        weights_x = weights_x.reshape(K, 1)
-        weights_y = weights_y.reshape(K, 1)
-    if weights_x.shape[1] > L:
-        weights_x = weights_x[:, :L]
-        weights_y = weights_y[:, :L]
 
     # calculate leave-one-out estimates of MSC (magnitude squared coherence)
-    jk_coh = np.empty((K, L), 'd')
-
+    jk_coh = []
+    # coherence is symmetric (right??)
+    sides = 'onesided'
     all_orders = set(range(K))
 
     import nitime.algorithms as alg
@@ -411,22 +394,26 @@ def jackknifed_coh_variance(tx, ty, weights=None, last_freq=None):
         items = list(all_orders.difference([i]))
         tx_i = np.take(tx, items, axis=0)
         ty_i = np.take(ty, items, axis=0)
-        wx = np.take(weights_x, items, axis=0)
-        wy = np.take(weights_y, items, axis=0)
-        weights = (wx, wy)
+        eigs_i = np.take(eigvals, items)
+        if adaptive:
+            wx, _ = adaptive_weights(tx_i, eigs_i, sides=sides)
+            wy, _ = adaptive_weights(ty_i, eigs_i, sides=sides)
+        else:
+            wx = wy = eigs_i[:,None]
         # The CSD
-        sxy_i = alg.mtm_cross_spectrum(tx_i, ty_i, weights)
+        sxy_i = alg.mtm_cross_spectrum(tx_i, ty_i, (wx, wy), sides=sides)
         # The PSDs
-        sxx_i = alg.mtm_cross_spectrum(tx_i, tx_i, weights).real
-        syy_i = alg.mtm_cross_spectrum(ty_i, ty_i, weights).real
+        sxx_i = alg.mtm_cross_spectrum(tx_i, tx_i, wx, sides=sides)
+        syy_i = alg.mtm_cross_spectrum(ty_i, ty_i, wy, sides=sides)
         # these are the | c_i | samples
-        jk_coh[i] = np.abs(sxy_i)
-        jk_coh[i] /= np.sqrt(sxx_i * syy_i)
+        msc = np.abs(sxy_i)
+        msc /= np.sqrt(sxx_i * syy_i)
+        jk_coh.append( msc )
 
-    jk_avg = np.mean(jk_coh, axis=0)
-    # now normalize the coherence estimates and the avg
+    jk_coh = np.array(jk_coh)
+    # now normalize the coherence estimates and take the mean
     normalize_coherence(jk_coh, 2 * K - 2, jk_coh)
-    normalize_coherence(jk_avg, 2 * K - 2, jk_avg)
+    jk_avg = np.mean(jk_coh, axis=0)
 
     jk_var = (jk_coh - jk_avg)
     np.power(jk_var, 2, jk_var)

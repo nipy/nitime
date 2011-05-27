@@ -46,7 +46,7 @@ fig_noise.suptitle('noise')
 
 """
 
-.. image:: fig/simple_ar_01.*
+.. image:: fig/simple_ar_01.png
 
 """
 
@@ -55,7 +55,7 @@ fig_ar.suptitle('AR signal')
 
 """
 
-.. image:: fig/simple_ar_02.*
+.. image:: fig/simple_ar_02.png
 
 Now we estimate back the model parameters:
 
@@ -75,5 +75,14 @@ ax.legend()
 err = X_hat - X[100:]
 mse = np.dot(err, err)/len(X_hat)
 ax.set_title('Mean Square Error: %1.3e'%mse)
+
+"""
+
+.. image:: fig/sample_ar_03.png
+
+Reconstructed AR sequence based on estimated AR coefs
+
+
+"""
 
 plt.show()

@@ -354,13 +354,13 @@ class FilterAnalyzer(desc.ResetMixin):
 
         #Lowpass:
         if ub_frac < 1:
-            b = signal.firwin(n_taps, ub_frac, self._win)
+            b = signal.firwin(n_taps, ub_frac, window=self._win)
             sig = self.filtfilt(b, a, sig)
 
         #High-pass
         if lb_frac > 0:
             #Includes a spectral inversion:
-            b = -1 * signal.firwin(n_taps, lb_frac, self._win)
+            b = -1 * signal.firwin(n_taps, lb_frac, window=self._win)
             b[n_taps / 2] = b[n_taps / 2] + 1
             sig = self.filtfilt(b, a, sig)
 

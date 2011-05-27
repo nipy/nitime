@@ -133,7 +133,7 @@ Rm = Rxx[..., 1:]
 
 Rxx = Rxx.transpose(2, 0, 1)
 
-a, ecov = utils.lwr(Rxx)
+a, ecov = alg.lwr_recursion(Rxx)
 
 print 'compare coefficients to estimate:'
 print a - am
