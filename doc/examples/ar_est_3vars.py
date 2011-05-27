@@ -79,16 +79,16 @@ yzRb = extract_ij(1, 2, Rbxx)
 # now estimate mAR coefficients and covariance from the full and
 # pairwise relationships
 Raxx = Raxx.transpose(2, 0, 1)
-a_est, cov_est1 = utils.lwr(Raxx)
-a_xy_est, cov_xy_est1 = utils.lwr(xyRa.transpose(2, 0, 1))
-a_xz_est, cov_xz_est1 = utils.lwr(xzRa.transpose(2, 0, 1))
-a_yz_est, cov_yz_est1 = utils.lwr(yzRa.transpose(2, 0, 1))
+a_est, cov_est1 = alg.lwr_recursion(Raxx)
+a_xy_est, cov_xy_est1 = alg.lwr_recursion(xyRa.transpose(2, 0, 1))
+a_xz_est, cov_xz_est1 = alg.lwr_recursion(xzRa.transpose(2, 0, 1))
+a_yz_est, cov_yz_est1 = alg.lwr_recursion(yzRa.transpose(2, 0, 1))
 
 Rbxx = Rbxx.transpose(2, 0, 1)
-b_est, cov_est2 = utils.lwr(Rbxx)
-b_xy_est, cov_xy_est2 = utils.lwr(xyRb.transpose(2, 0, 1))
-b_xz_est, cov_xz_est2 = utils.lwr(xzRb.transpose(2, 0, 1))
-b_yz_est, cov_yz_est2 = utils.lwr(yzRb.transpose(2, 0, 1))
+b_est, cov_est2 = alg.lwr_recursion(Rbxx)
+b_xy_est, cov_xy_est2 = alg.lwr_recursion(xyRb.transpose(2, 0, 1))
+b_xz_est, cov_xz_est2 = alg.lwr_recursion(xzRb.transpose(2, 0, 1))
+b_yz_est, cov_yz_est2 = alg.lwr_recursion(yzRb.transpose(2, 0, 1))
 
 fig = pp.figure()
 

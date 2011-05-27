@@ -89,7 +89,7 @@ the tapers and the associated eigenvalues of each taper:
 NW = 4
 K = 2 * NW - 1
 
-tapers, eigs = alg.dpss_windows(n_samples, NW, 2 * NW - 1)
+tapers, eigs = alg.dpss_windows(n_samples, NW, K)
 
 """
 
@@ -101,8 +101,8 @@ magnitude of the squared spectra (the power) for each tapered time-series:
 
 tdata = tapers[None, :, :] * pdata[:, None, :]
 tspectra = np.fft.fft(tdata)
-mag_sqr_spectra = np.abs(tspectra)
-np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
+## mag_sqr_spectra = np.abs(tspectra)
+## np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
 
 
 """
@@ -113,7 +113,7 @@ the spectrum (the other half is equal):
 """
 
 L = n_samples / 2 + 1
-
+sides = 'onesided'
 
 """
 
@@ -124,7 +124,7 @@ We estimate adaptive weighting of the tapers, based on the data (see
 
 w = np.empty((nseq, K, L))
 for i in xrange(nseq):
-    w[i], _ = utils.adaptive_weights(mag_sqr_spectra[i], eigs, L)
+    w[i], _ = utils.adaptive_weights(tspectra[i], eigs, sides=sides)
 
 
 """
@@ -166,11 +166,11 @@ for i in xrange(nseq):
         """
 
         sxx = alg.mtm_cross_spectrum(
-           tspectra[i], tspectra[i], (w[i], w[i]), sides='onesided'
-           ).real
+           tspectra[i], tspectra[i], w[i], sides='onesided'
+           )
         syy = alg.mtm_cross_spectrum(
-           tspectra[j], tspectra[j], (w[i], w[j]), sides='onesided'
-           ).real
+           tspectra[j], tspectra[j], w[j], sides='onesided'
+           )
 
         psd_mat[0, i, j] = sxx
         psd_mat[1, i, j] = syy
@@ -194,7 +194,7 @@ for i in xrange(nseq):
 
         if i != j:
             coh_var[i, j] = utils.jackknifed_coh_variance(
-               tspectra[i], tspectra[j], weights=(w[i], w[j]), last_freq=L
+               tspectra[i], tspectra[j], eigs, adaptive=True,
                )
 
 
