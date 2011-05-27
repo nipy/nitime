@@ -175,7 +175,7 @@ def test_long_dpss_win():
     # They should both be very similar to the same one calculated in matlab
     # (using 'a = dpss(166800, 4, 8)').
     test_dir_path = os.path.join(nitime.__path__[0], 'tests')
-    matlab_long_dpss = np.loadtxt(os.path.join(test_dir_path, 'long_dpss_matlab.txt'))
+    matlab_long_dpss = np.load(os.path.join(test_dir_path, 'long_dpss_matlab.npy'))
     # We only have the first window to compare against:
     # Both for the interpolated case:
     npt.assert_almost_equal(a1[0], matlab_long_dpss, decimal=5)
