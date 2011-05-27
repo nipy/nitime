@@ -271,9 +271,9 @@ def expected_jk_variance(K):
     """
 
     kf = float(K)
-    return (1/kf) * (k-1)/(k-0.5) * ( (k-1)/(k-2) )**2 * (k-3)/(k-2)
+    return (1/kf) * (kf-1)/(kf-0.5) * ( (kf-1)/(kf-2) )**2 * (kf-3)/(kf-2)
 
-def jackknifed_sdf_variance(sdfs, weights=None, last_freq=None):
+def jackknifed_sdf_variance(yk, eigvals, sides='onesided', adaptive=True):
     r"""
     Returns the log-variance estimated through jack-knifing a group of
     independent sdf estimates.
@@ -281,14 +281,15 @@ def jackknifed_sdf_variance(sdfs, weights=None, last_freq=None):
     Parameters
     ----------
 
-    sdfs: ndarray (K, L)
-       The K sdf estimates from different tapers
-    weights: ndarray (K, [N]), optional
-       The weights to use for combining the direct spectral estimators in
-       sdfs.
-    last_freq: int, optional
-       The last frequency for which to compute variance (e.g., if only
-       computing the positive half of the spectrum)
+    yk: ndarray (K, L)
+       The K DFTs of the tapered sequences
+    eigvals: ndarray (K,)
+       The eigenvalues corresponding to the K DPSS tapers
+    sides: str, optional
+       Compute the jackknife pseudovalues over as one-sided or
+       two-sided spectra
+    adpative: bool, optional
+       Compute the adaptive weighting for each jackknife pseudovalue
 
     Returns
     -------
@@ -308,42 +309,38 @@ def jackknifed_sdf_variance(sdfs, weights=None, last_freq=None):
     [1] Thomson D J, Chave A D (1991) Advances in Spectrum Analysis and Array
     Processing (Prentice-Hall, Englewood Cliffs, NJ), 1, pp 58-113.
     """
-    K = sdfs.shape[0]
-    L = sdfs.shape[1] if last_freq is None else last_freq
-    sdfs = sdfs[:, :L]
-    # prepare weights array a little, so that it is either (K,1) or (K,L)
-    if weights is None:
-        weights = np.ones(K)
-    if len(weights.shape) < 2:
-        weights = weights.reshape(K, 1)
-    if weights.shape[1] > L:
-        weights = weights[:, :L]
+    K = yk.shape[0]
 
-    jk_sdf = np.empty((K, L))
+    from nitime.algorithms import mtm_cross_spectrum
 
     # the samples {S_k} are defined, with or without weights, as
     # S_k = | x_k |**2
-    # | x_k |**2 = | y_k * d_k |**2   (with weights)
-    # | x_k |**2 = | y_k |**2         (without weights)
+    # | x_k |**2 = | y_k * d_k |**2          (with adaptive weights)
+    # | x_k |**2 = | y_k * sqrt(eig_k) |**2  (without adaptive weights)
 
     all_orders = set(range(K))
-
-    # get the leave-one-out estimates
+    jk_sdf = []
+    # get the leave-one-out estimates -- ideally, weights are recomputed
+    # for each leave-one-out. This is now the case.
     for i in xrange(K):
         items = list(all_orders.difference([i]))
-        sdfs_i = np.take(sdfs, items, axis=0)
+        spectra_i = np.take(yk, items, axis=0)
+        eigs_i = np.take(eigvals, items)
+        if adaptive:
+            # compute the weights
+            weights, _ = adaptive_weights(spectra_i, eigs_i, sides=sides)
+        else:
+            weights = eigs_i[:,None]
         # this is the leave-one-out estimate of the sdf
-        weights_i = np.take(weights, items, axis=0)
-
-        sdfs_i *= (weights_i ** 2)
-        jk_sdf[i] = sdfs_i.sum(axis=0)
-        jk_sdf[i] /= (weights_i ** 2).sum(axis=0)
-
-    # find the average of these jackknifed estimates
-    jk_avg = jk_sdf.mean(axis=0)
+        jk_sdf.append(
+            mtm_cross_spectrum(
+                spectra_i, spectra_i, weights, sides=sides
+                )
+            )
     # log-transform the leave-one-out estimates and the mean of estimates
-    np.log(jk_sdf, jk_sdf)
-    np.log(jk_avg, jk_avg)
+    jk_sdf = np.log(jk_sdf)
+    # jk_avg should be the mean of the log(jk_sdf(i)) 
+    jk_avg = jk_sdf.mean(axis=0)
 
     K = float(K)
 
@@ -351,7 +348,6 @@ def jackknifed_sdf_variance(sdfs, weights=None, last_freq=None):
     np.power(jk_var, 2, jk_var)
     jk_var = jk_var.sum(axis=0)
 
-##     f = (K-1)/K
     # Thompson's recommended factor, eq 18
     # Jackknifing Multitaper Spectrum Estimates
     # IEEE SIGNAL PROCESSING MAGAZINE [20] JULY 2007
@@ -447,7 +443,7 @@ def jackknifed_coh_variance(tx, ty, weights=None, last_freq=None):
 #-----------------------------------------------------------------------------
 # Multitaper utils
 #-----------------------------------------------------------------------------
-def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
+def adaptive_weights(yk, eigvals, sides='onesided', max_iter=40):
     r"""
     Perform an iterative procedure to find the optimal weights for K
     direct spectral estimators of DPSS tapered signals.
@@ -455,12 +451,14 @@ def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
     Parameters
     ----------
 
-    sdfs: ndarray, (K x L)
-       The K full-band estimators (ie, not half band)
+    yk: ndarray (K, N)
+       The K DFTs of the tapered sequences
     eigvals: ndarray, length-K
        The eigenvalues of the DPSS tapers
-    N: int,
-       length of the signal
+    sides: str
+       Whether to compute weights on a one-sided or two-sided spectrum
+    max_iter: int
+       Maximum number of iterations for weight computation
 
     Returns
     -------
@@ -481,25 +479,25 @@ def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
     and the degrees of freedom are 2*K
 
     """
-    if last_freq is None:
-        last_freq = sdfs.shape[1]
-    K, L = sdfs.shape[0], last_freq
+    from nitime.algorithms import mtm_cross_spectrum
+    K = len(eigvals)
     if len(eigvals) < 3:
         print """
         Warning--not adaptively combining the spectral estimators
         due to a low number of tapers.
         """
+        # we'll hope this is a correct length for L
+        N = yk.shape[-1]
+        L = N/2 + 1 if sides=='onesided' else N
         return (np.multiply.outer(np.sqrt(eigvals), np.ones(L)), 2 * K)
-    l = eigvals
-    rt_l = np.sqrt(eigvals)
-    Kmax = len(eigvals)
+    rt_eig = np.sqrt(eigvals)
 
     # combine the SDFs in the traditional way in order to estimate
     # the variance of the timeseries
-    N = sdfs.shape[1]
-    sdf = (sdfs * eigvals[:, None]).sum(axis=0)
-    sdf /= eigvals.sum()
-    var_est = np.trapz(sdf, dx=1.0 / N)
+    N = yk.shape[1]
+    sdf = mtm_cross_spectrum(yk, yk, eigvals[:,None], sides=sides)
+    L = sdf.shape[-1]
+    var_est = np.trapz(sdf, dx=np.pi/L) / (2*np.pi)
 
     # The process is to iteratively switch solving for the following
     # two expressions:
@@ -515,16 +513,12 @@ def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
     # (1/2pi) int_{-pi}^{pi} E{B_k(f)} = sig^2(1-lam_k)
 
     # start with an estimate from incomplete data--the first 2 tapers
-    sdf_iter = (sdfs[:2, :last_freq] * l[:2, None]).sum(axis=-2)
-    sdf_iter /= l[:2].sum()
-    weights = np.empty((Kmax, last_freq))
-    nu = np.empty(last_freq)
-    err = np.zeros((Kmax, last_freq))
-
+    sdf_iter = mtm_cross_spectrum(yk[:2], yk[:2], eigvals[:2,None], sides=sides)
+    err = np.zeros((K,L))
     for n in range(max_iter):
-        d_k = sdf_iter[None, :] / (l[:, None] * sdf_iter[None, :] + \
-                                  (1 - l[:, None]) * var_est)
-        d_k *= rt_l[:, None]
+        d_k = sdf_iter[None, :] / (eigvals[:, None] * sdf_iter[None, :] + \
+                                  (1 - eigvals[:, None]) * var_est)
+        d_k *= rt_eig[:, None]
         # Test for convergence -- this is overly conservative, since
         # iteration only stops when all frequencies have converged.
         # A better approach is to iterate separately for each freq, but
@@ -536,8 +530,7 @@ def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
         if (err ** 2).mean(axis=0).max() < 1e-10:
             break
         # update the iterative estimate with this d_k
-        sdf_iter = (np.abs(d_k) ** 2 * sdfs[:, :last_freq]).sum(axis=0)
-        sdf_iter /= (np.abs(d_k) ** 2).sum(axis=0)
+        sdf_iter = mtm_cross_spectrum(yk, yk, d_k, sides=sides)
         err = d_k
     else:  # If you have reached maximum number of iterations
         # XXX: could probably just return non-converged weights
@@ -545,8 +538,6 @@ def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
 
     weights = d_k
     nu = 2 * (weights ** 2).sum(axis=-2)
-##     nu = 2 * (weights ** 2).sum(axis=-2) ** 2
-##     nu /= (weights ** 4).sum(axis=-2)
     return weights, nu
 
 #-----------------------------------------------------------------------------
