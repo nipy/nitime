@@ -1,6 +1,6 @@
 """Miscellaneous utilities for time series analysis.
 
-XXX wrie top level doc-string
+XXX write top level doc-string
 
 """
 import numpy as np

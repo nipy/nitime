@@ -5,7 +5,7 @@ managing time series data.  They should serve mainly as data containers, with
 only minimal algorithmic functionality.
 
 In the timeseries subpackage, there is a separate library of algorithms, and
-the classes defined here mostly delegate any computational facilitites they may
+the classes defined here mostly delegate any computational facilities they may
 have to that library.
 
 Over time, it is OK to add increasingly functionally rich classes, but only
@@ -538,7 +538,7 @@ class UniformTime(np.ndarray, TimeInterface):
         sampling_interval = TimeArray(sampling_interval, time_unit=time_unit)
 
         # in order for time[-1]-time[0]==duration to be true (which it should)
-        # add the samling_interval to the stop value:
+        # add the sampling_interval to the stop value:
         # time = np.arange(np.int64(t0),
         #                  np.int64(t0+duration+sampling_interval),
         #                  np.int64(sampling_interval),dtype=np.int64)
@@ -558,7 +558,7 @@ class UniformTime(np.ndarray, TimeInterface):
         return time
 
     def __array_wrap__(self, out_arr, context=None):
-        # When doing comparisons between UniformTime, make sure that you retun
+        # When doing comparisons between UniformTime, make sure that you return
         # a boolean array, not a time array:
         if out_arr.dtype == bool:
             return np.asarray(out_arr)
@@ -622,7 +622,7 @@ class UniformTime(np.ndarray, TimeInterface):
     def index_at(self, t, boolean=False):
         """Find the index that corresponds to the time bin containing t
 
-           Returns boolean mask if boolean=True and integer indeces otherwise.
+           Returns boolean mask if boolean=True and integer indices otherwise.
         """
 
         # cast t into time

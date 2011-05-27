@@ -16,7 +16,7 @@ def wfmorlet_fft(f0, sd, sampling_rate, ns=5, nt=None):
         f0 : center frequency
         sd : standard deviation of center frequency
         sampling_rate : samplingrate
-        ns : window length in number of stanard deviations
+        ns : window length in number of standard deviations
         nt : window length in number of sample points
     """
     if nt == None:
@@ -39,7 +39,7 @@ def wmorlet(f0, sd, sampling_rate, ns=5, normed='area'):
         f0 : center frequency
         sd : standard deviation of frequency
         sampling_rate : samplingrate
-        ns : window length in number of stanard deviations
+        ns : window length in number of standard deviations
     """
     st = 1. / (2. * np.pi * sd)
     w_sz = float(int(ns * st * sampling_rate))  # half time window size
@@ -64,7 +64,7 @@ def wlogmorlet_fft(f0, sd, sampling_rate, ns=5, nt=None):
         f0 : center frequency
         sd : standard deviation
         sampling_rate : samplingrate
-        ns : window length in number of stanard deviations
+        ns : window length in number of standard deviations
         nt : window length in number of sample points
     """
     if nt == None:
@@ -89,7 +89,7 @@ def wlogmorlet(f0, sd, sampling_rate, ns=5, normed='area'):
         f0 : center frequency
         sd : standard deviation of frequency
         sampling_rate : samplingrate
-        ns : window length in number of stanard deviations
+        ns : window length in number of standard deviations
     """
     st = 1. / (2. * np.pi * sd)
     w_sz = int(ns * st * sampling_rate)  # half time window size

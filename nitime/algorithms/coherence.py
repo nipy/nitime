@@ -1,6 +1,6 @@
 """
 
-Coherency is an analogue of correlation, calulated in the frequency
+Coherency is an analogue of correlation, calculated in the frequency
 domain. This is a useful quantity for describing a system of oscillators
 coupled with delay. This is because the coherency captures not only the
 magnitude of the time-shift-independent correlation between the time-series
