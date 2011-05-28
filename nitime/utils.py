@@ -1978,6 +1978,8 @@ def akaike_information_criterion(x, m):
     AIC: float
         The value of the AIC
 
+    a: the resulting autocovariance vector
+
     Notes
     -----
     This is an implementation of equation (50) in Ding et al. (2006)
@@ -2011,7 +2013,7 @@ def akaike_information_criterion(x, m):
 
     Rxx = Rxx.mean(axis=0)
     Rxx = Rxx.transpose(2, 0, 1)
-    _, sigma = ar.lwr_recursion(Rxx)
+    a, sigma = ar.lwr_recursion(Rxx)
 
     #The total number of data points:
     Ntotal = np.prod(x.shape)
@@ -2019,7 +2021,7 @@ def akaike_information_criterion(x, m):
     AIC = (2 * (np.log(linalg.det(sigma))) +
            ((2 * (p ** 2) * m) / (Ntotal)))
 
-    return AIC
+    return AIC, a
 
 
 def akaike_information_criterion_c(x, m):
@@ -2039,6 +2041,8 @@ def akaike_information_criterion_c(x, m):
     AICc: float
         The value of the AIC, corrected for small sample size
 
+    a: the resulting autocovariance vector
+
     Notes
     -----
     Taken from: http://en.wikipedia.org/wiki/Akaike_information_criterion:
@@ -2054,14 +2058,14 @@ def akaike_information_criterion_c(x, m):
 
     """
 
-    AIC = akaike_information_criterion(x, m)
+    AIC, a = akaike_information_criterion(x, m)
 
     #The total number of data points:
     Ntotal = np.prod(x.shape)
 
     AICc = AIC + (2 * m * (m + 1)) / (Ntotal - m - 1)
 
-    return AICc
+    return AICc, a
 
 
 def bayesian_information_criterion(x, m):
@@ -2083,7 +2087,7 @@ def bayesian_information_criterion(x, m):
 
     BIC: float
        The value of the BIC
-
+    a: the resulting autocovariance vector
     Notes
     -----
         This is an implementation of equation (51) in Ding et al. (2006)
@@ -2119,7 +2123,7 @@ def bayesian_information_criterion(x, m):
 
     Rxx = Rxx.mean(axis=0)
     Rxx = Rxx.transpose(2, 0, 1)
-    _, sigma = ar.lwr_recursion(Rxx)
+    a, sigma = ar.lwr_recursion(Rxx)
 
     #The total number of data points:
     Ntotal = np.prod(x.shape)
@@ -2127,4 +2131,4 @@ def bayesian_information_criterion(x, m):
     BIC = (2 * (np.log(linalg.det(sigma))) +
             ((2 * (p ** 2) * m * np.log(Ntotal)) / (Ntotal)))
 
-    return BIC
+    return BIC, a

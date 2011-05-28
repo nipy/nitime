@@ -160,12 +160,23 @@ def test_information_criteria():
         z[i], nz[i] = utils.generate_mar(am, cov, L)
 
     AIC = []
+    a_AIC = []
     BIC = []
+    a_BIC = []
     AICc = []
+    a_AICc = []
     for i in range(10):
-        AIC.append(utils.akaike_information_criterion(z, i))
-        AICc.append(utils.akaike_information_criterion_c(z, i))
-        BIC.append(utils.bayesian_information_criterion(z, i))
+        IC, a = utils.akaike_information_criterion(z, i)
+        AIC.append(IC)
+        a_AIC.append(a)
+
+        IC, a = utils.akaike_information_criterion_c(z, i)
+        AICc.append(IC)
+        a_AICc.append(a)
+
+        IC, a = utils.bayesian_information_criterion(z, i)
+        BIC.append(IC)
+        a_BIC.append(a)
 
     # The model has order 2, so this should minimize on 2:
     #nt.assert_equal(np.argmin(AIC),2)
