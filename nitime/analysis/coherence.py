@@ -309,13 +309,11 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
         w = np.empty((channel_n, self.df, self._L))
 
         if self._adaptive:
-            mag_sqr_spectra = np.abs(self.spectra)
-            np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
-
             for i in xrange(channel_n):
-                w[i] = tsu.adaptive_weights(mag_sqr_spectra[i],
+                # this is always a one-sided spectrum?
+                w[i] = tsu.adaptive_weights(self.spectra[i],
                                             self.eigs,
-                                            self._L)[0]
+                                            sides='onesided')[0]
 
         #Set the weights to be the square root of the eigen-values:
         else:
@@ -341,11 +339,11 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
                                            (self.weights[i], self.weights[j]),
                                            sides='onesided')
                 sxx = tsa.mtm_cross_spectrum(self.spectra[i], self.spectra[i],
-                                           (self.weights[i], self.weights[i]),
-                                           sides='onesided').real
+                                             self.weights[i],
+                                             sides='onesided')
                 syy = tsa.mtm_cross_spectrum(self.spectra[j], self.spectra[j],
-                                           (self.weights[i], self.weights[j]),
-                                           sides='onesided').real
+                                             self.weights[i],
+                                             sides='onesided')
                 psd_mat[0, i, j] = sxx
                 psd_mat[1, i, j] = syy
                 coh_mat[i, j] = np.abs(sxy) ** 2
@@ -368,8 +366,9 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
                     coh_var[i, j] = tsu.jackknifed_coh_variance(
                         self.spectra[i],
                         self.spectra[j],
-                        weights=(self.weights[i], self.weights[j]),
-                        last_freq=self._L)
+                        self.eigs,
+                        adaptive=self._adaptive
+                        )
 
         idx = tsu.triu_indices(self.input.data.shape[0], 1)
         coh_var[idx[0], idx[1], ...] = coh_var[idx[1], idx[0], ...].conj()

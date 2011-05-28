@@ -467,7 +467,7 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
     ----------
 
     tx, ty: ndarray (K, ..., N)
-       The tapered complex spectra, with K tapers
+       The complex DFTs of the tapered sequence
 
     weights: ndarray, or 2-tuple or list
        Weights can be specified as a length-2 list of weights for spectra tx
@@ -494,7 +494,6 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
     d_k^x(f)^2]^{\frac{1}{2}}[\sum_k d_k^y(f)^2]^{\frac{1}{2}}}`
 
     """
-
     N = tx.shape[-1]
     if ty.shape != tx.shape:
         raise ValueError('shape mismatch between tx, ty')
@@ -502,14 +501,16 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
     pshape = list(tx.shape)
 
     if isinstance(weights, (list, tuple)):
+        autospectrum = False
         weights_x = weights[0]
         weights_y = weights[1]
-        denom = (weights_x ** 2).sum(axis=0) ** 0.5
-        denom *= (weights_y ** 2).sum(axis=0) ** 0.5
+        denom = (np.abs(weights_x) ** 2).sum(axis=0) ** 0.5
+        denom *= (np.abs(weights_y) ** 2).sum(axis=0) ** 0.5
     else:
+        autospectrum = True
         weights_x = weights
         weights_y = weights
-        denom = (weights ** 2).sum(axis=0)
+        denom = (np.abs(weights) ** 2).sum(axis=0)
 
     if sides == 'onesided':
         # where the nyq freq should be
@@ -519,51 +520,27 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
         tsl = tuple(truncated_slice)
         tx = tx[tsl]
         ty = ty[tsl]
-
-# The following commented out, because it is not being used. What is it good
-# for?
-##         # weights may be scalars, or already truncated
-##         if weights_x.shape[-1] > Fn:
-##             weights_x = weights_x[tsl]
-##         if weights_y.shape[-1] > Fn:
-##             weights_y = weights_y[tsl]
+        # if weights.shape[-1] > 1 then make sure weights are truncated too
+        if weights_x.shape[-1] > 1:
+            weights_x = weights_x[tsl]
+            weights_y = weights_y[tsl]
+            denom = denom[tsl[1:]]
 
     sf = weights_x * tx
-    sf *= (weights_y * ty.conj())
+    sf *= (weights_y * ty).conj()
     sf = sf.sum(axis=0)
     sf /= denom
 
     if sides == 'onesided':
-        # last duplicate freq
+        # dbl power at duplicated freqs
         Fl = (N + 1) / 2
         sub_slice = [slice(None)] * len(sf.shape)
         sub_slice[-1] = slice(1, Fl)
         sf[tuple(sub_slice)] *= 2
 
+    if autospectrum:
+        return sf.real
     return sf
-
-##     if sides=='onesided':
-##         # putative Nyquist freq
-##         Fn = N/2 + 1
-##         # last duplicate freq
-##         Fl = (N+1)/2
-##         pshape[-1] = Fn
-##         p = np.zeros(pshape, 'D')
-##         p[...,0] = tx[...,0]*ty[...,0].conj()
-##         p[...,1:Fl] = 2 * tx[...,1:Fl]*ty[...,1:Fl].conj()
-##         if Fn > Fl:
-##             p[...,Fn-1] = tx[...,Fn-1]*ty[...,Fn-1].conj()
-##     else:
-##         p = tx*ty.conj()
-
-##     # now the combination is sum( p * (wx*wy), axis=0 ) / sum( wx*wy )
-##     wslice = [np.newaxis] * len(p.shape)
-##     wslice[0] = slice(None)
-##     p *= (weights_x[wslice] * weights_y[wslice])
-##     sxy = p.sum(axis=0)
-##     sxy /= (weights_x * weights_y).sum()
-##     return sxy
-
 
 def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
                     jackknife=True, low_bias=True, sides='default', NFFT=None):
@@ -605,21 +582,21 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
 
     Returns
     -------
-    (freqs, psd_est, ssigma_or_nu) : ndarrays
+    (freqs, psd_est, var_or_nu) : ndarrays
         The first two arrays are the frequency points vector and the
         estimatated PSD. The last returned array differs depending on whether
         the jackknife was used. It is either
 
-        * The jackknife estimated variance, OR
+        * The jackknife estimated variance of the log-psd, OR
         * The degrees of freedom in a chi2 model of how the estimated
-          log-PSD is distributed about the true log-PSD (this is either
+          PSD is distributed about the true log-PSD (this is either
           2*floor(2*NW), or calculated from adaptive weights)
     """
     # have last axis be time series for now
     N = s.shape[-1] if not NFFT else NFFT
-    rest_of = s.shape[:-1]
+    rest_of_dims = s.shape[:-1]
 
-    s = s.reshape(int(np.product(rest_of)), N)
+    s = s.reshape(int(np.product(rest_of_dims)), N)
     # de-mean this sucker
     s = utils.remove_bias(s, axis=-1)
 
@@ -631,12 +608,12 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
 
     Kmax = int(2 * NW)
 
-    v, l = dpss_windows(N, NW, Kmax)
+    dpss, eigs = dpss_windows(N, NW, Kmax)
     if low_bias:
-        keepers = (l > 0.9)
-        v = v[keepers]
-        l = l[keepers]
-        Kmax = len(v)
+        keepers = (eigs > 0.9)
+        dpss = dpss[keepers]
+        eigs = eigs[keepers]
+        Kmax = len(dpss)
 
     # if the time series is a complex vector, a one sided PSD is invalid:
     if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
@@ -648,13 +625,12 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
     sig_sl.insert(-1, np.newaxis)
 
     # tapered.shape is (..., Kmax, N)
-    tapered = s[sig_sl] * v
+    tapered = s[sig_sl] * dpss
     # Find the direct spectral estimators S_k(f) for k tapered signals..
     # don't normalize the periodograms by 1/N as normal.. since the taper
     # windows are orthonormal, they effectively scale the signal by 1/N
 
-##     f,tapered_sdf = periodogram(tapered, sides=sides, normalize=False)
-
+    # XXX: scipy fft is faster
     tapered_spectra = np.fft.fft(tapered)
 
     last_freq = N / 2 + 1 if sides == 'onesided' else N
@@ -662,29 +638,23 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
     # degrees of freedom at each timeseries, at each freq
     nu = np.empty((s.shape[0], last_freq))
     if adaptive:
-        mag_sqr_spectra = np.abs(tapered_spectra)
-        np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
-        weights = np.empty(mag_sqr_spectra.shape[:-1] + (last_freq,))
+        weights = np.empty(tapered_spectra.shape[:-1] + (last_freq,))
         for i in xrange(s.shape[0]):
             weights[i], nu[i] = utils.adaptive_weights(
-                mag_sqr_spectra[i], l, last_freq
+                tapered_spectra[i], eigs, sides=sides
                 )
     else:
-        # let the weights simply be the square-root of the eigenvalues
-        wshape = [1] * len(tapered.shape)
-        wshape[-2] = Kmax
-        weights = np.sqrt(l).reshape(*wshape)
+        # let the weights simply be the square-root of the eigenvalues.
+        # repeat these values across all n_chan channels of data
+        n_chan = tapered.shape[0]
+        weights = np.tile(np.sqrt(eigs), n_chan).reshape(n_chan, Kmax, 1)
         nu.fill(2 * Kmax)
 
     if jackknife:
         jk_var = np.empty_like(nu)
-        if not adaptive:
-            # compute the magnitude squared spectra, if not done already
-            mag_sqr_spectra = np.abs(tapered_spectra)
-            np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
         for i in xrange(s.shape[0]):
             jk_var[i] = utils.jackknifed_sdf_variance(
-                mag_sqr_spectra[i], weights=weights[i], last_freq=last_freq
+                tapered_spectra[i], eigs, sides=sides, adaptive=adaptive
                 )
 
     # Compute the unbiased spectral estimator for S(f) as the sum of
@@ -696,18 +666,14 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
     weights = np.rollaxis(weights, 1, start=0)
     sdf_est = mtm_cross_spectrum(
         tapered_spectra, tapered_spectra, weights, sides=sides
-        ).real
+        )
 
     if sides == 'onesided':
         freqs = np.linspace(0, Fs / 2, N / 2 + 1)
-        if jackknife:
-            # if the sdf was scaled by 2 at duplicate freqs,
-            # then the variance will have to be scaled by 2**2
-            jk_var[..., 1:(N + 1) / 2] *= 4
     else:
         freqs = np.linspace(0, Fs, N, endpoint=False)
 
-    out_shape = rest_of + (len(freqs),)
+    out_shape = rest_of_dims + (len(freqs),)
     sdf_est.shape = out_shape
     # XXX: always return nu and jk_var
     if jackknife:
@@ -777,13 +743,12 @@ def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
 
     Kmax = int(2 * NW)
 
-    v, l = dpss_windows(N, NW, Kmax)
+    dpss, eigvals = dpss_windows(N, NW, Kmax)
     if low_bias:
-        keepers = (l > 0.9)
-        v = v[keepers]
-        l = l[keepers]
-        Kmax = len(v)
-    #print 'using', Kmax, 'tapers with BW=', NW * Fs/(np.pi*N)
+        keepers = (eigvals > 0.9)
+        dpss = dpss[keepers]
+        eigvals = eigvals[keepers]
+        Kmax = len(dpss)
 
     # if the time series is a complex vector, a one sided PSD is invalid:
     if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
@@ -794,8 +759,8 @@ def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
     sig_sl = [slice(None)] * len(s.shape)
     sig_sl.insert(len(s.shape) - 1, np.newaxis)
 
-    # tapered.shape is (M, Kmax-1, N)
-    tapered = s[sig_sl] * v
+    # tapered.shape is (M, Kmax, N)
+    tapered = s[sig_sl] * dpss
 
     # compute the y_{i,k}(f)
     tapered_spectra = np.fft.fft(tapered)
@@ -804,16 +769,14 @@ def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
     last_freq = N / 2 + 1 if sides == 'onesided' else N
 
     if adaptive:
-        mag_sqr_spectra = np.abs(tapered_spectra)
-        np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
-        w = np.empty(mag_sqr_spectra.shape[:-1] + (last_freq,))
+        w = np.empty(tapered_spectra.shape[:-1] + (last_freq,))
         nu = np.empty((M, last_freq))
         for i in xrange(M):
             w[i], nu[i] = utils.adaptive_weights(
-                mag_sqr_spectra[i], l, last_freq
+                tapered_spectra[i], eigvals, sides=sides
                 )
     else:
-        weights = np.sqrt(l).reshape(Kmax, 1)
+        weights = np.sqrt(eigvals).reshape(Kmax, 1)
 
     csdfs = np.empty((M, M, last_freq), 'D')
     for i in xrange(M):

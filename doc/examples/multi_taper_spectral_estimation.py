@@ -257,8 +257,8 @@ Kmax = nu[0] / 2
 
 """
 
-We calculate a hypothetical 5% confidence interval from a chi-square distribution
-with 2*Kmax degrees of freedom (see [Percival1993]_ eq 258)
+We calculate a Chi-squared model 95% confidence interval 2*Kmax degrees of
+freedom (see [Percival1993]_ eq 258)
 
 
 """
@@ -272,7 +272,7 @@ l2 = ln2db * np.log(2 * Kmax / p025)
 hyp_limits = (psd_mt + l1, psd_mt + l2)
 
 fig05 = plot_spectral_estimate(freqs, psd, (psd_mt,), hyp_limits,
-              elabels=('MT with hypothetical 5% interval',))
+              elabels=(r"MT with $\chi^{2}$ 95% interval",))
 
 """
 
@@ -291,8 +291,16 @@ f, adaptive_psd_mt, nu = tsa.multi_taper_psd(
     )
 dB(adaptive_psd_mt, adaptive_psd_mt)
 
-fig06 = plot_spectral_estimate(freqs, psd, (psd_mt,),
-                       elabels=('MT with adaptive weighting',))
+p975 = dist.chi2.ppf(.975, nu)
+p025 = dist.chi2.ppf(.025, nu)
+
+l1 = ln2db * np.log(nu / p975)
+l2 = ln2db * np.log(nu / p025)
+
+hyp_limits = (adaptive_psd_mt + l1, adaptive_psd_mt + l2)
+
+fig06 = plot_spectral_estimate(freqs, psd, (adaptive_psd_mt,), hyp_limits,
+                       elabels=('MT with adaptive weighting and 95% interval',))
 
 
 """
@@ -341,7 +349,7 @@ jk_limits = (psd_mt - jk_p, psd_mt + jk_p)
 
 fig07 = plot_spectral_estimate(freqs, psd, (psd_mt,),
                                jk_limits,
-                               elabels=('MT with JK 5% interval',))
+                               elabels=('MT with JK 95% interval',))
 
 
 """
@@ -368,7 +376,7 @@ adaptive_jk_limits = (adaptive_psd_mt - jk_p, adaptive_psd_mt + jk_p)
 
 fig08 = plot_spectral_estimate(freqs, psd, (adaptive_psd_mt,),
               adaptive_jk_limits,
-              elabels=('adaptive-MT with JK 5% interval',))
+              elabels=('adaptive-MT with JK 95% interval',))
 
 
 """

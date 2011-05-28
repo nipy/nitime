@@ -6,7 +6,7 @@ Tests for the algorithms.spectral submodule
 import numpy as np
 import scipy
 import numpy.testing as npt
-
+import nose.tools as nt
 
 import nitime
 import nitime.algorithms as tsa
@@ -165,6 +165,11 @@ def test_dpss_windows():
     d,w=tsa.dpss_windows(1024, 0, 7)
     for this_d in d[0::2]:
         npt.assert_equal(this_d.sum(axis=-1)< 0, False)
+
+# XXX: make a test for
+# * the DPSS conventions
+# * DPSS orthonormality
+# * DPSS eigenvalues
     
 def test_get_spectra_bi():
     """
@@ -199,6 +204,42 @@ def test_get_spectra_bi():
         npt.assert_array_almost_equal(est_pwr2,avg_pwr2,decimal=-1)
         npt.assert_array_almost_equal(np.mean(est_xpwr),np.mean(avg_xpwr),decimal=-1)
 
+def test_mtm_lin_combo():
+    "Test the functionality of cross and autospectrum MTM combinations"
+    spec1 = np.random.randn(5, 100) + 1j*np.random.randn(5, 100)
+    spec2 = np.random.randn(5, 100) + 1j*np.random.randn(5, 100)
+    # test on both broadcasted weights and per-point weights
+    for wshape in ( (2,5,1), (2,5,100) ):
+        weights = np.random.randn(*wshape)
+        sides = 'onesided'
+        mtm_cross = tsa.mtm_cross_spectrum(
+            spec1, spec2, (weights[0], weights[1]), sides=sides
+            )
+        yield (nt.assert_true, mtm_cross.dtype in np.sctypes['complex'],
+               'Wrong dtype for crossspectrum')
+        yield (nt.assert_true, len(mtm_cross) == 51,
+               'Wrong length for halfband spectrum')
+        sides = 'twosided'
+        mtm_cross = tsa.mtm_cross_spectrum(
+            spec1, spec2, (weights[0], weights[1]), sides=sides
+            )
+        yield (nt.assert_true, len(mtm_cross) == 100,
+               'Wrong length for fullband spectrum')
+        sides = 'onesided'
+        mtm_auto = tsa.mtm_cross_spectrum(
+            spec1, spec1, weights[0], sides=sides
+            )
+        yield (nt.assert_true, mtm_auto.dtype in np.sctypes['float'],
+               'Wrong dtype for autospectrum')
+        yield (nt.assert_true, len(mtm_auto) == 51,
+               'Wrong length for halfband spectrum')
+        sides = 'twosided'
+        mtm_auto = tsa.mtm_cross_spectrum(
+            spec1, spec2, weights[0], sides=sides
+            )
+        yield (nt.assert_true, len(mtm_auto) == 100,
+               'Wrong length for fullband spectrum')
+    
 def test_mtm_cross_spectrum():
     """
     
@@ -225,13 +266,12 @@ def test_mtm_cross_spectrum():
         tdata = tapers * data
 
         tspectra = np.fft.fft(tdata)
-        mag_sqr_spectra = np.abs(tspectra)
-        np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
 
         L = N/2 + 1
-        w, _ = utils.adaptive_weights(mag_sqr_spectra, eigs, L)
+        sides = 'onesided'
+        w, _ = utils.adaptive_weights(tspectra, eigs, sides=sides)
 
-        sxx = tsa.mtm_cross_spectrum(tspectra, tspectra, (w, w), sides='onesided').real
+        sxx = tsa.mtm_cross_spectrum(tspectra, tspectra, w, sides=sides)
         est_psd.append(sxx)
 
     fxx = np.mean(est_psd,0)
@@ -243,8 +283,11 @@ def test_mtm_cross_spectrum():
     npt.assert_array_almost_equal(psd_ratio,1,decimal=1)
 
     # Test raising of error in case the inputs don't make sense:
-    npt.assert_raises(ValueError,tsa.mtm_cross_spectrum,tspectra,np.r_[tspectra,tspectra],
-                                                        (w,w))
+    npt.assert_raises(
+        ValueError,
+        tsa.mtm_cross_spectrum,tspectra,np.r_[tspectra,tspectra],
+        (w,w)
+        )
     
 def test_multi_taper_psd_csd():
     """
