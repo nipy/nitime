@@ -328,12 +328,12 @@ def test_multi_taper_psd_csd():
         psd_ratio2 = np.mean(fxx_est2 / fxx)
         npt.assert_array_almost_equal(psd_ratio2, 1, decimal=1)
 
-def test_gh57():
-    """
-    https://github.com/nipy/nitime/issues/57
-    """
-    data = np.random.randn(10, 1000)
-    for jk in [True,False]:
-        for adaptive in [True,False]:
-            f, psd, sigma = tsa.multi_taper_psd(data, adaptive=adaptive,
-                                                jackknife=jk)
+## def test_gh57():
+##     """
+##     https://github.com/nipy/nitime/issues/57
+##     """
+##     data = np.random.randn(10, 1000)
+##     for jk in [True,False]:
+##         for adaptive in [True,False]:
+##             f, psd, sigma = tsa.multi_taper_psd(data, adaptive=adaptive,
+##                                                 jackknife=jk)
