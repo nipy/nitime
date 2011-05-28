@@ -298,24 +298,27 @@ def test_multi_taper_psd_csd():
     
     """ 
 
-    N = 2 ** 12
+    N = 2 ** 16 # It needs to be long to converge
     n_reps = 10
 
 
     psd= []
     est_psd = []
     est_csd = []
-    for jk in [True,False]:
+    for jk in [True, False]:
         for k in xrange(n_reps):
-            ar_seq, nz, alpha = utils.ar_generator(N=N, drop_transients=10)
-            ar_seq -= ar_seq.mean()
-            fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha], n_freqs=N)
-            psd.append(2 * (hz * hz.conj()).real)
-            f, psd_mt, nu = tsa.multi_taper_psd(ar_seq, adaptive=True, jackknife=jk)
-            est_psd.append(psd_mt)
-            f, csd_mt= tsa.multi_taper_csd(np.vstack([ar_seq, ar_seq]), adaptive=True)
-            # Symmetrical in this case, so take one element out:
-            est_csd.append(csd_mt[0][1])
+            for adaptive in [True, False]:
+                ar_seq, nz, alpha = utils.ar_generator(N=N, drop_transients=10)
+                ar_seq -= ar_seq.mean()
+                fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha], n_freqs=N)
+                psd.append(2 * (hz * hz.conj()).real)
+                f, psd_mt, nu = tsa.multi_taper_psd(ar_seq, adaptive=adaptive,
+                                                    jackknife=jk)
+                est_psd.append(psd_mt)
+                f, csd_mt= tsa.multi_taper_csd(np.vstack([ar_seq, ar_seq]),
+                                               adaptive=adaptive)
+                # Symmetrical in this case, so take one element out:
+                est_csd.append(csd_mt[0][1])
 
         fxx = np.mean(psd,0)
         fxx_est1= np.mean(est_psd, 0)
@@ -323,10 +326,10 @@ def test_multi_taper_psd_csd():
 
         # Tests the psd:
         psd_ratio1 = np.mean(fxx_est1 / fxx)
-        npt.assert_array_almost_equal(psd_ratio1, 1, decimal=1)
+        npt.assert_array_almost_equal(psd_ratio1, 1, decimal=-1)
         # Tests the csd:
         psd_ratio2 = np.mean(fxx_est2 / fxx)
-        npt.assert_array_almost_equal(psd_ratio2, 1, decimal=1)
+        npt.assert_array_almost_equal(psd_ratio2, 1, decimal=-1)
 
 def test_gh57():
     """
