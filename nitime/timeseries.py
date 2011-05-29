@@ -1125,7 +1125,7 @@ class TimeSeries(TimeSeriesBase):
 _epochtype = np.dtype({'names': ['start', 'stop'], 'formats': [np.int64] * 2})
 
 
-class Epochs():
+class Epochs(object):
     """Represents a time interval"""
     def __init__(self, t0=None, stop=None, offset=None, start=None,
                  duration=None, time_unit=None, static=None, **kwargs):
