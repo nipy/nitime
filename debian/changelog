@@ -1,3 +1,9 @@
+nitime (0.3~dev1-1) UNRELEASED; urgency=low
+
+  * Pre-release snapshot
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Sun, 29 May 2011 21:48:41 -0400
+
 nitime (0.2-2) unstable; urgency=low
 
   * Proper casing in ${python:depends} (Closes: #614220).
