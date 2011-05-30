@@ -11,7 +11,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys
+import os
 import warnings
 
 # Declare here the things that our documentation build will depend on here, so
@@ -22,7 +23,7 @@ import warnings
 # is a string that should be a valid (possibly dotted) package name, and the
 # second a list (possibly empty) of names to import from that package.
 doc_deps = [['networkx', []],
-            ['mpl_toolkits.axes_grid',  ['make_axes_locatable'] ],
+            ['mpl_toolkits.axes_grid',  ['make_axes_locatable']],
             ]
 
 # Analyze the dependencies, and fail if  any is unmet, with a hopefully
@@ -77,7 +78,7 @@ extensions = ['sphinx.ext.autodoc',
               'inheritance_diagram',
               'ipython_console_highlighting',
               'only_directives',
-              'math_dollar', #Support for $x$ math
+              'math_dollar',  # Support for $x$ math
 
               # For now, we use our own patched plot directive, we'll revert
               # back to the official one once our changes are upstream.

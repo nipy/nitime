@@ -4,10 +4,10 @@ ISRELEASED = False
 
 # Format expected by setup.py and doc/source/conf.py: string of form "X.Y.Z"
 _version_major = 0
-_version_minor = 2
-_version_micro = '' # use '' for first of series, number for 1 and above
+_version_minor = 3
+_version_micro = ''  # use '' for first of series, number for 1 and above
 _version_extra = 'dev'
-_version_extra = '' # Uncomment this for full releases
+#_version_extra = ''  # Uncomment this for full releases
 
 # Construct full version string from these.
 _ver = [_version_major, _version_minor]
@@ -72,7 +72,7 @@ You can find our sources and single-click downloads:
 .. _current trunk: http://github.com/nipy/nitime/archives/master
 .. _available releases: http://github.com/nipy/nitime/downloads
 
-       
+
 License information
 ===================
 
@@ -86,26 +86,30 @@ Copyright (c) 2006-2010, NIPY Developers
 All rights reserved.
 """
 
-NAME                = "nitime"
-MAINTAINER          = "Nipy Developers"
-MAINTAINER_EMAIL    = "nipy-devel@neuroimaging.scipy.org"
-DESCRIPTION         = description
-LONG_DESCRIPTION    = long_description
-URL                 = "http://nipy.org/nitime"
-DOWNLOAD_URL        = "http://github.com/nipy/nitime/downloads"
-LICENSE             = "Simplified BSD"
-AUTHOR              = "Nitime developers"
-AUTHOR_EMAIL        = "nipy-devel@neuroimaging.scipy.org"
-PLATFORMS           = "OS Independent"
-MAJOR               = _version_major
-MINOR               = _version_minor
-MICRO               = _version_micro
-VERSION             = __version__
-PACKAGES            = ['nitime',
-                       'nitime.tests',
-                       'nitime.fmri',
-                       'nitime.fmri.tests',
-                       ]
-PACKAGE_DATA        = {"nitime": ["LICENSE", "tests/*.txt",
+NAME = "nitime"
+MAINTAINER = "Nipy Developers"
+MAINTAINER_EMAIL = "nipy-devel@neuroimaging.scipy.org"
+DESCRIPTION = description
+LONG_DESCRIPTION = long_description
+URL = "http://nipy.org/nitime"
+DOWNLOAD_URL = "http://github.com/nipy/nitime/downloads"
+LICENSE = "Simplified BSD"
+AUTHOR = "Nitime developers"
+AUTHOR_EMAIL = "nipy-devel@neuroimaging.scipy.org"
+PLATFORMS = "OS Independent"
+MAJOR = _version_major
+MINOR = _version_minor
+MICRO = _version_micro
+VERSION = __version__
+PACKAGES = ['nitime',
+            'nitime.tests',
+            'nitime.fmri',
+            'nitime.fmri.tests',
+            'nitime.algorithms',
+            'nitime.algorithms.tests',
+            'nitime.analysis',
+            'nitime.analysis.tests',
+            ]
+PACKAGE_DATA = {"nitime": ["LICENSE", "tests/*.txt",
                                   "fmri/tests/*.nii.gz"]}
-REQUIRES            = ["numpy", "matplotlib", "scipy"]
+REQUIRES = ["numpy", "matplotlib", "scipy"]

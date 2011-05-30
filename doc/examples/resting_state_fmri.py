@@ -28,20 +28,19 @@ of interest:
 
 #Import from other libraries:
 import numpy as np
-from matplotlib.pyplot import figure
+import matplotlib.pyplot as plt
 from matplotlib.mlab import csv2rec
 
-#Import the time-series objects: 
-from nitime.timeseries import TimeSeries 
+#Import the time-series objects:
+from nitime.timeseries import TimeSeries
 #Import the analysis objects:
-from nitime.analysis import CorrelationAnalyzer,CoherenceAnalyzer
+from nitime.analysis import CorrelationAnalyzer, CoherenceAnalyzer
 #Import utility functions:
 from nitime.utils import percent_change
-import nitime.viz as viz
-from nitime.viz import drawmatrix_channels,drawgraph_channels,plot_xcorr
+from nitime.viz import drawmatrix_channels, drawgraph_channels, plot_xcorr
 
 #This information (the sampling interval) has to be known in advance:
-TR=1.89
+TR = 1.89
 f_lb = 0.02
 f_ub = 0.15
 
@@ -60,18 +59,18 @@ which the data in each column was extracted. The data from the recarray is
 extracted into a 'standard' array and, for each ROI, it is normalized to
 percent signal change, using the utils.percent_change function.
 
-""" 
+"""
 
 #Extract information:
-roi_names= np.array(data_rec.dtype.names)
+roi_names = np.array(data_rec.dtype.names)
 n_samples = data_rec.shape[0]
 
 
 #Make an empty container for the data
-data = np.zeros((len(roi_names),n_samples))
+data = np.zeros((len(roi_names), n_samples))
 
 for n_idx, roi in enumerate(roi_names):
-   data[n_idx] = data_rec[roi]
+    data[n_idx] = data_rec[roi]
 
 #Normalize the data:
 data = percent_change(data)
@@ -83,15 +82,15 @@ We initialize a TimeSeries object from the normalized data:
 
 """
 
-T = TimeSeries(data,sampling_interval=TR)
-T.metadata['roi'] = roi_names 
+T = TimeSeries(data, sampling_interval=TR)
+T.metadata['roi'] = roi_names
 
 
 """
 
 First, we examine the correlations between the time-series extracted from
 different parts of the brain. The following script extracts the data (using the
-draw_matrix function, displaying the correlation matrix with the ROIs labeled.   
+draw_matrix function, displaying the correlation matrix with the ROIs labeled.
 
 """
 
@@ -99,7 +98,7 @@ draw_matrix function, displaying the correlation matrix with the ROIs labeled.
 C = CorrelationAnalyzer(T)
 
 #Display the correlation matrix
-fig01 = drawmatrix_channels(C.corrcoef,roi_names,size=[10.,10.],color_anchor=0)
+fig01 = drawmatrix_channels(C.corrcoef, roi_names, size=[10., 10.], color_anchor=0)
 
 
 """
@@ -108,7 +107,7 @@ fig01 = drawmatrix_channels(C.corrcoef,roi_names,size=[10.,10.],color_anchor=0)
 
 Notice that setting the color_anchor input to this function to 0 makes sure
 that the center of the color map (here a blue => white => red) is at 0. In this
-case, positive values will be displayed as red and negative values in blue. 
+case, positive values will be displayed as red and negative values in blue.
 
 We notice that the left caudate nucleus (labeled 'lcau') has an interesting
 pattern of correlations. It has a high correlation with both the left putamen
@@ -125,17 +124,19 @@ object. We can pass the resulting object, together with a list of indices to
 the viz.plot_xcorr function, which visualizes the chosen combinations of
 series:
 
-""" 
+"""
 
 xc = C.xcorr_norm
 
-idx_lcau = np.where(roi_names=='lcau')[0]
-idx_rcau = np.where(roi_names=='rcau')[0]
-idx_lput = np.where(roi_names=='lput')[0]
-idx_rput = np.where(roi_names=='rput')[0]
+idx_lcau = np.where(roi_names == 'lcau')[0]
+idx_rcau = np.where(roi_names == 'rcau')[0]
+idx_lput = np.where(roi_names == 'lput')[0]
+idx_rput = np.where(roi_names == 'rput')[0]
 
-fig02 = plot_xcorr(xc,((idx_lcau,idx_rcau),(idx_lcau,idx_lput)),
-			           line_labels = ['rcau','lput'])
+fig02 = plot_xcorr(xc,
+                   ((idx_lcau, idx_rcau),
+                    (idx_lcau, idx_lput)),
+                   line_labels=['rcau', 'lput'])
 
 
 """
@@ -162,7 +163,7 @@ frequency domain:
 
 Because this is a complex number, this computation results in two
 quantities. First, the magnitude of this number, also referred to as
-"coherence":  
+"coherence":
 
 .. math::
 
@@ -183,7 +184,7 @@ computation:
 
    \phi(\lambda) = arg [R_{xy} (\lambda)] = arg [f_{xy} (\lambda)]
 
-	
+
 This value can be used in order to infer which area is leading and which area
 is lagging (according to the sign of the relative phase) and, can be used to
 compute the temporal delay between activity in one ROI and the other.
@@ -213,11 +214,11 @@ averaged across all these frequency bands.
 
 """
 
-freq_idx = np.where((C.frequencies>f_lb) * (C.frequencies<f_ub))[0]
+freq_idx = np.where((C.frequencies > f_lb) * (C.frequencies < f_ub))[0]
 
 """
 The C.coherence attribute is an ndarray of dimensions $n_{ROI}$ by $n_{ROI}$ by
-$n_{frequencies}$. 
+$n_{frequencies}$.
 
 We extract the coherence in that frequency band, average across the frequency
 bands of interest and pass that to the visualization function:
@@ -225,8 +226,8 @@ bands of interest and pass that to the visualization function:
 """
 
 
-coh = np.mean(C.coherence[:,:,freq_idx],-1) #Averaging on the last dimension 
-fig03 = drawmatrix_channels(coh,roi_names,size=[10.,10.],color_anchor=0)
+coh = np.mean(C.coherence[:, :, freq_idx], -1)  # Averaging on the last dimension
+fig03 = drawmatrix_channels(coh, roi_names, size=[10., 10.], color_anchor=0)
 
 """
 
@@ -237,20 +238,20 @@ bit more manipulation of the indices into the coherence matrix:
 
 """
 
-idx = np.hstack([idx_lcau,idx_rcau,idx_lput,idx_rput])
-idx1 = np.vstack([[idx[i]]*4 for i in range(4)]).ravel()
-idx2 = np.hstack(4*[idx])
+idx = np.hstack([idx_lcau, idx_rcau, idx_lput, idx_rput])
+idx1 = np.vstack([[idx[i]] * 4 for i in range(4)]).ravel()
+idx2 = np.hstack(4 * [idx])
 
-coh = C.coherence[idx1,idx2].reshape(4,4,C.frequencies.shape[0])
-
-"""
-
-Extract the coherence and average across the same frequency bands as before: 
+coh = C.coherence[idx1, idx2].reshape(4, 4, C.frequencies.shape[0])
 
 """
 
+Extract the coherence and average across the same frequency bands as before:
 
-coh = np.mean(coh[:,:,freq_idx],-1) #Averaging on the last dimension
+"""
+
+
+coh = np.mean(coh[:, :, freq_idx], -1)  # Averaging on the last dimension
 
 """
 
@@ -258,9 +259,9 @@ Finally, in this case, we visualize the adjacency matrix, by creating a network
 graph of these ROIs (this is done by using the function drawgraph_channels
 which relies on `networkx <http://networkx.lanl.gov>`_):
 
-""" 
+"""
 
-fig04 = drawgraph_channels(coh,roi_names[idx])
+fig04 = drawgraph_channels(coh, roi_names[idx])
 
 """
 
@@ -307,9 +308,9 @@ between time-series $x$ and time-series $y$, *given* time series $r$):
 """
 
 
-idx3 = np.hstack(16*[idx_lcau])
-coh = C.coherence_partial[idx1,idx2,idx3].reshape(4,4,C.frequencies.shape[0])
-coh = np.mean(coh[:,:,freq_idx],-1)
+idx3 = np.hstack(16 * [idx_lcau])
+coh = C.coherence_partial[idx1, idx2, idx3].reshape(4, 4, C.frequencies.shape[0])
+coh = np.mean(coh[:, :, freq_idx], -1)
 
 """
 
@@ -320,8 +321,8 @@ and the :func:`drawmatrix_channels` functions:
 
 """
 
-fig05 = drawgraph_channels(coh,roi_names[idx])
-fig06 = drawmatrix_channels(coh,roi_names[idx],color_anchor=0)
+fig05 = drawgraph_channels(coh, roi_names[idx])
+fig06 = drawmatrix_channels(coh, roi_names[idx], color_anchor=0)
 
 """
 

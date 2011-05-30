@@ -72,7 +72,7 @@ time-series:
 
 .. code-block:: python
 
-   In [9]: c()
+   In [9]: c.corrcoef
    Out[9]: 
    array([[ 1.        ,  0.99339927],
           [ 0.99339927,  1.        ]])

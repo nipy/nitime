@@ -6,15 +6,17 @@ check that it works with unittest as well as with nose...
 
 from decotest import as_unittest, ParametricTestCase, parametric
 
+
 @as_unittest
 def trivial():
     """A trivial test"""
     pass
 
-# Some examples of parametric tests.
 
-def is_smaller(i,j):
-    assert i<j,"%s !< %s" % (i,j)
+# Some examples of parametric tests.
+def is_smaller(i, j):
+    assert i < j, "%s !< %s" % (i, j)
+
 
 class Tester(ParametricTestCase):
 
@@ -22,6 +24,7 @@ class Tester(ParametricTestCase):
         yield is_smaller(3, 4)
         x, y = 1, 2
         yield is_smaller(x, y)
+
 
 @parametric
 def test_par_standalone():
@@ -31,9 +34,9 @@ def test_par_standalone():
 
 
 def test_par_nose():
-    yield (is_smaller,3, 4)
+    yield (is_smaller, 3, 4)
     x, y = 2, 3
-    yield (is_smaller,x, y)
+    yield (is_smaller, x, y)
 
 
 if __name__ == '__main__':

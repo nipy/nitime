@@ -1,16 +1,16 @@
 """Miscellaneous utilities for time series analysis.
 
-XXX wrie top level doc-string
+XXX write top level doc-string
 
 """
 import numpy as np
 import scipy.linalg as linalg
-
+import scipy.signal as sig
 
 #-----------------------------------------------------------------------------
 # Spectral estimation testing utilities
 #-----------------------------------------------------------------------------
-def square_window_spectrum(N,Fs):
+def square_window_spectrum(N, Fs):
     r"""
     Calculate the analytical spectrum of a square window
 
@@ -21,17 +21,17 @@ def square_window_spectrum(N,Fs):
 
     Fs: float
     The sampling rate
-    
+
     Returns
     -------
     float array - the frequency bands, given N and FS
     complex array: the power in the spectrum of the square window in the
-    frequency bands 
-    
+    frequency bands
+
     Notes
     -----
     This is equation 21c in [1]
-    
+
     ..math::
 
     W(\theta) = exp(-j \frac{N-1}{2} \theta) \frac{\frac{sin \frac{N\theta}{2}}
@@ -40,14 +40,15 @@ def square_window_spectrum(N,Fs):
     ..[1] F.J. Harris (1978). On the use of windows for harmonic analysis with
     the discrete Fourier transform. Proceedings of the IEEE, 66:51-83
 """
-    f = get_freqs(Fs,N-1)
-    j = 0+1j
-    a = -j * (N-1) * f / 2
-    b = np.sin(N*f/2.0)
-    c = np.sin(f/2.0)
+    f = get_freqs(Fs, N - 1)
+    j = 0 + 1j
+    a = -j * (N - 1) * f / 2
+    b = np.sin(N * f / 2.0)
+    c = np.sin(f / 2.0)
     make = np.exp(a) * b / c
 
-    return f,  make[1:]/make[1]
+    return f,  make[1:] / make[1]
+
 
 def hanning_window_spectrum(N, Fs):
     r"""
@@ -60,42 +61,63 @@ def hanning_window_spectrum(N, Fs):
 
     Fs: float
     The sampling rate
-    
+
     Returns
     -------
     float array - the frequency bands, given N and FS
     complex array: the power in the spectrum of the square window in the
-    frequency bands 
-    
+    frequency bands
+
     Notes
     -----
-    This is equation 28b in [1]
-    
-    :math:`W(\theta) = 0.5 D(\theta) + 0.25 (D(\theta - \frac{2\pi}{N}) +
-    D(\theta + \frac{2\pi}{N}) )`, 
+    This is equation 28b in [Harris1978]_
+
+    .. math::
+
+      W(\theta) = 0.5 D(\theta) + 0.25 (D(\theta - \frac{2\pi}{N}) +
+                D(\theta + \frac{2\pi}{N}) ),
 
     where:
 
-    :math:`D(\theta) = exp(j\frac{\theta}{2})\frac{sin\frac{N\theta}{2}}{sin\frac{\theta}{2}}`
+    .. math::
 
-    ..[1] F.J. Harris (1978). On the use of windows for harmonic analysis with
-    the discrete Fourier transform. Proceedings of the IEEE, 66:51-83
+      D(\theta) = exp(j\frac{\theta}{2})
+                  \frac{sin\frac{N\theta}{2}}{sin\frac{\theta}{2}}
+
+    .. [Harris1978] F.J. Harris (1978). On the use of windows for harmonic
+    analysis with the discrete Fourier transform. Proceedings of the IEEE,
+    66:51-83
     """
     #A helper function
     D = lambda theta, n: (
-        np.exp((0+1j) * theta / 2) * ((np.sin(n*theta/2)) / (theta/2)) )
+        np.exp((0 + 1j) * theta / 2) * ((np.sin(n * theta / 2)) / (theta / 2)))
 
-    f = get_freqs(Fs,N)
+    f = get_freqs(Fs, N)
 
-    make = 0.5*D(f,N) + 0.25*( D((f-(2*np.pi/N)),N) + D((f+(2*np.pi/N)), N) )
-    return f, make[1:]/make[1] 
+    make = 0.5 * D(f, N) + 0.25 * (D((f - (2 * np.pi / N)), N) +
+                                   D((f + (2 * np.pi / N)), N))
+    return f, make[1:] / make[1]
 
 
 def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     """
     This generates a signal u(n) = a1*u(n-1) + a2*u(n-2) + ... + v(n)
     where v(n) is a stationary stochastic process with zero mean
-    and variance = sigma.
+    and variance = sigma. XXX: confusing variance notation
+
+    Parameters
+    ----------
+
+    N: int
+      sequence length
+    sigma: float
+      power of the white noise driving process
+    coefs: sequence
+      AR coefficients for k = 1, 2, ..., P
+    drop_transients: int
+      number of initial IIR filter transient terms to drop
+    v: ndarray
+      custom noise process
 
     Returns
     -------
@@ -103,20 +125,22 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     u: ndarray
        the AR sequence
     v: ndarray
-       the additive noise sequence
+       the unit-variance innovations sequence
     coefs: ndarray
        feedback coefficients from k=1,len(coefs)
 
     The form of the feedback coefficients is a little different than
-    the normal linear constant-coefficient difference equation. For
-    example ...
+    the normal linear constant-coefficient difference equation. Therefore
+    the transfer function implemented in this method is
+
+    H(z) = sigma**0.5 / ( 1 - sum_k coefs(k)z**(-k) )    1 <= k <= P
 
     Examples
     --------
 
     >>> import nitime.algorithms as alg
     >>> ar_seq, nz, alpha = ar_generator()
-    >>> fgrid, hz = alg.my_freqz(1.0, a=np.r_[1, -alpha])
+    >>> fgrid, hz = alg.freq_response(1.0, a=np.r_[1, -alpha])
     >>> sdf_ar = (hz*hz.conj()).real
 
     """
@@ -133,19 +157,18 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     # Typically uses just pass sigma in, but optionally they can provide their
     # own noise vector, case in which we use it
     if v is None:
-        v = np.random.normal(size=N, scale=sigma**0.5)
-        
-    u = np.zeros(N)
-    P = len(coefs)
-    for l in xrange(P):
-        u[l] = v[l] + np.dot(u[:l][::-1], coefs[:l])
-    for l in xrange(P,N):
-        u[l] = v[l] + np.dot(u[l-P:l][::-1], coefs)
-        
+        v = np.random.normal(size=N)
+        v -= v[drop_transients:].mean()
+
+    b = [sigma ** 0.5]
+    a = np.r_[1, -coefs]
+    u = sig.lfilter(b, a, v)
+
     # Only return the data after the drop_transients terms
     return u[drop_transients:], v[drop_transients:], coefs
 
-def circularize(x,bottom=0,top=2*np.pi,deg=False):
+
+def circularize(x, bottom=0, top=2 * np.pi, deg=False):
     """ Maps the input into the continuous interval (bottom,top) where
     bottom defaults to 0 and top defaults to 2*pi
 
@@ -168,14 +191,27 @@ def circularize(x,bottom=0,top=2*np.pi,deg=False):
 
     x = np.asarray([x])
 
-    if  np.all(x[np.isfinite(x)]>=bottom) and np.all(x[np.isfinite(x)]<=top):
+    if  (np.all(x[np.isfinite(x)] >= bottom) and
+         np.all(x[np.isfinite(x)] <= top)):
         return np.squeeze(x)
     else:
-        x[np.where(x<0)] += top
-        
-        x[np.where(x>top)] -= top
+        x[np.where(x < 0)] += top
+        x[np.where(x > top)] -= top
 
-    return np.squeeze(circularize(x,bottom=bottom,top=top))
+    return np.squeeze(circularize(x, bottom=bottom, top=top))
+
+
+def dB(x, power=True):
+    """Convert the values in x to decibels.
+    If the values in x are in 'power'-like units, then set the power
+    flag accordingly
+    
+    1) dB(x) = 10log10(x)                     (if power==True)
+    2) dB(x) = 10log10(|x|^2) = 20log10(|x|)  (if power==False)
+    """
+    if not power:
+        return 20*np.log10(np.abs(x))
+    return 10*np.log10(np.abs(x))
 
 #-----------------------------------------------------------------------------
 # Stats utils
@@ -201,40 +237,65 @@ def normalize_coherence(x, dof, out=None):
     y *= np.sqrt(dof)
     return y
 
+
 def normal_coherence_to_unit(y, dof, out=None):
     """
     The inverse transform of the above normalization
     """
     if out is None:
-        x = y/np.sqrt(dof)
+        x = y / np.sqrt(dof)
     else:
         y /= np.sqrt(dof)
         x = y
     np.tanh(x, x)
     return x
 
-def jackknifed_sdf_variance(sdfs, weights=None, last_freq=None):
+def expected_jk_variance(K):
+    """Compute the expected value of the jackknife variance estimate
+    over K windows below. This expected value formula is based on the
+    asymptotic expansion of the trigamma function derived in
+    [Thompson_1994]
+
+    Paramters
+    ---------
+
+    K: int
+      Number of tapers used in the multitaper method
+
+    Returns
+    -------
+
+    evar: float
+      Expected value of the jackknife variance estimator
+
+    """
+
+    kf = float(K)
+    return (1/kf) * (kf-1)/(kf-0.5) * ( (kf-1)/(kf-2) )**2 * (kf-3)/(kf-2)
+
+def jackknifed_sdf_variance(yk, eigvals, sides='onesided', adaptive=True):
     r"""
-    Returns the log-variance estimated through jack-knifing a group of
-    independent sdf estimates.
+    Returns the variance of the log-sdf estimated through jack-knifing
+    a group of independent sdf estimates.
 
     Parameters
     ----------
-    
-    sdfs: ndarray (K, L)
-       The K sdf estimates from different tapers
-    weights: ndarray (K, [N]), optional
-       The weights to use for combining the direct spectral estimators in
-       sdfs.
-    last_freq: int, optional
-       The last frequency for which to compute variance (e.g., if only
-       computing the positive half of the spectrum)
+
+    yk: ndarray (K, L)
+       The K DFTs of the tapered sequences
+    eigvals: ndarray (K,)
+       The eigenvalues corresponding to the K DPSS tapers
+    sides: str, optional
+       Compute the jackknife pseudovalues over as one-sided or
+       two-sided spectra
+    adpative: bool, optional
+       Compute the adaptive weighting for each jackknife pseudovalue
 
     Returns
     -------
 
     var:
-       The estimate for sdf variance
+       The estimate for log-sdf variance
 
     Notes
     -----
@@ -244,62 +305,58 @@ def jackknifed_sdf_variance(sdfs, weights=None, last_freq=None):
     standard error equal to sqrt(var). However, Thompson and Chave [1]
     point out that this variance better describes the sample mean.
 
-    
+
     [1] Thomson D J, Chave A D (1991) Advances in Spectrum Analysis and Array
     Processing (Prentice-Hall, Englewood Cliffs, NJ), 1, pp 58-113.
     """
-    K = sdfs.shape[0]
-    L = sdfs.shape[1] if last_freq is None else last_freq
-    sdfs = sdfs[:,:L]
-    # prepare weights array a little, so that it is either (K,1) or (K,L)
-    if weights is None:
-        weights = np.ones(K)
-    if len(weights.shape) < 2:
-        weights = weights.reshape(K,1)
-    if weights.shape[1] > L:
-        weights = weights[:,:L]
+    K = yk.shape[0]
 
-    jk_sdf = np.empty( (K, L) )
+    from nitime.algorithms import mtm_cross_spectrum
 
     # the samples {S_k} are defined, with or without weights, as
     # S_k = | x_k |**2
-    # | x_k |**2 = | y_k * d_k |**2   (with weights)
-    # | x_k |**2 = | y_k |**2         (without weights)
-        
-    all_orders = set(range(K))
+    # | x_k |**2 = | y_k * d_k |**2          (with adaptive weights)
+    # | x_k |**2 = | y_k * sqrt(eig_k) |**2  (without adaptive weights)
 
-    # get the leave-one-out estimates
+    all_orders = set(range(K))
+    jk_sdf = []
+    # get the leave-one-out estimates -- ideally, weights are recomputed
+    # for each leave-one-out. This is now the case.
     for i in xrange(K):
         items = list(all_orders.difference([i]))
-        sdfs_i = np.take(sdfs, items, axis=0)
+        spectra_i = np.take(yk, items, axis=0)
+        eigs_i = np.take(eigvals, items)
+        if adaptive:
+            # compute the weights
+            weights, _ = adaptive_weights(spectra_i, eigs_i, sides=sides)
+        else:
+            weights = eigs_i[:,None]
         # this is the leave-one-out estimate of the sdf
-        weights_i = np.take(weights, items, axis=0)
-
-        sdfs_i *= (weights_i**2)
-        jk_sdf[i] = sdfs_i.sum(axis=0)
-        jk_sdf[i] /= (weights_i**2).sum(axis=0)
-
-    # find the average of these jackknifed estimates
-    jk_avg = jk_sdf.mean(axis=0)
+        jk_sdf.append(
+            mtm_cross_spectrum(
+                spectra_i, spectra_i, weights, sides=sides
+                )
+            )
     # log-transform the leave-one-out estimates and the mean of estimates
-    np.log(jk_sdf, jk_sdf)
-    np.log(jk_avg, jk_avg)
+    jk_sdf = np.log(jk_sdf)
+    # jk_avg should be the mean of the log(jk_sdf(i))
+    jk_avg = jk_sdf.mean(axis=0)
 
     K = float(K)
 
     jk_var = (jk_sdf - jk_avg)
     np.power(jk_var, 2, jk_var)
     jk_var = jk_var.sum(axis=0)
-    
-##     f = (K-1)/K
+
     # Thompson's recommended factor, eq 18
     # Jackknifing Multitaper Spectrum Estimates
-    # IEEE SIGNAL PROCESSING MAGAZINE [20] JULY 2007 
-    f = (K-1)**2 / K / (K - 0.5)
+    # IEEE SIGNAL PROCESSING MAGAZINE [20] JULY 2007
+    f = (K - 1) ** 2 / K / (K - 0.5)
     jk_var *= f
     return jk_var
 
-def jackknifed_coh_variance(tx, ty, weights=None, last_freq=None):
+
+def jackknifed_coh_variance(tx, ty, eigvals, adaptive=True):
     """
     Returns the variance of the coherency between x and y, estimated
     through jack-knifing the tapered samples in {tx, ty}.
@@ -311,39 +368,23 @@ def jackknifed_coh_variance(tx, ty, weights=None, last_freq=None):
        The K complex spectra of tapered timeseries x
     ty: ndarray, (K, L)
        The K complex spectra of tapered timeseries y
-    weights: ndarray, or sequence-of-ndarrays 2 x (K, [N]), optional
-       The weights to use for combining the K spectra in tx and ty
-    last_freq: int, optional
-       The last frequency for which to compute variance (e.g., if only
-       computing half of the coherence spectrum)
+    eigvals: ndarray (K,)
+       The eigenvalues associated with the K DPSS tapers
 
     Returns
     -------
 
     jk_var: ndarray
-       The variance computed in the transformed domain (see normalize_coherence)
+       The variance computed in the transformed domain (see
+       normalize_coherence)
     """
 
     K = tx.shape[0]
-    L = tx.shape[1] if last_freq is None else last_freq
-    tx = tx[:,:L]
-    ty = ty[:,:L]
-    # prepare weights
-    if weights is None:
-        weights = ( np.ones(K), np.ones(K) )
-    if len(weights) != 2:
-        raise ValueError('Must provide 2 sets of weights')
-    weights_x, weights_y = weights
-    if len(weights_x.shape) < 2:
-        weights_x = weights_x.reshape(K, 1)
-        weights_y = weights_y.reshape(K, 1)
-    if weights_x.shape[1] > L:
-        weights_x = weights_x[:,:L]
-        weights_y = weights_y[:,:L]
-    
+
     # calculate leave-one-out estimates of MSC (magnitude squared coherence)
-    jk_coh = np.empty((K, L), 'd')
-    
+    jk_coh = []
+    # coherence is symmetric (right??)
+    sides = 'onesided'
     all_orders = set(range(K))
 
     import nitime.algorithms as alg
@@ -353,38 +394,43 @@ def jackknifed_coh_variance(tx, ty, weights=None, last_freq=None):
         items = list(all_orders.difference([i]))
         tx_i = np.take(tx, items, axis=0)
         ty_i = np.take(ty, items, axis=0)
-        wx = np.take(weights_x, items, axis=0)
-        wy = np.take(weights_y, items, axis=0)
-        weights = (wx, wy)
+        eigs_i = np.take(eigvals, items)
+        if adaptive:
+            wx, _ = adaptive_weights(tx_i, eigs_i, sides=sides)
+            wy, _ = adaptive_weights(ty_i, eigs_i, sides=sides)
+        else:
+            wx = wy = eigs_i[:,None]
         # The CSD
-        sxy_i = alg.mtm_cross_spectrum(tx_i, ty_i, weights)
+        sxy_i = alg.mtm_cross_spectrum(tx_i, ty_i, (wx, wy), sides=sides)
         # The PSDs
-        sxx_i = alg.mtm_cross_spectrum(tx_i, tx_i, weights).real
-        syy_i = alg.mtm_cross_spectrum(ty_i, ty_i, weights).real
+        sxx_i = alg.mtm_cross_spectrum(tx_i, tx_i, wx, sides=sides)
+        syy_i = alg.mtm_cross_spectrum(ty_i, ty_i, wy, sides=sides)
         # these are the | c_i | samples
-        jk_coh[i] = np.abs(sxy_i)
-        jk_coh[i] /= np.sqrt(sxx_i * syy_i)
+        msc = np.abs(sxy_i)
+        msc /= np.sqrt(sxx_i * syy_i)
+        jk_coh.append( msc )
 
+    jk_coh = np.array(jk_coh)
+    # now normalize the coherence estimates and take the mean
+    normalize_coherence(jk_coh, 2 * K - 2, jk_coh)
     jk_avg = np.mean(jk_coh, axis=0)
-    # now normalize the coherence estimates and the avg
-    normalize_coherence(jk_coh, 2*K-2, jk_coh)
-    normalize_coherence(jk_avg, 2*K-2, jk_avg)
 
     jk_var = (jk_coh - jk_avg)
     np.power(jk_var, 2, jk_var)
     jk_var = jk_var.sum(axis=0)
 
     # Do/Don't use the alternative scaling here??
-    f = float(K-1)/K
+    f = float(K - 1) / K
 
     jk_var *= f
 
     return jk_var
-    
+
+
 #-----------------------------------------------------------------------------
 # Multitaper utils
 #-----------------------------------------------------------------------------
-def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
+def adaptive_weights(yk, eigvals, sides='onesided', max_iter=40):
     r"""
     Perform an iterative procedure to find the optimal weights for K
     direct spectral estimators of DPSS tapered signals.
@@ -392,12 +438,14 @@ def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
     Parameters
     ----------
 
-    sdfs: ndarray, (K x L)
-       The K estimators
+    yk: ndarray (K, N)
+       The K DFTs of the tapered sequences
     eigvals: ndarray, length-K
        The eigenvalues of the DPSS tapers
-    N: int,
-       length of the signal
+    sides: str
+       Whether to compute weights on a one-sided or two-sided spectrum
+    max_iter: int
+       Maximum number of iterations for weight computation
 
     Returns
     -------
@@ -411,64 +459,162 @@ def adaptive_weights(sdfs, eigvals, last_freq, max_iter=40):
     -----
 
     The weights to use for making the multitaper estimate, such that
-    :math:`S_{mt} = \sum_{k} w_k^2S_k^{mt} / \sum_{k} |w_k|^2`
+    :math:`S_{mt} = \sum_{k} |w_k|^2S_k^{mt} / \sum_{k} |w_k|^2`
 
     If there are less than 3 tapers, then the adaptive weights are not
     found. The square root of the eigenvalues are returned as weights,
     and the degrees of freedom are 2*K
 
     """
-    if last_freq is None:
-        last_freq = sdfs.shape[1]
-    K, L = sdfs.shape[0], last_freq
+    from nitime.algorithms import mtm_cross_spectrum
+    K = len(eigvals)
     if len(eigvals) < 3:
         print """
         Warning--not adaptively combining the spectral estimators
         due to a low number of tapers.
         """
-        return ( np.multiply.outer(np.sqrt(eigvals), np.ones(L)), 2*K )
-    l = eigvals
-    rt_l = np.sqrt(eigvals)
-    Kmax = len(eigvals)
+        # we'll hope this is a correct length for L
+        N = yk.shape[-1]
+        L = N/2 + 1 if sides=='onesided' else N
+        return (np.multiply.outer(np.sqrt(eigvals), np.ones(L)), 2 * K)
+    rt_eig = np.sqrt(eigvals)
 
     # combine the SDFs in the traditional way in order to estimate
     # the variance of the timeseries
-    N = sdfs.shape[1]
-    sdf = (sdfs*eigvals[:,None]).sum(axis=0)
-    sdf /= eigvals.sum()
-    var_est = np.trapz(sdf, dx=1.0/N)
+    N = yk.shape[1]
+    sdf = mtm_cross_spectrum(yk, yk, eigvals[:,None], sides=sides)
+    L = sdf.shape[-1]
+    var_est = np.trapz(sdf, dx=np.pi/L) / (2*np.pi)
+
+    # The process is to iteratively switch solving for the following
+    # two expressions:
+    # (1) Adaptive Multitaper SDF:
+    # S^{mt}(f) = [ sum |d_k(f)|^2 S_k(f) ]/ sum |d_k(f)|^2
+    #
+    # (2) Weights
+    # d_k(f) = [sqrt(lam_k) S^{mt}(f)] / [lam_k S^{mt}(f) + E{B_k(f)}]
+    #
+    # Where lam_k are the eigenvalues corresponding to the DPSS tapers,
+    # and the expected value of the broadband bias function
+    # E{B_k(f)} is replaced by its full-band integration
+    # (1/2pi) int_{-pi}^{pi} E{B_k(f)} = sig^2(1-lam_k)
 
     # start with an estimate from incomplete data--the first 2 tapers
-    sdf_iter = (sdfs[:2,:last_freq] * l[:2,None]).sum(axis=-2)
-    sdf_iter /= l[:2].sum()
-    weights = np.empty( (Kmax, last_freq) )
-    nu = np.empty(last_freq)
-    err = np.zeros( (Kmax, last_freq) )
-
+    sdf_iter = mtm_cross_spectrum(yk[:2], yk[:2], eigvals[:2,None], sides=sides)
+    err = np.zeros((K,L))
     for n in range(max_iter):
-        d_k = sdf_iter[None,:] / (l[:,None]*sdf_iter[None,:] + \
-                                  (1-l[:,None])*var_est)
-        d_k *= rt_l[:,None]
-        # test for convergence --
-        # Take the RMS error across frequencies, for each taper..
-        # if the maximum RMS error across tapers is less than 1e-10, then
-        # we're converged
+        d_k = sdf_iter[None, :] / (eigvals[:, None] * sdf_iter[None, :] + \
+                                  (1 - eigvals[:, None]) * var_est)
+        d_k *= rt_eig[:, None]
+        # Test for convergence -- this is overly conservative, since
+        # iteration only stops when all frequencies have converged.
+        # A better approach is to iterate separately for each freq, but
+        # that is a nonvectorized algorithm.
+        # Take the RMS difference in weights from the previous iterate
+        # across frequencies. If the maximum RMS error across freqs is
+        # less than 1e-10, then we're converged
         err -= d_k
-##         if (( (err**2).mean(axis=1) )**.5).max() < 1e-10:
-##             break
-        if (err**2).mean(axis=0).max() < 1e-10:
+        if (err ** 2).mean(axis=0).max() < 1e-10:
             break
         # update the iterative estimate with this d_k
-        sdf_iter = (d_k**2 * sdfs[:,:last_freq]).sum(axis=0)
-        sdf_iter /= (d_k**2).sum(axis=0)
+        sdf_iter = mtm_cross_spectrum(yk, yk, d_k, sides=sides)
         err = d_k
-    else: #If you have reached maximum number of iterations
+    else:  # If you have reached maximum number of iterations
+        # XXX: could probably just return non-converged weights
         raise ValueError('breaking due to iterative meltdown')
-           
+
     weights = d_k
-    nu = 2 * (weights**2).sum(axis=-2)**2
-    nu /= (weights**4).sum(axis=-2)
+    nu = 2 * (weights ** 2).sum(axis=-2)
     return weights, nu
+
+#-----------------------------------------------------------------------------
+# Eigensystem utils
+#-----------------------------------------------------------------------------
+
+def tridisolve(d, e, b, overwrite_b=True):
+    """
+    Symmetric tridiagonal system solver, from Golub and Van Loan pg 157
+
+    Parameters
+    ----------
+
+    d: ndarray
+      main diagonal stored in d[:]
+    e: ndarray
+      superdiagonal stored in e[:-1]
+    b: ndarray
+      RHS vector
+
+    Returns
+    -------
+
+    x: ndarray
+      Solution to Ax = b (if overwrite_b is False). Otherwise solution is
+      stored in previous RHS vector b
+
+    """
+    N = len(b)
+    # work vectors
+    dw = d.copy()
+    ew = e.copy()
+    if overwrite_b:
+        x = b
+    else:
+        x = b.copy()
+    for k in xrange(1, N):
+        # e^(k-1) = e(k-1) / d(k-1)
+        # d(k) = d(k) - e^(k-1)e(k-1) / d(k-1)
+        t = ew[k-1]
+        ew[k-1] = t/dw[k-1]
+        dw[k] = dw[k] - t*ew[k-1]
+    for k in xrange(1, N):
+        x[k] = x[k] - ew[k-1]*x[k-1]
+    x[N-1] = x[N-1]/dw[N-1]
+    for k in xrange(N-2, -1, -1):
+        x[k] = x[k]/dw[k] - ew[k]*x[k+1]
+
+    if not overwrite_b:
+        return x
+
+def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
+    """Perform an inverse iteration to find the eigenvector corresponding
+    to the given eigenvalue in a symmetric tridiagonal system.
+
+    Parameters
+    ----------
+
+    d: ndarray
+      main diagonal of the tridiagonal system
+    e: ndarray
+      offdiagonal stored in e[:-1]
+    w: float
+      eigenvalue of the eigenvector
+    x0: ndarray
+      initial point to start the iteration
+    rtol: float
+      tolerance for the norm of the difference of iterates
+
+    Returns
+    -------
+
+    e: ndarray
+      The converged eigenvector
+
+    """
+    eig_diag = d - w
+    if x0 is None:
+        x0 = np.random.randn(len(d))
+    x_prev = np.zeros_like(x0)
+    norm_x = np.linalg.norm(x0)
+    # the eigenvector is unique up to sign change, so iterate
+    # until || |x^(n)| - |x^(n-1)| ||^2 < rtol
+    x0 /= norm_x
+    while np.linalg.norm( np.abs(x0) - np.abs(x_prev) ) > rtol:
+        x_prev = x0.copy()
+        tridisolve(eig_diag, e, x0)
+        norm_x = np.linalg.norm(x0)
+        x0 /= norm_x
+    return x0
 
 #-----------------------------------------------------------------------------
 # Correlation/Covariance utils
@@ -481,7 +627,7 @@ def remove_bias(x, axis):
     mn = np.mean(x, axis=axis)
     return x - mn[tuple(padded_slice)]
 
-def crosscov(x, y, axis=-1, all_lags=False, debias=True):
+def crosscov(x, y, axis=-1, all_lags=False, debias=True, normalize=True):
     """Returns the crosscovariance sequence between two ndarrays.
     This is performed by calling fftconvolve on x, y[::-1]
 
@@ -497,13 +643,28 @@ def crosscov(x, y, axis=-1, all_lags=False, debias=True):
        is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2
     debias: {True/False}
        Always removes an estimate of the mean along the axis, unless
-       told not to.
+       told not to (eg X and Y are known zero-mean)
+
+    Returns
+    -------
+
+    cxy: ndarray
+       The crosscovariance function
 
     Notes
     -----
 
-    cross covariance is defined as
-    sxy[k] := E{X[t]*Y[t+k]}, where X,Y are zero mean random processes
+    cross covariance of processes x and y is defined as
+
+    .. math::
+
+    C_{xy}[k]=E\{(X(n+k)-E\{X\})(Y(n)-E\{Y\})^{*}\} 
+    
+    where X and Y are discrete, stationary (or ergodic) random processes
+
+    Also note that this routine is the workhorse for all auto/cross/cov/corr
+    functions.
+    
     """
     if x.shape[axis] != y.shape[axis]:
         raise ValueError(
@@ -514,14 +675,16 @@ def crosscov(x, y, axis=-1, all_lags=False, debias=True):
         y = remove_bias(y, axis)
     slicing = [slice(d) for d in x.shape]
     slicing[axis] = slice(None,None,-1)
-    sxy = fftconvolve(x, y[tuple(slicing)], axis=axis, mode='full')
+    cxy = fftconvolve(x, y[tuple(slicing)].conj(), axis=axis, mode='full')
     N = x.shape[axis]
-    sxy /= N
+    if normalize:
+        cxy /= N
     if all_lags:
-        return sxy
-    slicing[axis] = slice(N-1,2*N-1)
-    return sxy[tuple(slicing)]
-    
+        return cxy
+    slicing[axis] = slice(N - 1, 2 * N - 1)
+    return cxy[tuple(slicing)]
+
+
 def crosscorr(x, y, **kwargs):
     """
     Returns the crosscorrelation sequence between two ndarrays.
@@ -538,76 +701,112 @@ def crosscorr(x, y, **kwargs):
        to be the length of x and y. If False, then the zero lag correlation
        is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2
 
+    Returns
+    -------
+
+    rxy: ndarray
+       The crosscorrelation function
+
     Notes
     -----
 
     cross correlation is defined as
-    rxy[k] := E{X[t]*Y[t+k]}/(E{X*X}E{Y*Y})**.5,
-    where X,Y are zero mean random processes. It is the noramlized cross
-    covariance.
-    """
-    sxy = crosscov(x, y, **kwargs)
-    # estimate sigma_x, sigma_y to normalize
-    sx = np.std(x)
-    sy = np.std(y)
-    return sxy/(sx*sy)
 
-def autocov(s, **kwargs):
+    .. math::
+
+    R_{xy}[k]=E\{X[n+k]Y^{*}[n]\} 
+
+    where X and Y are discrete, stationary (ergodic) random processes
+    """
+    # just make the same computation as the crosscovariance,
+    # but without subtracting the mean
+    kwargs['debias'] = False
+    rxy = crosscov(x, y, **kwargs)
+    return rxy
+
+def autocov(x, **kwargs):
     """Returns the autocovariance of signal s at all lags.
 
+    Parameters
+    ----------
+
+    x: ndarray
+    axis: time axis
+    all_lags: {True/False}
+       whether to return all nonzero lags, or to clip the length of r_xy
+       to be the length of x and y. If False, then the zero lag correlation
+       is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2    
+
+    Returns
+    -------
+
+    cxx: ndarray
+       The autocovariance function
+
     Notes
     -----
-    
+
     Adheres to the definition
-    sxx[k] = E{S[n]S[n+k]} = cov{S[n],S[n+k]}
-    where E{} is the expectation operator, and S is a zero mean process
+
+    .. math::
+
+    C_{xx}[k]=E\{(X[n+k]-E\{X\})(X[n]-E\{X\})^{*}\}
+    
+    where X is a discrete, stationary (ergodic) random process
     """
     # only remove the mean once, if needed
     debias = kwargs.pop('debias', True)
     axis = kwargs.get('axis', -1)
     if debias:
-        s = remove_bias(s, axis)
+        x = remove_bias(x, axis)
     kwargs['debias'] = False
-    return crosscov(s, s, **kwargs)
+    return crosscov(x, x, **kwargs)
 
-def autocorr(s, **kwargs):
+
+def autocorr(x, **kwargs):
     """Returns the autocorrelation of signal s at all lags.
 
+    Parameters
+    ----------
+
+    x: ndarray
+    axis: time axis
+    all_lags: {True/False}
+       whether to return all nonzero lags, or to clip the length of r_xy
+       to be the length of x and y. If False, then the zero lag correlation
+       is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2    
+
     Notes
     -----
-    
+
     Adheres to the definition
-    rxx[k] = E{S[n]S[n+k]}/E{S*S} = cov{S[n],S[n+k]}/sigma**2
-    where E{} is the expectation operator, and S is a zero mean process
+
+    .. math::
+
+    R_{xx}[k]=E\{X[n+k]X^{*}[n]\} 
+
+    where X is a discrete, stationary (ergodic) random process
+
+
+    
     """
-    # only remove the mean once, if needed
-    debias = kwargs.pop('debias', True)
-    axis = kwargs.get('axis', -1)
-    if debias:
-        s = remove_bias(s, axis)
-        kwargs['debias'] = False
-    sxx = autocov(s, **kwargs)
-    all_lags = kwargs.get('all_lags', False)
-    if all_lags:
-        i = (2*s.shape[axis]-1)/2
-        sxx_0 = sxx[i]
-    else:
-        sxx_0 = sxx[0]
-    sxx /= sxx_0
-    return sxx
+    # do same computation as autocovariance,
+    # but without subtracting the mean
+    kwargs['debias'] = False
+    return autocov(x, **kwargs)
+
 
 def fftconvolve(in1, in2, mode="full", axis=None):
     """ Convolve two N-dimensional arrays using FFT. See convolve.
 
     This is a fix of scipy.signal.fftconvolve, adding an axis argument and
     importing locally the stuff only needed for this function
-    
+
     """
     #Locally import stuff only required for this:
     from scipy.fftpack import fftn, fft, ifftn, ifft
     from scipy.signal.signaltools import _centered
     from numpy import array, product
-
 
     s1 = array(in1.shape)
     s2 = array(in2.shape)
@@ -615,60 +814,61 @@ def fftconvolve(in1, in2, mode="full", axis=None):
                       np.issubdtype(in2.dtype, np.complex))
 
     if axis is None:
-        size = s1+s2-1
+        size = s1 + s2 - 1
         fslice = tuple([slice(0, int(sz)) for sz in size])
     else:
-        equal_shapes = s1==s2
+        equal_shapes = s1 == s2
         # allow equal_shapes[axis] to be False
         equal_shapes[axis] = True
         assert equal_shapes.all(), 'Shape mismatch on non-convolving axes'
-        size = s1[axis]+s2[axis]-1
+        size = s1[axis] + s2[axis] - 1
         fslice = [slice(l) for l in s1]
         fslice[axis] = slice(0, int(size))
         fslice = tuple(fslice)
 
     # Always use 2**n-sized FFT
-    fsize = 2**np.ceil(np.log2(size))
+    fsize = 2 ** np.ceil(np.log2(size))
     if axis is None:
-        IN1 = fftn(in1,fsize)
-        IN1 *= fftn(in2,fsize)
+        IN1 = fftn(in1, fsize)
+        IN1 *= fftn(in2, fsize)
         ret = ifftn(IN1)[fslice].copy()
     else:
-        IN1 = fft(in1,fsize,axis=axis)
-        IN1 *= fft(in2,fsize,axis=axis)
-        ret = ifft(IN1,axis=axis)[fslice].copy()
+        IN1 = fft(in1, fsize, axis=axis)
+        IN1 *= fft(in2, fsize, axis=axis)
+        ret = ifft(IN1, axis=axis)[fslice].copy()
     del IN1
     if not complex_result:
         ret = ret.real
     if mode == "full":
         return ret
     elif mode == "same":
-        if product(s1,axis=0) > product(s2,axis=0):
+        if product(s1, axis=0) > product(s2, axis=0):
             osize = s1
         else:
             osize = s2
-        return _centered(ret,osize)
+        return _centered(ret, osize)
     elif mode == "valid":
-        return _centered(ret,abs(s2-s1)+1)
+        return _centered(ret, abs(s2 - s1) + 1)
 
 
 #-----------------------------------------------------------------------------
 # 'get' utils
 #-----------------------------------------------------------------------------
-
-def get_freqs(Fs,n):
+def get_freqs(Fs, n):
     """Returns the center frequencies of the frequency decomposotion of a time
     series of length n, sampled at Fs Hz"""
 
-    return np.linspace(0,float(Fs)/2,float(n)/2+1)
+    return np.linspace(0, float(Fs) / 2, float(n) / 2 + 1)
+
 
 def circle_to_hz(omega, Fsamp):
     """For a frequency grid spaced on the unit circle of an imaginary plane,
     return the corresponding freqency grid in Hz.
     """
-    return Fsamp * omega / (2*np.pi)
+    return Fsamp * omega / (2 * np.pi)
 
-def get_bounds(f,lb=0,ub=None): 
+
+def get_bounds(f, lb=0, ub=None):
     """ Find the indices of the lower and upper bounds within an array f
 
     Parameters
@@ -683,40 +883,40 @@ def get_bounds(f,lb=0,ub=None):
     lb_idx, ub_idx: the indices into 'f' which correspond to values bounded
     between ub and lb in that array
     """
-    lb_idx = np.searchsorted(f,lb,'left')   
-    if ub==None:
-        ub_idx = len(f) 
+    lb_idx = np.searchsorted(f, lb, 'left')
+    if ub == None:
+        ub_idx = len(f)
     else:
-        ub_idx = np.searchsorted(f,ub,'right')
-        
+        ub_idx = np.searchsorted(f, ub, 'right')
+
     return lb_idx, ub_idx
+
 
 def unwrap_phases(a):
     """
-    Changes consecutive jumps larger than pi to their 2*pi complement. 
+    Changes consecutive jumps larger than pi to their 2*pi complement.
     """
-    
     pi = np.pi
 
-    diffs = np.diff(a) 
-    mod_diffs = np.mod(diffs+pi,2*pi) - pi
-    neg_pi_idx = np.where(mod_diffs==-1*np.pi)
-    pos_idx = np.where(diffs>0)
-    this_idx = np.intersect1d(neg_pi_idx[0],pos_idx[0])
+    diffs = np.diff(a)
+    mod_diffs = np.mod(diffs + pi, 2 * pi) - pi
+    neg_pi_idx = np.where(mod_diffs == -1 * np.pi)
+    pos_idx = np.where(diffs > 0)
+    this_idx = np.intersect1d(neg_pi_idx[0], pos_idx[0])
     mod_diffs[this_idx] = pi
-    correction = mod_diffs - diffs    
-    correction[np.where(np.abs(diffs)<pi)] = 0
+    correction = mod_diffs - diffs
+    correction[np.where(np.abs(diffs) < pi)] = 0
     a[1:] += np.cumsum(correction)
 
     return a
 
-def multi_intersect (input):
 
+def multi_intersect(input):
     """ A function for finding the intersection of several different arrays
 
     Parameters
     ----------
-    input is a tuple of arrays, with all the different arrays 
+    input is a tuple of arrays, with all the different arrays
 
     Returns
     -------
@@ -725,38 +925,35 @@ def multi_intersect (input):
     Notes
     -----
     Simply runs intersect1d_nu iteratively on the inputs
-
-    
     """
-    
     output = np.intersect1d_nu(input[0], input[1])
 
     for i in input:
 
-        output = np.intersect1d_nu(output,i)
+        output = np.intersect1d_nu(output, i)
 
     return output
 
-def zero_pad(time_series,NFFT):
+
+def zero_pad(time_series, NFFT):
     """Pad a time-series with zeros on either side, depending on its length"""
 
     n_channels, n_time_points = time_series.shape
     # zero pad if time_series is too short
     if n_time_points < NFFT:
         tmp = time_series
-        time_series = np.zeros( (n_channels,NFFT), time_series.dtype)
-        time_series[:,:n_time_points] = tmp
+        time_series = np.zeros((n_channels, NFFT), time_series.dtype)
+        time_series[:, :n_time_points] = tmp
         del tmp
-    
+
     return time_series
+
 
 #-----------------------------------------------------------------------------
 # Numpy utilities - Note: these have been sent into numpy itself, so eventually
 # we'll be able to get rid of them here.
 #-----------------------------------------------------------------------------
-    
-
-def fill_diagonal(a,val):
+def fill_diagonal(a, val):
     """Fill the main diagonal of the given array of any dimensionality.
 
     For an array with ndim > 2, the diagonal is the list of locations with
@@ -819,15 +1016,15 @@ def fill_diagonal(a,val):
     else:
         # For more than d=2, the strided formula is only valid for arrays with
         # all dimensions equal, so we check first.
-        if not np.alltrue(np.diff(a.shape)==0):
+        if not np.alltrue(np.diff(a.shape) == 0):
             raise ValueError("All dimensions of input must be of equal length")
-        step = np.cumprod((1,)+a.shape[:-1]).sum()
+        step = np.cumprod((1,) + a.shape[:-1]).sum()
 
     # Write the value out into the diagonal.
     a.flat[::step] = val
 
 
-def diag_indices(n,ndim=2):
+def diag_indices(n, ndim=2):
     """Return the indices to access the main diagonal of an array.
 
     This returns a tuple of indices that can be used to access the main
@@ -842,7 +1039,7 @@ def diag_indices(n,ndim=2):
       indices can be used.
 
     ndim : int, optional
-      The number of dimensions 
+      The number of dimensions
 
     Examples
     --------
@@ -878,14 +1075,15 @@ def diag_indices(n,ndim=2):
     See also
     --------
     - diag_indices_from: create the indices based on the shape of an existing
-    array. 
+    array.
     """
     idx = np.arange(n)
-    return (idx,)*ndim
+    return (idx,) * ndim
 
 
 def diag_indices_from(arr):
-    """Return the indices to access the main diagonal of an n-dimensional array.
+    """Return the indices to access the main diagonal of an n-dimensional
+    array.
 
     See diag_indices() for full details.
 
@@ -897,13 +1095,13 @@ def diag_indices_from(arr):
         raise ValueError("input array must be at least 2-d")
     # For more than d=2, the strided formula is only valid for arrays with
     # all dimensions equal, so we check first.
-    if not np.alltrue(np.diff(a.shape)==0):
+    if not np.alltrue(np.diff(arr.shape) == 0):
         raise ValueError("All dimensions of input must be of equal length")
 
-    return diag_indices(a.shape[0],a.ndim)
+    return diag_indices(arr.shape[0], arr.ndim)
 
-    
-def mask_indices(n,mask_func,k=0):
+
+def mask_indices(n, mask_func, k=0):
     """Return the indices to access (n,n) arrays, given a masking function.
 
     Assume mask_func() is a function that, for a square array a of size (n,n)
@@ -956,13 +1154,13 @@ def mask_indices(n,mask_func,k=0):
     with which we now extract only three elements:
     >>> a[iu1]
     array([1, 2, 5])
-    """ 
-    m = np.ones((n,n),int)
-    a = mask_func(m,k)
+    """
+    m = np.ones((n, n), int)
+    a = mask_func(m, k)
     return np.where(a != 0)
 
 
-def tril_indices(n,k=0):
+def tril_indices(n, k=0):
     """Return the indices for the lower-triangle of an (n,n) array.
 
     Parameters
@@ -978,7 +1176,7 @@ def tril_indices(n,k=0):
     Commpute two different sets of indices to access 4x4 arrays, one for the
     lower triangular part starting at the main diagonal, and one starting two
     diagonals further right:
-    
+
     >>> il1 = tril_indices(4)
     >>> il2 = tril_indices(4,2)
 
@@ -1003,7 +1201,7 @@ def tril_indices(n,k=0):
            [-1, -1, -1, -1]])
 
     These cover almost the whole array (two diagonals right of the main one):
-    >>> a[il2] = -10 
+    >>> a[il2] = -10
     >>> a
     array([[-10, -10, -10,   4],
            [-10, -10, -10, -10],
@@ -1015,14 +1213,14 @@ def tril_indices(n,k=0):
     - triu_indices : similar function, for upper-triangular.
     - mask_indices : generic function accepting an arbitrary mask function.
     """
-    return mask_indices(n,np.tril,k)
+    return mask_indices(n, np.tril, k)
 
 
-def tril_indices_from(arr,k=0):
+def tril_indices_from(arr, k=0):
     """Return the indices for the lower-triangle of an (n,n) array.
 
     See tril_indices() for full details.
-    
+
     Parameters
     ----------
     n : int
@@ -1032,12 +1230,12 @@ def tril_indices_from(arr,k=0):
       Diagonal offset (see tril() for details).
 
     """
-    if not arr.ndim==2 and arr.shape[0] == arr.shape[1]:
+    if not arr.ndim == 2 and arr.shape[0] == arr.shape[1]:
         raise ValueError("input array must be 2-d and square")
-    return tril_indices(arr.shape[0],k)
+    return tril_indices(arr.shape[0], k)
 
-    
-def triu_indices(n,k=0):
+
+def triu_indices(n, k=0):
     """Return the indices for the upper-triangle of an (n,n) array.
 
     Parameters
@@ -1069,7 +1267,7 @@ def triu_indices(n,k=0):
     >>> a[iu1]
     array([ 1,  2,  3,  4,  6,  7,  8, 11, 12, 16])
 
-    And for assigning values:       
+    And for assigning values:
     >>> a[iu1] = -1
     >>> a
     array([[-1, -1, -1, -1],
@@ -1090,14 +1288,14 @@ def triu_indices(n,k=0):
     - tril_indices : similar function, for lower-triangular.
     - mask_indices : generic function accepting an arbitrary mask function.
     """
-    return mask_indices(n,np.triu,k)
+    return mask_indices(n, np.triu, k)
 
 
-def triu_indices_from(arr,k=0):
+def triu_indices_from(arr, k=0):
     """Return the indices for the lower-triangle of an (n,n) array.
 
     See triu_indices() for full details.
-    
+
     Parameters
     ----------
     n : int
@@ -1107,9 +1305,9 @@ def triu_indices_from(arr,k=0):
       Diagonal offset (see triu() for details).
 
     """
-    if not arr.ndim==2 and arr.shape[0] == arr.shape[1]:
+    if not arr.ndim == 2 and arr.shape[0] == arr.shape[1]:
         raise ValueError("input array must be 2-d and square")
-    return triu_indices(arr.shape[0],k)
+    return triu_indices(arr.shape[0], k)
 
 
 def structured_rand_arr(size, sample_func=np.random.random,
@@ -1130,11 +1328,11 @@ def structured_rand_arr(size, sample_func=np.random.random,
 
     utfac : float, optional
       Multiplicative factor for the upper triangular part of the matrix.
-      
+
     ltfac : float, optional
       Multiplicative factor for the lower triangular part of the matrix.
 
-    fill_diag : float, optional  
+    fill_diag : float, optional
       If given, use this value to fill in the diagonal.  Otherwise the diagonal
       will contain random elements.
 
@@ -1154,12 +1352,12 @@ def structured_rand_arr(size, sample_func=np.random.random,
            [-8.7001, -7.8053, -9.4467,  0.5   ]])
     """
     # Make a random array from the given sampling function
-    rmat = sample_func((size,size))
+    rmat = sample_func((size, size))
     # And the empty one we'll then fill in to return
     out = np.empty_like(rmat)
     # Extract indices for upper-triangle, lower-triangle and diagonal
-    uidx = triu_indices(size,1)
-    lidx = tril_indices(size,-1)
+    uidx = triu_indices(size, 1)
+    lidx = tril_indices(size, -1)
     didx = diag_indices(size)
     # Extract each part from the original and copy it to the output, possibly
     # applying multiplicative factors.  We check the factors instead of
@@ -1179,11 +1377,11 @@ def structured_rand_arr(size, sample_func=np.random.random,
         out[didx] = fill_diag
     else:
         out[didx] = rmat[didx]
-        
+
     return out
 
 
-def symm_rand_arr(size,sample_func=np.random.random,fill_diag=None):
+def symm_rand_arr(size, sample_func=np.random.random, fill_diag=None):
     """Make a symmetric random 2-d array of shape (size,size).
 
     Parameters
@@ -1197,7 +1395,7 @@ def symm_rand_arr(size,sample_func=np.random.random,fill_diag=None):
       other sampling function can be used as long as matches this API.
 
     fill_diag : float, optional
-      If given, use this value to fill in the diagonal.  Useful for 
+      If given, use this value to fill in the diagonal.  Useful for
 
     Examples
     --------
@@ -1214,10 +1412,10 @@ def symm_rand_arr(size,sample_func=np.random.random,fill_diag=None):
            [ 0.7782,  0.4615,  4.    ,  0.9447],
            [ 0.87  ,  0.7805,  0.9447,  4.    ]])
       """
-    return structured_rand_arr(size,sample_func,fill_diag=fill_diag)
+    return structured_rand_arr(size, sample_func, fill_diag=fill_diag)
 
 
-def antisymm_rand_arr(size,sample_func=np.random.random):
+def antisymm_rand_arr(size, sample_func=np.random.random):
     """Make an anti-symmetric random 2-d array of shape (size,size).
 
     Parameters
@@ -1241,66 +1439,67 @@ def antisymm_rand_arr(size,sample_func=np.random.random):
            [-0.6028, -0.4376,  0.    ,  0.5289],
            [-0.5449, -0.8918, -0.5289,  0.    ]])
       """
-    return structured_rand_arr(size,sample_func,ltfac=-1.0,fill_diag=0)
+    return structured_rand_arr(size, sample_func, ltfac=-1.0, fill_diag=0)
 
-#--------brainx utils------------------------------------------------------
-"""These utils were copied over from brainx - needed for viz"""
 
-def threshold_arr(cmat,threshold=0.0,threshold2=None):
+# --------brainx utils------------------------------------------------------
+# These utils were copied over from brainx - needed for viz
+
+
+def threshold_arr(cmat, threshold=0.0, threshold2=None):
     """Threshold values from the input matrix.
 
     Parameters
     ----------
     cmat : array
-    
+
     threshold : float, optional.
       First threshold.
-      
+
     threshold2 : float, optional.
       Second threshold.
 
     Returns
     -------
     indices, values: a tuple with ndim+1
-    
+
     Examples
     --------
-    >>> a = np.linspace(0,0.8,7)
+    >>> a = np.linspace(0,0.8,4)
     >>> a
-    array([ 0.    ,  0.1333,  0.2667,  0.4   ,  0.5333,  0.6667,  0.8   ])
+    array([ 0.        ,  0.26666667,  0.53333333,  0.8       ])
     >>> threshold_arr(a,0.3)
-    (array([3, 4, 5, 6]), array([ 0.4   ,  0.5333,  0.6667,  0.8   ]))
+    (array([2, 3]), array([ 0.53333333,  0.8       ]))
 
     With two thresholds:
     >>> threshold_arr(a,0.3,0.6)
-    (array([0, 1, 2, 5, 6]), array([ 0.    ,  0.1333,  0.2667,  0.6667,  0.8   ]))
-
+    (array([0, 1, 3]), array([ 0.        ,  0.26666667,  0.8       ]))
     """
     # Select thresholds
     if threshold2 is None:
         th_low = -np.inf
-        th_hi  = threshold
+        th_hi = threshold
     else:
         th_low = threshold
-        th_hi  = threshold2
+        th_hi = threshold2
 
     # Mask out the values we are actually going to use
-    idx = np.where( (cmat < th_low) | (cmat > th_hi) )
+    idx = np.where((cmat < th_low) | (cmat > th_hi))
     vals = cmat[idx]
-    
+
     return idx + (vals,)
 
 
-def thresholded_arr(arr,threshold=0.0,threshold2=None,fill_val=np.nan):
+def thresholded_arr(arr, threshold=0.0, threshold2=None, fill_val=np.nan):
     """Threshold values from the input matrix and return a new matrix.
 
     Parameters
     ----------
     arr : array
-    
+
     threshold : float
       First threshold.
-      
+
     threshold2 : float, optional.
       Second threshold.
 
@@ -1308,19 +1507,20 @@ def thresholded_arr(arr,threshold=0.0,threshold2=None,fill_val=np.nan):
     -------
     An array shaped like the input, with the values outside the threshold
     replaced with fill_val.
-    
+
     Examples
     --------
     """
     a2 = np.empty_like(arr)
     a2.fill(fill_val)
-    mth = threshold_arr(arr,threshold,threshold2)
-    idx,vals = mth[:-1], mth[-1]
+    mth = threshold_arr(arr, threshold, threshold2)
+    idx, vals = mth[:-1], mth[-1]
     a2[idx] = vals
-    
+
     return a2
 
-def rescale_arr(arr,amin,amax):
+
+def rescale_arr(arr, amin, amax):
     """Rescale an array to a new range.
 
     Return a new array whose range of values is (amin,amax).
@@ -1342,20 +1542,21 @@ def rescale_arr(arr,amin,amax):
     >>> rescale_arr(a,3,6)
     array([ 3.  ,  3.75,  4.5 ,  5.25,  6.  ])
     """
-    
+
     # old bounds
     m = arr.min()
     M = arr.max()
     # scale/offset
-    s = float(amax-amin)/(M-m)
-    d = amin - s*m
-    
+    s = float(amax - amin) / (M - m)
+    d = amin - s * m
+
     # Apply clip before returning to cut off possible overflows outside the
     # intended range due to roundoff error, so that we can absolutely guarantee
     # that on output, there are no values > amax or < amin.
-    return np.clip(s*arr+d,amin,amax)
+    return np.clip(s * arr + d, amin, amax)
 
-def minmax_norm(arr,mode='direct',folding_edges=None):
+
+def minmax_norm(arr, mode='direct', folding_edges=None):
     """Minmax_norm an array to [0,1] range.
 
     By default, this simply rescales the input array to [0,1].  But it has a
@@ -1366,7 +1567,7 @@ def minmax_norm(arr,mode='direct',folding_edges=None):
     Parameters
     ----------
     arr : 1d array
-    
+
     mode : string, one of ['direct','folding']
 
     folding_edges : (float,float)
@@ -1375,47 +1576,39 @@ def minmax_norm(arr,mode='direct',folding_edges=None):
     Examples
     --------
     >>> np.set_printoptions(precision=4)  # for doctesting
-    >>> a = np.linspace(0.3,0.8,7)
+    >>> a = np.linspace(0.3,0.8,4)
     >>> minmax_norm(a)
     array([ 0.    ,  0.1667,  0.3333,  0.5   ,  0.6667,  0.8333,  1.    ])
-    >>> 
-    >>> b = np.concatenate([np.linspace(-0.7,-0.3,4),
-    ...                     np.linspace(0.3,0.8,4)] )
+    >>>
+    >>> b = np.concatenate([np.linspace(-0.7,-0.3,3),
+                   np.linspace(0.3,0.8,3)])
     >>> b
-    array([-0.7   , -0.5667, -0.4333, -0.3   ,  0.3   ,  0.4667,  0.6333,  0.8   ])
+    array([-0.7 , -0.5 , -0.3 ,  0.3 ,  0.55,  0.8 ])
     >>> minmax_norm(b,'folding',[-0.3,0.3])
-    array([ 0.8   ,  0.5333,  0.2667,  0.    ,  0.    ,  0.3333,  0.6667,  1.    ])
-    >>> 
-    >>> 
-    >>> c = np.concatenate([np.linspace(-0.8,-0.3,4),
-    ...                     np.linspace(0.3,0.7,4)] )
-    >>> c
-    array([-0.8   , -0.6333, -0.4667, -0.3   ,  0.3   ,  0.4333,  0.5667,  0.7   ])
-    >>> minmax_norm(c,'folding',[-0.3,0.3])
-    array([ 1.    ,  0.6667,  0.3333,  0.    ,  0.    ,  0.2667,  0.5333,  0.8   ])
+    array([ 0.8,  0.4,  0. ,  0. ,  0.5,  1. ])
     """
     if mode == 'direct':
-        return rescale_arr(arr,0,1)
+        return rescale_arr(arr, 0, 1)
     else:
         fa, fb = folding_edges
         amin, amax = arr.min(), arr.max()
-        ra,rb = float(fa-amin),float(amax-fb) # in case inputs are ints
-        if ra<0 or rb<0:
+        ra, rb = float(fa - amin), float(amax - fb)  # in case inputs are ints
+        if ra < 0 or rb < 0:
             raise ValueError("folding edges must be within array range")
-        greater = arr>= fb
+        greater = arr >= fb
         upper_idx = greater.nonzero()
         lower_idx = (~greater).nonzero()
         # Two folding scenarios, we map the thresholds to zero but the upper
         # ranges must retain comparability.
         if ra > rb:
-            lower = 1.0 - rescale_arr(arr[lower_idx],0,1.0)
-            upper = rescale_arr(arr[upper_idx],0,float(rb)/ra)
+            lower = 1.0 - rescale_arr(arr[lower_idx], 0, 1.0)
+            upper = rescale_arr(arr[upper_idx], 0, float(rb) / ra)
         else:
-            upper = rescale_arr(arr[upper_idx],0,1)
+            upper = rescale_arr(arr[upper_idx], 0, 1)
             # The lower range is trickier: we need to rescale it and then flip
             # it, so the edge goes to 0.
-            resc_a = float(ra)/rb
-            lower = rescale_arr(arr[lower_idx],0,resc_a)
+            resc_a = float(ra) / rb
+            lower = rescale_arr(arr[lower_idx], 0, resc_a)
             lower = resc_a - lower
         # Now, make output array
         out = np.empty_like(arr)
@@ -1424,44 +1617,39 @@ def minmax_norm(arr,mode='direct',folding_edges=None):
         return out
 
 
-
-#---------- intersect coords ----------------------------------------------------
-
-def intersect_coords(coords1,coords2):
-
+#---------- intersect coords ----------------------------------------------
+def intersect_coords(coords1, coords2):
     """For two sets of coordinates, find the coordinates that are common to
     both, where the dimensionality is the coords1.shape[0]"""
-
-    #find the longer one
-    if coords1.shape[-1]>coords2.shape[-1]:
+    # Find the longer one
+    if coords1.shape[-1] > coords2.shape[-1]:
         coords_long = coords1
         coords_short = coords2
     else:
         coords_long = coords2
         coords_short = coords1
-        
-    ans = np.array([[],[],[]],dtype='int') #Initialize as a 3 row variable
-    #Loop over the longer of the coordinate sets
+
+    ans = np.array([[], [], []], dtype='int')  # Initialize as a 3 row variable
+    # Loop over the longer of the coordinate sets
     for i in xrange(coords_long.shape[-1]):
-        #For each coordinate: 
-        this_coords = coords_long[:,i]
-        #Find the matches in the other set of coordinates: 
-        x = np.where(coords_short[0,:] == this_coords[0])[0]
-        y = np.where(coords_short[1,:] == this_coords[1])[0] 
-        z = np.where(coords_short[2,:] == this_coords[2])[0]
+        # For each coordinate:
+        this_coords = coords_long[:, i]
+        # Find the matches in the other set of coordinates:
+        x = np.where(coords_short[0, :] == this_coords[0])[0]
+        y = np.where(coords_short[1, :] == this_coords[1])[0]
+        z = np.where(coords_short[2, :] == this_coords[2])[0]
 
-        #Use intersect1d, such that there can be more than one match (and the
-        #size of idx will reflect how many such matches exist):
-        
-        idx = np.intersect1d(np.intersect1d(x,y),z)
-        #append the places where there are matches in all three dimensions:
+        # Use intersect1d, such that there can be more than one match (and the
+        # size of idx will reflect how many such matches exist):
+        idx = np.intersect1d(np.intersect1d(x, y), z)
+        # Append the places where there are matches in all three dimensions:
         if len(idx):
-            ans = np.hstack([ans,coords_short[:,idx]])
-                        
-    return ans
-    
-#---------- Time Series Stats ----------------------------------------
+            ans = np.hstack([ans, coords_short[:, idx]])
 
+    return ans
+
+
+#---------- Time Series Stats ----------------------------------------
 def zscore(time_series, axis=-1):
     """Returns the z-score of each point of the time series
     along a given axis of the array time_series.
@@ -1487,6 +1675,7 @@ def zscore(time_series, axis=-1):
     zt /= st[sl]
     return zt
 
+
 def percent_change(ts, ax=-1):
     """Returns the % signal change of each point of the times series
     along a given axis of the array time_series
@@ -1496,7 +1685,7 @@ def percent_change(ts, ax=-1):
 
     ts : ndarray
         an array of time series
-        
+
     ax : int, optional (default to -1)
         the axis of time_series along which to compute means and stdevs
 
@@ -1525,13 +1714,11 @@ def percent_change(ts, ax=-1):
 """
     ts = np.asarray(ts)
 
-    return (ts/np.expand_dims(np.mean(ts, ax), ax) - 1)*100
-    
-    
+    return (ts / np.expand_dims(np.mean(ts, ax), ax) - 1) * 100
 
-#----------Event-related analysis utils ----------------------------------------
 
-def fir_design_matrix(events,len_hrf):
+#----------Event-related analysis utils ----------------------------------
+def fir_design_matrix(events, len_hrf):
     """Create a FIR event matrix from a time-series of events.
 
     Parameters
@@ -1549,82 +1736,227 @@ def fir_design_matrix(events,len_hrf):
        The expected length of the HRF (in the same time-units as the events are
        represented (presumably TR). The size of the block dedicated in the
        fir_matrix to each type of event
-    
+
     Returns
     -------
 
     fir_matrix: matrix
 
        The design matrix for FIR estimation
-    
-    
-    """ 
+    """
+    event_types = np.unique(events)[np.unique(events) != 0]
+    fir_matrix = np.zeros((events.shape[0], len_hrf * event_types.shape[0]))
 
-    event_types = np.unique(events)[np.unique(events)!=0]
-    fir_matrix = np.zeros((events.shape[0],len_hrf*event_types.shape[0]))
-    
     for t in event_types:
-        idx_h_a = np.where(event_types==t)[0] * len_hrf
+        idx_h_a = np.where(event_types == t)[0] * len_hrf
         idx_h_b = idx_h_a + len_hrf
         idx_v = np.where(events == t)[0]
         for idx_v_a in idx_v:
-            idx_v_b = idx_v_a + len_hrf 
-            fir_matrix[idx_v_a:idx_v_b,idx_h_a:idx_h_b]+=(np.eye(len_hrf)
-                                                          *np.sign(t))
+            idx_v_b = idx_v_a + len_hrf
+            fir_matrix[idx_v_a:idx_v_b, idx_h_a:idx_h_b] += (np.eye(len_hrf) *
+                                                            np.sign(t))
 
     return fir_matrix
 
-#----------goodness of fit utilities ----------------------------------------
 
-def noise_covariance_matrix(x,y):
-    """ Calculates the noise covariance matrix of the errors in predicting a
-    time-series
-    
+#We carry around a copy of the hilbert transform analytic signal from newer
+#versions of scipy, in case someone is using an older version of scipy with a
+#borked hilbert:
+def hilbert_from_new_scipy(x, N=None, axis=-1):
+    """This is a verbatim copy of scipy.signal.hilbert from scipy version
+    0.8dev, which we carry around in order to use in case the version of scipy
+    installed is old enough to have a broken implementation of hilbert """
+
+    x = np.asarray(x)
+    if N is None:
+        N = x.shape[axis]
+    if N <= 0:
+        raise ValueError("N must be positive.")
+    if np.iscomplexobj(x):
+        print "Warning: imaginary part of x ignored."
+        x = np.real(x)
+    Xf = np.fft.fft(x, N, axis=axis)
+    h = np.zeros(N)
+    if N % 2 == 0:
+        h[0] = h[N / 2] = 1
+        h[1:N / 2] = 2
+    else:
+        h[0] = 1
+        h[1:(N + 1) / 2] = 2
+
+    if len(x.shape) > 1:
+        ind = [np.newaxis] * x.ndim
+        ind[axis] = slice(None)
+        h = h[ind]
+    x = np.fft.ifft(Xf * h, axis=axis)
+    return x
+
+
+#---------- MAR utilities ----------------------------------------
+
+# These utilities are used in the computation of multivariate autoregressive
+# models (used in computing Granger causality):
+
+def crosscov_vector(x, y, nlags=None):
+    """
+    This method computes the following function
+
+    .. math::
+
+    R_{xy}(k) = E{ x(t)y^{*}(t-k) } = E{ x(t+k)y^{*}(t) }
+    k \in {0, 1, ..., nlags-1}
+
+    (* := conjugate transpose)
+
+    Note: This is related to the other commonly used definition
+    for vector crosscovariance
+
+    .. math::
+
+    R_{xy}^{(2)}(k) = E{ x(t-k)y^{*}(t) } = R_{xy}^(-k) = R_{yx}^{*}(k)
+
     Parameters
     ----------
-    x,y: ndarray, where x is the actual time-series and y is the prediction
+
+    x, y: ndarray (nc, N)
+
+    nlags: int, optional
+       compute lags for k in {0, ..., nlags-1}
 
     Returns
     -------
-    np.matrix, the noise covariance matrix
-    
-    Example
-    -------
-    
-    >>> x = np.matrix([[1,2,3],[1,2,3],[1,2,3]])
-    >>> y = np.matrix([[1,2,3],[1,1,1],[3,3,3]])
-    >>> a = noise_covariance_matrix(x,y)
-    >>> a
-    matrix([[ 0.,  0.,  0.],
-            [ 0.,  1.,  1.],
-            [ 0.,  1.,  1.]])
+
+    rxy : ndarray (nc, nc, nlags)
 
     """
-    e = x-y
+    N = x.shape[1]
+    if nlags is None:
+        nlags = N
+    nc = x.shape[0]
 
-    return np.matrix(np.cov(e))
-    
-def akaike_information_criterion(x,y,m):
-    """ A measure of the goodness of fit of a statistical model based on the
-    number of parameters,  and the model likelihood, calculated from the
-    discrepancy between the variable x and the model estimate of that
-    variable.
+    rxy = np.empty((nc, nc, nlags))
+
+    # rxy(k) = E{ x(t)y*(t-k) } ( * = conj transpose )
+    # Take the expectation over an outer-product
+    # between x(t) and conj{y(t-k)} for each t
+
+    for k in xrange(nlags):
+        # rxy(k) = E{ x(t)y*(t-k) }
+        prod = x[:, None, k:] * y[None, :, :N - k].conj()
+##         # rxy(k) = E{ x(t)y*(t+k) }
+##         prod = x[:,None,:N-k] * y[None,:,k:].conj()
+        # Do a sample mean of N-k pts? or sum and divide by N?
+        rxy[..., k] = prod.mean(axis=-1)
+    return rxy
+
+
+def autocov_vector(x, nlags=None):
+    """
+    This method computes the following function
+
+    .. math::
+
+    R_{xx}(k) = E{ x(t)x^{*}(t-k) } = E{ x(t+k)x^{*}(t) }
+    k \in {0, 1, ..., nlags-1}
+
+    (* := conjugate transpose)
+
+    Note: this is related to
+    the other commonly used definition for vector autocovariance
+
+    .. math::
+
+    R_{xx}^{(2)}(k) = E{ x(t-k)x^{*}(t) } = R_{xx}(-k) = R_{xx}^{*}(k)
 
     Parameters
     ----------
 
-    x: the actual time-series
+    x: ndarray (nc, N)
 
-    y: the model prediction for the time-series
-    
-    m: int, the number of parameters in the model.
-    
+    nlags: int, optional
+       compute lags for k in {0, ..., nlags-1}
+
+    Returns
+    -------
+
+    rxx : ndarray (nc, nc, nlags)
+
+    """
+    return crosscov_vector(x, x, nlags=nlags)
+
+def generate_mar(a, cov, N):
+    """
+    Generates a multivariate autoregressive dataset given the formula:
+
+    X(t) + sum_{i=1}^{P} a(i)X(t-i) = E(t)
+
+    Where E(t) is a vector of samples from possibly covarying noise processes.
+
+    Parameters
+    ----------
+
+    a : ndarray (P, nc, nc)
+       An order P set of coefficient matrices, each shaped (nc, nc) for
+       nchannel data
+    cov : ndarray (nc, nc)
+       The innovations process covariance
+    N : int
+       how many samples to generate
+
+    Returns
+    -------
+
+    mar, nz
+
+    mar and noise process shaped (nc, N)
+    """
+    n_seq = cov.shape[0]
+    n_order = a.shape[0]
+
+    nz = np.random.multivariate_normal(
+        np.zeros(n_seq), cov, size=(N,)
+        )
+
+    # nz is a (N x n_seq) array
+
+    mar = nz.copy()  # np.zeros((N, n_seq), 'd')
+
+    # this looks like a redundant loop that can be rolled into a matrix-matrix
+    # multiplication at each coef matrix a(i)
+
+    # this rearranges the equation to read:
+    # X(i) = E(i) - sum_{j=1}^{p} a(j)X(i-j)
+    # where X(n) n < 0 is taken to be 0
+    for i in xrange(N):
+        for j in xrange(min(i, n_order)):  # j logically in set {1, 2, ..., P}
+            mar[i, :] -= np.dot(a[j], mar[i - j - 1, :])
+
+    return mar.transpose(), nz.transpose()
+
+
+#----------goodness of fit utilities ----------------------------------------
+
+def akaike_information_criterion(x, m):
+
+    """
+
+    A measure of the goodness of fit of an auto-regressive model based on the
+    model order and the error covariance.
+
+    Parameters
+    ----------
+
+    x: float array
+       Time series data with the dimensions (repetitions,channels,time)
+
+    m: int, the model order.
+
     Returns
     -------
 
     AIC: float
         The value of the AIC
-        
+
     Notes
     -----
     This is an implementation of equation (50) in Ding et al. (2006)
@@ -1635,36 +1967,50 @@ def akaike_information_criterion(x,y,m):
     AIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m}{N_{total}},
 
     where $\Sigma$ is the noise covariance matrix. In auto-regressive model
-    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual variance
-    in estimating time-series $i$ from $j$, $p$ is the dimensionality of the
-    data, $m$ is the number of parameters in the model and $N_{total}$ is the
-    number of time-points.   
-    
+    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual
+    variance in estimating time-series $i$ from $j$, $p$ is the dimensionality
+    of the data, $m$ is the number of parameters in the model and $N_{total}$
+    is the number of time-points.
+
     .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
        Basic Theory and Application to
        Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
-    
+
     See also: http://en.wikipedia.org/wiki/Akaike_information_criterion
     """
-    sigma = noise_covariance_matrix(x,y)
-    AIC = (2*( np.log(linalg.det(sigma)) ) +
-           ( (2*(sigma.shape[0]**2) * m ) / (x.shape[-1]) ))
-    
+    import nitime.algorithms.autoregressive as ar
+
+    N = x.shape[0]
+    p = x.shape[1]
+
+    Rxx = np.empty((N, p, p, m + 1))
+
+    for i in xrange(N):
+        Rxx[i] = autocov_vector(x[i], nlags=m + 1)
+
+    Rxx = Rxx.mean(axis=0)
+    Rxx = Rxx.transpose(2, 0, 1)
+    _, sigma = ar.lwr_recursion(Rxx)
+
+    #The total number of data points:
+    Ntotal = np.prod(x.shape)
+
+    AIC = (2 * (np.log(linalg.det(sigma))) +
+           ((2 * (p ** 2) * m) / (Ntotal)))
+
     return AIC
 
-def akaike_information_criterion_c(x,y,m):
+
+def akaike_information_criterion_c(x, m):
     """ The Akaike Information Criterion, corrected for small sample size.
 
     Parameters
     ----------
-    x: the actual time-series
+    x: float array
+        Time-series data
 
-    y: the model prediction for the time-series
-    
-    m: int, the number of parameters in the model.
-    
-    n: int, the total number of time-points/samples 
-
+    m: int,
+       The order of the auto-regressive model
 
     Returns
     -------
@@ -1684,15 +2030,20 @@ def akaike_information_criterion_c(x,y,m):
     time-points in the data.
 
     See also :func:`akaike_information_criterion`
-    
+
     """
 
-    AIC = akaike_information_criterion(x,y,m)
-    AICc = AIC + (2*m*(m+1))/(x.shape[-1]-m-1)
+    AIC = akaike_information_criterion(x, m)
+
+    #The total number of data points:
+    Ntotal = np.prod(x.shape)
+
+    AICc = AIC + (2 * m * (m + 1)) / (Ntotal - m - 1)
 
     return AICc
 
-def bayesian_information_criterion(x,y,m):
+
+def bayesian_information_criterion(x, m):
     """The Bayesian Information Criterion, also known as the Schwarz criterion
      is a measure of goodness of fit of a statistical model, based on the
      number of model parameters and the likelihood of the model
@@ -1700,14 +2051,12 @@ def bayesian_information_criterion(x,y,m):
     Parameters
     ----------
 
-    x: the actual time-series
+    x: float array
+       Time series data with the dimensions (repetitions,channels,time)
 
-    y: the model prediction for the time-series
-    
-    m: int, the number of parameters in the model.
-    
-    n: int, the total number of time-points/samples 
-    
+    m: int, the model order.
+
+
     Returns
     -------
 
@@ -1724,54 +2073,37 @@ def bayesian_information_criterion(x,y,m):
     BIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m log(N_{total})}{N_{total}},
 
     where $\Sigma$ is the noise covariance matrix. In auto-regressive model
-    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual variance
-    in estimating time-series $i$ from $j$, $p$ is the dimensionality of the
-    data, $m$ is the number of parameters in the model and $N_{total}$ is the
-    number of time-points.   
-    
+    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual
+    variance in estimating time-series $i$ from $j$, $p$ is the dimensionality
+    of the data, $m$ is the number of parameters in the model and $N_{total}$
+    is the number of time-points.
+
     .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
        Basic Theory and Application to
        Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
 
-    
+
     See http://en.wikipedia.org/wiki/Schwarz_criterion
 
-    """ 
-    sigma = noise_covariance_matrix(x,y)
-    BIC =  (2*( np.log(linalg.det(sigma)) ) +
-           ( (2*(sigma.shape[0]**2) * m * np.log(x.shape[-1])) / (x.shape[-1]) ))
+    """
+    import nitime.algorithms.autoregressive as ar
+    
+    N = x.shape[0]
+    p = x.shape[1]
+
+    Rxx = np.empty((N, p, p, m + 1))
+
+    for i in xrange(N):
+        Rxx[i] = autocov_vector(x[i], nlags=m + 1)
+
+    Rxx = Rxx.mean(axis=0)
+    Rxx = Rxx.transpose(2, 0, 1)
+    _, sigma = ar.lwr_recursion(Rxx)
+
+    #The total number of data points:
+    Ntotal = np.prod(x.shape)
+
+    BIC = (2 * (np.log(linalg.det(sigma))) +
+            ((2 * (p ** 2) * m * np.log(Ntotal)) / (Ntotal)))
+
     return BIC
-
-
-#We carry around a copy of the hilbert transform analytic signal from newer
-#versions of scipy, in case someone is using an older version of scipy with a
-#borked hilbert:
-
-def hilbert_from_new_scipy(x, N=None, axis=-1):
-    """This is a verbatim copy of scipy.signal.hilbert from scipy version
-    0.8dev, which we carry around in order to use in case the version of scipy
-    installed is old enough to have a broken implementation of hilbert """
-
-    x = np.asarray(x)
-    if N is None:
-        N = x.shape[axis]
-    if N <=0:
-        raise ValueError, "N must be positive."
-    if np.iscomplexobj(x):
-        print "Warning: imaginary part of x ignored."
-        x = real(x)
-    Xf = np.fft.fft(x, N, axis=axis)
-    h = np.zeros(N)
-    if N % 2 == 0:
-        h[0] = h[N/2] = 1
-        h[1:N/2] = 2
-    else:
-        h[0] = 1
-        h[1:(N+1)/2] = 2
-
-    if len(x.shape) > 1:
-        ind = [np.newaxis]*x.ndim
-        ind[axis] = slice(None)
-        h = h[ind]
-    x = np.fft.ifft(Xf*h, axis=axis)
-    return x
