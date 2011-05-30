@@ -1,6 +1,7 @@
 nitime (0.3~dev1-1) UNRELEASED; urgency=low
 
   * Pre-release snapshot
+  * Boost policy compliance to 3.9.2 (no changes due)
 
  -- Yaroslav Halchenko <debian@onerussian.com>  Sun, 29 May 2011 21:48:41 -0400
 

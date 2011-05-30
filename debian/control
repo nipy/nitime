@@ -11,7 +11,7 @@ Build-Depends: debhelper (>= 7.0.50~), python-all, python-support,
 			   python-nose,
 			   python-networkx,
 			   python-nibabel
-Standards-Version: 3.9.1
+Standards-Version: 3.9.2
 Homepage: http://nipy.org/nitime
 Vcs-Git: git://github.com/yarikoptic/nitime.git
 Vcs-Browser: http://github.com/yarikoptic/nitime
