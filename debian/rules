@@ -8,6 +8,9 @@ INSTALL_PATH = $(CURDIR)/debian/tmp
 # default Python
 PYTHON=$(shell pyversions -d)
 
+# override matplotlib config directory
+export MPLCONFIGDIR=$(CURDIR)/build
+
 %:
 	dh $@
 
@@ -16,6 +19,9 @@ override_dh_auto_test:
 
 override_dh_auto_install:
 	dh_auto_install
+
+	mkdir -p $(MPLCONFIGDIR)  # just in case
+	echo "backend : Agg" >| $(MPLCONFIGDIR)/matplotlibrc
 	: # Prune duplicate LICENSE file
 	find debian/ -name LICENSE -delete
 	: # Only now lets build docs
