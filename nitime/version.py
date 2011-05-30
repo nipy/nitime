@@ -110,6 +110,6 @@ PACKAGES = ['nitime',
             'nitime.analysis',
             'nitime.analysis.tests',
             ]
-PACKAGE_DATA = {"nitime": ["LICENSE", "tests/*.txt",
+PACKAGE_DATA = {"nitime": ["LICENSE", "tests/*.txt", "tests/*.npy",
                                   "fmri/tests/*.nii.gz"]}
 REQUIRES = ["numpy", "matplotlib", "scipy"]
