@@ -42,13 +42,13 @@ def test_dpss_windows():
     # these values from Percival and Walden 1993
     _, l = tsa.dpss_windows(31, 6, 4)
     unos = np.ones(4)
-    yield npt.assert_array_almost_equal, l, unos
+    npt.assert_array_almost_equal(l, unos)
     _, l = tsa.dpss_windows(31, 7, 4)
-    yield npt.assert_array_almost_equal, l, unos
+    npt.assert_array_almost_equal(l, unos)
     _, l = tsa.dpss_windows(31, 8, 4)
-    yield npt.assert_array_almost_equal, l, unos
+    npt.assert_array_almost_equal(l, unos)
     _, l = tsa.dpss_windows(31, 8, 4.2)
-    yield npt.assert_array_almost_equal, l, unos
+    npt.assert_array_almost_equal(l, unos)
 
 
 def test_dpss_matlab():

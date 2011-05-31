@@ -70,19 +70,19 @@ def test_SparseCoherenceAnalyzer():
     # Make sure you get the same answers as you would from the standard
     # CoherenceAnalyzer:
 
-    yield npt.assert_almost_equal, C2.coherence[0, 1], C1.coherence[0, 1]
+    npt.assert_almost_equal(C2.coherence[0, 1], C1.coherence[0, 1])
     # This is the PSD (for the first time-series in the object):
-    yield npt.assert_almost_equal, C2.spectrum[0, 0], C1.spectrum[0]
+    npt.assert_almost_equal(C2.spectrum[0, 0], C1.spectrum[0])
     # And the second (for good measure):
-    yield npt.assert_almost_equal, C2.spectrum[1, 1], C1.spectrum[1]
+    npt.assert_almost_equal(C2.spectrum[1, 1], C1.spectrum[1])
 
     # The relative phases should be equal
-    yield npt.assert_almost_equal, C2.phase[0, 1], C1.relative_phases[0, 1]
+    npt.assert_almost_equal(C2.phase[0, 1], C1.relative_phases[0, 1])
     # But not the absolute phases (which have the same shape):
-    yield npt.assert_equal, C1.phases[0].shape, C1.relative_phases[0, 1].shape
+    npt.assert_equal(C1.phases[0].shape, C1.relative_phases[0, 1].shape)
 
     # The delay is equal:
-    yield npt.assert_almost_equal, C2.delay[0, 1], C1.delay[0, 1]
+    npt.assert_almost_equal(C2.delay[0, 1], C1.delay[0, 1])
     # Make sure that you would get an error if you provided a method other than
     # 'welch':
     npt.assert_raises(ValueError, nta.SparseCoherenceAnalyzer, T,
@@ -131,10 +131,11 @@ def test_SeedCoherenceAnalyzer():
             C3 = nta.SeedCoherenceAnalyzer(T_seed2, T_target,
                                            method=this_method)
 
-            yield npt.assert_almost_equal, C1.coherence[0, 1], C2.coherence[1]
-            yield npt.assert_almost_equal, C2.coherence[1], C3.coherence[0, 1]
-            yield npt.assert_almost_equal, C1.phase[0, 1], C2.relative_phases[1]
-            yield npt.assert_almost_equal, C1.delay[0, 1], C2.delay[1]
+            npt.assert_almost_equal(C1.coherence[0, 1], C2.coherence[1])
+            npt.assert_almost_equal(C2.coherence[1], C3.coherence[0, 1])
+            npt.assert_almost_equal(C1.phase[0, 1], C2.relative_phases[1])
+            npt.assert_almost_equal(C1.delay[0, 1], C2.delay[1])
 
         else:
-            yield ValueError, nta.SeedCoherenceAnalyzer, T_seed1, T_target, this_method
+            npt.assert_raises(ValueError,nta.SeedCoherenceAnalyzer, T_seed1,
+                              T_target, this_method)

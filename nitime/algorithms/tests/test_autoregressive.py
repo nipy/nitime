@@ -25,8 +25,8 @@ def test_AR_est_consistency():
     x, v, _ = utils.ar_generator(N=512, coefs=-ak[1:], drop_transients=100)
     ak_yw, ssq_yw = tsa.AR_est_YW(x, order)
     ak_ld, ssq_ld = tsa.AR_est_LD(x, order)
-    yield npt.assert_almost_equal, ak_yw, ak_ld
-    yield npt.assert_almost_equal, ssq_yw, ssq_ld
+    npt.assert_almost_equal(ak_yw, ak_ld)
+    npt.assert_almost_equal(ssq_yw, ssq_ld)
 
 def test_AR_YW():
     arsig,_,_ = utils.ar_generator(N=512)
