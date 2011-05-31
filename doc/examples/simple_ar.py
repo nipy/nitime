@@ -62,19 +62,6 @@ Now we estimate back the model parameters:
 
 """
 
-coefs_est, sigma_est = alg.AR_est_YW(X, 2)
-# no rigorous purpose behind 100 transients
-X_hat, _, _ = utils.ar_generator(
-    N=npts, sigma=sigma_est, coefs=coefs_est, drop_transients=100, v=v
-    )
-fig_ar_est = plt.figure()
-ax = fig_ar_est.add_subplot(111)
-ax.plot(np.arange(100, len(X_hat)+100), X_hat, label='estimated process')
-ax.plot(X, 'g--', label='original process')
-ax.legend()
-err = X_hat - X[100:]
-mse = np.dot(err, err)/len(X_hat)
-ax.set_title('Mean Square Error: %1.3e'%mse)
 
 """
 
