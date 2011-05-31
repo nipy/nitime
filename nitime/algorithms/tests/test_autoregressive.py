@@ -211,7 +211,7 @@ def test_lwr():
 
 
 def test_lwr_alternate():
-    "test solution of lwr recursion"
+    "test solution of alternate formulation of the lwr recursion"
 
     for trial in xrange(3):
         nc = np.random.randint(2, high=10)
@@ -247,5 +247,5 @@ def test_lwr_alternate():
         l2_r = (rvec ** 2).sum() ** 0.5
 
         # compute |Ax-b| / |b| metric
-        yield npt.assert_almost_equal, l2_d / l2_r, 0
+        npt.assert_almost_equal(l2_d / l2_r, 0, decimal=5)
 

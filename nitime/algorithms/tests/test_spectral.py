@@ -298,7 +298,7 @@ def test_multi_taper_psd_csd():
     
     """ 
 
-    N = 2 ** 16 # It needs to be long to converge
+    N = 2 ** 10
     n_reps = 10
 
 
