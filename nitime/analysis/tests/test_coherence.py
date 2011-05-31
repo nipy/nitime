@@ -24,8 +24,11 @@ def test_CoherenceAnalyzer():
         for method in methods:
             C = nta.CoherenceAnalyzer(T, method, unwrap_phases=unwrap)
             if method is None:
-                # This is the default behavior (NFFT is 64):
-                npt.assert_equal(C.coherence.shape,(n_series, n_series, 33))
+                # This is the default behavior (grab the NFFT from the number
+                # of frequencies):
+                npt.assert_equal(C.coherence.shape,(n_series, n_series,
+                                                    C.frequencies.shape[0]))
+                
             elif (method['this_method']=='welch' or
                   method['this_method']=='periodogram_csd'):
                 npt.assert_equal(C.coherence.shape, (n_series, n_series,
