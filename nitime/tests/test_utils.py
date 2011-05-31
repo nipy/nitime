@@ -11,38 +11,38 @@ def test_zscore():
                   [4, 4, 6, 6]])
 
     z = utils.zscore(x)
-    yield npt.assert_equal, x.shape, z.shape
+    npt.assert_equal(x.shape, z.shape)
 
     #Default axis is -1
-    yield npt.assert_equal, utils.zscore(x), np.array([[-1., -1., 1., 1.],
-                                                      [-1., -1., 1., 1.]])
+    npt.assert_equal(utils.zscore(x), np.array([[-1., -1., 1., 1.],
+                                                      [-1., -1., 1., 1.]]))
 
     #Test other axis:
-    yield npt.assert_equal, utils.zscore(x, 0), np.array([[-1., -1., -1., -1.],
-                                                        [1., 1., 1., 1.]])
+    npt.assert_equal(utils.zscore(x, 0), np.array([[-1., -1., -1., -1.],
+                                                        [1., 1., 1., 1.]]))
 
 
 def test_percent_change():
     x = np.array([[99, 100, 101], [4, 5, 6]])
     p = utils.percent_change(x)
 
-    yield npt.assert_equal, x.shape, p.shape
-    yield npt.assert_almost_equal, p[0, 2], 1.0
+    npt.assert_equal(x.shape, p.shape)
+    npt.assert_almost_equal(p[0, 2], 1.0)
 
     ts = np.arange(4 * 5).reshape(4, 5)
     ax = 0
-    yield npt.assert_almost_equal, utils.percent_change(ts, ax), np.array(
+    npt.assert_almost_equal(utils.percent_change(ts, ax), np.array(
         [[-100., -88.23529412, -78.94736842, -71.42857143, -65.2173913],
         [-33.33333333, -29.41176471, -26.31578947, -23.80952381, -21.73913043],
         [33.33333333,   29.41176471,   26.31578947,   23.80952381, 21.73913043],
-        [100., 88.23529412, 78.94736842, 71.42857143, 65.2173913]])
+        [100., 88.23529412, 78.94736842, 71.42857143, 65.2173913]]))
 
     ax = 1
-    yield npt.assert_almost_equal, utils.percent_change(ts, ax), np.array(
+    npt.assert_almost_equal(utils.percent_change(ts, ax), np.array(
         [[-100., -50., 0., 50., 100.],
          [-28.57142857, -14.28571429, 0., 14.28571429, 28.57142857],
           [-16.66666667, -8.33333333, 0., 8.33333333, 16.66666667],
-          [-11.76470588, -5.88235294, 0., 5.88235294, 11.76470588]])
+          [-11.76470588, -5.88235294, 0., 5.88235294, 11.76470588]]))
 
 def test_tridi_inverse_iteration():
     import scipy.linalg as la
@@ -76,7 +76,7 @@ def test_tridi_inverse_iteration():
             ab[1], sup_diag, w[j], x0=np.sin((j+1)*t)
             )
         b = A*e
-        yield (nt.assert_true,
+        nt.assert_true(
                np.linalg.norm(np.abs(b) - np.abs(w[j]*e)) < 1e-8,
                'Inverse iteration eigenvector solution is inconsistent with '\
                'given eigenvalue'
@@ -85,7 +85,7 @@ def test_tridi_inverse_iteration():
 
     # also test orthonormality of the eigenvectors
     ident = np.dot(E, E.T)
-    yield npt.assert_almost_equal, ident, np.eye(K)
+    npt.assert_almost_equal(ident, np.eye(K))
 
 def test_debias():
     x = np.arange(64).reshape(4, 4, 4)
@@ -116,19 +116,19 @@ def test_crosscov():
         sxy_ref = ref_crosscov(ar_seq1, ar_seq2, all_lags=all_lags)
         err = sxy_ref - sxy
         mse = np.dot(err, err) / N
-        yield nt.assert_true, mse < 1e-12, \
-               'Large mean square error w.r.t. reference cross covariance'
+        nt.assert_true(mse < 1e-12, \
+               'Large mean square error w.r.t. reference cross covariance')
 
 
 def test_autocorr():
     N = 128
     ar_seq, _, _ = utils.ar_generator(N=N)
     rxx = utils.autocorr(ar_seq)
-    yield nt.assert_true, rxx[0] == rxx.max(), \
-          'Zero lag autocorrelation is not maximum autocorrelation'
+    nt.assert_true(rxx[0] == rxx.max(), \
+          'Zero lag autocorrelation is not maximum autocorrelation')
     rxx = utils.autocorr(ar_seq, all_lags=True)
-    yield nt.assert_true, rxx[127] == rxx.max(), \
-          'Zero lag autocorrelation is not maximum autocorrelation'
+    nt.assert_true(rxx[127] == rxx.max(), \
+          'Zero lag autocorrelation is not maximum autocorrelation')
 
 
 # Should this really be in the tests?

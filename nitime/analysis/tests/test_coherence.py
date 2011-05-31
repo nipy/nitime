@@ -5,53 +5,137 @@ import matplotlib.mlab as mlab
 import nitime.timeseries as ts
 import nitime.analysis as nta
 
+
 def test_CoherenceAnalyzer():
     methods = (None,
-           {"this_method":'welch',"NFFT":256},
-           {"this_method":'multi_taper_csd'},
-           {"this_method":'periodogram_csd',"NFFT":256})
+           {"this_method": 'welch', "NFFT": 256},
+           {"this_method": 'multi_taper_csd'},
+           {"this_method": 'periodogram_csd', "NFFT": 256})
 
     Fs = np.pi
     t = np.arange(1024)
-    x = np.sin(10*t) + np.random.rand(t.shape[-1])
-    y = np.sin(10*t) + np.random.rand(t.shape[-1])
-    T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
+    x = np.sin(10 * t) + np.random.rand(t.shape[-1])
+    y = np.sin(10 * t) + np.random.rand(t.shape[-1])
+    # Third time-series used for calculation of partial coherence:
+    z = np.sin(10 * t)
+    T = ts.TimeSeries(np.vstack([x, y, z]), sampling_rate=np.pi)
+    n_series = T.shape[0]
+    for unwrap in [True, False]:
+        for method in methods:
+            C = nta.CoherenceAnalyzer(T, method, unwrap_phases=unwrap)
+            if method is None:
+                # This is the default behavior (grab the NFFT from the number
+                # of frequencies):
+                npt.assert_equal(C.coherence.shape,(n_series, n_series,
+                                                    C.frequencies.shape[0]))
+                
+            elif (method['this_method']=='welch' or
+                  method['this_method']=='periodogram_csd'):
+                npt.assert_equal(C.coherence.shape, (n_series, n_series,
+                                                     method['NFFT'] // 2 + 1))
+            else:
+                npt.assert_equal(C.coherence.shape, (n_series, n_series,
+                                                     len(t) // 2 + 1))
 
-    for method in methods:
-        C = nta.CoherenceAnalyzer(T,method)
-        if method is None:
-            # This is the default behavior (NFFT is 64):
-            npt.assert_equal(C.coherence.shape,(2,2,33))
-        elif method['this_method']=='welch' or method['this_method']=='periodogram_csd':
-            npt.assert_equal(C.coherence.shape,(2,2,method['NFFT']//2+1))
-        else:
-            npt.assert_equal(C.coherence.shape,(2,2,len(t)//2+1))
+            # Coherence symmetry:
+            npt.assert_equal(C.coherence[0, 1], C.coherence[1, 0])
 
-        # Coherence symmetry:
-        npt.assert_equal(C.coherence[0,1],C.coherence[1,0])
-        # Phase/delay asymmetry:
-        npt.assert_equal(C.phase[0,1],-1*C.phase[1,0])
-        npt.assert_equal(C.delay[0,1][1:],-1*C.delay[1,0][1:]) # The very first one
-                                                               # is a nan
-        if method is not None and method['this_method']=='welch':
-            S = nta.SpectralAnalyzer(T,method)
-            npt.assert_almost_equal(S.cpsd[0],C.frequencies)
-            npt.assert_almost_equal(S.cpsd[1],C.spectrum)
+            # Phase/delay asymmetry:
+            npt.assert_equal(C.phase[0, 1], -1 * C.phase[1, 0])
+
+            # The very first one is a nan, test from second and onwards:
+            npt.assert_almost_equal(C.delay[0, 1][1:], -1 * C.delay[1, 0][1:])
+
+            if method is not None and method['this_method']=='welch':
+                S = nta.SpectralAnalyzer(T , method)
+                npt.assert_almost_equal(S.cpsd[0], C.frequencies)
+                npt.assert_almost_equal(S.cpsd[1], C.spectrum)
+            # Test that partial coherence runs through and has the right number
+            # of dimensions:
+            npt.assert_equal(len(C.coherence_partial.shape), 4)
 
 def test_SparseCoherenceAnalyzer():
     Fs = np.pi
     t = np.arange(256)
-    x = np.sin(10*t) + np.random.rand(t.shape[-1])
-    y = np.sin(10*t) + np.random.rand(t.shape[-1])
-    T = ts.TimeSeries(np.vstack([x,y]),sampling_rate=Fs)
-    C1 = nta.SparseCoherenceAnalyzer(T,ij=((0,1),(1,0)))
+    x = np.sin(10 * t) + np.random.rand(t.shape[-1])
+    y = np.sin(10 * t) + np.random.rand(t.shape[-1])
+    T = ts.TimeSeries(np.vstack([x, y]), sampling_rate=Fs)
+    C1 = nta.SparseCoherenceAnalyzer(T, ij=((0, 1), (1, 0)))
+    C2 = nta.CoherenceAnalyzer(T)
 
     # Coherence symmetry:
-    npt.assert_equal(np.abs(C1.coherence[0,1]),np.abs(C1.coherence[1,0]))
+    npt.assert_equal(np.abs(C1.coherence[0, 1]), np.abs(C1.coherence[1, 0]))
+    npt.assert_equal(np.abs(C1.coherency[0, 1]), np.abs(C1.coherency[1, 0]))
 
     # Make sure you get the same answers as you would from the standard
     # CoherenceAnalyzer:
-    C2 = nta.CoherenceAnalyzer(T)
 
-    yield npt.assert_almost_equal, C2.coherence[0,1],C1.coherence[0,1]
-    yield npt.assert_almost_equal, C2.coherence[0,1],C1.coherence[0,1]
+    npt.assert_almost_equal(C2.coherence[0, 1], C1.coherence[0, 1])
+    # This is the PSD (for the first time-series in the object):
+    npt.assert_almost_equal(C2.spectrum[0, 0], C1.spectrum[0])
+    # And the second (for good measure):
+    npt.assert_almost_equal(C2.spectrum[1, 1], C1.spectrum[1])
+
+    # The relative phases should be equal
+    npt.assert_almost_equal(C2.phase[0, 1], C1.relative_phases[0, 1])
+    # But not the absolute phases (which have the same shape):
+    npt.assert_equal(C1.phases[0].shape, C1.relative_phases[0, 1].shape)
+
+    # The delay is equal:
+    npt.assert_almost_equal(C2.delay[0, 1], C1.delay[0, 1])
+    # Make sure that you would get an error if you provided a method other than
+    # 'welch':
+    npt.assert_raises(ValueError, nta.SparseCoherenceAnalyzer, T,
+                                                    method=dict(this_method='foo'))
+
+
+def test_MTCoherenceAnalyzer():
+    """Test the functionality of the multi-taper spectral coherence """
+
+    Fs = np.pi
+    t = np.arange(256)
+    x = np.sin(10 * t) + np.random.rand(t.shape[-1])
+    y = np.sin(10 * t) + np.random.rand(t.shape[-1])
+    T = ts.TimeSeries(np.vstack([x, y]), sampling_rate=Fs)
+    n_series = T.shape[0]
+    NFFT = t.shape[0] // 2 + 1
+    for adaptive in [True, False]:
+        C = nta.MTCoherenceAnalyzer(T, adaptive=adaptive)
+        npt.assert_equal(C.frequencies.shape[0], NFFT)
+        npt.assert_equal(C.coherence.shape, (n_series, n_series, NFFT))
+        npt.assert_equal(C.confidence_interval.shape, (n_series, n_series,
+                                                       NFFT))
+
+
+def test_SeedCoherenceAnalyzer():
+    """ Test the SeedCoherenceAnalyzer """
+    methods = (None,
+           {"this_method": 'welch', "NFFT": 256},
+           {"this_method": 'multi_taper_csd'},
+           {"this_method": 'periodogram_csd', "NFFT": 256})
+
+    Fs = np.pi
+    t = np.arange(256)
+    seed1 = np.sin(10 * t) + np.random.rand(t.shape[-1])
+    seed2 = np.sin(10 * t) + np.random.rand(t.shape[-1])
+    target = np.sin(10 * t) + np.random.rand(t.shape[-1])
+    T = ts.TimeSeries(np.vstack([seed1, target]), sampling_rate=Fs)
+    T_seed1 = ts.TimeSeries(seed1, sampling_rate=Fs)
+    T_seed2 = ts.TimeSeries(np.vstack([seed1, seed2]), sampling_rate=Fs)
+    T_target = ts.TimeSeries(np.vstack([seed1, target]), sampling_rate=Fs)
+    for this_method in methods:
+        if this_method is None or this_method['this_method']=='welch':
+            C1 = nta.CoherenceAnalyzer(T, method=this_method)
+            C2 = nta.SeedCoherenceAnalyzer(T_seed1, T_target,
+                                           method=this_method)
+            C3 = nta.SeedCoherenceAnalyzer(T_seed2, T_target,
+                                           method=this_method)
+
+            npt.assert_almost_equal(C1.coherence[0, 1], C2.coherence[1])
+            npt.assert_almost_equal(C2.coherence[1], C3.coherence[0, 1])
+            npt.assert_almost_equal(C1.phase[0, 1], C2.relative_phases[1])
+            npt.assert_almost_equal(C1.delay[0, 1], C2.delay[1])
+
+        else:
+            npt.assert_raises(ValueError,nta.SeedCoherenceAnalyzer, T_seed1,
+                              T_target, this_method)

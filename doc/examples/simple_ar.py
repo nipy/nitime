@@ -78,7 +78,7 @@ ax.set_title('Mean Square Error: %1.3e'%mse)
 
 """
 
-.. image:: fig/sample_ar_03.png
+.. image:: fig/simple_ar_03.png
 
 Reconstructed AR sequence based on estimated AR coefs
 
