@@ -2,6 +2,8 @@ import os
 
 import numpy as np
 import numpy.testing as npt
+import numpy.testing.decorators as dec
+
 from scipy.signal import signaltools
 
 import nitime
@@ -40,13 +42,13 @@ def test_dpss_windows():
     # these values from Percival and Walden 1993
     _, l = tsa.dpss_windows(31, 6, 4)
     unos = np.ones(4)
-    yield npt.assert_array_almost_equal, l, unos
+    npt.assert_array_almost_equal(l, unos)
     _, l = tsa.dpss_windows(31, 7, 4)
-    yield npt.assert_array_almost_equal, l, unos
+    npt.assert_array_almost_equal(l, unos)
     _, l = tsa.dpss_windows(31, 8, 4)
-    yield npt.assert_array_almost_equal, l, unos
+    npt.assert_array_almost_equal(l, unos)
     _, l = tsa.dpss_windows(31, 8, 4.2)
-    yield npt.assert_array_almost_equal, l, unos
+    npt.assert_array_almost_equal(l, unos)
 
 
 def test_dpss_matlab():
@@ -160,6 +162,7 @@ def test_psd_matlab():
 
     npt.assert_almost_equal(fxx_mlab, fxx_matlab, decimal=5)
 
+@dec.slow
 def test_long_dpss_win():
     """ Test that very long dpss windows can be generated (using interpolation)"""
 

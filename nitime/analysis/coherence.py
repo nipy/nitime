@@ -447,6 +447,8 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
             e_s += "spectral estimation method must be welch"
             raise ValueError(e_s)
 
+        self.method['Fs'] = self.method.get('Fs', self.input.sampling_rate)
+
         #Additional parameters for the coherency estimation:
         self.lb = lb
         self.ub = ub
@@ -488,7 +490,6 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
     def spectrum(self):
         """get the spectrum for the collection of time-series in this analyzer
         """
-        self.method['Fs'] = self.method.get('Fs', self.input.sampling_rate)
         spectrum = tsa.cache_to_psd(self.cache, self.ij)
 
         return spectrum

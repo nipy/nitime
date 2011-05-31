@@ -3,6 +3,7 @@
 XXX write top level doc-string
 
 """
+import warnings
 import numpy as np
 import scipy.linalg as linalg
 import scipy.signal as sig
@@ -430,7 +431,7 @@ def jackknifed_coh_variance(tx, ty, eigvals, adaptive=True):
 #-----------------------------------------------------------------------------
 # Multitaper utils
 #-----------------------------------------------------------------------------
-def adaptive_weights(yk, eigvals, sides='onesided', max_iter=40):
+def adaptive_weights(yk, eigvals, sides='onesided', max_iter=150):
     r"""
     Perform an iterative procedure to find the optimal weights for K
     direct spectral estimators of DPSS tapered signals.
@@ -520,8 +521,11 @@ def adaptive_weights(yk, eigvals, sides='onesided', max_iter=40):
         sdf_iter = mtm_cross_spectrum(yk, yk, d_k, sides=sides)
         err = d_k
     else:  # If you have reached maximum number of iterations
-        # XXX: could probably just return non-converged weights
-        raise ValueError('breaking due to iterative meltdown')
+        # Issue a warning and return non-converged weights:
+        e_s = 'Breaking due to iterative meltdown in '
+        e_s += 'nitime.utils.adaptive_weights.'
+        warnings.warn(e_s,RuntimeWarning)
+
 
     weights = d_k
     nu = 2 * (weights ** 2).sum(axis=-2)
