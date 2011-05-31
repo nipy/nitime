@@ -13,7 +13,7 @@ from nose.core import TestProgram
 #-----------------------------------------------------------------------------
 
 
-def test(doctests=False, fast=False):
+def test(doctests=False):
     """
 
     Run the nitime test suite using nose.
@@ -41,8 +41,7 @@ def test(doctests=False, fast=False):
 
     if doctests:
         argv.append('--with-doctest')
-    if fast:
-        argv.append('-A "not slow"')
+
     # Now nose can run
     try:
         TestProgram(argv=argv)#, exit=False)
