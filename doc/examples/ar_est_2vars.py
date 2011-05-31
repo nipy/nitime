@@ -46,9 +46,9 @@ We will generate an AR(2) model, with the following coefficients (taken from
 
 .. math::
 
-   \begin{array}{ccc}
+
    x_t &=& 0.9x_{t-1} - 0.5 x_{t-2} + \epsilon_t\\
-   y_t &=& 0.8y_{t-1} - 0.5 y_{t-2} + 0.16 x_{t-1} - 0.2 x_{t-2} + \eta_t\end{array}
+   y_t &=& 0.8y_{t-1} - 0.5 y_{t-2} + 0.16 x_{t-1} - 0.2 x_{t-2} + \eta_t
 
 Or more succinctly, if we define:
 
@@ -159,11 +159,10 @@ Each $R^{xx}(k)$ has the shape (2,2), where:
 
 .. math::
 
-   \begin{array}{ccc}
-   R^{xx}_{00}(k) &=& E( Z_0(t)Z_0^*(t-k) )\\
-   R^{xx}_{01}(k) &=& E( Z_0(t)Z_1^*(t-k) )\\
-   R^{xx}_{10}(k) &=& E( Z_1(t)Z_0^*(t-k) )\\
-   R^{xx}_{11}(k) &=& E( Z_1(t)Z_1^*(t-k) )\end{array}
+   R^{xx}_{00}(k) = E( Z_0(t)Z_0^*(t-k) )
+   R^{xx}_{01}(k) = E( Z_0(t)Z_1^*(t-k) )
+   R^{xx}_{10}(k) = E( Z_1(t)Z_0^*(t-k) )
+   R^{xx}_{11}(k) = E( Z_1(t)Z_1^*(t-k) )
 
 
 Where $E$ is the expected value and $^*$ marks the conjugate transpose. Thus, only $R^{xx}(0)$ is symmetric.
@@ -280,7 +279,7 @@ ax01.legend()
 f_id = alg.interdependence_xy(Sw)
 ax.plot(w, f_id)
 ax.set_title('interdependence')
-ax.set_ylim([0, 2.2])
+#ax.set_ylim([0, 2.2])
 
 # x causes y plot
 ax = f.add_subplot(323)
