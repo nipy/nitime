@@ -13,8 +13,11 @@ from nose.core import TestProgram
 #-----------------------------------------------------------------------------
 
 
-def test(doctests=False):
-    """Run the nitime test suite using nose.
+def test(doctests=False, fast=False):
+    """
+
+    Run the nitime test suite using nose.
+
     """
     #Make sure that you only change the print options during the testing
     #of nitime and don't affect the user session after that:
@@ -38,10 +41,11 @@ def test(doctests=False):
 
     if doctests:
         argv.append('--with-doctest')
-
+    if fast:
+        argv.append('-A "not slow"')
     # Now nose can run
     try:
-        TestProgram(argv=argv, exit=False)
+        TestProgram(argv=argv)#, exit=False)
     finally:
         np.set_printoptions(**opt_dict)
 
