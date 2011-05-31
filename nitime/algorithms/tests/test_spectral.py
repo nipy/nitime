@@ -218,29 +218,29 @@ def test_mtm_lin_combo():
         mtm_cross = tsa.mtm_cross_spectrum(
             spec1, spec2, (weights[0], weights[1]), sides=sides
             )
-        yield (nt.assert_true, mtm_cross.dtype in np.sctypes['complex'],
+        nt.assert_true(mtm_cross.dtype in np.sctypes['complex'],
                'Wrong dtype for crossspectrum')
-        yield (nt.assert_true, len(mtm_cross) == 51,
+        nt.assert_true(len(mtm_cross) == 51,
                'Wrong length for halfband spectrum')
         sides = 'twosided'
         mtm_cross = tsa.mtm_cross_spectrum(
             spec1, spec2, (weights[0], weights[1]), sides=sides
             )
-        yield (nt.assert_true, len(mtm_cross) == 100,
+        nt.assert_true (len(mtm_cross) == 100,
                'Wrong length for fullband spectrum')
         sides = 'onesided'
         mtm_auto = tsa.mtm_cross_spectrum(
             spec1, spec1, weights[0], sides=sides
             )
-        yield (nt.assert_true, mtm_auto.dtype in np.sctypes['float'],
+        nt.assert_true(mtm_auto.dtype in np.sctypes['float'],
                'Wrong dtype for autospectrum')
-        yield (nt.assert_true, len(mtm_auto) == 51,
+        nt.assert_true(len(mtm_auto) == 51,
                'Wrong length for halfband spectrum')
         sides = 'twosided'
         mtm_auto = tsa.mtm_cross_spectrum(
             spec1, spec2, weights[0], sides=sides
             )
-        yield (nt.assert_true, len(mtm_auto) == 100,
+        nt.assert_true(len(mtm_auto) == 100,
                'Wrong length for fullband spectrum')
 
 def test_mtm_cross_spectrum():

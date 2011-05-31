@@ -2,7 +2,6 @@ import numpy as np
 import numpy.testing as npt
 import nitime.timeseries as ts
 import nose.tools as nt
-import decotest
 
 
 

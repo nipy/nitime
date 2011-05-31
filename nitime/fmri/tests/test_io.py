@@ -39,27 +39,27 @@ def test_time_series_from_file():
     #No averaging, no normalization:
     t1 = ts_ff([fmri_file1,fmri_file2],[coords1,coords2],TR)
 
-    yield npt.assert_equal,t1[0].shape,(4,80) #4 coordinates, 80 time-points
+    npt.assert_equal(t1[0].shape,(4,80))  # 4 coordinates, 80 time-points
     
     t2 = ts_ff([fmri_file1,fmri_file2],[coords1,coords2],TR,average=True)
     
-    yield npt.assert_equal,t2[0].shape,(80,) #collapse coordinates,80 time-points
+    npt.assert_equal(t2[0].shape,(80,))  # collapse coordinates,80 time-points
 
     t3 = ts_ff(fmri_file1,coords1,TR,normalize='zscore')
 
     #The mean of each channel should be almost equal to 0:
-    yield npt.assert_almost_equal,t3.data[0].mean(),0
+    npt.assert_almost_equal(t3.data[0].mean(),0)
     #And the standard deviation should be almost equal to 1:
-    yield npt.assert_almost_equal,t3.data[0].std(),1
+    npt.assert_almost_equal(t3.data[0].std(),1)
     
     t4 = ts_ff(fmri_file1,coords1,TR,normalize='percent')
 
     #In this case, the average is almost equal to 0, but no constraint on the
     #std:
-    yield npt.assert_almost_equal,t4.data[0].mean(),0
+    npt.assert_almost_equal(t4.data[0].mean(),0)
 
     #Make sure that we didn't mess up the sampling interval:
-    yield npt.assert_equal,t4.sampling_interval,nitime.TimeArray(1.35)
+    npt.assert_equal(t4.sampling_interval,nitime.TimeArray(1.35))
 
 
     
