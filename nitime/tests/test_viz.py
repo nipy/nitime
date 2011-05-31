@@ -13,13 +13,9 @@ from nitime.analysis import CorrelationAnalyzer, CoherenceAnalyzer
 from nitime.utils import percent_change
 from nitime.viz import drawmatrix_channels, drawgraph_channels, plot_xcorr
 
-import matplotlib as mp
+import matplotlib
 # Make really sure that we don't try to open an Xserver connection.
-mp.use('svg', warn=False)
-import pylab as pl
-pl.switch_backend('svg')
-do_test = True
-
+matplotlib.use('agg', warn=False)
 
 # Keep these as globals:
 TR = 1.89
