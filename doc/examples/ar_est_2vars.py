@@ -39,7 +39,7 @@ Setting the random seed assures that we always get the same 'random' answer:
 
 np.random.seed(1981)
 
-"""
+r"""
 
 We will generate an AR(2) model, with the following coefficients (taken from
 [Ding2006]_, eq. 55):
