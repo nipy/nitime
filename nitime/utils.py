@@ -120,6 +120,23 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     v: ndarray
       custom noise process
 
+    Parameters
+    ----------
+
+    N: float
+       The number of points in the AR process generated. Default: 512
+    sigma: float
+       The variance of the noise in the AR process. Default: 1
+    coefs: list or array of floats
+       The AR model coefficients. Default: [2.7607, -3.8106, 2.6535, -0.9238],
+       which is a sequence shown to be well-estimated by an order 8 AR system.
+    drop_transients: float
+       How many samples to drop from the beginning of the sequence (the
+       transient phases of the process), so that the process can be considered stationary.
+    v: float array
+       Optionally, input a specific sequence of noise samples (this over-rides
+       the sigma parameter). Default: None
+
     Returns
     -------
 
