@@ -4,12 +4,13 @@ Analyzers for the calculation of Granger 'causality'
 
 """
 
+
 import numpy as np
 import nitime.algorithms as alg
 import nitime.utils as utils
 
-
 from .base import BaseAnalyzer
+
 
 class GrangerAnalyzer(BaseAnalyzer):
     """Analyzer for computing all-to-all Granger 'causality' """
@@ -35,23 +36,38 @@ class GrangerAnalyzer(BaseAnalyzer):
         self.order = order
 
     @desc.setattr_on_read
-    def granger_diff(self):
-        """ """
+    def autocov_vector(self):
+        """
 
-        granger_diff = np.zeros((self._n_process,
-                                 self._n_process,
-                                 self._n_freqs), dtype=complex)
 
-        Rxx = np.empty(N,p,p,self.order)
-        for i in xrange(N):
-            Rxx[i] = autocov_vector(x[i], nlags=self.order)
+        """
+        Rxx = np.zeros((self._n_process,
+                        self._n_process,
+                        self.order), dtype=complex)
 
-        # Estimate the autorgressive process using LWR recursion:
-        a, ecov = alg.lwr_recursion(Rxx)
-        for i in xrange
-        w, f_x2y, f_y2x, f_xy, Sw = alg.granger_causality_xy(a,
-                                                             ecov,
-                                                             n_freqs=n_freqs)
+        for i in xarange(self._n_process):
+            for j in xrange(i, self._n_process):
+                Rxx[i, j] = autocov_vector(x, nlags=self.order)
+
+    @desc.setattr_on_read
+    def coefs(self):
+        coefs = np.zeros((self._n_process,
+                          self._n_process,
+                          self.order), dtype=complex)
+
+        ecov = np.zeros((self._n_process,
+                         self._n_process,
+                         self.order), dtype=complex)
+
+        for i in xrange(self._n_process):
+            for j in xrange(i, self._n_process):
+                # Estimate the autorgressive process using LWR recursion:
+                coefs[i, j], ecov[i, j] = alg.lwr_recursion(Rxx)
+    def granger_caus
+    w, f_x2y, f_y2x, f_xy, Sw = alg.granger_causality_xy(self.coefs,
+                                                         self.ecov,
+                                                         n_freqs=n_freqs)
+
     @desc.setattr_on_read
     def causality_xy(self):
 
