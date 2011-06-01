@@ -9,6 +9,7 @@ This also creates the index.rst file appropriately, makes figures, etc.
 
 # Stdlib imports
 import os
+import sys
 
 from glob import glob
 
@@ -82,12 +83,14 @@ with open('index.rst', 'w') as index:
             index.write('   %s\n' % name)
 
 # Execute each python script in the directory.
-if not os.path.isdir('fig'):
-    os.mkdir('fig')
+if '--no-exec' in sys.argv:
+    pass
+else:
+    if not os.path.isdir('fig'):
+        os.mkdir('fig')
+
+    for script in glob('*.py'):
+        figure_basename = pjoin('fig', os.path.splitext(script)[0])
+        execfile(script)
+        plt.close('all')
     
-for script in glob('*.py'):
-    figure_basename = pjoin('fig', os.path.splitext(script)[0])
-    execfile(script)
-    plt.close('all')
-
-

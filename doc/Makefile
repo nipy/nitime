@@ -42,6 +42,9 @@ api:
 html: rstexamples api htmlonly 
 	@echo "Build HTML and API finished."
 
+html-no-exec: rstexamples-no-exec api htmlonly 
+	@echo "Build HTML and API finished."
+
 latex: api
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) _build/latex
 	@echo
@@ -72,6 +75,9 @@ doctest:
 
 rstexamples:
 	../tools/make_examples.py
+
+rstexamples-no-exec:
+	../tools/make_examples.py --no-exec
 
 # Sourceforge doesn't appear to have a way of copying the files
 # without specifying a username.  So we'll probably have one target
