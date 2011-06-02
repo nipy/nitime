@@ -5,6 +5,9 @@ import numpy.testing.decorators as dec
 import nitime.algorithms as tsa
 import nitime.utils as utils
 
+# Set the random seed:
+np.random.seed(1)
+
 def _random_poles(half_poles=3):
     poles_rp = np.random.rand(half_poles*20)
     poles_ip = np.random.rand(half_poles*20)

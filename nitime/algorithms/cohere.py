@@ -75,7 +75,7 @@ def coherency(time_series, csd_method=None):
 
     for i in xrange(time_series.shape[0]):
         for j in xrange(i, time_series.shape[0]):
-            c[i][j] = coherency_calculate(fxy[i][j], fxy[i][i], fxy[j][j])
+            c[i][j] = coherency_spec(fxy[i][j], fxy[i][i], fxy[j][j])
 
     idx = np.tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
@@ -83,7 +83,7 @@ def coherency(time_series, csd_method=None):
     return f, c
 
 
-def coherency_calculate(fxy, fxx, fyy):
+def coherency_spec(fxy, fxx, fyy):
     r"""
     Compute the coherency between the spectra of two time series.
 
@@ -151,7 +151,7 @@ def coherence(time_series, csd_method=None):
 
     See also
     --------
-    :func:`coherence_calculate`
+    :func:`coherence_spec`
 
     """
     if csd_method is None:
@@ -167,7 +167,7 @@ def coherence(time_series, csd_method=None):
 
     for i in xrange(time_series.shape[0]):
         for j in xrange(i, time_series.shape[0]):
-            c[i][j] = coherence_calculate(fxy[i][j], fxy[i][i], fxy[j][j])
+            c[i][j] = coherence_spec(fxy[i][j], fxy[i][i], fxy[j][j])
 
     idx = np.tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
@@ -175,7 +175,7 @@ def coherence(time_series, csd_method=None):
     return f, c
 
 
-def coherence_calculate(fxy, fxx, fyy):
+def coherence_spec(fxy, fxx, fyy):
     r"""
     Compute the coherence between the spectra of two time series.
 
@@ -267,8 +267,8 @@ def coherency_regularized(time_series, epsilon, alpha, csd_method=None):
 
     for i in xrange(time_series.shape[0]):
         for j in xrange(i, time_series.shape[0]):
-            c[i][j] = coherency_reqularized_calculate(fxy[i][j], fxy[i][i],
-                                                fxy[j][j], epsilon, alpha)
+            c[i][j] = _coherency_reqularized(fxy[i][j], fxy[i][i],
+                                             fxy[j][j], epsilon, alpha)
 
     idx = np.tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
@@ -276,7 +276,7 @@ def coherency_regularized(time_series, epsilon, alpha, csd_method=None):
     return f, c
 
 
-def coherency_reqularized_calculate(fxy, fxx, fyy, epsilon, alpha):
+def _coherency_reqularized(fxy, fxx, fyy, epsilon, alpha):
 
     r"""
     A regularized version of the calculation of coherency, which is more
@@ -370,8 +370,8 @@ def coherence_regularized(time_series, epsilon, alpha, csd_method=None):
 
     for i in xrange(time_series.shape[0]):
         for j in xrange(i, time_series.shape[0]):
-            c[i][j] = coherence_reqularized_calculate(fxy[i][j], fxy[i][i],
-                                                fxy[j][j], epsilon, alpha)
+            c[i][j] = _coherence_reqularized(fxy[i][j], fxy[i][i],
+                                             fxy[j][j], epsilon, alpha)
 
     idx = np.tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
@@ -379,7 +379,7 @@ def coherence_regularized(time_series, epsilon, alpha, csd_method=None):
     return f, c
 
 
-def coherence_reqularized_calculate(fxy, fxx, fyy, epsilon, alpha):
+def _coherence_reqularized(fxy, fxx, fyy, epsilon, alpha):
 
     r"""A regularized version of the calculation of coherence, which is more
     robust to numerical noise than the standard calculation.
@@ -465,9 +465,9 @@ def coherency_bavg(time_series, lb=0, ub=None, csd_method=None):
 
     for i in xrange(time_series.shape[0]):
         for j in xrange(i, time_series.shape[0]):
-            c[i][j] = coherency_bavg_calculate(fxy[i][j][lb_idx:ub_idx],
-                                               fxy[i][i][lb_idx:ub_idx],
-                                               fxy[j][j][lb_idx:ub_idx])
+            c[i][j] = _coherency_bavg(fxy[i][j][lb_idx:ub_idx],
+                                      fxy[i][i][lb_idx:ub_idx],
+                                      fxy[j][j][lb_idx:ub_idx])
 
     idx = np.tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
@@ -475,7 +475,7 @@ def coherency_bavg(time_series, lb=0, ub=None, csd_method=None):
     return c
 
 
-def coherency_bavg_calculate(fxy, fxx, fyy):
+def _coherency_bavg(fxy, fxx, fyy):
     r"""
     Compute the band-averaged coherency between the spectra of two time series.
 
@@ -514,10 +514,10 @@ def coherency_bavg_calculate(fxy, fxx, fyy):
 
     # Average the phases and the magnitudes separately and then recombine:
 
-    p = coherency_phase_spectrum_calculate(fxy)
+    p = np.angle(fxy)
     p_bavg = np.mean(p)
 
-    m = np.abs(coherency_calculate(fxy, fxx, fyy))
+    m = np.abs(coherency_spec(fxy, fxx, fyy))
     m_bavg = np.mean(m)
 
     # Recombine according to z = r(cos(phi)+sin(phi)i):
@@ -564,9 +564,9 @@ def coherence_bavg(time_series, lb=0, ub=None, csd_method=None):
 
     for i in xrange(time_series.shape[0]):
         for j in xrange(i, time_series.shape[0]):
-            c[i][j] = coherence_bavg_calculate(fxy[i][j][lb_idx:ub_idx],
-                                               fxy[i][i][lb_idx:ub_idx],
-                                               fxy[j][j][lb_idx:ub_idx])
+            c[i][j] = _coherence_bavg(fxy[i][j][lb_idx:ub_idx],
+                                      fxy[i][i][lb_idx:ub_idx],
+                                      fxy[j][j][lb_idx:ub_idx])
 
     idx = np.tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
@@ -574,7 +574,7 @@ def coherence_bavg(time_series, lb=0, ub=None, csd_method=None):
     return c
 
 
-def coherence_bavg_calculate(fxy, fxx, fyy):
+def _coherence_bavg(fxy, fxx, fyy):
     r"""
     Compute the band-averaged coherency between the spectra of two time series.
     input to this function is in the frequency domain
@@ -663,7 +663,7 @@ def coherence_partial(time_series, r, csd_method=None):
         for j in xrange(i, time_series.shape[0]):
             f, fxx, frr, frx = get_spectra_bi(time_series[i], r, csd_method)
             f, fyy, frr, fry = get_spectra_bi(time_series[j], r, csd_method)
-            c[i, j] = coherence_partial_calculate(fxy[i][j], fxy[i][i],
+            c[i, j] = coherence_partial_spec(fxy[i][j], fxy[i][i],
                                                   fxy[j][j], frx, fry, frr)
 
     idx = np.tril_indices(time_series.shape[0], -1)
@@ -672,7 +672,7 @@ def coherence_partial(time_series, r, csd_method=None):
     return f, c
 
 
-def coherence_partial_calculate(fxy, fxx, fyy, fxr, fry, frr):
+def coherence_partial_spec(fxy, fxx, fyy, fxr, fry, frr):
     r"""
     Compute the band-specific partial coherence between the spectra of
     two time series. See :func:`partial_coherence`.
@@ -696,7 +696,7 @@ def coherence_partial_calculate(fxy, fxx, fyy, fxr, fry, frr):
         the band-averaged coherency
     """
     abs = np.abs
-    coh = coherency_calculate
+    coh = coherency_spec
     Rxr = coh(fxr, fxx, frr)
     Rry = coh(fry, fyy, frr)
     Rxy = coh(fxy, fxx, fyy)
@@ -750,47 +750,10 @@ def coherency_phase_spectrum(time_series, csd_method=None):
 
     for i in xrange(time_series.shape[0]):
         for j in xrange(i + 1, time_series.shape[0]):
-            p[i][j] = coherency_phase_spectrum_calculate(fxy[i][j])
-            p[j][i] = coherency_phase_spectrum_calculate(fxy[i][j].conjugate())
+            p[i][j] = np.angle(fxy[i][j])
+            p[j][i] = np.angle(fxy[i][j].conjugate())
 
     return f, p
-
-
-def coherency_phase_spectrum_calculate(fxy):
-    r"""
-    Compute the phase spectrum of the cross-spectrum between two time series.
-
-    The parameters of this function are in the frequency domain.
-
-    Parameters
-    ----------
-
-    fxy : float array
-         The cross-spectrum of the time series
-
-    Returns
-    -------
-
-    float
-        a frequency-band-dependent measure of the phase between the two
-        time-series
-
-    Notes
-    -----
-
-    This is an implementation of equation (3) of Sun et al. (2005) [Sun2005]_:
-
-    .. math::
-
-        \phi(\lambda) = arg [R_{xy} (\lambda)] = arg [f_{xy} (\lambda)]
-
-    .. [Sun2005] F.T. Sun and L.M. Miller and M. D'Esposito(2005). Measuring
-        temporal dynamics of functional networks using phase spectrum of fMRI
-        data.  Neuroimage, 28: 227-37.
-    """
-    phi = np.angle(fxy)
-
-    return phi
 
 
 def coherency_phase_delay(time_series, lb=0, ub=None, csd_method=None):
@@ -834,15 +797,15 @@ def coherency_phase_delay(time_series, lb=0, ub=None, csd_method=None):
 
     for i in xrange(time_series.shape[0]):
         for j in xrange(i, time_series.shape[0]):
-            p[i][j] = coherency_phase_delay_calculate(f[lb_idx:ub_idx],
-                                                fxy[i][j][lb_idx:ub_idx])
-            p[j][i] = coherency_phase_delay_calculate(f[lb_idx:ub_idx],
+            p[i][j] = _coherency_phase_delay(f[lb_idx:ub_idx],
+                                             fxy[i][j][lb_idx:ub_idx])
+            p[j][i] = _coherency_phase_delay(f[lb_idx:ub_idx],
                                     fxy[i][j][lb_idx:ub_idx].conjugate())
 
     return f[lb_idx:ub_idx], p
 
 
-def coherency_phase_delay_calculate(f, fxy):
+def _coherency_phase_delay(f, fxy):
     r"""
     Compute the phase delay between the spectra of two signals. The input to
     this function is in the frequency domain.
@@ -864,11 +827,7 @@ def coherency_phase_delay_calculate(f, fxy):
 
     """
 
-    phi = coherency_phase_spectrum_calculate(fxy)
-
-    t = (phi) / (2 * np.pi * f)
-
-    return t
+    return np.angle(fxy) / (2 * np.pi * f)
 
 
 def correlation_spectrum(x1, x2, Fs=2 * np.pi, norm=False):
@@ -936,7 +895,7 @@ calculations of each time-series in a massive collection of time-series, so
 that this calculation doesn't have to be repeated each time a cross-spectrum is
 calculated. The first function creates the cache and then, another function
 takes the cached spectra and calculates PSDs and CSDs, which are then passed to
-coherency_calculate and organized in a data structure similar to the one
+coherency_spec and organized in a data structure similar to the one
 created by coherence"""
 
 

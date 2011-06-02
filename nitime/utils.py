@@ -1468,7 +1468,7 @@ def antisymm_rand_arr(size, sample_func=np.random.random):
 
 
 def threshold_arr(cmat, threshold=0.0, threshold2=None):
-    """Threshold values from the input matrix.
+    """Threshold values from the input array.
 
     Parameters
     ----------
@@ -1486,15 +1486,16 @@ def threshold_arr(cmat, threshold=0.0, threshold2=None):
 
     Examples
     --------
-    >>> a = np.linspace(0,0.8,4)
+    >>> np.set_printoptions(precision=4)  # For doctesting
+    >>> a = np.linspace(0,0.2,5)
     >>> a
-    array([ 0.        ,  0.26666667,  0.53333333,  0.8       ])
-    >>> threshold_arr(a,0.3)
-    (array([2, 3]), array([ 0.53333333,  0.8       ]))
+    array([ 0.  ,  0.05,  0.1 ,  0.15,  0.2 ])
+    >>> threshold_arr(a,0.1)
+    (array([3, 4]), array([ 0.15,  0.2 ]))
 
     With two thresholds:
-    >>> threshold_arr(a,0.3,0.6)
-    (array([0, 1, 3]), array([ 0.        ,  0.26666667,  0.8       ]))
+    >>> threshold_arr(a,0.1,0.2)
+    (array([0, 1]), array([ 0.  ,  0.05]))
     """
     # Select thresholds
     if threshold2 is None:
@@ -1599,10 +1600,9 @@ def minmax_norm(arr, mode='direct', folding_edges=None):
     >>> np.set_printoptions(precision=4)  # for doctesting
     >>> a = np.linspace(0.3,0.8,4)
     >>> minmax_norm(a)
-    array([ 0.    ,  0.1667,  0.3333,  0.5   ,  0.6667,  0.8333,  1.    ])
-    >>>
+    array([ 0.    ,  0.3333,  0.6667,  1.    ])
     >>> b = np.concatenate([np.linspace(-0.7,-0.3,3),
-                   np.linspace(0.3,0.8,3)])
+    ...                             np.linspace(0.3,0.8,3)])
     >>> b
     array([-0.7 , -0.5 , -0.3 ,  0.3 ,  0.55,  0.8 ])
     >>> minmax_norm(b,'folding',[-0.3,0.3])

@@ -41,28 +41,12 @@ class CoherenceAnalyzer(BaseAnalyzer):
         3.14159265359 Hz
         >>> c1.method['this_method']
         'welch'
-        >> c1.coherence
-        array([[[ 1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
-                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
-                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
-                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
-                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ],
-                [ 0.9024,  0.9027,  0.9652,  0.9433,  0.9297,  0.9213,  0.9161,
-                  0.9126,  0.9102,  0.9085,  0.9072,  0.9063,  0.9055,  0.905 ,
-                  0.9045,  0.9041,  0.9038,  0.9036,  0.9034,  0.9032,  0.9031,
-                  0.9029,  0.9028,  0.9027,  0.9027,  0.9026,  0.9026,  0.9025,
-                  0.9025,  0.9025,  0.9025,  0.9026,  1.    ]],
-
-               [[ 0.9024,  0.9027,  0.9652,  0.9433,  0.9297,  0.9213,  0.9161,
-                  0.9126,  0.9102,  0.9085,  0.9072,  0.9063,  0.9055,  0.905 ,
-                  0.9045,  0.9041,  0.9038,  0.9036,  0.9034,  0.9032,  0.9031,
-                  0.9029,  0.9028,  0.9027,  0.9027,  0.9026,  0.9026,  0.9025,
-                  0.9025,  0.9025,  0.9025,  0.9026,  1.    ],
-                [ 1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
-                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
-                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
-                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,  1.    ,
-                  1.    ,  1.    ,  1.    ,  1.    ,  1.    ]]])
+        >>> c1.coherence[0,1]
+        array([ 0.9024,  0.9027,  0.9652,  0.9433,  0.9297,  0.9213,  0.9161,
+                0.9126,  0.9102,  0.9085,  0.9072,  0.9063,  0.9055,  0.905 ,
+                0.9045,  0.9041,  0.9038,  0.9036,  0.9034,  0.9032,  0.9031,
+                0.9029,  0.9028,  0.9027,  0.9027,  0.9026,  0.9026,  0.9025,
+                0.9025,  0.9025,  0.9025,  0.9026,  1.    ])
         >>> c1.phase[0,1]
         array([ 0.    , -0.035 , -0.4839, -0.4073, -0.3373, -0.2828, -0.241 ,
                -0.2085, -0.1826, -0.1615, -0.144 , -0.1292, -0.1164, -0.1054,
@@ -100,9 +84,9 @@ class CoherenceAnalyzer(BaseAnalyzer):
 
         for i in xrange(tseries_length):
             for j in xrange(i, tseries_length):
-                coherency[i][j] = tsa.coherency_calculate(self.spectrum[i][j],
-                                                          self.spectrum[i][i],
-                                                          self.spectrum[j][j])
+                coherency[i][j] = tsa.coherency_spec(self.spectrum[i][j],
+                                                     self.spectrum[i][i],
+                                                     self.spectrum[j][j])
 
         idx = tsu.tril_indices(tseries_length, -1)
         coherency[idx[0], idx[1], ...] = coherency[idx[1], idx[0], ...].conj()
@@ -147,9 +131,9 @@ class CoherenceAnalyzer(BaseAnalyzer):
 
         for i in xrange(tseries_length):
             for j in xrange(i, tseries_length):
-                coherence[i][j] = tsa.coherence_calculate(self.spectrum[i][j],
-                                                          self.spectrum[i][i],
-                                                          self.spectrum[j][j])
+                coherence[i][j] = tsa.coherence_spec(self.spectrum[i][j],
+                                                     self.spectrum[i][i],
+                                                     self.spectrum[j][j])
 
         idx = tsu.tril_indices(tseries_length, -1)
         coherence[idx[0], idx[1], ...] = coherence[idx[1], idx[0], ...].conj()
@@ -172,10 +156,10 @@ class CoherenceAnalyzer(BaseAnalyzer):
 
         for i in xrange(tseries_length):
             for j in xrange(i, tseries_length):
-                phase[i][j] = tsa.coherency_phase_spectrum_calculate(
+                phase[i][j] = np.angle(
                     self.spectrum[i][j])
 
-                phase[j][i] = tsa.coherency_phase_spectrum_calculate(
+                phase[j][i] = np.angle(
                     self.spectrum[i][j].conjugate())
         return phase
 
@@ -214,7 +198,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
                     if j == k or i == k:
                         pass
                     else:
-                        p_coherence[i][j][k] = tsa.coherence_partial_calculate(
+                        p_coherence[i][j][k] = tsa.coherence_partial_spec(
                             self.spectrum[i][j],
                             self.spectrum[i][i],
                             self.spectrum[j][j],

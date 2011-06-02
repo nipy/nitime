@@ -5,7 +5,7 @@ Smoke testing of the viz module, based on the doc/examples/resting_state_fmri.py
 """
 import os
 import numpy as np
-import matplotlib.pyplot as plt
+
 from matplotlib.mlab import csv2rec
 import nitime
 from nitime.timeseries import TimeSeries
@@ -13,9 +13,6 @@ from nitime.analysis import CorrelationAnalyzer, CoherenceAnalyzer
 from nitime.utils import percent_change
 from nitime.viz import drawmatrix_channels, drawgraph_channels, plot_xcorr
 
-import matplotlib
-# Make really sure that we don't try to open an Xserver connection.
-matplotlib.use('agg', warn=False)
 
 # Keep these as globals:
 TR = 1.89

@@ -23,14 +23,8 @@ __docformat__ = 'restructuredtext'
 
 from version import  __version__
 
-#The order of the following is important - make sure to import according to the
-#order of dependency (for example, timeseries depends on descriptors, so
-#descriptors needs to be imported before timeseries):
-import utils
 import algorithms
-import descriptors
 import timeseries
-import viz
 import analysis
 
 from timeseries import *

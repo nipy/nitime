@@ -131,30 +131,6 @@ def test_autocorr():
           'Zero lag autocorrelation is not maximum autocorrelation')
 
 
-# Should this really be in the tests?
-def plot_savings():
-    import matplotlib.pyplot as pp
-    from IPython.Magic import timings
-    f1 = ref_crosscov
-    f2 = utils.crosscov
-    times1 = []
-    times2 = []
-    for N in map(lambda x: 2 ** x, range(8, 13)):
-        a = np.random.randn(N)
-        args = (a, a)
-        kws = dict()
-        _, t_est1 = timings(1000, f1, *args, **kws)
-        _, t_est2 = timings(1000, f2, *args, **kws)
-        times1.append(t_est1)
-        times2.append(t_est2)
-    pp.figure()
-    pp.plot(range(8, 13), times1, label='tdomain crosscov')
-    pp.plot(range(8, 13), times2, label='fdomain crosscov')
-    pp.legend()
-    pp.show()
-
-
-
 def test_information_criteria():
     """
 
