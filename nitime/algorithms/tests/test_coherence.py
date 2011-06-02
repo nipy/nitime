@@ -54,6 +54,7 @@ def test_coherency():
             npt.assert_array_almost_equal(f,f_theoretical)
             npt.assert_array_almost_equal(f,f_theoretical)
 
+
 def test_coherence():
     """
 
@@ -63,9 +64,9 @@ def test_coherence():
     """
 
     for method in methods:
-        f,c = tsa.coherence(tseries,csd_method=method)
-        npt.assert_array_almost_equal(c[0,1],c[1,0])
-        npt.assert_array_almost_equal(c[0,0],np.ones(f.shape))
+        f,c = tsa.coherence(tseries, csd_method=method)
+        npt.assert_array_almost_equal(c[0, 1], c[1, 0])
+        npt.assert_array_almost_equal(c[0, 0], np.ones(f.shape))
 
 
 def test_coherency_regularized():
