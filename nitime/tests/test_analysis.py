@@ -50,9 +50,12 @@ def test_SpectralAnalyzer():
     T = ts.TimeSeries(x, sampling_rate=Fs)
     C = nta.SpectralAnalyzer(T)
     f, c = C.psd
-
     npt.assert_equal(f.shape, (33,))  # Same length for the frequencies
     npt.assert_equal(c.shape, (33,))  # 1-d spectrum for the single channels
+
+    f, c = C.spectrum_multi_taper
+    npt.assert_equal(f.shape, (t.shape[0] / 2 + 1,))  # Same length for the frequencies
+    npt.assert_equal(c.shape, (t.shape[0] / 2 + 1,))  # 1-d spectrum for the single channels
 
 
 def test_CorrelationAnalyzer():
@@ -114,11 +117,13 @@ def test_EventRelatedAnalyzer():
 
     T_signal = ts.TimeSeries(signal, sampling_rate=1)
     T_events = ts.TimeSeries(events, sampling_rate=1)
-    ETA = nta.EventRelatedAnalyzer(T_signal, T_events, l / (cycles * 2)).eta
+    for correct_baseline in [True,False]:
+        ETA = nta.EventRelatedAnalyzer(T_signal, T_events, l / (cycles * 2),
+                                       correct_baseline=correct_baseline).eta
+        # This should hold
+        npt.assert_almost_equal(ETA.data[0], signal[:ETA.data.shape[-1]], 3)
+        npt.assert_almost_equal(ETA.data[1], -1 * signal[:ETA.data.shape[-1]], 3)
 
-    # This looks good, but doesn't pass unless you consider 3 digits:
-    npt.assert_almost_equal(ETA.data[0], signal[:ETA.data.shape[-1]], 3)
-    npt.assert_almost_equal(ETA.data[1], -1 * signal[:ETA.data.shape[-1]], 3)
 
     # Same should be true for the FIR analysis:
     FIR = nta.EventRelatedAnalyzer(T_signal, T_events, l / (cycles * 2)).FIR
@@ -156,10 +161,27 @@ def test_EventRelatedAnalyzer():
     npt.assert_equal(et.eta.data, [[20., 21., 22., 23., 24.],
                                   [120., 121., 122., 123., 124.]])
 
+
+    # The event-triggered SEM should be approximately zero:
+    for correct_baseline in [True,False]:
+        EA = nta.EventRelatedAnalyzer(T_signal, T_events, l / (cycles * 2),
+                                      correct_baseline=correct_baseline)
+
+        npt.assert_almost_equal(EA.ets.data[0],
+                                np.zeros_like(EA.ets.data[0]),
+                                decimal=2)
+    # Test the et_data method:
+    npt.assert_almost_equal(EA.et_data[0][0].data[0],
+                            signal[:ETA.data.shape[-1]])
+
     # Test that providing the analyzer with an array, instead of an Events or a
     # TimeSeries object throws an error:
     npt.assert_raises(ValueError, nta.EventRelatedAnalyzer, ts2, events, 10)
 
+    # This is not yet implemented, so this should simply throw an error, for
+    # now:
+    npt.assert_raises(NotImplementedError,
+                      nta.EventRelatedAnalyzer.FIR_estimate, EA)
 
 def test_HilbertAnalyzer():
     """Testing the HilbertAnalyzer (analytic signal)"""
@@ -271,50 +293,3 @@ def test_MorletWaveletAnalyzer():
                             decimal=0)
 
 
-def test_CoherenceMTAnalyzer():
-
-    """ Testing the multi-taper coherence analysis. See also comparison in
-    doc/examples/multi_taper_coh.py"""
-    Fs = np.pi
-    t = np.arange(100)
-    x = np.sin(10 * t) + np.random.rand(t.shape[-1])
-    y = np.sin(10 * t) + np.random.rand(t.shape[-1])
-    T = ts.TimeSeries(np.vstack([x, y]), sampling_rate=Fs)
-    C1 = nta.MTCoherenceAnalyzer(T)
-
-    #Coherence symmetry:
-    npt.assert_equal(C1.coherence[0, 1], C1.coherence[1, 0])
-
-    #Test that it runs through (it will trivially be equal to itself):
-    npt.assert_equal(C1.confidence_interval, C1.confidence_interval)
-
-    #Test that it works with adaptive set to False:
-    C2 = nta.MTCoherenceAnalyzer(T, adaptive=False)
-
-    #Coherence symmetry:
-    npt.assert_equal(C2.coherence[0, 1], C2.coherence[1, 0])
-
-    #Test that it runs through (it will trivially be equal to itself):
-    npt.assert_equal(C2.confidence_interval, C2.confidence_interval)
-
-
-def test_SeedCoherenceAnalyzer():
-    Fs = np.pi
-    t = np.arange(256)
-    x = np.sin(10 * t) + np.random.rand(t.shape[-1])
-    y = np.sin(10 * t) + np.random.rand(t.shape[-1])
-    T1 = ts.TimeSeries(np.vstack([x, y]), sampling_rate=Fs)
-
-    z = y = np.sin(10 * t) + np.random.rand(t.shape[-1])
-
-    T2 = ts.TimeSeries(z, sampling_rate=Fs)
-
-    C1 = nta.SeedCoherenceAnalyzer(T2, T1)
-
-    T3 = ts.TimeSeries(np.vstack([x, y, z]), sampling_rate=Fs)
-
-    #Make sure you get the same answers as you would from the standard
-    #CoherenceAnalyzer:
-    C2 = nta.CoherenceAnalyzer(T3)
-
-    npt.assert_almost_equal(C2.coherency[2, 0], C1.coherency[0])

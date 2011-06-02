@@ -32,11 +32,11 @@ class A(desc.ResetMixin):
 
 def test():
     a = A(10)
-    yield (nt.assert_false, 'y' in a.__dict__)
-    yield (nt.assert_equals, a.y, 5)
-    yield (nt.assert_true, 'y' in a.__dict__)
+    nt.assert_false('y' in a.__dict__)
+    nt.assert_equals(a.y, 5)
+    nt.assert_true('y' in a.__dict__)
     a.x = 20
-    yield (nt.assert_equals, a.y, 5)
+    nt.assert_equals(a.y, 5)
     # Call reset and no error should be raised even though z was never accessed
     a.reset()
-    yield (nt.assert_equals, a.y, 10)
+    nt.assert_equals(a.y, 10)

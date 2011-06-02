@@ -1,5 +1,6 @@
 import numpy as np
 import numpy.testing as npt
+import numpy.testing.decorators as dec
 
 import nitime.algorithms as tsa
 import nitime.utils as utils
@@ -24,8 +25,8 @@ def test_AR_est_consistency():
     x, v, _ = utils.ar_generator(N=512, coefs=-ak[1:], drop_transients=100)
     ak_yw, ssq_yw = tsa.AR_est_YW(x, order)
     ak_ld, ssq_ld = tsa.AR_est_LD(x, order)
-    yield npt.assert_almost_equal, ak_yw, ak_ld
-    yield npt.assert_almost_equal, ssq_yw, ssq_ld
+    npt.assert_almost_equal(ak_yw, ak_ld)
+    npt.assert_almost_equal(ssq_yw, ssq_ld)
 
 def test_AR_YW():
     arsig,_,_ = utils.ar_generator(N=512)
@@ -79,6 +80,7 @@ def test_AR_LD():
     npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
 
 
+@dec.slow
 def test_MAR_est_LWR():
     """
 
@@ -211,7 +213,7 @@ def test_lwr():
 
 
 def test_lwr_alternate():
-    "test solution of lwr recursion"
+    "test solution of alternate formulation of the lwr recursion"
 
     for trial in xrange(3):
         nc = np.random.randint(2, high=10)
@@ -247,5 +249,5 @@ def test_lwr_alternate():
         l2_r = (rvec ** 2).sum() ** 0.5
 
         # compute |Ax-b| / |b| metric
-        yield npt.assert_almost_equal, l2_d / l2_r, 0
+        npt.assert_almost_equal(l2_d / l2_r, 0, decimal=5)
 

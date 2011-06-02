@@ -3,6 +3,7 @@
 XXX write top level doc-string
 
 """
+import warnings
 import numpy as np
 import scipy.linalg as linalg
 import scipy.signal as sig
@@ -118,6 +119,23 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
       number of initial IIR filter transient terms to drop
     v: ndarray
       custom noise process
+
+    Parameters
+    ----------
+
+    N: float
+       The number of points in the AR process generated. Default: 512
+    sigma: float
+       The variance of the noise in the AR process. Default: 1
+    coefs: list or array of floats
+       The AR model coefficients. Default: [2.7607, -3.8106, 2.6535, -0.9238],
+       which is a sequence shown to be well-estimated by an order 8 AR system.
+    drop_transients: float
+       How many samples to drop from the beginning of the sequence (the
+       transient phases of the process), so that the process can be considered stationary.
+    v: float array
+       Optionally, input a specific sequence of noise samples (this over-rides
+       the sigma parameter). Default: None
 
     Returns
     -------
@@ -430,7 +448,7 @@ def jackknifed_coh_variance(tx, ty, eigvals, adaptive=True):
 #-----------------------------------------------------------------------------
 # Multitaper utils
 #-----------------------------------------------------------------------------
-def adaptive_weights(yk, eigvals, sides='onesided', max_iter=40):
+def adaptive_weights(yk, eigvals, sides='onesided', max_iter=150):
     r"""
     Perform an iterative procedure to find the optimal weights for K
     direct spectral estimators of DPSS tapered signals.
@@ -520,8 +538,11 @@ def adaptive_weights(yk, eigvals, sides='onesided', max_iter=40):
         sdf_iter = mtm_cross_spectrum(yk, yk, d_k, sides=sides)
         err = d_k
     else:  # If you have reached maximum number of iterations
-        # XXX: could probably just return non-converged weights
-        raise ValueError('breaking due to iterative meltdown')
+        # Issue a warning and return non-converged weights:
+        e_s = 'Breaking due to iterative meltdown in '
+        e_s += 'nitime.utils.adaptive_weights.'
+        warnings.warn(e_s,RuntimeWarning)
+
 
     weights = d_k
     nu = 2 * (weights ** 2).sum(axis=-2)

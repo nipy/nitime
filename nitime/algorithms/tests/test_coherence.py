@@ -252,7 +252,7 @@ def test_cached_coherence():
     freqs,cache = tsa.cache_fft(ts,ij)
 
     #Are the frequencies the right ones?
-    yield npt.assert_equal,freqs,utils.get_freqs(2*np.pi,NFFT)
+    npt.assert_equal(freqs,utils.get_freqs(2*np.pi,NFFT))
                      
     #Check that the fft of the first window is what we expect:
     hann = mlab.window_hanning(np.ones(NFFT))
@@ -262,13 +262,13 @@ def test_cached_coherence():
     #This is the result of the function:
     first_window_fft = cache['FFT_slices'][0][0]
     
-    yield npt.assert_equal,w_ft,first_window_fft
+    npt.assert_equal(w_ft,first_window_fft)
     
     coh_cached = tsa.cache_to_coherency(cache,ij)[0,1]
     f,c = tsa.coherency(ts)
     coh_direct = c[0,1]
 
-    yield npt.assert_almost_equal,coh_direct,coh_cached
+    npt.assert_almost_equal(coh_direct,coh_cached)
 
     # Only welch PSD works and an error is thrown otherwise. This tests that
     # the error is thrown:

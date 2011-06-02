@@ -1,3 +1,15 @@
+"""
+
+.. _mar3:
+
+=====================================================
+ Mulitvariate auto-regressive modeling - 3 variables
+=====================================================
+
+Multivariate auto-regressive modeling.
+
+"""
+
 import numpy as np
 import matplotlib.pyplot as pp
 

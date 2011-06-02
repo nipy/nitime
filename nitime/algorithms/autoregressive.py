@@ -30,7 +30,7 @@ from spectral import freq_response
 
 
 def AR_est_YW(x, order, rxx=None):
-    """Determine the autoregressive (AR) model of a random process x using
+    r"""Determine the autoregressive (AR) model of a random process x using
     the Yule Walker equations. The AR model takes this convention:
     
     x(n) = a(1)x(n-1) + a(2)x(n-2) + ... + a(P)x(n-P) + e(n)
@@ -40,31 +40,7 @@ def AR_est_YW(x, order, rxx=None):
     sigma
 
     The orthogonality property of minimum mean square error estimates
-    yields the Yule Walker equations:
-
-    .. math::
-
-    E\{e(n)x^{*}(n-k)\} = 0\quad 1\leq k\leq p
-    E\{e(n)x^{*}(n-k)\} = R_{xx}(k)-\sum_{i=1}^{p}a(i)R_{xx}(k-i)
-    \left(\begin{array}{cccc}
-    R_{0} & R_{1}^{*} & \cdots & R_{p-1}^{*}\\
-    R_{1} & R_{0} & \cdots & R_{p-2}^{*}\\
-    \vdots & \vdots & \ddots & \vdots\\
-    R_{p-1}^{*} & R_{p-2}^{*} & \cdots & R_{0}
-    \end{array}\right)\left(\begin{array}{c}
-    a_{1}\\
-    a_{2}\\
-    \vdots\\
-    a_{p}
-    \end{array}\right)=\left(\begin{array}{c}
-    R_{1}\\
-    R_{2}\\
-    \vdots\\
-    R_{p}
-    \end{array}\right)
-
-    E\{e(n)e^{*}(n)\}&=&E\{e(n)x^{*}(n)\}=&R_{xx}(0)-\sum_{i=1}^{p}a(i)R^{*}(i)
-    
+    yields the Yule Walker equations.
 
     Parameters
     ----------
