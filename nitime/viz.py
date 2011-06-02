@@ -3,10 +3,17 @@
 Depends on matplotlib. Some functions depend also on networkx
 
 """
+
+# If you are running nosetests right now, you might want to use 'agg' as a backend: 
+import sys
+if "nose" in sys.modules:
+    import matplotlib
+    matplotlib.use('agg')
+
+# Then do all the rest of it:
 import numpy as np
-
-
-from matplotlib import pyplot as plt, mpl
+from matplotlib import mpl
+from matplotlib import pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib.colors as colors
 from mpl_toolkits.axes_grid import make_axes_locatable

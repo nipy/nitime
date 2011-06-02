@@ -36,11 +36,9 @@ methods = (None,
 
 def test_coherency():
     """
-
     Tests that the coherency algorithm runs smoothly, using the different
     csd routines, that the resulting matrix is symmetric and for the welch
     method, that the frequency bands in the output make sense
-
     """
     
     for method in methods:
@@ -56,24 +54,20 @@ def test_coherency():
 
 def test_coherence():
     """
-
     Tests that the coherency algorithm runs smoothly, using the different csd
     routines and that the result is symmetrical:
-    
     """
 
     for method in methods:
-        f,c = tsa.coherence(tseries,csd_method=method)
-        npt.assert_array_almost_equal(c[0,1],c[1,0])
-        npt.assert_array_almost_equal(c[0,0],np.ones(f.shape))
+        f, c = tsa.coherence(tseries, csd_method=method)
+        npt.assert_array_almost_equal(c[0, 1], c[1, 0])
+        npt.assert_array_almost_equal(c[0, 0], np.ones(f.shape))
 
 
 def test_coherency_regularized():
     """
-
     Tests that the regularized coherency algorithm runs smoothly, using the
     different csd routines and that the result is symmetrical:
-    
     """
 
     for method in methods:
