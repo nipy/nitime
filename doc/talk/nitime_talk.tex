@@ -28,7 +28,7 @@ stringstyle=\color{strings}}
 
 \title[nitime]{\tt{nitime}}
 \subtitle
-{Time-series analysis for fMRI data}
+{\sc{Time-series analysis for fMRI data}}
 
 \author[Ariel Rokem] % (optional, use only with lots of authors)
 {Ariel Rokem}
@@ -55,6 +55,27 @@ stringstyle=\color{strings}}
 %Title page:
 \begin{frame}
   \titlepage
+\end{frame}
+
+\begin{frame}
+\frametitle{\tt{Nitime}}
+\begin{itemize}
+\pause
+\item
+Software library for the analysis of time-series from neuroscience data
+\pause
+\item
+Written in Python
+\pause
+\item 
+Free and open source
+\pause
+\item
+Part of the \tt{NIPY} \sc{project}
+\pause
+\item
+\tt{http://nipy.org/nitime}
+\end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -158,10 +179,10 @@ Univariate analysis:
 The analysis of the characteristics of the single time-series
 \pause
 \item
-Bivariate analysis:
+Bivariate and multivariate analysis:
 \pause
 \item
-Relationships between pairs of time-series
+Relationships between pairs (or more) of time-series
 \pause
 \item
 Example: Functional connectivity
@@ -197,6 +218,8 @@ Fox et al. (2005)
 \begin{frame}
 \frametitle{What about the following time-series?}
 \includegraphics[height=5.7cm]{figures/outa_phase_tseries}
+\pause
+$r_{xy}=0.24$
 \end{frame}
 
 \begin{frame}
@@ -241,7 +264,7 @@ A spectral analog of correlation
 
 \begin{frame}
 \frametitle{Coherency}
-$C_{xy}(\omega) = \frac{f_{xy}(\omega)}{f_{xx}(\omega)f_{yy}(\omega)}$
+$C_{xy}(\omega) = \frac{f_{xy}(\omega)}{\sqrt{f_{xx}(\omega)f_{yy}(\omega)}}$
 \pause
 \\
 \vfill
@@ -258,8 +281,10 @@ Coherency is complex-valued:
 \vfill
 Coherence: $Coh_{xy} (\omega) = abs(C_{xy}(\omega)) = $
 \pause
-$\frac{|f_{xy}(\omega)|}{f_{xx}(\omega)f_{yy}(\omega)}$
+$\frac{|f_{xy}(\omega)|^2}{f_{xx}(\omega)f_{yy}(\omega)}$
 \vfill
+\pause
+Ranges from $0$ to $1$
 \end{frame}
 
 \begin{frame}
@@ -283,11 +308,15 @@ Coherency is complex-valued:
 \\
 \vfill
 Coherence: $Coh_{xy} (\omega) = abs(C_{xy}(\omega)) = $
-$\frac{|f_{xy}(\omega)|}{f_{xx}(\omega)f_{yy}(\omega)}$
+$\frac{|f_{xy}(\omega)|^2}{f_{xx}(\omega)f_{yy}(\omega)}$
 \\
 \pause
 \vfill
-Phase: $\phi(\omega)= angle(C_{xy}) = tan^{-1}\frac{\Im(f_{xy}(\omega))}{\Re(f_{xy}(\omega))}$
+Phase: $\phi(\omega)= angle(C_{xy}) =
+tan^{-1}\frac{\Im(f_{xy}(\omega))}{\Re(f_{xy}(\omega))}$
+\vfill
+\pause
+Ranges from $-\pi$ to $\pi$
 \end{frame}
 
 
@@ -387,57 +416,46 @@ Lauritzen et al. (2009)
 Coherency analysis is a spectral analog of correlation
 \pause
 \item 
-Not sensitive to relative delays
+Overcomes some of the pitfalls of 0-order correlation
 \pause
 \item
-When used for fMRI need to pay attention to: 
+But - when used for fMRI need to pay attention to: 
 \pause
 \item  
 Baseline connectivity
 \pause
 \item
-Defining a proper control condition
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}
-\frametitle{\tt{Nitime}}
-\begin{itemize}
-\pause
-\item
-Software library for the analysis of time-series from neuroscience data
-\pause
-\item
-Written in Python
-\pause
-\item 
-Free and open source (no black-boxes involved!)
-\item
-\pause
-\tt{http://nipy.org/nitime}
+Confounds due to HRF differences
 \end{itemize}
 \end{frame}
 
+\begin{frame}
+\frametitle{\tt{nitime}}
+How would you use \begin{tt}nitime\end{tt}
+
+to calculate coherency?
+\end{frame}
 
 \begin{frame}
-\frametitle{\tt{Nitime} components:}
+\frametitle{\tt{nitime} components:}
 \begin{itemize}
+\begin{tt}
 \pause
 \item
-\tt{nitime.timeseries}
+nitime.timeseries
 \pause
 \item
-\tt{nitime.viz}
+nitime.viz
 \pause
 \item
-\tt{nitime.algorithms}
+nitime.algorithms
 \pause
 \item
-\tt{nitime.analysis}
+nitime.analysis
 \pause 
 \item
-\tt{nitime.utils}
+nitime.utils
+\end{tt}
 \end{itemize}
 \end{frame}
 
@@ -498,10 +516,15 @@ UniformTime([ 0. ,  1.5,  3. ,  4.5],
 \begin{itemize}
 \pause
 \item
+Provides a general-purpose interface to a set of different time-series analysis
+algorithms 
+\begin{tt}
+\pause
+\item
 coherence
 \pause
 \item
-event-related 
+event-related
 \pause
 \item
 filter
@@ -511,64 +534,211 @@ spectral
 \item
 \pause
 autoregressive
+\end{tt}
+\pause
+\item
+These implementations accept arrays as their inputs, not \tt{TimeSeries}!
 \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Example: spectral analysis of an autoregressive process}
-Autoregressive processes are of the form: 
-\pause
-$x(t) = a_1x(n-1) + a_2x(t-2) + ... + a_ix(t-i) + \epsilon_x$
-\\
-\pause
-We generate a 2nd order AR: 
-\\
-\pause
-\begin{lstlisting}
->>> import nitime.utils as utils 
-\end{lstlisting}
-\begin{lstlisting}
->>> ar2,n,c = utils.ar_generator(
-         coefs=[0.1, -0.2], N=2**16)
-\end{lstlisting}
-\end{frame}
+\frametitle{Example: univariate analysis}
 
-\begin{frame}[fragile]
-\frametitle{Example: spectral analysis of an autoregressive process}
-We perform a spectral analysis:
+\pause
 \begin{lstlisting}
->>> import nitime.algorithms as alg
->>> f, c = alg.get_spectra(ar2)
->>> import matplotlib.pylab as pl 
->>> pl.plot(f, c)
+>>> noise = 0.5
+>>> t = np.linspace(0,8*pi,1024) 
+
+>>> x =  (np.sin(5*t) + np.sin(1.33*t) +  
+     noise*np.random.randn(t.shape[-1]))
+
+>>> y =  (np.sin(5*t + pi/4) + 
+          np.sin(1.33*t-pi/2) +
+     noise*np.random.randn(t.shape[-1]))
+\end{lstlisting}
+
+\pause
+\begin{lstlisting}
+>>> t3 = ts.TimeSeries(np.vstack([x,y]),
+                sampling_rate=np.pi)
+\end{lstlisting}
+
+\pause
+\begin{lstlisting}
+>>> viz.plot_tseries(t3)
 \end{lstlisting}
 \end{frame}
 
 \begin{frame}
-\frametitle{Vizualization}
-\includegraphics[height=5.7cm]{figures/ar_spectrum}
+\frametitle{Remember these?}
+\includegraphics[height=5.7cm]{figures/outa_phase_tseries}
 \end{frame}
 
+\begin{frame}[fragile]
+\frametitle{Univariate analysis: spectral analysis }
+\begin{lstlisting}
+>>> import nitime.algorithms as alg
+\end{lstlisting}
+\pause
+\begin{lstlisting}
+>>> method = {'this_method':'welch',
+              'Fs':np.pi,
+              'NFFT':256}
+\end{lstlisting}
+\pause
+\begin{lstlisting}
+>>> f, c = alg.get_spectra(t3.data,method=method)
+\end{lstlisting}
+\pause
+\begin{lstlisting}
+>>> import matplotlib.pylab as pl 
+>>> pl.plot(f, c[0,0])
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+\frametitle{Univariate analysis: spectral analysis}
+\includegraphics[height=5.7cm]{figures/outa_phase_tseries_single_psd}
+\end{frame}
 
 \begin{frame}
 \frametitle{\tt{nitime.analysis}}
 \begin{itemize}
 \pause
-\item
-coherence
+\item 
+Provides an more stream-lined analysis interface
+\pause
+\item 
+'Knows' about \tt{TimeSeries} 
+objects and accepts them as inputs
 \pause
 \item
-event-related 
+\tt{coherence}
 \pause
 \item
-filter
+\tt{correlation}
 \pause
 \item
-spectral
+\tt{event-related}
+\pause
+\item
+\tt{normalization}
+\pause
+\item
+\tt{snr}
 \item
 \pause
-autoregressive
+\tt{spectral}
 \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Example: bivariate analysis}
+\pause
+\begin{lstlisting}
+>>> import nitime.analysis as nta
+\end{lstlisting}
+\pause
+\begin{lstlisting}
+>>> C = nta.CoherenceAnalyzer(t3)
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Coherence}
+\begin{lstlisting}
+>>> pl.plot(C.frequencies, C.coherence[0,1])
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+\frametitle{Coherence}
+\includegraphics[height=5.7cm]{figures/outa_phase_tseries_coh}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Phase}
+\begin{lstlisting}
+>>> pl.plot(C.frequencies, C.phase[0,1])
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+\frametitle{Phase}
+\includegraphics[height=5.7cm]{figures/outa_phase_tseries_ph}
+\end{frame}
+
+\begin{frame}
+\frametitle{And with fMRI data}
+\small{http://nipy.org/nitime/examples/resting\_state\_fmri.html}
+\small{http://nipy.org/nitime/examples/seed\_coherence\_example.html}
+\end{frame}
+
+\begin{frame}
+\frametitle{Resting state fMRI coherence}
+\includegraphics[height=5.7cm]{figures/resting_state_fmri_03}
+\end{frame}
+
+\begin{frame}
+\frametitle{Resting state coherence for a subset of ROIs}
+\includegraphics[height=5.7cm]{figures/resting_state_fmri_04}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Summary: \tt{nitime}}
+\begin{itemize}
+\pause
+\item
+\tt{nitime} \sc{provides tools for representing and visualizing time-series and
+  derived quantities}
+\pause
+\item
+Implements several univariate and bi-/multi-variate algorithms for time-series
+analysis 
+\pause
+\item
+Allows for flexible use: choose the \tt{analysis} \sc{module if you prefer a more
+  stream-lined interface to the algorithms}
+\pause
+\item
+Or the \tt{algorithms} \sc{module if you prefer more customability}
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Thanks!}
+\pause
+Fernando Perez
+
+Mike Trumpis
+
+Kilian Koepsell
+
+Paul Ivanov
+
+\pause
+The NIPY developers
+
+Matthew Brett 
+
+\pause
+Neurodebian (Yaroslav and Michael)
+
+\pause
+Emi Nomura 
+
+Caterina Gratton 
+
+Ayelet Landau 
+
+Thomas Lauritzen
+
+\pause
+Mark D'Esposito 
+
+Michael Silver
 \end{frame}
 
 \end{document}
