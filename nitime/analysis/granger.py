@@ -32,9 +32,16 @@ def fit_model(x1, x2, max_order=10,
     n_process = 2
     Ntotal = n_process * x1.shape[-1]
     autocov_vector = []
+
+    c_x1x1 = np.correlate(x1, x1.conj(), mode='full')
+    c_x2x2 = np.correlate(x2, x2.conj(), mode='full')
+    c_x1x2 = np.correlate(x1, x2.conj(), mode='full')
+    c_x2x1 = np.correlate(x2, x1.conj(), mode='full')
+
     for lag in xrange(max_order):
-        prod = np.correlate(x1, x2.conj(), mode='full')
-        autocov_vector.append(prod.mean(axis=-1))
+        idx = x1.shape[0]/2 + lag
+        autocov_vector.append([[c_x1x1[idx], c_x1x2[idx]],
+                               [c_x2x1[idx], c_x2x2[idx]]])
         Rxx = np.array(autocov_vector)
         coef, ecov = alg.lwr_recursion(Rxx)
         c_new = criterion(ecov, n_process, lag, Ntotal)
@@ -42,12 +49,11 @@ def fit_model(x1, x2, max_order=10,
             break
         else:
             c_old = c_new
-
     else:
         e_s = "Model estimation order did not converge at max_order=%s" % max_order
         raise ValueError(e_s)
 
-    order, Rxx, coef, ecov
+    return lag, Rxx, coef, ecov
 
 ## class GrangerAnalyzer(BaseAnalyzer):
 ##     """Analyzer for computing all-to-all Granger 'causality' """
