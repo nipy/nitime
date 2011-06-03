@@ -1,4 +1,3 @@
-
 """
 
 .. _mar:
@@ -39,16 +38,15 @@ Setting the random seed assures that we always get the same 'random' answer:
 
 np.random.seed(1981)
 
-r"""
+"""
 
 We will generate an AR(2) model, with the following coefficients (taken from
 [Ding2006]_, eq. 55):
 
 .. math::
 
-
-   x_t &=& 0.9x_{t-1} - 0.5 x_{t-2} + \epsilon_t\\
-   y_t &=& 0.8y_{t-1} - 0.5 y_{t-2} + 0.16 x_{t-1} - 0.2 x_{t-2} + \eta_t
+   x_t &= 0.9x_{t-1} - 0.5 x_{t-2} + \epsilon_t\\
+   y_t &= 0.8y_{t-1} - 0.5 y_{t-2} + 0.16 x_{t-1} - 0.2 x_{t-2} + \eta_t
 
 Or more succinctly, if we define:
 
@@ -159,10 +157,10 @@ Each $R^{xx}(k)$ has the shape (2,2), where:
 
 .. math::
 
-   R^{xx}_{00}(k) = E( Z_0(t)Z_0^*(t-k) )
-   R^{xx}_{01}(k) = E( Z_0(t)Z_1^*(t-k) )
-   R^{xx}_{10}(k) = E( Z_1(t)Z_0^*(t-k) )
-   R^{xx}_{11}(k) = E( Z_1(t)Z_1^*(t-k) )
+   R^{xx}_{00}(k) &= E( Z_0(t)Z_0^*(t-k) ) \\
+   R^{xx}_{01}(k) &= E( Z_0(t)Z_1^*(t-k) ) \\
+   R^{xx}_{10}(k) &= E( Z_1(t)Z_0^*(t-k) ) \\
+   R^{xx}_{11}(k) &= E( Z_1(t)Z_1^*(t-k) )
 
 
 Where $E$ is the expected value and $^*$ marks the conjugate transpose. Thus, only $R^{xx}(0)$ is symmetric.
