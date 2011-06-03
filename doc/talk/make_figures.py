@@ -12,12 +12,12 @@ tsa = nipyts.algorithms
 tsu = nipyts.utils
 ts= nipyts.timeseries
 nta = nipyts.analysis
+viz = nipyts.viz
 
 reload(tsa)
 reload(tsu)
 reload(ts)
-
-#def main():
+reload(viz)
 
 pi = np.pi
 fft = np.fft
@@ -46,6 +46,7 @@ corrcoef = np.corrcoef(x,y)[0,1]
 
 print(['Correlation is: ' + str(corrcoef)])
 
+XC = nta.CorrelationAnalyzer(series)
 xcorr = np.correlate(series.data[0,:],
                      series.data[1,:],'same')
 
