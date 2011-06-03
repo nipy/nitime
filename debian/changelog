@@ -1,4 +1,4 @@
-nitime (0.2.9-1) unstable; urgency=low
+nitime (0.2.99-1) unstable; urgency=low
 
   * Pre-0.3 snapshot release
   * Boost policy compliance to 3.9.2 (no changes due)
