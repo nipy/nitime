@@ -58,6 +58,24 @@ stringstyle=\color{strings}}
 \end{frame}
 
 \begin{frame}
+\frametitle{Outline}
+\begin{itemize}
+\pause
+\item
+Scientific motivation
+\pause
+\item
+The \tt{nitime} \sc{software library}
+\pause
+\item 
+A simple example: coherence
+\pause
+\item
+A scientifically interesting example
+\end{itemize}
+\end{frame}
+
+\begin{frame}
 \frametitle{Task-specific networks}
   One of the goals of contemporary neuroscience is to delineate task-specific
   networks in the brain
@@ -274,7 +292,6 @@ These implementations accept arrays as their inputs, not \tt{TimeSeries}!
 \end{lstlisting}
 \pause
 \begin{lstlisting}
->>> import matplotlib.pylab as pl 
 >>> plt.plot(f, c[0,0])
 \end{lstlisting}
 \end{frame}
@@ -393,6 +410,13 @@ $\frac{|f_{xy}(\omega)|^2}{f_{xx}(\omega)f_{yy}(\omega)}$
 \\
 \vfill
 Ranges from $0$ to $1$
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Phase}
+\begin{lstlisting}
+>>> plt.plot(C.frequencies, C.coherence[0,1])
+\end{lstlisting}
 \end{frame}
 
 \begin{frame}
