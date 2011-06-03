@@ -1,6 +1,6 @@
-nitime (0.3~dev2-1) UNRELEASED; urgency=low
+nitime (0.2.9-1) unstable; urgency=low
 
-  * Pre-release snapshot
+  * Pre-0.3 snapshot release
   * Boost policy compliance to 3.9.2 (no changes due)
   * Assure off-screen backend (Agg) for matplotlib while building docs
 
