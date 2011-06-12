@@ -11,7 +11,7 @@ import nitime.utils as utils
 from .base import BaseAnalyzer
 
 
-def fit_model(x1, x2, max_order=10,
+def fit_model(x1, x2, order=None, max_order=10,
               criterion=utils.bayesian_information_criterion):
     """
     Find the model order of an autoregressive
@@ -31,29 +31,29 @@ def fit_model(x1, x2, max_order=10,
     c_old = np.inf
     n_process = 2
     Ntotal = n_process * x1.shape[-1]
-    autocov_vector = []
 
-    c_x1x1 = np.correlate(x1, x1.conj(), mode='full')
-    c_x2x2 = np.correlate(x2, x2.conj(), mode='full')
-    c_x1x2 = np.correlate(x1, x2.conj(), mode='full')
-    c_x2x1 = np.correlate(x2, x1.conj(), mode='full')
+    # If model order was provided as an input:
+    if order is not None:
+        lag = order + 1
+        Rxx = utils.autocov_vector(np.vstack([x1,x2]), nlags=lag)
+        coef, ecov = alg.lwr_recursion(np.array(Rxx).transpose(2, 0, 1))
 
-    for lag in xrange(max_order):
-        idx = x1.shape[0]/2 + lag
-        autocov_vector.append([[c_x1x1[idx], c_x1x2[idx]],
-                               [c_x2x1[idx], c_x2x2[idx]]])
-        Rxx = np.array(autocov_vector)
-        coef, ecov = alg.lwr_recursion(Rxx)
-        c_new = criterion(ecov, n_process, lag, Ntotal)
-        if c_new > c_old:
-            break
-        else:
-            c_old = c_new
+    # If the model order is not known and provided as input:
     else:
-        e_s = "Model estimation order did not converge at max_order=%s" % max_order
-        raise ValueError(e_s)
+        for lag in xrange(1, max_order):
+            Rxx = utils.autocov_vector(np.vstack([x1,x2]), nlags=lag)
+            coef, ecov = alg.lwr_recursion(np.array(Rxx).transpose(2, 0, 1))
+            c_new = criterion(ecov, n_process, lag, Ntotal)
+            if c_new > c_old:
+                break
+            else:
+                c_old = c_new
+        else:
+            e_s = "Model estimation order did not converge at max_order=%s" % max_order
+            raise ValueError(e_s)
 
-    return lag, Rxx, coef, ecov
+    # Return the estimated order (lag - 1)
+    return lag-1, Rxx, coef, ecov
 
 ## class GrangerAnalyzer(BaseAnalyzer):
 ##     """Analyzer for computing all-to-all Granger 'causality' """
