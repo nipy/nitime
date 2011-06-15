@@ -145,7 +145,7 @@ class GrangerAnalyzer(BaseAnalyzer):
                                          self.error_cov[i, j],
                                          n_freqs=self._n_freqs)
 
-                gc['frequencies'][i, j] = w
+                # All other measures are dependent on i, j:
                 gc['gc_xy'][i, j] = f_x2y
                 gc['gc_yx'][i, j] = f_y2x
                 gc['gc_sim'][i, j] = f_xy
@@ -155,7 +155,7 @@ class GrangerAnalyzer(BaseAnalyzer):
 
     @desc.setattr_on_read
     def frequencies(self):
-        return self.granger_causality['frequencies']
+        return utils.get_freqs(self.sampling_rate, self._n_freqs)
 
     @desc.setattr_on_read
     def causality_xy(self):
