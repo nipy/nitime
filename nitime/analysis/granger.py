@@ -21,8 +21,10 @@ def fit_model(x1, x2, order=None, max_order=10,
 
     x1,x2: float arrays (n)
         x1,x2 bivariate combination.
-    max_order: int
-        The maximal order to fit.
+    order: int (optional)
+        If known, the order of the autoregressive process
+    max_order: int (optional)
+        If the order is not known, this will be the maximal order to fit.
     criterion: callable
        A function which defines an information criterion.
 
@@ -41,19 +43,27 @@ def fit_model(x1, x2, order=None, max_order=10,
     # If the model order is not known and provided as input:
     else:
         for lag in xrange(1, max_order):
-            Rxx = utils.autocov_vector(np.vstack([x1,x2]), nlags=lag)
-            coef, ecov = alg.lwr_recursion(np.array(Rxx).transpose(2, 0, 1))
-            c_new = criterion(ecov, n_process, lag, Ntotal)
+            Rxx_new = utils.autocov_vector(np.vstack([x1,x2]), nlags=lag)
+            coef_new, ecov_new = alg.lwr_recursion(np.array(Rxx_new).transpose(2, 0, 1))
+            order_new = coef_new.shape[0]
+            c_new = criterion(ecov_new, n_process, order_new, Ntotal)
             if c_new > c_old:
+                # Keep the values you got in the last round and break out:
                 break
+
             else:
+                # Replace the output values with the new calculated values and
+                # move on to the next order:
                 c_old = c_new
+                order = order_new
+                Rxx = Rxx_new
+                coef = coef_new
+                ecov = ecov_new
         else:
             e_s = "Model estimation order did not converge at max_order=%s" % max_order
             raise ValueError(e_s)
 
-    # Return the estimated order (lag - 1)
-    return lag-1, Rxx, coef, ecov
+    return order, Rxx, coef, ecov
 
 ## class GrangerAnalyzer(BaseAnalyzer):
 ##     """Analyzer for computing all-to-all Granger 'causality' """
