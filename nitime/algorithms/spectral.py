@@ -18,6 +18,12 @@ from scipy import signal as sig
 from scipy import interpolate
 import nitime.utils as utils
 
+# To suppport older versions of numpy that don't have tril_indices:
+try:
+    np.tril_indices = np.tril_indices
+except AttributeError:
+    from nitime.index_utils import tril_indices
+    np.tril_indices = tril_indices
 
 def get_spectra(time_series, method=None):
     r"""

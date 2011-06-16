@@ -20,6 +20,13 @@ import matplotlib.mlab as mlab
 from spectral import get_spectra, get_spectra_bi
 import nitime.utils as utils
 
+# To suppport older versions of numpy that don't have tril_indices:
+try:
+    np.tril_indices = np.tril_indices
+except AttributeError:
+    from nitime.index_utils import tril_indices
+    np.tril_indices = tril_indices
+
 
 def coherency(time_series, csd_method=None):
     r"""

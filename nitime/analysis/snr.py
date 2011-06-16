@@ -5,6 +5,13 @@ from nitime import descriptors as desc
 from nitime import algorithms as tsa
 from nitime import timeseries as ts
 
+try:
+    np.tril_indices = np.tril_indices
+except AttributeError:
+    from nitime.index_utils import tril_indices
+    np.tril_indices = tril_indices
+
+
 from .base import BaseAnalyzer
 
 
