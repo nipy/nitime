@@ -1,20 +1,29 @@
-"""
+r"""
 
 Autoregressive (AR) processes are processes of the form:
 
-x(n) = a(1)x(n-1) + a(2)x(n-2) + ... + a(P)x(n-P) + e(n)
+.. math::
+
+  x(n) = a(1)x(n-1) + a(2)x(n-2) + ... + a(P)x(n-P) + e(n)
 
 where e(n) is a white noise process. The usage of 'e' suggests interpreting
 the linear combination of P past values of x(n) as the minimum mean square
 error linear predictor of x(n) Thus
 
-e(n) = x(n) - a(1)x(n-1) - a(2)x(n-2) - ... - a(P)x(n-P)
+.. math::
+
+  e(n) = x(n) - a(1)x(n-1) - a(2)x(n-2) - ... - a(P)x(n-P)
 
 Due to whiteness, e(n) is also pointwise uncorrelated--ie,
 
-(i)   E{e(n)e*(n-m)} = delta(n-m)
-(ii)  E{e(n)x*(m)} = 0, m != n
-(iii) E{|e|**2} = E{e(n)e*(n)} = E{e(n)x*(n)}
+.. math::
+   :nowrap:
+
+   \begin{align*}
+      \text{(i)}   && E\{e(n)e^{*}(n-m)\}& = \delta(n-m) &\\
+      \text{(ii)}  && E\{e(n)x^{*}(m)\}  & = 0           & m\neq n\\
+      \text{(iii)} && E\{|e|^{2}\} = E\{e(n)e^{*}(n)\} &= E\{e(n)x^{*}(n)\} &
+   \end{align*}
 
 These principles form the basis of the methods in this module for
 estimating the AR coefficients and the error/innovations power.
@@ -32,15 +41,35 @@ from spectral import freq_response
 def AR_est_YW(x, order, rxx=None):
     r"""Determine the autoregressive (AR) model of a random process x using
     the Yule Walker equations. The AR model takes this convention:
+
+    .. math::
     
-    x(n) = a(1)x(n-1) + a(2)x(n-2) + ... + a(P)x(n-P) + e(n)
+      x(n) = a(1)x(n-1) + a(2)x(n-2) + \dots + a(P)x(n-P) + e(n)
 
     where e(n) is a zero-mean white noise process with variance sig_sq,
     and P is the order of the AR model. This method returns the a_i and
     sigma
 
     The orthogonality property of minimum mean square error estimates
-    yields the Yule Walker equations.
+    states that
+
+    .. math::
+
+      E\{e(n)x^{*}(n-k)\} = 0 \quad 1\leq k\leq p
+
+    Inserting the definition of the error signal into the equations above
+    yields the Yule Walker system of equations:
+
+    .. math::
+      
+      R_{xx}(k) = \sum_{i=1}^{p}a(i)R_{xx}(k-i) \quad1\leq k\leq p
+
+    Similarly, the variance of the error process is
+
+    .. math::
+    
+      E\{e(n)e^{*}(n)\}   = E\{e(n)x^{*}(n)\} = R_{xx}(0)-\sum_{i=1}^{p}a(i)R^{*}(i)
+    
 
     Parameters
     ----------
@@ -70,21 +99,24 @@ def AR_est_YW(x, order, rxx=None):
     return ak, sigma_v
 
 def AR_est_LD(x, order, rxx=None):
-    """Levinson-Durbin algorithm for solving the Hermitian Toeplitz
-    system R[m]w[m]=r[m+1]: (XXX review this definition for complex)
+    r"""Levinson-Durbin algorithm for solving the Hermitian Toeplitz
+    system of equations in the AR estimation problem
 
+    .. math::
+       :nowrap:
+       
+       \begin{align*}
+       T(m)a(m) &= \gamma(m+1)\\
+       T(m) &= \begin{pmatrix}
+          R_{0} & R_{1}^{*} & \cdots & R_{p-1}^{*}\\
+          R_{1} & R_{0} & \cdots & R_{p-2}^{*}\\
+          \vdots & \vdots & \ddots & \vdots\\
+          R_{p-1}^{*} & R_{p-2}^{*} & \cdots & R_{0}
+       \end{pmatrix}\\
+       \gamma(m+1) &=\begin{pmatrix} R_0 & R_1 & \cdots & R_{m-1} \end{pmatrix}^{T}\\
+       a(m) &=\begin{pmatrix} a_1 & a_2 & \cdots a_m \end{pmatrix}^{T}
+       \end{align*}
     
-           [[r(0)  r(1) r(2)    ...     r(m-1)],
-    R[m] =  [r*(1) r(0) r(1)    ...     r(m-2)],
-            [...                              ],
-            [r*(m-1) r*(m-2) r*(m-3)... r(0)  ]]
-
-    r[m+1] = [r(1), r(2), ..., r(m)].T
-
-    r(k) = E{X(t+k)X*(t)}
-
-    and w[m] is the vector of m AR coefficients
-
     Parameters
     ----------
 
@@ -126,7 +158,7 @@ def AR_est_LD(x, order, rxx=None):
     return w[1:], b
 
 def lwr_recursion(r):
-    """Perform a Levinson-Wiggins[Whittle]-Robinson recursion to
+    r"""Perform a Levinson-Wiggins[Whittle]-Robinson recursion to
     find the coefficients a(i) that satisfy the matrix version
     of the Yule-Walker system of P+1 equations:
 
@@ -208,66 +240,8 @@ def lwr_recursion(r):
 
     return a, sigf
 
-# XXX probably can delete this
-def lwr_alternate(r):
-    # r(k) = E{ X(t)X*(t+k) } ( * = conjugate transpose )
-    # r(-k) = r(k).T
-    # this routine solves the system of equations
-    # sum_{k=0}^{p} A(k)r(k-j) = 0, for j = {1,2,...,p}
-    # with the additional equation
-    # sum_{k=0}^{p} A(k)r(k) = V
-    # where V is the covariance matrix of the innovations process
-    #
-    # This routine adjusts the algorithm found in eqs (1)-(11)
-    # in Morf, Vieira, Kailath 1978 to reflect that this system
-    # is composed in a slightly different way (due to the conflicting
-    # definition of autocovariance)
-
-    # r is (P+1, nc, nc)
-    nc = r.shape[1]
-    P = r.shape[0] - 1
-
-    a = np.zeros((P, nc, nc))  # ar coefs
-    b = np.zeros_like(a)  # lp coefs
-    sigb = np.zeros_like(r[0])  # forward prediction error covariance
-    sigf = np.zeros_like(r[0])  # backward prediction error covariance
-    delta = np.zeros_like(r[0])
-
-    # initialize
-    idnt = np.eye(nc)
-    sigf[:] = r[0]
-    sigb[:] = r[0]
-
-    # iteratively find sequences A_{p+1}(i) and B_{p+1}(i)
-    for p in xrange(P):
-
-        # calculate delta_{p+1}
-        delta[:] = r[p + 1]
-        for i in xrange(1, p + 1):
-            delta += np.dot(r[p + 1 - i], a[i - 1].T)
-
-        # intermediate values
-        ka = np.dot(delta.T, linalg.inv(sigb).T)  # (linalg.inv(sigb)*del)'
-        kb = np.dot(delta, linalg.inv(sigf).T)    # (linalg.inv(sigf)*del')'
-
-        # store a_{p} before updating sequence to a_{p+1}
-        ao = a.copy()
-        for i in xrange(1, p + 1):
-            a[i - 1] -= np.dot(ka, b[p - i])
-        for i in xrange(1, p + 1):
-            b[i - 1] -= np.dot(kb, ao[p - i])
-
-        a[p] = -ka
-        b[p] = -kb
-
-        sigf = np.dot(sigf, (idnt - np.dot(ka, kb).T))
-        sigb = np.dot(sigb, (idnt - np.dot(kb, ka).T))
-
-    return a, sigf
-
 def MAR_est_LWR(x, order, rxx=None):
-
-    """
+    r"""
     MAR estimation, using the LWR algorithm, as in Morf et al.
 
 
@@ -292,7 +266,7 @@ def MAR_est_LWR(x, order, rxx=None):
 
 
 def AR_psd(ak, sigma_v, n_freqs=1024, sides='onesided'):
-    """
+    r"""
     Compute the PSD of an AR process, based on the process coefficients and
     covariance
 
@@ -330,7 +304,7 @@ def AR_psd(ak, sigma_v, n_freqs=1024, sides='onesided'):
 # Granger causality analysis
 #-----------------------------------------------------------------------------
 def transfer_function_xy(a, n_freqs=1024):
-    """Helper routine to compute the transfer function H(w) based
+    r"""Helper routine to compute the transfer function H(w) based
     on sequence of coefficient matrices A(i). The z transforms
     follow from this definition:
 
@@ -377,7 +351,7 @@ def transfer_function_xy(a, n_freqs=1024):
 
 
 def spectral_matrix_xy(Hw, cov):
-    """Compute the spectral matrix S(w), from the convention:
+    r"""Compute the spectral matrix S(w), from the convention:
 
     X[t] + sum_{k=1}^P a[k]X[t-k] = Err[t]
 
@@ -429,7 +403,7 @@ def spectral_matrix_xy(Hw, cov):
 
 
 def coherence_from_spectral(Sw):
-    """Compute the spectral coherence between processes X and Y,
+    r"""Compute the spectral coherence between processes X and Y,
     given their spectral matrix S(w)
 
     Parameters
@@ -449,7 +423,7 @@ def coherence_from_spectral(Sw):
 
 
 def interdependence_xy(Sw):
-    """Compute the 'total interdependence' between processes X and Y,
+    r"""Compute the 'total interdependence' between processes X and Y,
     given their spectral matrix S(w)
 
     Parameters
@@ -470,7 +444,7 @@ def interdependence_xy(Sw):
 
 
 def granger_causality_xy(a, cov, n_freqs=1024):
-    """Compute the Granger causality between processes X and Y, which
+    r"""Compute the Granger causality between processes X and Y, which
     are linked in a multivariate autoregressive (mAR) model parameterized
     by coefficient matrices a(i) and the innovations covariance matrix
 
