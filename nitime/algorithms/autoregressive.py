@@ -44,10 +44,10 @@ def AR_est_YW(x, order, rxx=None):
 
     .. math::
     
-      x(n) = a(1)x(n-1) + a(2)x(n-2) + \dots + a(P)x(n-P) + e(n)
+      x(n) = a(1)x(n-1) + a(2)x(n-2) + \dots + a(p)x(n-p) + e(n)
 
     where e(n) is a zero-mean white noise process with variance sig_sq,
-    and P is the order of the AR model. This method returns the a_i and
+    and p is the order of the AR model. This method returns the a_i and
     sigma
 
     The orthogonality property of minimum mean square error estimates
@@ -77,7 +77,7 @@ def AR_est_YW(x, order, rxx=None):
         The sampled autoregressive random process
 
     order : int
-        The order P of the AR system
+        The order p of the AR system
 
     rxx : ndarray (optional)
         An optional, possibly unbiased estimate of the autocorrelation of x
@@ -100,22 +100,29 @@ def AR_est_YW(x, order, rxx=None):
 
 def AR_est_LD(x, order, rxx=None):
     r"""Levinson-Durbin algorithm for solving the Hermitian Toeplitz
-    system of equations in the AR estimation problem
+    system of Yule-Walker equations in the AR estimation problem
 
+    .. math::
+
+       T^{(p)}a^{(p)} = \gamma^{(p+1)}
+
+    where
+    
     .. math::
        :nowrap:
        
        \begin{align*}
-       T(m)a(m) &= \gamma(m+1)\\
-       T(m) &= \begin{pmatrix}
+       T^{(p)} &= \begin{pmatrix}
           R_{0} & R_{1}^{*} & \cdots & R_{p-1}^{*}\\
           R_{1} & R_{0} & \cdots & R_{p-2}^{*}\\
           \vdots & \vdots & \ddots & \vdots\\
           R_{p-1}^{*} & R_{p-2}^{*} & \cdots & R_{0}
        \end{pmatrix}\\
-       \gamma(m+1) &=\begin{pmatrix} R_0 & R_1 & \cdots & R_{m-1} \end{pmatrix}^{T}\\
-       a(m) &=\begin{pmatrix} a_1 & a_2 & \cdots a_m \end{pmatrix}^{T}
+       a^{(p)} &=\begin{pmatrix} a_1 & a_2 & \cdots a_p \end{pmatrix}^{T}\\
+       \gamma^{(p+1)}&=\begin{pmatrix}R_1 & R_2 & \cdots & R_p \end{pmatrix}^{T}
        \end{align*}
+
+    and :math:`R_k` is the autocorrelation of the kth lag
     
     Parameters
     ----------
@@ -131,7 +138,7 @@ def AR_est_LD(x, order, rxx=None):
     -------
 
     ak, sig_sq
-      The AR coefficients for 1 <= k <= P, and the variance of the
+      The AR coefficients for 1 <= k <= p, and the variance of the
       driving white noise process
     
     """
