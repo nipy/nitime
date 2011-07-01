@@ -20,6 +20,8 @@ import matplotlib.mlab as mlab
 from spectral import get_spectra, get_spectra_bi
 import nitime.utils as utils
 
+# To suppport older versions of numpy that don't have tril_indices:
+from nitime.index_utils import tril_indices
 
 def coherency(time_series, csd_method=None):
     r"""
@@ -77,7 +79,7 @@ def coherency(time_series, csd_method=None):
         for j in xrange(i, time_series.shape[0]):
             c[i][j] = coherency_spec(fxy[i][j], fxy[i][i], fxy[j][j])
 
-    idx = np.tril_indices(time_series.shape[0], -1)
+    idx = tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
 
     return f, c
@@ -169,7 +171,7 @@ def coherence(time_series, csd_method=None):
         for j in xrange(i, time_series.shape[0]):
             c[i][j] = coherence_spec(fxy[i][j], fxy[i][i], fxy[j][j])
 
-    idx = np.tril_indices(time_series.shape[0], -1)
+    idx = tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
 
     return f, c
@@ -270,7 +272,7 @@ def coherency_regularized(time_series, epsilon, alpha, csd_method=None):
             c[i][j] = _coherency_reqularized(fxy[i][j], fxy[i][i],
                                              fxy[j][j], epsilon, alpha)
 
-    idx = np.tril_indices(time_series.shape[0], -1)
+    idx = tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
 
     return f, c
@@ -373,7 +375,7 @@ def coherence_regularized(time_series, epsilon, alpha, csd_method=None):
             c[i][j] = _coherence_reqularized(fxy[i][j], fxy[i][i],
                                              fxy[j][j], epsilon, alpha)
 
-    idx = np.tril_indices(time_series.shape[0], -1)
+    idx = tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
 
     return f, c
@@ -469,7 +471,7 @@ def coherency_bavg(time_series, lb=0, ub=None, csd_method=None):
                                       fxy[i][i][lb_idx:ub_idx],
                                       fxy[j][j][lb_idx:ub_idx])
 
-    idx = np.tril_indices(time_series.shape[0], -1)
+    idx = tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
 
     return c
@@ -568,7 +570,7 @@ def coherence_bavg(time_series, lb=0, ub=None, csd_method=None):
                                       fxy[i][i][lb_idx:ub_idx],
                                       fxy[j][j][lb_idx:ub_idx])
 
-    idx = np.tril_indices(time_series.shape[0], -1)
+    idx = tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
 
     return c
@@ -666,7 +668,7 @@ def coherence_partial(time_series, r, csd_method=None):
             c[i, j] = coherence_partial_spec(fxy[i][j], fxy[i][i],
                                                   fxy[j][j], frx, fry, frr)
 
-    idx = np.tril_indices(time_series.shape[0], -1)
+    idx = tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
 
     return f, c
