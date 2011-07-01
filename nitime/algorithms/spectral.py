@@ -18,6 +18,8 @@ from scipy import signal as sig
 from scipy import interpolate
 import nitime.utils as utils
 
+# To suppport older versions of numpy that don't have tril_indices:
+from nitime.index_utils import tril_indices
 
 def get_spectra(time_series, method=None):
     r"""
@@ -363,7 +365,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
         csd_mat /= norm
 
     upper_idc = np.triu_indices(M, k=1)
-    lower_idc = np.tril_indices(M, k=-1)
+    lower_idc = tril_indices(M, k=-1)
     csd_mat[upper_idc] = csd_mat[lower_idc].conj()
     return freqs, csd_mat
 
@@ -830,7 +832,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
             csdfs[i, j] = mtm_cross_spectrum(ti, tj, (wi, wj), sides=sides)
 
     upper_idc = np.triu_indices(M, k=1)
-    lower_idc = np.tril_indices(M, k=-1)
+    lower_idc = tril_indices(M, k=-1)
     csdfs[upper_idc] = csdfs[lower_idc].conj()
 
     if sides == 'onesided':
