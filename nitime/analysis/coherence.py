@@ -7,12 +7,7 @@ from nitime import utils as tsu
 from nitime import algorithms as tsa
 
 # To suppport older versions of numpy that don't have tril_indices:
-try:
-    np.tril_indices = np.tril_indices
-except AttributeError:
-    from nitime.index_utils import tril_indices
-    np.tril_indices = tril_indices
-
+from nitime.index_utils import tril_indices, triu_indices
 
 from .base import BaseAnalyzer
 
@@ -96,7 +91,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
                                                      self.spectrum[i][i],
                                                      self.spectrum[j][j])
 
-        idx = tsu.tril_indices(tseries_length, -1)
+        idx = tril_indices(tseries_length, -1)
         coherency[idx[0], idx[1], ...] = coherency[idx[1], idx[0], ...].conj()
 
         return coherency
@@ -143,7 +138,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
                                                      self.spectrum[i][i],
                                                      self.spectrum[j][j])
 
-        idx = tsu.tril_indices(tseries_length, -1)
+        idx = tril_indices(tseries_length, -1)
         coherence[idx[0], idx[1], ...] = coherence[idx[1], idx[0], ...].conj()
 
         return coherence
@@ -214,7 +209,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
                             self.spectrum[j][k],
                             self.spectrum[k][k])
 
-        idx = tsu.tril_indices(tseries_length, -1)
+        idx = tril_indices(tseries_length, -1)
         p_coherence[idx[0], idx[1], ...] =\
                             p_coherence[idx[1], idx[0], ...].conj()
 
@@ -341,7 +336,7 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
                 coh_mat[i, j] = np.abs(sxy) ** 2
                 coh_mat[i, j] /= (sxx * syy)
 
-        idx = tsu.triu_indices(self.input.data.shape[0], 1)
+        idx = triu_indices(self.input.data.shape[0], 1)
         coh_mat[idx[0], idx[1], ...] = coh_mat[idx[1], idx[0], ...].conj()
 
         return coh_mat
@@ -362,7 +357,7 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
                         adaptive=self._adaptive
                         )
 
-        idx = tsu.triu_indices(self.input.data.shape[0], 1)
+        idx = triu_indices(self.input.data.shape[0], 1)
         coh_var[idx[0], idx[1], ...] = coh_var[idx[1], idx[0], ...].conj()
 
         coh_mat_xform = tsu.normalize_coherence(self.coherence,

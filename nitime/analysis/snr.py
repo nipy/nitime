@@ -5,11 +5,7 @@ from nitime import descriptors as desc
 from nitime import algorithms as tsa
 from nitime import timeseries as ts
 
-try:
-    np.tril_indices = np.tril_indices
-except AttributeError:
-    from nitime.index_utils import tril_indices
-    np.tril_indices = tril_indices
+from nitime.index_utils import tril_indices_from
 
 
 from .base import BaseAnalyzer
@@ -144,6 +140,6 @@ class SNRAnalyzer(BaseAnalyzer):
         """
 
         c = np.corrcoef(self.input.data)
-        c = c[np.tril_indices_from(c, -1)]
+        c = c[tril_indices_from(c, -1)]
 
         return np.mean(c), stats.sem(c)

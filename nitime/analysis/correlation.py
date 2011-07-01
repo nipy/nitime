@@ -6,11 +6,7 @@ from nitime import utils as tsu
 from nitime import timeseries as ts
 
 # To suppport older versions of numpy that don't have tril_indices:
-try:
-    np.tril_indices = np.tril_indices
-except AttributeError:
-    from nitime.index_utils import tril_indices
-    np.tril_indices = tril_indices
+from nitime.index_utils import tril_indices
 
 from .base import BaseAnalyzer
 
@@ -77,7 +73,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
                                           data[j],
                                           mode='full')
 
-        idx = tsu.tril_indices(tseries_length, -1)
+        idx = tril_indices(tseries_length, -1)
         xcorr[idx[0], idx[1], ...] = xcorr[idx[1], idx[0], ...]
 
         return ts.TimeSeries(xcorr,
@@ -113,7 +109,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
                 xcorr[i, j] /= (xcorr[i, j, t_points])
                 xcorr[i, j] *= self.corrcoef[i, j]
 
-        idx = tsu.tril_indices(tseries_length, -1)
+        idx = tril_indices(tseries_length, -1)
         xcorr[idx[0], idx[1], ...] = xcorr[idx[1], idx[0], ...]
 
         return ts.TimeSeries(xcorr,
