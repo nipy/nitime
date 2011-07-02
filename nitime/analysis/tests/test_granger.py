@@ -75,7 +75,7 @@ def test_GrangerAnalyzer():
     quantities
     """
 
-        # Start by generating some MAR processes (according to Ding and Bressler),
+    # Start by generating some MAR processes (according to Ding and Bressler),
     a1 = np.array([[0.9, 0],
                    [0.16, 0.8]])
 
@@ -100,3 +100,9 @@ def test_GrangerAnalyzer():
     # Check that things have the right shapes:
     npt.assert_equal(g1.frequencies.shape[-1], g1._n_freqs//2 + 1)
     npt.assert_equal(g1.causality_xy[0,1].shape, g1.causality_yx[0,1].shape)
+
+    # Test inputting ij:
+    g2 = gc.GrangerAnalyzer(ts1, ij = [(0, 1), (1, 0)])
+
+    # x => y for one is like y => x for the other:
+    npt.assert_equal(g1.causality_yx[0, 1], g2.causality_xy[1, 0])

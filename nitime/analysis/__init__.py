@@ -30,3 +30,4 @@ from .event_related import *
 from .normalization import *
 from .snr import *
 from .spectral import *
+from .granger import *
