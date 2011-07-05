@@ -58,3 +58,4 @@ from .wavelet import *
 from .event_related import *
 from .autoregressive import *
 from .filter import *
+from .correlation import *

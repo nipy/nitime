@@ -4,6 +4,7 @@ import nitime.timeseries as ts
 from nitime import descriptors as desc
 from nitime import utils as tsu
 from nitime import timeseries as ts
+from nitime import algorithms as tsa
 
 from .base import BaseAnalyzer
 
@@ -112,3 +113,48 @@ class CorrelationAnalyzer(BaseAnalyzer):
         return ts.TimeSeries(xcorr,
                              sampling_interval=self.input.sampling_interval,
                              t0=-self.input.sampling_interval * t_points)
+
+
+class SeedCorrelationAnalyzer(BaseAnalyzer):
+    """
+    This analyzer takes two time-series. The first is designated as a
+    time-series of seeds. The other is designated as a time-series of targets.
+    The analyzer performs a correlation analysis between each of the channels
+    in the seed time-series and *all* of the channels in the target
+    time-series.
+
+    """
+    def __init__(self, seed_time_series=None, target_time_series=None):
+        """
+        Parameters
+        ----------
+
+        seed_time_series: a time-series object
+
+        target_time_series: a time-series object
+
+        """
+        BaseAnalyzer.__init__(self, seed_time_series)
+
+        self.seed = seed_time_series
+        self.target = target_time_series
+
+    @desc.setattr_on_read
+    def corrcoef(self):
+
+        #If there is more than one channel in the seed time-series:
+        if len(self.seed.shape) > 1:
+
+            # Preallocate results
+            Cxy = np.empty((self.seed.data.shape[0],
+                            self.target.data.shape[0]), dtype=np.float)
+
+            for seed_idx, this_seed in enumerate(self.seed.data):
+
+                Cxy[seed_idx] = tsa.seed_corrcoef(this_seed, self.target.data)
+
+        #In the case where there is only one channel in the seed time-series:
+        else:
+            Cxy = tsa.seed_corrcoef(self.seed.data, self.target.data)
+
+        return Cxy.squeeze()
