@@ -1989,15 +1989,6 @@ def akaike_information_criterion(ecov, p, m, Ntotal, corrected=False):
     This is an implementation of equation (50) in Ding et al. (2006)
     [Ding2006]_:
 
-    .. math ::
-
-    AIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m}{N_{total}},
-
-    where $\Sigma$ is the noise covariance matrix. In auto-regressive model
-    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual
-    variance in estimating time-series $i$ from $j$, $p$ is the dimensionality
-    of the data, $m$ is the number of parameters in the model and $N_{total}$
-    is the number of time-points.
 
     .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
        Basic Theory and Application to
@@ -2005,13 +1996,8 @@ def akaike_information_criterion(ecov, p, m, Ntotal, corrected=False):
 
 
     Correction for small sample size is taken from:
-    http://en.wikipedia.org/wiki/Akaike_information_criterion:
+    http://en.wikipedia.org/wiki/Akaike_information_criterion.
 
-    .. math::
-
-       AICc = AIC + \frac{2m(m+1)}{n-m-1}
-
-    See also: http://en.wikipedia.org/wiki/Akaike_information_criterion
     """
 
     AIC = (2 * (np.log(linalg.det(ecov))) +
@@ -2050,17 +2036,7 @@ def bayesian_information_criterion(ecov, p, m, Ntotal):
     Notes
     -----
         This is an implementation of equation (51) in Ding et al. (2006)
-    [Ding2006]_:
-
-    .. math ::
-
-    BIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m log(N_{total})}{N_{total}},
-
-    where $\Sigma$ is the noise covariance matrix. In auto-regressive model
-    estimation, this matrix will contain in $\Sigma_{i,j}$ the residual
-    variance in estimating time-series $i$ from $j$, $p$ is the dimensionality
-    of the data, $m$ is the number of parameters in the model and $N_{total}$
-    is the number of time-points.
+    [Ding2006]_
 
     .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
        Basic Theory and Application to

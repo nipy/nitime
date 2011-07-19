@@ -179,7 +179,7 @@ class GrangerAnalyzer(BaseAnalyzer):
                                self.frequencies.shape[0]))
         # 'Translate' from dict form into matrix form:
         for i,j in self.ij:
-            arr[i, j, :] = self._granger_causality[key][i, j]
+            arr[i, j :] = self._granger_causality[key][i, j]
         return arr
 
     @desc.setattr_on_read
