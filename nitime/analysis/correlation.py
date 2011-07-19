@@ -118,7 +118,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
                              t0=-self.input.sampling_interval * t_points)
 
 
-class SeedCorrelationAnalyzer(BaseAnalyzer):
+class SeedCorrelationAnalyzer(object):
     """
     This analyzer takes two time-series. The first is designated as a
     time-series of seeds. The other is designated as a time-series of targets.
@@ -137,8 +137,6 @@ class SeedCorrelationAnalyzer(BaseAnalyzer):
         target_time_series: a time-series object
 
         """
-        BaseAnalyzer.__init__(self, seed_time_series)
-
         self.seed = seed_time_series
         self.target = target_time_series
 
