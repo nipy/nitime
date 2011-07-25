@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import scipy.stats.distributions as dist
 
@@ -73,6 +75,20 @@ class CoherenceAnalyzer(BaseAnalyzer):
         self.method['Fs'] = self.method.get('Fs', self.input.sampling_rate)
 
         self._unwrap_phases = unwrap_phases
+
+        # The following only applies to the welch method:
+        if (self.method.get('this_method')=='welch' or
+            self.method.get('this_method') is None):
+
+            # If the input is shorter than NFFT, all the coherences will be 1 per
+            # definition. Throw a warning about that:
+            self.method['NFFT'] = self.method.get('NFFT', tsa.default_nfft)
+            self.method['n_overlap'] = self.method.get('n_overlap', tsa.default_n_overlap)
+            if self.input.shape[-1] < (self.method['NFFT'] + self.method['n_overlap']):
+                e_s = "In nitime.analysis, the provided input time-series is"
+                e_s += " shorter than the requested NFFT + n_overlap. All "
+                e_s += "coherence values will be set to 1."
+                warnings.warn(e_s, RuntimeWarning)
 
     @desc.setattr_on_read
     def coherency(self):

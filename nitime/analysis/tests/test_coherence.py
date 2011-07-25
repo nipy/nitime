@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import numpy.testing as npt
 import matplotlib.mlab as mlab
@@ -105,6 +107,27 @@ def test_MTCoherenceAnalyzer():
         npt.assert_equal(C.coherence.shape, (n_series, n_series, NFFT))
         npt.assert_equal(C.confidence_interval.shape, (n_series, n_series,
                                                        NFFT))
+
+
+def test_warn_short_tseries():
+    """
+
+    A warning is provided when the time-series is shorter than the NFFT + n_overlap.
+
+    The implementation of this test is based on this:
+    http://docs.python.org/library/warnings.html#testing-warnings
+
+    """
+
+    with warnings.catch_warnings(record=True) as w:
+        # Cause all warnings to always be triggered.
+        warnings.simplefilter("always")
+        # Trigger a warning.
+        # The following should throw a warning, because 70 is smaller than the
+        # default NFFT=64 + n_overlap=32:
+        nta.CoherenceAnalyzer(ts.TimeSeries(np.random.rand(2,70),sampling_rate=1))
+        # Verify some things
+        npt.assert_equal(len(w), 1)
 
 
 def test_SeedCoherenceAnalyzer():
