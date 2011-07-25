@@ -27,12 +27,14 @@ time-series through a multi-variate auto-regressive model may improve our
 prediction of the present behavior of the time-series (reducing the value of
 the error term $\epsilon_t$):
 
+.. math::
+
    x_t = \sum_{i=1}^{n}a_i x_{t-i} + b_i y_{t-i} + \epsilon_t
 
 
 In our implementation of the algorithms used for this analysis, we follow
-closely the description put forth by Ding et al. ([Ding2006]_). Alos, see
-:ref:`_mar` and :ref:`ar` for examples even more closely modeled on the
+closely the description put forth by Ding et al. ([Ding2006]_). Also, see
+:ref:`mar` and :ref:`ar` for examples even more closely modeled on the
 examples mentioned in their paper.
 
 Here, we will demonstrate the use of Granger 'causality' analysis with fMRI
@@ -146,15 +148,24 @@ coh = np.mean(C1.coherence[:, :, freq_idx_C], -1)  # Averaging on the last dimen
 g1 = np.mean(G.causality_xy[:, :, freq_idx_G], -1)
 
 fig01 = drawmatrix_channels(coh, roi_names, size=[10., 10.], color_anchor=0)
-fig02 = drawmatrix_channels(C2.corrcoef, roi_names, size=[10., 10.], color_anchor=0)
-fig03 = drawmatrix_channels(g1, roi_names, size=[10., 10.], color_anchor=0)
-
 
 """
 
 .. image:: fig/granger_fmri_01.png
 
+"""
+
+fig02 = drawmatrix_channels(C2.corrcoef, roi_names, size=[10., 10.], color_anchor=0)
+
+"""
+
 .. image:: fig/granger_fmri_02.png
+
+"""
+
+fig03 = drawmatrix_channels(g1, roi_names, size=[10., 10.], color_anchor=0)
+
+"""
 
 .. image:: fig/granger_fmri_03.png
 
@@ -174,6 +185,10 @@ fig04 = drawmatrix_channels(g2, roi_names, size=[10., 10.], color_anchor=0)
 
 .. image:: fig/granger_fmri_04.png
 
+If these values are found to be significantly different than 0, this
+constitutes evidence for a correlation with a time-lag between the
+regions. This is a necessary (though not necessarily sufficient...) condition
+for establishing functional connectivity between the regions.
 
 Finally, we call plt.show(), to show the plots created:
 

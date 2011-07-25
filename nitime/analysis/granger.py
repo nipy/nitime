@@ -15,7 +15,7 @@ from .base import BaseAnalyzer
 def fit_model(x1, x2, order=None, max_order=10,
               criterion=utils.bayesian_information_criterion):
     """
-    Find the model order of an autoregressive
+    Fit the auto-regressive model used in calculation of Granger 'causality'.
 
     Parameters
     ----------
@@ -27,7 +27,8 @@ def fit_model(x1, x2, order=None, max_order=10,
     max_order: int (optional)
         If the order is not known, this will be the maximal order to fit.
     criterion: callable
-       A function which defines an information criterion.
+       A function which defines an information criterion, used to determine the
+        order of the model.
 
     """
 
@@ -179,7 +180,7 @@ class GrangerAnalyzer(BaseAnalyzer):
                                self.frequencies.shape[0]))
         # 'Translate' from dict form into matrix form:
         for i,j in self.ij:
-            arr[i, j :] = self._granger_causality[key][i, j]
+            arr[j, i, :] = self._granger_causality[key][i, j]
         return arr
 
     @desc.setattr_on_read

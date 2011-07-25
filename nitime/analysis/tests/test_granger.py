@@ -105,4 +105,4 @@ def test_GrangerAnalyzer():
     g2 = gc.GrangerAnalyzer(ts1, ij = [(0, 1), (1, 0)])
 
     # x => y for one is like y => x for the other:
-    npt.assert_almost_equal(g1.causality_yx[0, 1], g2.causality_xy[1, 0])
+    npt.assert_almost_equal(g1.causality_yx[1, 0], g2.causality_xy[0, 1])
