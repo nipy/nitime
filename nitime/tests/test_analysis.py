@@ -233,21 +233,32 @@ def test_FilterAnalyzer():
     #Make sure that the DC is preserved
     f_slow = nta.FilterAnalyzer(slow_ts, ub=0.6)
     f_fast = nta.FilterAnalyzer(fast_ts, lb=0.6)
+
     npt.assert_almost_equal(f_slow.filtered_fourier.data.mean(),
                             slow_mean,
                             decimal=2)
+
     npt.assert_almost_equal(f_slow.filtered_boxcar.data.mean(),
                             slow_mean,
                             decimal=2)
+
     npt.assert_almost_equal(f_slow.fir.data.mean(),
+                            slow_mean)
+
+    npt.assert_almost_equal(f_slow.iir.data.mean(),
                             slow_mean)
 
     npt.assert_almost_equal(f_fast.filtered_fourier.data.mean(),
                             10)
+
     npt.assert_almost_equal(f_fast.filtered_boxcar.data.mean(),
                             10,
                             decimal=2)
+
     npt.assert_almost_equal(f_fast.fir.data.mean(),
+                            10)
+
+    npt.assert_almost_equal(f_fast.iir.data.mean(),
                             10)
 
     #Check that things work with a two-channel time-series:
