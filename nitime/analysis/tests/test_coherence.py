@@ -137,5 +137,24 @@ def test_SeedCoherenceAnalyzer():
             npt.assert_almost_equal(C1.delay[0, 1], C2.delay[1])
 
         else:
-            npt.assert_raises(ValueError,nta.SeedCoherenceAnalyzer, T_seed1,
+            npt.assert_raises(ValueError, nta.SeedCoherenceAnalyzer, T_seed1,
                               T_target, this_method)
+
+def test_SeedCoherenceAnalyzer_same_Fs():
+    """
+    
+    Providing two time-series with different sampling rates throws an error
+    
+    """ 
+
+    Fs1 = np.pi
+    Fs2 = 2 * np.pi
+    t = np.arange(256)
+    
+    T1 = ts.TimeSeries(np.random.rand(t.shape[-1]),
+                       sampling_rate=Fs1)
+ 
+    T2 = ts.TimeSeries(np.random.rand(t.shape[-1]),
+                       sampling_rate=Fs2)
+    
+    npt.assert_raises(ValueError, nta.SeedCoherenceAnalyzer, T1, T2)

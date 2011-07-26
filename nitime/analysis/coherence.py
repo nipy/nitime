@@ -515,7 +515,7 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         return freqs[lb_idx:ub_idx]
 
 
-class SeedCoherenceAnalyzer(BaseAnalyzer):
+class SeedCoherenceAnalyzer(object):
     """
     This analyzer takes two time-series. The first is designated as a
     time-series of seeds. The other is designated as a time-series of targets.
@@ -556,11 +556,15 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
 
         """
 
-        BaseAnalyzer.__init__(self, seed_time_series)
-
         self.seed = seed_time_series
         self.target = target_time_series
 
+        # Check that the seed and the target have the same sampling rate:
+        if self.seed.sampling_rate != self.target.sampling_rate:
+            e_s = "The sampling rate for the seed time-series and the target"
+            e_s += " time-series need to be identical."
+            raise ValueError(e_s)
+        
         #Set the variables for spectral estimation (can also be entered by
         #user):
         if method is None:
@@ -595,7 +599,8 @@ class SeedCoherenceAnalyzer(BaseAnalyzer):
         """Get the central frequencies for the frequency bands, given the
            method of estimating the spectrum """
 
-        self.method['Fs'] = self.method.get('Fs', self.input.sampling_rate)
+        # Get the sampling rate from the seed time-series:
+        self.method['Fs'] = self.method.get('Fs', self.seed.sampling_rate)
         NFFT = self.method.get('NFFT', 64)
         Fs = self.method.get('Fs')
         freqs = tsu.get_freqs(Fs, NFFT)
