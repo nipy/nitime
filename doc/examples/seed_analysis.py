@@ -1,15 +1,15 @@
 """
 
-=============================
-Seed coherence with fMRI data
-=============================
+=========================================
+Seed correlation/coherence with fMRI data
+=========================================
 
 
-Seed coherence analysis is the analysis of coherence between one time-series
-(termed the 'seed') and many other time-series (termed the 'targets'). This is
-a rather typical strategy in the analysis of fMRI data where one might look for
-all the areas of the brain that exhibit high level of connectivity to a
-particular region of interest.
+Seed-based analysis is the analysis of a bivariate measure (such as correlation
+or coherence) between one time-series (termed the 'seed') and many other
+time-series (termed the 'targets'). This is a rather typical strategy in the
+analysis of fMRI data where one might look for all the areas of the brain that
+exhibit high level of connectivity to a particular region of interest.
 
 
 We start by importing the needed modules. First modules from the standard lib
@@ -158,9 +158,20 @@ used for the coherence estimation:
 A = nta.SeedCoherenceAnalyzer(time_series_seed, time_series_target,
                             method=dict(NFFT=20))
 
+
 """
 
-We are only interested in the physiologically relevant frequency band:
+Similarly, the SeedCorrelationAnalyzer receives as input seed and target
+time-series: 
+
+"""
+
+B = nta.SeedCorrelationAnalyzer(time_series_seed, time_series_target)
+
+"""
+
+For the coherence, we are only interested in the physiologically relevant
+frequency band:
 
 """
 
@@ -169,34 +180,43 @@ freq_idx = np.where((A.frequencies > f_lb) * (A.frequencies < f_ub))[0]
 
 """
 
-The result of the coherence is a list, with an ndarray in each item in the
-list, corresponding to one of the channels in the seed TimeSeries. We extract
-the coherence values for each one of the seeds:
+The results in both analyzer objects are arrays of dimensions: (number of seeds
+x number of targets). For the coherence, there is an additional last dimension
+of: number of frequency bands, which we will average over.  For the
+visualization, we extract the coherence and correlation values for each one of
+the seeds separately:
 
 """
 
+cor = []
 coh = []
 
-for this_coh in range(n_seeds):
+for this_seed in range(n_seeds):
     # Extract the coherence and average across these frequency bands:
-    coh.append(np.mean(A.coherence[this_coh][:, freq_idx], -1))  # Averaging on the
+    coh.append(np.mean(A.coherence[this_seed][:, freq_idx], -1))  # Averaging on the
                                                                  # last dimension
+                                                                
+    cor.append(B.corrcoef[this_seed]) # No need to do any additional
+                                         # computation
 
 
 """
 
-We then put the coherence values back into arrays that have the original shape
-of the volume from which the data was extracted:
+We then put the coherence/correlation values back into arrays that have the
+original shape of the volume from which the data was extracted:
 
 """
 
 #For numpy fancy indexing into volume arrays:
 coords_indices = list(coords_target)
 
-vol = []
+vol_coh = []
+vol_cor = []
 for this_vol in range(n_seeds):
-    vol.append(np.empty(volume_shape))
-    vol[-1][coords_indices] = coh[this_vol]
+    vol_coh.append(np.empty(volume_shape))
+    vol_coh[-1][coords_indices] = coh[this_vol]
+    vol_cor.append(np.empty(volume_shape))
+    vol_cor[-1][coords_indices] = cor[this_vol]
 
 
 """
@@ -211,26 +231,40 @@ random_slice = np.random.randint(0, volume_shape[-1], 1)
 
 """
 
-And displaying the coherence values for each seed voxel in this slice:
+We display the coherence and correlation values for each seed voxel in this slice:
 
 """
 
-
-fig = plt.figure()
-ax = []
+fig01 = plt.figure()
+fig02 = plt.figure()
+ax_coh = []
+ax_cor = []
 for this_vox in range(n_seeds):
-    ax.append(fig.add_subplot(1, n_seeds, this_vox + 1))
-    ax[-1].matshow(vol[this_vox][:, :, random_slice].squeeze())
-    ax[-1].set_title('Seed coords: %s' % coords_seeds[:, this_vox])
+    ax_coh.append(fig01.add_subplot(1, n_seeds, this_vox + 1))
+    ax_coh[-1].matshow(vol_coh[this_vox][:, :, random_slice].squeeze())
+    ax_coh[-1].set_title('Seed coords: %s' % coords_seeds[:, this_vox])
 
-suptit = 'Coherence between all the voxels in slice: '
-suptit += '%i and seed voxels' % random_slice
-fig.suptitle(suptit)
+    ax_cor.append(fig02.add_subplot(1, n_seeds, this_vox + 1))
+    ax_cor[-1].matshow(vol_cor[this_vox][:, :, random_slice].squeeze())
+    ax_cor[-1].set_title('Seed coords: %s' % coords_seeds[:, this_vox])
+
+for x in zip (['Coherence', 'Correlation'],[fig01,fig02]):
+    suptit = '%s between all the voxels in slice: '%x[0]
+    suptit += '%i and seed voxels' % random_slice
+    x[1].suptitle(suptit)
 
 
 """
 
-.. image:: fig/seed_coherence_example_01.png
+We can now compare the results in the coherence: 
+
+
+.. image:: fig/seed_analysis_01.png
+
+
+And the correlation:
+
+.. image:: fig/seed_analysis_02.png
 
 
 We call plt.show() in order to display the figure:

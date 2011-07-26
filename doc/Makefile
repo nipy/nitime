@@ -30,6 +30,8 @@ clean:
 	-rm -rf _build/* *~ api/generated
 	-rm -rf build/* 
 	-rm examples/fig/*
+	-rm examples/*.rst
+
 htmlonly:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
 	@echo
