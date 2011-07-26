@@ -1267,7 +1267,7 @@ def concatenate_time_series(time_series_seq):
         metadata.update(ts.metadata)
 
     # Sampling interval is read from the last one
-    tseries = TimeSeries(np.hstack(data),
+    tseries = TimeSeries(np.concatenate(data,-1),
                                 sampling_interval=ts.sampling_interval,
                                 metadata=metadata)
     return tseries
