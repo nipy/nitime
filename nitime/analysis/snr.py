@@ -39,14 +39,14 @@ def signal_noise(response):
 class SNRAnalyzer(BaseAnalyzer):
     """
     Calculate SNR for a response to repetitions of the same stimulus, according
-    to [Borst1999]_ (Figure 2) and [Hsu2004]_.
+    to (Borst, 1999) (Figure 2) and (Hsu, 2004).
 
-    .. [Hsu2004] Hsu A, Borst A and Theunissen, FE (2004) Quantifying
-    variability in neural responses ans its application for the validation of
-    model predictions. Network: Comput Neural Syst 15:91-109
+    Hsu A, Borst A and Theunissen, FE (2004) Quantifying variability in neural
+    responses ans its application for the validation of model
+    predictions. Network: Comput Neural Syst 15:91-109
 
-    .. [Borst1999] Borst A and Theunissen FE (1999) Information theory and
-    neural coding. Nat Neurosci 2:947-957
+    Borst A and Theunissen FE (1999) Information theory and neural coding. Nat
+    Neurosci 2:947-957
     """
     def __init__(self, input=None, bandwidth=None, adaptive=False,
                  low_bias=False):
@@ -67,15 +67,18 @@ class SNRAnalyzer(BaseAnalyzer):
 
         adaptive: bool, default to False
             Whether to set the weights for the tapered spectra according to the
-            adaptive algorithm [Thompson2007]_.
+            adaptive algorithm (Thompson, 2007).
 
         low_bias : bool, default to False
             Rather than use 2NW tapers, only use the tapers that have better
             than 90% spectral concentration within the bandwidth (still using a
             maximum of 2NW tapers)
 
-            .. [Thompson2007] Thompson, DJ Jackknifing multitaper spectrum
-            estimates. IEEE Signal Processing Magazing. 24: 20-30
+        Notes
+        -----
+
+        Thompson, DJ (2007) Jackknifing multitaper spectrum estimates. IEEE
+        Signal Processing Magazing. 24: 20-30
 
         """
         self.input = input
