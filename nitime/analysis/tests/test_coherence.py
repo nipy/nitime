@@ -7,6 +7,11 @@ import matplotlib.mlab as mlab
 import nitime.timeseries as ts
 import nitime.analysis as nta
 
+import platform
+if float(platform.python_version()[:3])<2.5:
+    old_python = True
+else:
+    old_python = False
 
 def test_CoherenceAnalyzer():
     methods = (None,
@@ -109,6 +114,7 @@ def test_MTCoherenceAnalyzer():
                                                        NFFT))
 
 
+@npt.dec.skipif(old_python)
 def test_warn_short_tseries():
     """
 
