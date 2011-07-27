@@ -18,10 +18,10 @@ def square_window_spectrum(N, Fs):
     Parameters
     ----------
     N: int
-    the size of the window
+       the size of the window
 
     Fs: float
-    The sampling rate
+       The sampling rate
 
     Returns
     -------
@@ -31,16 +31,15 @@ def square_window_spectrum(N, Fs):
 
     Notes
     -----
-    This is equation 21c in [1]
+    This is equation 21c in Harris (1978):
 
-    ..math::
+    .. math::
+                
+      W(\theta) = exp(-j \frac{N-1}{2} \theta) \frac{sin \frac{N\theta}{2}} {sin\frac{\theta}{2}}
 
-    W(\theta) = exp(-j \frac{N-1}{2} \theta) \frac{\frac{sin \frac{N\theta}{2}}
-    {sin\frac{\theta}{2}}}
-
-    ..[1] F.J. Harris (1978). On the use of windows for harmonic analysis with
-    the discrete Fourier transform. Proceedings of the IEEE, 66:51-83
-"""
+    F.J. Harris (1978). On the use of windows for harmonic analysis with the
+    discrete Fourier transform. Proceedings of the IEEE, 66:51-83
+    """
     f = get_freqs(Fs, N - 1)
     j = 0 + 1j
     a = -j * (N - 1) * f / 2
@@ -58,10 +57,10 @@ def hanning_window_spectrum(N, Fs):
     Parameters
     ----------
     N: int
-    the size of the window
+       The size of the window
 
     Fs: float
-    The sampling rate
+       The sampling rate
 
     Returns
     -------
@@ -71,7 +70,7 @@ def hanning_window_spectrum(N, Fs):
 
     Notes
     -----
-    This is equation 28b in [Harris1978]_
+    This is equation 28b in Harris (1978):
 
     .. math::
 
@@ -85,9 +84,8 @@ def hanning_window_spectrum(N, Fs):
       D(\theta) = exp(j\frac{\theta}{2})
                   \frac{sin\frac{N\theta}{2}}{sin\frac{\theta}{2}}
 
-    .. [Harris1978] F.J. Harris (1978). On the use of windows for harmonic
-    analysis with the discrete Fourier transform. Proceedings of the IEEE,
-    66:51-83
+    F.J. Harris (1978). On the use of windows for harmonic analysis with the
+    discrete Fourier transform. Proceedings of the IEEE, 66:51-83
     """
     #A helper function
     D = lambda theta, n: (
@@ -1980,8 +1978,7 @@ def akaike_information_criterion(x, m):
 
     Notes
     -----
-    This is an implementation of equation (50) in Ding et al. (2006)
-    [Ding2006]_:
+    This is an implementation of equation (50) in Ding et al. (2006):
 
     .. math ::
 
@@ -1993,9 +1990,8 @@ def akaike_information_criterion(x, m):
     of the data, $m$ is the number of parameters in the model and $N_{total}$
     is the number of time-points.
 
-    .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
-       Basic Theory and Application to
-       Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
+    M Ding and Y Chen and S Bressler (2006) Granger Causality: Basic Theory and
+    Application to Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
 
     See also: http://en.wikipedia.org/wiki/Akaike_information_criterion
     """
@@ -2050,8 +2046,6 @@ def akaike_information_criterion_c(x, m):
     Where m is the number of parameters in the model and n is the number of
     time-points in the data.
 
-    See also :func:`akaike_information_criterion`
-
     """
 
     AIC = akaike_information_criterion(x, m)
@@ -2086,8 +2080,7 @@ def bayesian_information_criterion(x, m):
 
     Notes
     -----
-        This is an implementation of equation (51) in Ding et al. (2006)
-    [Ding2006]_:
+        This is an implementation of equation (51) in Ding et al. (2006):
 
     .. math ::
 
@@ -2099,9 +2092,8 @@ def bayesian_information_criterion(x, m):
     of the data, $m$ is the number of parameters in the model and $N_{total}$
     is the number of time-points.
 
-    .. [Ding2006] M Ding and Y Chen and S Bressler (2006) Granger Causality:
-       Basic Theory and Application to
-       Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
+    M Ding and Y Chen and S Bressler (2006) Granger Causality: Basic Theory and
+    Application to Neuroscience. http://arxiv.org/abs/q-bio/0608035v1
 
 
     See http://en.wikipedia.org/wiki/Schwarz_criterion
