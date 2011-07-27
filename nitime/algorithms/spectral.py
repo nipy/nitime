@@ -12,7 +12,7 @@ XXX
 """
 
 import numpy as np
-from matplotlib import mlab
+import nitime.mlab_spectral as mlab
 from scipy import linalg
 from scipy import signal as sig
 from scipy import interpolate
