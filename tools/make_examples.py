@@ -74,14 +74,14 @@ if not os.getcwd().endswith('doc/examples'):
 sh('../../tools/ex2rst --project Nitime --outdir . .')
 
 # Make the index.rst file
-with open('index.rst', 'w') as index:
-    index.write(examples_header)
-    for name in [os.path.splitext(f)[0] for f in glob('*.rst')]:
-        #Don't add the index in there to avoid sphinx errors and don't add the
-        #note_about examples again (because it was added at the top):
-        if name not in(['index','note_about_examples']):
-            index.write('   %s\n' % name)
-
+index = open('index.rst', 'w')
+index.write(examples_header)
+for name in [os.path.splitext(f)[0] for f in glob('*.rst')]:
+    #Don't add the index in there to avoid sphinx errors and don't add the
+    #note_about examples again (because it was added at the top):
+    if name not in(['index','note_about_examples']):
+        index.write('   %s\n' % name)
+index.close()
 # Execute each python script in the directory.
 if '--no-exec' in sys.argv:
     pass
