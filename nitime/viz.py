@@ -23,12 +23,7 @@ import nitime.utils as tsu
 from nitime.utils import threshold_arr, minmax_norm, rescale_arr
 import nitime.analysis as nta
 
-# triu_indices was only added to numpy in v1.4, so we carry it here in the
-# meantime to allow numpy 1.3-compatibility.
-try:
-    from numpy import triu_indices
-except ImportError:
-    from nitime.utils import triu_indices
+from nitime.utils import triu_indices
 
 #Some visualization functions require networkx. Import that if possible:
 try:
