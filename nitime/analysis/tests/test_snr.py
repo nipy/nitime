@@ -1,6 +1,14 @@
 import numpy as np
 import numpy.testing as npt
-import matplotlib.mlab as mlab
+
+import matplotlib
+
+# Normalization of DC component was fixed in later versions of mlab:
+if matplotlib.__version__ >= '1.0':
+    import matplotlib.mlab as mlab
+else: 
+    import nitime.mlab_spectral as mlab
+
 
 import nitime.timeseries as ts
 import nitime.analysis as nta

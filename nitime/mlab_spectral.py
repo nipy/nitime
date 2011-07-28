@@ -7,7 +7,6 @@ of PSD
 """
 import numpy as np
 import matplotlib.cbook as cbook
-from matplotlib import docstring
 
 def detrend_none(x):
     "Return x: no detrending"
@@ -119,6 +118,24 @@ def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
 #Split out these keyword docs so that they can be used elsewhere
 docstring.interpd.update(PSD=cbook.dedent("""
+
+"""))
+
+def psd(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
+        noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
+    """
+    The power spectral density by Welch's average periodogram method.
+    The vector *x* is divided into *NFFT* length blocks.  Each block
+    is detrended by the function *detrend* and windowed by the function
+    *window*.  *noverlap* gives the length of the overlap between blocks.
+    The absolute(fft(block))**2 of each segment are averaged to compute
+    *Pxx*, with a scaling to correct for power loss due to windowing.
+
+    If len(*x*) < *NFFT*, it will be zero padded to *NFFT*.
+
+    *x*
+        Array or sequence containing the data
+
     Keyword arguments:
 
       *NFFT*: integer
@@ -175,40 +192,23 @@ docstring.interpd.update(PSD=cbook.dedent("""
           by the scaling frequency, which gives density in units of Hz^-1.
           This allows for integration over the returned frequency values.
           The default is True for MATLAB compatibility.
-"""))
+          
+    Returns
+    -------
 
+    The tuple (*Pxx*, *freqs*).
 
-@docstring.dedent_interpd
-def psd(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
-        noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
-    """
-    The power spectral density by Welch's average periodogram method.
-    The vector *x* is divided into *NFFT* length blocks.  Each block
-    is detrended by the function *detrend* and windowed by the function
-    *window*.  *noverlap* gives the length of the overlap between blocks.
-    The absolute(fft(block))**2 of each segment are averaged to compute
-    *Pxx*, with a scaling to correct for power loss due to windowing.
+    Notes
+    -----
 
-    If len(*x*) < *NFFT*, it will be zero padded to *NFFT*.
-
-    *x*
-        Array or sequence containing the data
-
-    %(PSD)s
-
-    Returns the tuple (*Pxx*, *freqs*).
-
-    Refs:
-
-        Bendat & Piersol -- Random Data: Analysis and Measurement
-        Procedures, John Wiley & Sons (1986)
+    For details, see: Bendat & Piersol -- Random Data: Analysis and Measurement
+    Procedures, John Wiley & Sons (1986)
 
     """
     Pxx,freqs = csd(x, x, NFFT, Fs, detrend, window, noverlap, pad_to, sides,
         scale_by_freq)
     return Pxx.real,freqs
 
-@docstring.dedent_interpd
 def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
         noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
     """
@@ -226,13 +226,72 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     *x*, *y*
         Array or sequence containing the data
 
-    %(PSD)s
+    Keyword arguments:
 
-    Returns the tuple (*Pxy*, *freqs*).
+      *NFFT*: integer
+          The number of data points used in each block for the FFT.
+          Must be even; a power 2 is most efficient.  The default value is 256.
 
-    Refs:
-        Bendat & Piersol -- Random Data: Analysis and Measurement
-        Procedures, John Wiley & Sons (1986)
+      *Fs*: scalar
+          The sampling frequency (samples per time unit).  It is used
+          to calculate the Fourier frequencies, freqs, in cycles per time
+          unit. The default value is 2.
+
+      *detrend*: callable
+          The function applied to each segment before fft-ing,
+          designed to remove the mean or linear trend.  Unlike in
+          MATLAB, where the *detrend* parameter is a vector, in
+          matplotlib is it a function.  The :mod:`~matplotlib.pylab`
+          module defines :func:`~matplotlib.pylab.detrend_none`,
+          :func:`~matplotlib.pylab.detrend_mean`, and
+          :func:`~matplotlib.pylab.detrend_linear`, but you can use
+          a custom function as well.
+
+      *window*: callable or ndarray
+          A function or a vector of length *NFFT*. To create window
+          vectors see :func:`window_hanning`, :func:`window_none`,
+          :func:`numpy.blackman`, :func:`numpy.hamming`,
+          :func:`numpy.bartlett`, :func:`scipy.signal`,
+          :func:`scipy.signal.get_window`, etc. The default is
+          :func:`window_hanning`.  If a function is passed as the
+          argument, it must take a data segment as an argument and
+          return the windowed version of the segment.
+
+      *noverlap*: integer
+          The number of points of overlap between blocks.  The default value
+          is 0 (no overlap).
+
+      *pad_to*: integer
+          The number of points to which the data segment is padded when
+          performing the FFT.  This can be different from *NFFT*, which
+          specifies the number of data points used.  While not increasing
+          the actual resolution of the psd (the minimum distance between
+          resolvable peaks), this can give more points in the plot,
+          allowing for more detail. This corresponds to the *n* parameter
+          in the call to fft(). The default is None, which sets *pad_to*
+          equal to *NFFT*
+
+      *sides*: [ 'default' | 'onesided' | 'twosided' ]
+          Specifies which sides of the PSD to return.  Default gives the
+          default behavior, which returns one-sided for real data and both
+          for complex data.  'onesided' forces the return of a one-sided PSD,
+          while 'twosided' forces two-sided.
+
+      *scale_by_freq*: boolean
+          Specifies whether the resulting density values should be scaled
+          by the scaling frequency, which gives density in units of Hz^-1.
+          This allows for integration over the returned frequency values.
+          The default is True for MATLAB compatibility.
+          
+    Returns
+    -------
+    The tuple (*Pxy*, *freqs*).
+
+
+    Notes
+    -----
+    For details see: Bendat & Piersol -- Random Data: Analysis and Measurement
+    Procedures, John Wiley & Sons (1986)
     """
     Pxy, freqs, t = _spectral_helper(x, y, NFFT, Fs, detrend, window,
         noverlap, pad_to, sides, scale_by_freq)

@@ -15,7 +15,14 @@ XXX
 """
 
 import numpy as np
-import matplotlib.mlab as mlab
+
+import matplotlib
+
+# Normalization of DC component was fixed in later versions of mlab:
+if matplotlib.__version__ >= '1.0':
+    import matplotlib.mlab as mlab
+else: 
+    import nitime.mlab_spectral as mlab
 
 from spectral import get_spectra, get_spectra_bi
 import nitime.utils as utils
