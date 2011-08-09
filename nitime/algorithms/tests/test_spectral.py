@@ -24,22 +24,21 @@ def test_get_spectra():
            {"this_method": 'welch', "NFFT": 256, "Fs": 2 * np.pi},
            {"this_method": 'welch', "NFFT": 1024, "Fs": 2 * np.pi})
 
-
     for method in methods:
         avg_pwr1 = []
         avg_pwr2 = []
         est_pwr1 = []
         est_pwr2 = []
-        arsig1, _, _ = utils.ar_generator(N=2 ** 16) # It needs to be that long for
-                                        # the answers to converge
+        arsig1, _, _ = utils.ar_generator(N=2 ** 16)  # needs to be that long
+                                                  # for the answers to converge
         arsig2, _, _ = utils.ar_generator(N=2 ** 16)
 
         avg_pwr1.append((arsig1 ** 2).mean())
         avg_pwr2.append((arsig2 ** 2).mean())
 
-        tseries = np.vstack([arsig1,arsig2])
+        tseries = np.vstack([arsig1, arsig2])
 
-        f, c = tsa.get_spectra(tseries,method=method)
+        f, c = tsa.get_spectra(tseries, method=method)
 
         # \sum_{\omega} psd d\omega:
         est_pwr1.append(np.sum(c[0, 0]) * (f[1] - f[0]))
@@ -48,6 +47,7 @@ def test_get_spectra():
         # Get it right within the order of magnitude:
         npt.assert_array_almost_equal(est_pwr1, avg_pwr1, decimal=-1)
         npt.assert_array_almost_equal(est_pwr2, avg_pwr2, decimal=-1)
+
 
 def test_get_spectra_complex():
     """
@@ -58,8 +58,7 @@ def test_get_spectra_complex():
 
     methods = (None,
            {"this_method": 'welch', "NFFT": 256, "Fs": 2 * np.pi},
-           {"this_method": 'welch',"NFFT": 1024, "Fs": 2 * np.pi})
-
+           {"this_method": 'welch', "NFFT": 1024, "Fs": 2 * np.pi})
 
     for method in methods:
         avg_pwr1 = []
@@ -68,8 +67,8 @@ def test_get_spectra_complex():
         est_pwr2 = []
 
         # Make complex signals:
-        r, _, _ = utils.ar_generator(N=2 ** 16) # It needs to be that long for
-                                        # the answers to converge
+        r, _, _ = utils.ar_generator(N=2 ** 16)  # It needs to be that long for
+                                                 # the answers to converge
         c, _, _ = utils.ar_generator(N=2 ** 16)
         arsig1 = r + c * scipy.sqrt(-1)
 
@@ -92,6 +91,7 @@ def test_get_spectra_complex():
         npt.assert_array_almost_equal(est_pwr1, avg_pwr1, decimal=-1)
         npt.assert_array_almost_equal(est_pwr2, avg_pwr2, decimal=-1)
 
+
 def test_get_spectra_unknown_method():
     """
     Test that providing an unknown method to get_spectra rasies a ValueError
@@ -99,7 +99,8 @@ def test_get_spectra_unknown_method():
     """
     tseries = np.array([[1, 2, 3], [4, 5, 6]])
     npt.assert_raises(ValueError,
-                            tsa.get_spectra, tseries,method=dict(this_method='foo'))
+                    tsa.get_spectra, tseries, method=dict(this_method='foo'))
+
 
 def test_periodogram():
     """Test some of the inputs to periodogram """
@@ -120,7 +121,7 @@ def test_periodogram():
     arsig = r + c * scipy.sqrt(-1)
 
     f, c = tsa.periodogram(arsig)
-    npt.assert_equal(f.shape[0], N) # Should be N, not the one-sided N/2 + 1
+    npt.assert_equal(f.shape[0], N)  # Should be N, not the one-sided N/2 + 1
 
 
 def test_periodogram_csd():
@@ -151,25 +152,27 @@ def test_periodogram_csd():
     tseries = np.vstack([arsig1, arsig2])
 
     f, c = tsa.periodogram_csd(tseries)
-    npt.assert_equal(f.shape[0], N) # Should be N, not the one-sided N/2 + 1
+    npt.assert_equal(f.shape[0], N)  # Should be N, not the one-sided N/2 + 1
+
 
 def test_dpss_windows():
     """ Test a funky corner case of DPSS_windows """
 
     N = 1024
-    NW = 0 # Setting NW to 0 triggers the weird corner case in which some of
-           # the symmetric tapers have a negative average
+    NW = 0  # Setting NW to 0 triggers the weird corner case in which some of
+            # the symmetric tapers have a negative average
     Kmax = 7
 
     # But that's corrected by the algorithm:
-    d,w=tsa.dpss_windows(1024, 0, 7)
+    d, w = tsa.dpss_windows(1024, 0, 7)
     for this_d in d[0::2]:
-        npt.assert_equal(this_d.sum(axis=-1)< 0, False)
+        npt.assert_equal(this_d.sum(axis=-1) < 0, False)
 
 # XXX: make a test for
 # * the DPSS conventions
 # * DPSS orthonormality
 # * DPSS eigenvalues
+
 
 def test_get_spectra_bi():
     """
@@ -206,12 +209,13 @@ def test_get_spectra_bi():
                                       np.mean(avg_xpwr),
                                       decimal=-1)
 
+
 def test_mtm_lin_combo():
     "Test the functionality of cross and autospectrum MTM combinations"
-    spec1 = np.random.randn(5, 100) + 1j*np.random.randn(5, 100)
-    spec2 = np.random.randn(5, 100) + 1j*np.random.randn(5, 100)
+    spec1 = np.random.randn(5, 100) + 1j * np.random.randn(5, 100)
+    spec2 = np.random.randn(5, 100) + 1j * np.random.randn(5, 100)
     # test on both broadcasted weights and per-point weights
-    for wshape in ( (2,5,1), (2,5,100) ):
+    for wshape in ((2, 5, 1), (2, 5, 100)):
         weights = np.random.randn(*wshape)
         sides = 'onesided'
         mtm_cross = tsa.mtm_cross_spectrum(
@@ -225,7 +229,7 @@ def test_mtm_lin_combo():
         mtm_cross = tsa.mtm_cross_spectrum(
             spec1, spec2, (weights[0], weights[1]), sides=sides
             )
-        nt.assert_true (len(mtm_cross) == 100,
+        nt.assert_true(len(mtm_cross) == 100,
                'Wrong length for fullband spectrum')
         sides = 'onesided'
         mtm_auto = tsa.mtm_cross_spectrum(
@@ -241,6 +245,7 @@ def test_mtm_lin_combo():
             )
         nt.assert_true(len(mtm_auto) == 100,
                'Wrong length for fullband spectrum')
+
 
 def test_mtm_cross_spectrum():
     """
@@ -260,7 +265,7 @@ def test_mtm_cross_spectrum():
 
     est_psd = []
     for k in xrange(n_reps):
-        data,nz,alpha = utils.ar_generator(N=N)
+        data, nz, alpha = utils.ar_generator(N=N)
         fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha], n_freqs=n_freqs)
         # 'one-sided', so multiply by 2:
         psd = 2 * (hz * hz.conj()).real
@@ -287,14 +292,16 @@ def test_mtm_cross_spectrum():
     # Test raising of error in case the inputs don't make sense:
     npt.assert_raises(ValueError,
                       tsa.mtm_cross_spectrum,
-                      tspectra,np.r_[tspectra, tspectra],
+                      tspectra, np.r_[tspectra, tspectra],
                       (w, w))
+
 
 @dec.slow
 def test_multi_taper_psd_csd():
     """
 
-    Test the multi taper psd and csd estimation functions. Based on the example in
+    Test the multi taper psd and csd estimation functions.
+    Based on the example in
     doc/examples/multi_taper_spectral_estimation.py
 
     """
@@ -302,8 +309,7 @@ def test_multi_taper_psd_csd():
     N = 2 ** 10
     n_reps = 10
 
-
-    psd= []
+    psd = []
     est_psd = []
     est_csd = []
     for jk in [True, False]:
@@ -311,19 +317,20 @@ def test_multi_taper_psd_csd():
             for adaptive in [True, False]:
                 ar_seq, nz, alpha = utils.ar_generator(N=N, drop_transients=10)
                 ar_seq -= ar_seq.mean()
-                fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha], n_freqs=N)
+                fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha],
+                                              n_freqs=N)
                 psd.append(2 * (hz * hz.conj()).real)
                 f, psd_mt, nu = tsa.multi_taper_psd(ar_seq, adaptive=adaptive,
                                                     jackknife=jk)
                 est_psd.append(psd_mt)
-                f, csd_mt= tsa.multi_taper_csd(np.vstack([ar_seq, ar_seq]),
+                f, csd_mt = tsa.multi_taper_csd(np.vstack([ar_seq, ar_seq]),
                                                adaptive=adaptive)
                 # Symmetrical in this case, so take one element out:
                 est_csd.append(csd_mt[0][1])
 
-        fxx = np.mean(psd,0)
-        fxx_est1= np.mean(est_psd, 0)
-        fxx_est2= np.mean(est_csd, 0)
+        fxx = np.mean(psd, 0)
+        fxx_est1 = np.mean(est_psd, 0)
+        fxx_est2 = np.mean(est_csd, 0)
 
         # Tests the psd:
         psd_ratio1 = np.mean(fxx_est1 / fxx)
@@ -332,12 +339,13 @@ def test_multi_taper_psd_csd():
         psd_ratio2 = np.mean(fxx_est2 / fxx)
         npt.assert_array_almost_equal(psd_ratio2, 1, decimal=-1)
 
+
 def test_gh57():
     """
     https://github.com/nipy/nitime/issues/57
     """
     data = np.random.randn(10, 1000)
-    for jk in [True,False]:
-        for adaptive in [True,False]:
+    for jk in [True, False]:
+        for adaptive in [True, False]:
             f, psd, sigma = tsa.multi_taper_psd(data, adaptive=adaptive,
                                                 jackknife=jk)

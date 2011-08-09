@@ -692,10 +692,10 @@ def coherence_partial_spec(fxy, fxx, fyy, fxr, fry, frr):
     fxy : float array
          The cross-spectrum of the time series
 
-    fyy,fxx : float array
+    fyy, fxx : float array
          The spectra of the signals
 
-    fxr,fry : float array
+    fxr, fry : float array
          The cross-spectra of the signals with the event
 
     Returns
