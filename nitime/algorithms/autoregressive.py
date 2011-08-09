@@ -98,6 +98,7 @@ def AR_est_YW(x, order, rxx=None):
     sigma_v = r_m[0].real - np.dot(r_m[1:].conj(), ak).real
     return ak, sigma_v
 
+
 def AR_est_LD(x, order, rxx=None):
     r"""Levinson-Durbin algorithm for solving the Hermitian Toeplitz
     system of Yule-Walker equations in the AR estimation problem
@@ -147,22 +148,23 @@ def AR_est_LD(x, order, rxx=None):
         rxx_m = rxx[:order + 1]
     else:
         rxx_m = utils.autocorr(x)[:order + 1]
-    w = np.zeros((order+1,), rxx_m.dtype)
+    w = np.zeros((order + 1, ), rxx_m.dtype)
     # intialize the recursion with the R[0]w[1]=r[1] solution (p=1)
     b = rxx_m[0].real
-    w_k = rxx_m[1]/b
+    w_k = rxx_m[1] / b
     w[1] = w_k
     p = 2
-    while p<=order:
-        b *= (1-(w_k*w_k.conj()).real)
-        w_k = (rxx_m[p] - (w[1:p]*rxx_m[1:p][::-1]).sum())/b
+    while p <= order:
+        b *= 1 - (w_k * w_k.conj()).real
+        w_k = (rxx_m[p] - (w[1:p] * rxx_m[1:p][::-1]).sum()) / b
         # update w_k from k=1,2,...,p-1
         # with a correction from w*_i i=p-1,p-2,...,1
-        w[1:p] = w[1:p] - w_k*(w[1:p][::-1].conj())
+        w[1:p] = w[1:p] - w_k * w[1:p][::-1].conj()
         w[p] = w_k
         p += 1
-    b *= (1 - (w_k*w_k.conj()).real)
+    b *= 1 - (w_k * w_k.conj()).real
     return w[1:], b
+
 
 def lwr_recursion(r):
     r"""Perform a Levinson-Wiggins[Whittle]-Robinson recursion to
@@ -246,6 +248,7 @@ def lwr_recursion(r):
         sigb = np.dot(idnt - np.dot(kb, ka), sigb)
 
     return a, sigf
+
 
 def MAR_est_LWR(x, order, rxx=None):
     r"""

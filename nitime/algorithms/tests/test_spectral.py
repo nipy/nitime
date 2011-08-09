@@ -9,7 +9,6 @@ import numpy.testing as npt
 import numpy.testing.decorators as dec
 import nose.tools as nt
 
-import nitime
 import nitime.algorithms as tsa
 import nitime.utils as utils
 

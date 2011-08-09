@@ -2,6 +2,7 @@ import numpy as np
 
 __all__ = ["seed_corrcoef"]
 
+
 def seed_corrcoef(seed, target):
     """Compute seed-based correlation coefficient"""
 

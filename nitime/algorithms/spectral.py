@@ -21,6 +21,7 @@ import nitime.utils as utils
 # To suppport older versions of numpy that don't have tril_indices:
 from nitime.index_utils import tril_indices, triu_indices
 
+
 def get_spectra(time_series, method=None):
     r"""
     Compute the spectra of an n-tuple of time series and all of
@@ -416,7 +417,7 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
     # In this case, we create the dpss windows of the smaller size
     # (interp_from) and then interpolate to the larger size (N)
     if interp_from is not None:
-        if interp_from>N:
+        if interp_from > N:
             e_s = 'In dpss_windows, interp_from is: %s ' % interp_from
             e_s += 'and N is: %s. ' % N
             e_s += 'Please enter interp_from smaller than N.'
@@ -443,13 +444,14 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
         # that band, and the total energy. This leads to the eigen-system
         # (A - (l1)I)v = 0, where the eigenvector corresponding to the largest
         # eigenvalue is the sequence with maximally concentrated energy. The
-        # collection of eigenvectors of this system are called Slepian sequences,
-        # or discrete prolate spheroidal sequences (DPSS). Only the first K,
-        # K = 2NW/dt orders of DPSS will exhibit good spectral concentration
+        # collection of eigenvectors of this system are called Slepian
+        # sequences, or discrete prolate spheroidal sequences (DPSS). Only the
+        # first K, K = 2NW/dt orders of DPSS will exhibit good spectral
+        # concentration
         # [see http://en.wikipedia.org/wiki/Spectral_concentration_problem]
 
-        # Here I set up an alternative symmetric tri-diagonal eigenvalue problem
-        # such that
+        # Here I set up an alternative symmetric tri-diagonal eigenvalue
+        # problem such that
         # (B - (l2)I)v = 0, and v are our DPSS (but eigenvalues l2 != l1)
         # the main diagonal = ([N-1-2*t]/2)**2 cos(2PIW), t=[0,1,2,...,N-1]
         # and the first off-diagonal = t(N-t)/2, t=[1,2,...,N-1]
@@ -462,7 +464,8 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
         ab[1] = diagonal
         ab[0, 1:] = off_diag[:-1]
         # only calculate the highest Kmax eigenvalues
-        w = linalg.eigvals_banded(ab, select='i', select_range=(N - Kmax, N - 1))
+        w = linalg.eigvals_banded(ab, select='i',
+                                  select_range=(N - Kmax, N - 1))
         w = w[::-1]
 
         # find the corresponding eigenvectors via inverse iteration
@@ -536,7 +539,7 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
     if ty.shape != tx.shape:
         raise ValueError('shape mismatch between tx, ty')
 
-    pshape = list(tx.shape)
+    # pshape = list(tx.shape)
 
     if isinstance(weights, (list, tuple)):
         autospectrum = False
@@ -579,6 +582,7 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
     if autospectrum:
         return sf.real
     return sf
+
 
 def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
                     jackknife=True, low_bias=True, sides='default', NFFT=None):
@@ -842,6 +846,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
 
     return freqs, csdfs
 
+
 def freq_response(b, a=1., n_freqs=1024, sides='onesided'):
     """
     Returns the frequency response of the IIR or FIR filter described
@@ -868,5 +873,5 @@ def freq_response(b, a=1., n_freqs=1024, sides='onesided'):
     http://en.wikipedia.org/wiki/Z-transform
     """
     # transitioning to scipy freqz
-    real_n = n_freqs/2 + 1 if sides=='onesided' else n_freqs
+    real_n = n_freqs / 2 + 1 if sides == 'onesided' else n_freqs
     return sig.freqz(b, a=a, worN=real_n, whole=sides != 'onesided')

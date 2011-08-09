@@ -23,6 +23,7 @@ import nitime.utils as utils
 # To suppport older versions of numpy that don't have tril_indices:
 from nitime.index_utils import tril_indices
 
+
 def coherency(time_series, csd_method=None):
     r"""
     Compute the coherency between the spectra of n-tuple of time series.
@@ -697,7 +698,6 @@ def coherence_partial_spec(fxy, fxx, fyy, fxr, fry, frr):
     float
         the band-averaged coherency
     """
-    abs = np.abs
     coh = coherency_spec
     Rxr = coh(fxr, fxx, frr)
     Rry = coh(fry, fyy, frr)
@@ -970,7 +970,6 @@ def cache_fft(time_series, ij, lb=0, ub=None,
     for i, j in ij:
         all_channels.add(i)
         all_channels.add(j)
-    n_channels = len(all_channels)
 
     # for real time_series, ignore the negative frequencies
     if np.iscomplexobj(time_series):
@@ -1015,7 +1014,6 @@ def cache_fft(time_series, ij, lb=0, ub=None,
     n_slices = len(i_times)
     FFT_slices = {}
     FFT_conj_slices = {}
-    Pxx = {}
 
     for i_channel in all_channels:
         #dbg:
@@ -1060,19 +1058,18 @@ def cache_to_psd(cache, ij):
         keys are the intersection of i,j values in the parameter ij
 
     """
-
-    #This is the way it is saved by cache_spectra:
+    # This is the way it is saved by cache_spectra:
     FFT_slices = cache['FFT_slices']
     FFT_conj_slices = cache['FFT_conj_slices']
     norm_val = cache['norm_val']
-    Fs = cache['Fs']
-    #This is where the output goes to:
+    # Fs = cache['Fs']
+
+    # This is where the output goes to:
     Pxx = {}
     all_channels = set()
     for i, j in ij:
         all_channels.add(i)
         all_channels.add(j)
-    n_channels = len(all_channels)
 
     for i in all_channels:
         #dbg:
@@ -1127,7 +1124,6 @@ def cache_to_phase(cache, ij):
     for i, j in ij:
         all_channels.add(i)
         all_channels.add(j)
-    n_channels = len(all_channels)
 
     for i in all_channels:
         Phase[i] = np.angle(FFT_slices[i])
@@ -1168,10 +1164,10 @@ def cache_to_relative_phase(cache, ij):
     on individual windows.
 
     """
-    #This is the way it is saved by cache_spectra:
+    # This is the way it is saved by cache_spectra:
     FFT_slices = cache['FFT_slices']
     FFT_conj_slices = cache['FFT_conj_slices']
-    norm_val = cache['norm_val']
+    # norm_val = cache['norm_val']
 
     freqs = cache['FFT_slices'][ij[0][0]].shape[-1]
 
