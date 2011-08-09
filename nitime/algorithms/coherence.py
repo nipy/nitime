@@ -190,7 +190,7 @@ def coherence_spec(fxy, fxx, fyy):
     fxy : array
          The cross-spectrum of the time series
 
-    fyy,fxx : array
+    fyy, fxx : array
          The spectra of the signals
 
     Returns
@@ -203,9 +203,7 @@ def coherence_spec(fxy, fxx, fyy):
     --------
     :func:`coherence`
     """
-
-    c = (np.abs(fxy)) ** 2 / (fxx * fyy)
-
+    c = np.abs(fxy) ** 2 / (fxx * fyy)
     return c
 
 
