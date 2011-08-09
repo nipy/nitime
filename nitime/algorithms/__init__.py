@@ -53,7 +53,7 @@ data containers implemented in :mod:`nitime.timeseries`
 
 """
 from .spectral import *
-from .cohere import *
+from .coherence import *
 from .wavelet import *
 from .event_related import *
 from .autoregressive import *
