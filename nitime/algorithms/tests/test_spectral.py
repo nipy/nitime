@@ -1,7 +1,7 @@
 """
 Tests for the algorithms.spectral submodule
 
-""" 
+"""
 
 import numpy as np
 import scipy
@@ -32,14 +32,14 @@ def test_get_spectra():
         est_pwr1 = []
         est_pwr2 = []
         arsig1, _, _ = utils.ar_generator(N=2 ** 16) # It needs to be that long for
-                                        # the answers to converge 
+                                        # the answers to converge
         arsig2, _, _ = utils.ar_generator(N=2 ** 16)
-        
+
         avg_pwr1.append((arsig1 ** 2).mean())
         avg_pwr2.append((arsig2 ** 2).mean())
-    
+
         tseries = np.vstack([arsig1,arsig2])
-        
+
         f, c = tsa.get_spectra(tseries,method=method)
 
         # \sum_{\omega} psd d\omega:
@@ -49,7 +49,7 @@ def test_get_spectra():
         # Get it right within the order of magnitude:
         npt.assert_array_almost_equal(est_pwr1, avg_pwr1, decimal=-1)
         npt.assert_array_almost_equal(est_pwr2, avg_pwr2, decimal=-1)
-        
+
 def test_get_spectra_complex():
     """
 
@@ -76,13 +76,13 @@ def test_get_spectra_complex():
 
         r, _, _ = utils.ar_generator(N=2 ** 16)
         c, _, _ = utils.ar_generator(N=2 ** 16)
-        
+
         arsig2 = r + c * scipy.sqrt(-1)
         avg_pwr1.append((arsig1 * arsig1.conjugate()).mean())
         avg_pwr2.append((arsig2 * arsig2.conjugate()).mean())
-    
+
         tseries = np.vstack([arsig1, arsig2])
-        
+
         f, c = tsa.get_spectra(tseries, method=method)
 
         # \sum_{\omega} psd d\omega:
@@ -97,7 +97,7 @@ def test_get_spectra_unknown_method():
     """
     Test that providing an unknown method to get_spectra rasies a ValueError
 
-    """ 
+    """
     tseries = np.array([[1, 2, 3], [4, 5, 6]])
     npt.assert_raises(ValueError,
                             tsa.get_spectra, tseries,method=dict(this_method='foo'))
@@ -114,15 +114,15 @@ def test_periodogram():
     npt.assert_equal(c1, c2)
 
     # Check that providing a complex signal does the right thing
-    # (i.e. two-sided spectrum): 
-    N = 1024 
+    # (i.e. two-sided spectrum):
+    N = 1024
     r, _, _ = utils.ar_generator(N=N)
     c, _, _ = utils.ar_generator(N=N)
     arsig = r + c * scipy.sqrt(-1)
 
     f, c = tsa.periodogram(arsig)
     npt.assert_equal(f.shape[0], N) # Should be N, not the one-sided N/2 + 1
-    
+
 
 def test_periodogram_csd():
     """Test corner cases of  periodogram_csd"""
@@ -131,7 +131,7 @@ def test_periodogram_csd():
     arsig2, _, _ = utils.ar_generator(N=1024)
 
     tseries = np.vstack([arsig1, arsig2])
-    
+
     Sk = np.fft.fft(tseries)
 
     f1, c1 = tsa.periodogram_csd(tseries)
@@ -139,8 +139,8 @@ def test_periodogram_csd():
     npt.assert_equal(c1, c2)
 
     # Check that providing a complex signal does the right thing
-    # (i.e. two-sided spectrum): 
-    N = 1024 
+    # (i.e. two-sided spectrum):
+    N = 1024
     r, _, _ = utils.ar_generator(N=N)
     c, _, _ = utils.ar_generator(N=N)
     arsig1 = r + c * scipy.sqrt(-1)
@@ -155,7 +155,7 @@ def test_periodogram_csd():
     npt.assert_equal(f.shape[0], N) # Should be N, not the one-sided N/2 + 1
 
 def test_dpss_windows():
-    """ Test a funky corner case of DPSS_windows """  
+    """ Test a funky corner case of DPSS_windows """
 
     N = 1024
     NW = 0 # Setting NW to 0 triggers the weird corner case in which some of
@@ -171,13 +171,13 @@ def test_dpss_windows():
 # * the DPSS conventions
 # * DPSS orthonormality
 # * DPSS eigenvalues
-    
+
 def test_get_spectra_bi():
     """
 
     Test the bi-variate get_spectra function
 
-    """ 
+    """
 
     methods = (None,
            {"this_method": 'welch', "NFFT": 256, "Fs": 2 * np.pi},
@@ -245,11 +245,11 @@ def test_mtm_lin_combo():
 
 def test_mtm_cross_spectrum():
     """
-    
+
     Test the multi-taper cross-spectral estimation. Based on the example in
     doc/examples/multi_taper_coh.py
 
-    """ 
+    """
     NW = 4
     K = 2 * NW - 1
 
@@ -296,9 +296,9 @@ def test_multi_taper_psd_csd():
     """
 
     Test the multi taper psd and csd estimation functions. Based on the example in
-    doc/examples/multi_taper_spectral_estimation.py 
-    
-    """ 
+    doc/examples/multi_taper_spectral_estimation.py
+
+    """
 
     N = 2 ** 10
     n_reps = 10

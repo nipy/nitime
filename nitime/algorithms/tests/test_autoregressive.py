@@ -35,7 +35,7 @@ def test_AR_YW():
     arsig,_,_ = utils.ar_generator(N=512)
     avg_pwr = (arsig*arsig.conjugate()).mean()
     order = 8
-    ak,sigma_v = tsa.AR_est_YW(arsig, order) 
+    ak,sigma_v = tsa.AR_est_YW(arsig, order)
     w, psd = tsa.AR_psd(ak, sigma_v)
     # the psd is a one-sided power spectral density, which has been
     # multiplied by 2 to preserve the property that
@@ -91,10 +91,10 @@ def test_MAR_est_LWR():
 
     This also tests the functions: transfer_function_xy, spectral_matrix_xy,
     coherence_from_spectral and granger_causality_xy
-    
+
     """
 
-    # This is the same processes as those in doc/examples/ar_est_2vars.py: 
+    # This is the same processes as those in doc/examples/ar_est_2vars.py:
     a1 = np.array([ [0.9, 0],
                 [0.16, 0.8] ])
 
@@ -143,7 +143,7 @@ def test_MAR_est_LWR():
     a_est = np.mean(a_est,0)
     cov_est = np.mean(cov_est,0)
 
-    # This tests transfer_function_xy and spectral_matrix_xy: 
+    # This tests transfer_function_xy and spectral_matrix_xy:
     w, Hw_est = tsa.transfer_function_xy(a_est, n_freqs=n_freqs)
     Sw_est = tsa.spectral_matrix_xy(Hw_est, cov_est)
 
@@ -166,7 +166,7 @@ def test_MAR_est_LWR():
 
     i_xy = tsa.interdependence_xy(Sw)
     i_xy_est = tsa.interdependence_xy(Sw_est)
-    
+
     # This is all very approximate:
     npt.assert_almost_equal(Hw,Hw_est,decimal=1)
     npt.assert_almost_equal(Sw,Sw_est,decimal=1)
@@ -213,5 +213,3 @@ def test_lwr():
 
         # compute |Ax-b| / |b| metric
         npt.assert_almost_equal(l2_d / l2_r, 0, decimal=5)
-
-
