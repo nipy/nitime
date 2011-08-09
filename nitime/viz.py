@@ -4,7 +4,7 @@ Depends on matplotlib. Some functions depend also on networkx
 
 """
 
-# If you are running nosetests right now, you might want to use 'agg' as a backend: 
+# If you are running nosetests right now, you might want to use 'agg' as a backend:
 import sys
 if "nose" in sys.modules:
     import matplotlib

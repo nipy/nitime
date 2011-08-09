@@ -564,7 +564,7 @@ class SeedCoherenceAnalyzer(object):
             e_s = "The sampling rate for the seed time-series and the target"
             e_s += " time-series need to be identical."
             raise ValueError(e_s)
-        
+
         #Set the variables for spectral estimation (can also be entered by
         #user):
         if method is None:

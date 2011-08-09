@@ -176,11 +176,11 @@ def _tseries_from_nifti_helper(coords, data, TR, filter, normalize, average):
             tseries = F.iir
 
     if normalize == 'percent':
-            tseries = tsa.NormalizationAnalyzer(tseries).percent_change
+        tseries = tsa.NormalizationAnalyzer(tseries).percent_change
     elif normalize == 'zscore':
-            tseries = tsa.NormalizationAnalyzer(tseries).z_score
+        tseries = tsa.NormalizationAnalyzer(tseries).z_score
     if average:
-            tseries.data = np.mean(tseries.data, 0)
+        tseries.data = np.mean(tseries.data, 0)
 
     return tseries
 

@@ -223,7 +223,7 @@ def dB(x, power=True):
     """Convert the values in x to decibels.
     If the values in x are in 'power'-like units, then set the power
     flag accordingly
-    
+
     1) dB(x) = 10log10(x)                     (if power==True)
     2) dB(x) = 10log10(|x|^2) = 20log10(|x|)  (if power==False)
     """
@@ -679,13 +679,13 @@ def crosscov(x, y, axis=-1, all_lags=False, debias=True, normalize=True):
 
     .. math::
 
-    C_{xy}[k]=E\{(X(n+k)-E\{X\})(Y(n)-E\{Y\})^{*}\} 
-    
+    C_{xy}[k]=E\{(X(n+k)-E\{X\})(Y(n)-E\{Y\})^{*}\}
+
     where X and Y are discrete, stationary (or ergodic) random processes
 
     Also note that this routine is the workhorse for all auto/cross/cov/corr
     functions.
-    
+
     """
     if x.shape[axis] != y.shape[axis]:
         raise ValueError(
@@ -735,7 +735,7 @@ def crosscorr(x, y, **kwargs):
 
     .. math::
 
-    R_{xy}[k]=E\{X[n+k]Y^{*}[n]\} 
+    R_{xy}[k]=E\{X[n+k]Y^{*}[n]\}
 
     where X and Y are discrete, stationary (ergodic) random processes
     """
@@ -756,7 +756,7 @@ def autocov(x, **kwargs):
     all_lags: {True/False}
        whether to return all nonzero lags, or to clip the length of r_xy
        to be the length of x and y. If False, then the zero lag correlation
-       is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2    
+       is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2
 
     Returns
     -------
@@ -772,7 +772,7 @@ def autocov(x, **kwargs):
     .. math::
 
     C_{xx}[k]=E\{(X[n+k]-E\{X\})(X[n]-E\{X\})^{*}\}
-    
+
     where X is a discrete, stationary (ergodic) random process
     """
     # only remove the mean once, if needed
@@ -795,7 +795,7 @@ def autocorr(x, **kwargs):
     all_lags: {True/False}
        whether to return all nonzero lags, or to clip the length of r_xy
        to be the length of x and y. If False, then the zero lag correlation
-       is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2    
+       is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2
 
     Notes
     -----
@@ -804,12 +804,12 @@ def autocorr(x, **kwargs):
 
     .. math::
 
-    R_{xx}[k]=E\{X[n+k]X^{*}[n]\} 
+    R_{xx}[k]=E\{X[n+k]X^{*}[n]\}
 
     where X is a discrete, stationary (ergodic) random process
 
 
-    
+
     """
     # do same computation as autocovariance,
     # but without subtracting the mean
@@ -2108,7 +2108,7 @@ def bayesian_information_criterion(x, m):
 
     """
     import nitime.algorithms.autoregressive as ar
-    
+
     N = x.shape[0]
     p = x.shape[1]
 

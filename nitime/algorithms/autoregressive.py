@@ -43,7 +43,7 @@ def AR_est_YW(x, order, rxx=None):
     the Yule Walker equations. The AR model takes this convention:
 
     .. math::
-    
+
       x(n) = a(1)x(n-1) + a(2)x(n-2) + \dots + a(p)x(n-p) + e(n)
 
     where e(n) is a zero-mean white noise process with variance sig_sq,
@@ -61,15 +61,15 @@ def AR_est_YW(x, order, rxx=None):
     yields the Yule Walker system of equations:
 
     .. math::
-      
+
       R_{xx}(k) = \sum_{i=1}^{p}a(i)R_{xx}(k-i) \quad1\leq k\leq p
 
     Similarly, the variance of the error process is
 
     .. math::
-    
+
       E\{e(n)e^{*}(n)\}   = E\{e(n)x^{*}(n)\} = R_{xx}(0)-\sum_{i=1}^{p}a(i)R^{*}(i)
-    
+
 
     Parameters
     ----------
@@ -107,10 +107,10 @@ def AR_est_LD(x, order, rxx=None):
        T^{(p)}a^{(p)} = \gamma^{(p+1)}
 
     where
-    
+
     .. math::
        :nowrap:
-       
+
        \begin{align*}
        T^{(p)} &= \begin{pmatrix}
           R_{0} & R_{1}^{*} & \cdots & R_{p-1}^{*}\\
@@ -123,14 +123,14 @@ def AR_est_LD(x, order, rxx=None):
        \end{align*}
 
     and :math:`R_k` is the autocorrelation of the kth lag
-    
+
     Parameters
     ----------
 
     x: ndarray
       the zero-mean stochastic process
     order : int
-      the AR model order--IE the rank of the system. 
+      the AR model order--IE the rank of the system.
     rxx : ndarray, optional
       (at least) order+1 samples of the autocorrelation sequence
 
@@ -140,7 +140,7 @@ def AR_est_LD(x, order, rxx=None):
     ak, sig_sq
       The AR coefficients for 1 <= k <= p, and the variance of the
       driving white noise process
-    
+
     """
 
     if rxx is not None and type(rxx) == np.ndarray:

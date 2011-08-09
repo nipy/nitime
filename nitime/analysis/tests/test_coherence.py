@@ -28,7 +28,7 @@ def test_CoherenceAnalyzer():
                 # of frequencies):
                 npt.assert_equal(C.coherence.shape,(n_series, n_series,
                                                     C.frequencies.shape[0]))
-                
+
             elif (method['this_method']=='welch' or
                   method['this_method']=='periodogram_csd'):
                 npt.assert_equal(C.coherence.shape, (n_series, n_series,
@@ -142,19 +142,19 @@ def test_SeedCoherenceAnalyzer():
 
 def test_SeedCoherenceAnalyzer_same_Fs():
     """
-    
+
     Providing two time-series with different sampling rates throws an error
-    
-    """ 
+
+    """
 
     Fs1 = np.pi
     Fs2 = 2 * np.pi
     t = np.arange(256)
-    
+
     T1 = ts.TimeSeries(np.random.rand(t.shape[-1]),
                        sampling_rate=Fs1)
- 
+
     T2 = ts.TimeSeries(np.random.rand(t.shape[-1]),
                        sampling_rate=Fs2)
-    
+
     npt.assert_raises(ValueError, nta.SeedCoherenceAnalyzer, T1, T2)

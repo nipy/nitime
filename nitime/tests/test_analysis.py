@@ -291,5 +291,3 @@ def test_MorletWaveletAnalyzer():
     npt.assert_almost_equal(np.sin(HL.phase.data[10:-10]),
                             np.sin(WL.phase.data[10:-10]),
                             decimal=0)
-
-
