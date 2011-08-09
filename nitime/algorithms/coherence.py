@@ -203,6 +203,10 @@ def coherence_spec(fxy, fxx, fyy):
     --------
     :func:`coherence`
     """
+    if not np.isrealobj(fxx):
+        fxx = np.real(fxx)
+    if not np.isrealobj(fyy):
+        fyy = np.real(fyy)
     c = np.abs(fxy) ** 2 / (fxx * fyy)
     return c
 
@@ -595,9 +599,12 @@ def _coherence_bavg(fxy, fxx, fyy):
     float :
         the band-averaged coherence
     """
+    if not np.isrealobj(fxx):
+        fxx = np.real(fxx)
+    if not np.isrealobj(fyy):
+        fyy = np.real(fyy)
 
-    return ((np.abs(fxy.sum()) ** 2) /
-            (fxx.sum() * fyy.sum()))
+    return (np.abs(fxy.sum()) ** 2) / (fxx.sum() * fyy.sum())
 
 
 def coherence_partial(time_series, r, csd_method=None):
