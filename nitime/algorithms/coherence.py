@@ -162,8 +162,8 @@ def coherence(time_series, csd_method=None):
 
     f, fxy = get_spectra(time_series, csd_method)
 
-    #A container for the coherences, with the size and shape of the expected
-    #output:
+    # A container for the coherences, with the size and shape of the expected
+    # output:
     c = np.zeros((time_series.shape[0],
                   time_series.shape[0],
                   f.shape[0]))

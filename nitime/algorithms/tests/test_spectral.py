@@ -328,9 +328,9 @@ def test_multi_taper_psd_csd():
                 # Symmetrical in this case, so take one element out:
                 est_csd.append(csd_mt[0][1])
 
-        fxx = np.mean(psd, 0)
-        fxx_est1 = np.mean(est_psd, 0)
-        fxx_est2 = np.mean(est_csd, 0)
+        fxx = np.mean(psd, axis=0)
+        fxx_est1 = np.mean(est_psd, axis=0)
+        fxx_est2 = np.mean(est_csd, axis=0)
 
         # Tests the psd:
         psd_ratio1 = np.mean(fxx_est1 / fxx)

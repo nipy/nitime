@@ -274,7 +274,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
     the PSD is equal to the mean squared amplitude (mean energy) of s (see
     Notes).
 
-    Paramters
+    Parameters
     ---------
 
     s : ndarray
@@ -290,10 +290,10 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
         Indicates an N-point FFT where N != s.shape[-1]
 
     sides : str (optional)   [ 'default' | 'onesided' | 'twosided' ]
-         This determines which sides of the spectrum to return.
-         For complex-valued inputs, the default is two-sided, for real-valued
-         inputs, default is one-sided Indicates whether to return a one-sided
-         or two-sided
+        This determines which sides of the spectrum to return.
+        For complex-valued inputs, the default is two-sided, for real-valued
+        inputs, default is one-sided Indicates whether to return a one-sided
+        or two-sided
 
     normalize : boolean (optional)
         Normalizes the PSD
@@ -301,7 +301,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
     Returns
     -------
 
-    (freqs, csd_est) : ndarrays
+    freqs, csd_est : ndarrays
         The estimatated CSD and the frequency points vector.
         The CSD{i,j}(f) are returned in a square "matrix" of vectors
         holding Sij(f). For an input array that is reshaped to (M,N),
@@ -642,7 +642,7 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
     # de-mean this sucker
     s = utils.remove_bias(s, axis=-1)
 
-    #Get the number of tapers from the sampling rate and the bandwidth:
+    # Get the number of tapers from the sampling rate and the bandwidth:
     if BW is not None:
         NW = BW / (2 * Fs) * N
     else:

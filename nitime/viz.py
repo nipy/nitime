@@ -1381,7 +1381,7 @@ def winspect(win, f, name=None):
 
 def plot_spectral_estimate(f, sdf, sdf_ests, limits=None, elabels=()):
     """
-    Plot an estimate of a spectral transform agains the ground truth.
+    Plot an estimate of a spectral transform against the ground truth.
 
     Utility file used in building the documentation
     """
