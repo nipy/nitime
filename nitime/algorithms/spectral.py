@@ -22,6 +22,11 @@ import nitime.utils as utils
 from nitime.index_utils import tril_indices, triu_indices
 
 
+# Set global variables for the default NFFT to be used in spectral analysis and
+# the overlap:
+default_nfft = 64
+default_n_overlap = int(np.ceil(default_nfft / 2.0))
+
 def get_spectra(time_series, method=None):
     r"""
     Compute the spectra of an n-tuple of time series and all of
@@ -97,7 +102,7 @@ def get_spectra(time_series, method=None):
     this_method = method.get('this_method', 'welch')
 
     if this_method == 'welch':
-        NFFT = method.get('NFFT', 64)
+        NFFT = method.get('NFFT', default_nfft)
         Fs = method.get('Fs', 2 * np.pi)
         detrend = method.get('detrend', mlab.detrend_none)
         window = method.get('window', mlab.window_hanning)
