@@ -3,6 +3,7 @@ import numpy.testing as npt
 import nose.tools as nt
 
 from nitime import utils
+import nitime.algorithms as alg
 
 
 def test_zscore():
@@ -130,7 +131,6 @@ def test_autocorr():
     nt.assert_true(rxx[127] == rxx.max(), \
           'Zero lag autocorrelation is not maximum autocorrelation')
 
-
 def test_information_criteria():
     """
 
@@ -151,23 +151,52 @@ def test_information_criteria():
     cov = np.array([[x_var, xy_cov],
                     [xy_cov, y_var]])
 
-    N = 10
-    L = 100
+    #Number of realizations of the process
+    N = 500
+    #Length of each realization:
+    L = 1024
 
-    z = np.empty((N, 2, L))
-    nz = np.empty((N, 2, L))
+    order = am.shape[0]
+    n_process = am.shape[-1]
+
+    z = np.empty((N, n_process, L))
+    nz = np.empty((N, n_process, L))
+
     for i in xrange(N):
         z[i], nz[i] = utils.generate_mar(am, cov, L)
 
     AIC = []
     BIC = []
     AICc = []
-    for i in range(10):
-        AIC.append(utils.akaike_information_criterion(z, i))
-        AICc.append(utils.akaike_information_criterion_c(z, i))
-        BIC.append(utils.bayesian_information_criterion(z, i))
+
+    # The total number data points available for estimation:
+    Ntotal = L * n_process
+
+    for n_lags in range(1, 10):
+
+        Rxx = np.empty((N, n_process, n_process, n_lags))
+
+        for i in xrange(N):
+            Rxx[i] = utils.autocov_vector(z[i], nlags=n_lags)
+
+        Rxx = Rxx.mean(axis=0)
+        Rxx = Rxx.transpose(2, 0, 1)
+
+        a, ecov = alg.lwr_recursion(Rxx)
+
+        IC = utils.akaike_information_criterion(ecov, n_process, n_lags, Ntotal)
+        AIC.append(IC)
+
+        IC = utils.akaike_information_criterion(ecov, n_process, n_lags, Ntotal, corrected=True)
+        AICc.append(IC)
+
+        IC = utils.bayesian_information_criterion(ecov, n_process, n_lags, Ntotal)
+        BIC.append(IC)
 
     # The model has order 2, so this should minimize on 2:
-    #nt.assert_equal(np.argmin(AIC),2)
-    #nt.assert_equal(np.argmin(AICc),2)
+
+    # We do not test this for AIC/AICc, because these sometimes do not minimize
+    # (see Ding and Bressler)
+    # nt.assert_equal(np.argmin(AIC), 2)
+    # nt.assert_equal(np.argmin(AICc), 2)
     nt.assert_equal(np.argmin(BIC), 2)

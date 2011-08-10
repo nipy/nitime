@@ -6,7 +6,6 @@
 
 # Third-party
 import numpy as np
-from nose.core import TestProgram
 
 #-----------------------------------------------------------------------------
 # Functions and classes
@@ -19,6 +18,10 @@ def test(doctests=False):
     Run the nitime test suite using nose.
 
     """
+    # Import this internally, so that nose doesn't get pulled into sys.modules,
+    # unless you are really running the test-suite.
+    from nose.core import TestProgram
+
     #Make sure that you only change the print options during the testing
     #of nitime and don't affect the user session after that:
     opt_dict = np.get_printoptions()
