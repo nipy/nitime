@@ -1916,10 +1916,10 @@ def generate_mar(a, cov, N):
     Parameters
     ----------
 
-    a : ndarray (P, nc, nc)
-       An order P set of coefficient matrices, each shaped (nc, nc) for
-       nchannel data
-    cov : ndarray (nc, nc)
+    a : ndarray (n_order, n_c, n_c)
+       An order n_order set of coefficient matrices, each shaped (n_c, n_c) for
+       n_channel data
+    cov : ndarray (n_c, n_c)
        The innovations process covariance
     N : int
        how many samples to generate
@@ -1929,13 +1929,13 @@ def generate_mar(a, cov, N):
 
     mar, nz
 
-    mar and noise process shaped (nc, N)
+    mar and noise process shaped (n_c, N)
     """
-    n_seq = cov.shape[0]
+    n_c = cov.shape[0]
     n_order = a.shape[0]
 
     nz = np.random.multivariate_normal(
-        np.zeros(n_seq), cov, size=(N,)
+        np.zeros(n_c), cov, size=(N,)
         )
 
     # nz is a (N x n_seq) array
@@ -1946,8 +1946,9 @@ def generate_mar(a, cov, N):
     # multiplication at each coef matrix a(i)
 
     # this rearranges the equation to read:
-    # X(i) = E(i) - sum_{j=1}^{p} a(j)X(i-j)
+    # X(i) = E(i) - sum_{j=1}^{P} a(j)X(i-j)
     # where X(n) n < 0 is taken to be 0
+    # In terms of the code: X is mar and E is nz, P is n_order  
     for i in xrange(N):
         for j in xrange(min(i, n_order)):  # j logically in set {1, 2, ..., P}
             mar[i, :] -= np.dot(a[j], mar[i - j - 1, :])

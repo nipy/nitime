@@ -80,7 +80,7 @@ class GrangerAnalyzer(BaseAnalyzer):
         input: nitime TimeSeries object
         ij: List of tuples of the form: [(0, 1), (0, 2)], etc.
             These are the indices of pairs of time-series for which the
-            analysis will be done Defaults to all vs. all.
+            analysis will be done. Defaults to all vs. all.
         order: int (optional)
              The order of the process. If this is not known, it will be
              estimated from the data, using the information criterion
@@ -147,10 +147,16 @@ class GrangerAnalyzer(BaseAnalyzer):
 
     @desc.setattr_on_read
     def _granger_causality(self):
+        """
+        This returns a dict with the values computed by
+        :func:`granger_causality_xy`, rather than arrays, so that we can delay
+        the allocation of arrays as much as possible. 
+
+        """ 
         gc = dict(frequencies={}, gc_xy={}, gc_yx={}, gc_sim={}, spectral_density={})
         for i, j in self.ij:
             w, f_x2y, f_y2x, f_xy, Sw = \
-               alg.granger_causality_xy(self.model_coef[i, j ],
+               alg.granger_causality_xy(self.model_coef[i, j],
                                         self.error_cov[i, j],
                                         n_freqs=self._n_freqs)
 
@@ -172,12 +178,15 @@ class GrangerAnalyzer(BaseAnalyzer):
         A helper function that will generate an array with all nan's and insert
         the measure defined by 'key' into the array and return it to the
         calling function. This allows us to get matrices of the measures of
-        interest, instead of a dict
+        interest, instead of a dict.
         """
         # Prepare the matrix for the output:
-        arr = np.nan * np.ones((self._n_process,
-                               self._n_process,
-                               self.frequencies.shape[0]))
+        arr = np.empty((self._n_process,
+                        self._n_process,
+                        self.frequencies.shape[0]))
+        
+        arr.fill(np.nan)
+
         # 'Translate' from dict form into matrix form:
         for i,j in self.ij:
             arr[j, i, :] = self._granger_causality[key][i, j]

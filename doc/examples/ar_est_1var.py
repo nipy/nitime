@@ -2,9 +2,9 @@
 
 .. _ar:
 
-=============================
-Auto-regressive model fitting
-=============================
+===============================================
+Fitting an AR model: algorithm module interface 
+===============================================
 
 Auto-regressive (AR) processes are processes that follow the following equation:
 
