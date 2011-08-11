@@ -13,12 +13,15 @@ What's new in Nitime
 =====================
 
 This section documents the changes that have been made in various versions of
-Nitime. Users should consult these pages to learn about new features, bug
-fixes and backwards incompatibilities. Developers should summarize the
-development work they do here in a user friendly format.
+Nitime: 
 
 .. toctree::
    :maxdepth: 1
 
-  version0.3
-  development
+   version0.3
+   development
+
+
+Users should consult these pages to learn about new features, bug
+fixes and backwards incompatibilities. Developers should summarize the
+development work they do here in a user friendly format.
