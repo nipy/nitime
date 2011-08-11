@@ -13,8 +13,8 @@ Contents:
    :maxdepth: 2
 
    users/index
+   whatsnew/index   
    examples/index
    discussion/index
    devel/index
    api/index
-   

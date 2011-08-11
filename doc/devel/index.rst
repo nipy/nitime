@@ -14,5 +14,5 @@ Contents:
    patching
    git_development
    git_resources
-
+   how_to_release
 
