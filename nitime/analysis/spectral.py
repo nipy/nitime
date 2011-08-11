@@ -391,11 +391,23 @@ class FilterAnalyzer(desc.ResetMixin):
 
         lb_frac = self.lb / (self.sampling_rate / 2.)
 
-        wp = [lb_frac, ub_frac]
+        # For the band-pass:
+        if lb_frac > 0 and ub_frac < 1:
 
-        #Make sure to not exceed the interval 0-1:
-        ws = [np.max([lb_frac - 0.1, 0]),
-              np.min([ub_frac + 0.1, 1.0])]
+            wp = [lb_frac, ub_frac]
+
+            ws = [np.max([lb_frac - 0.1, 0]),
+                  np.min([ub_frac + 0.1, 1.0])]
+
+        # For the lowpass:
+        elif lb_frac == 0:
+            wp = ub_frac
+            ws = np.min([ub_frac + 0.1, 0.9])
+
+        # For the highpass:
+        elif ub_frac == 1:
+            wp = lb_frac
+            ws = np.max([lb_frac - 0.1, 0.1])
 
         b, a = signal.iirdesign(wp, ws, self._gpass, self._gstop,
                                 ftype=self._ftype)
