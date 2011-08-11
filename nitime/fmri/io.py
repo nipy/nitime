@@ -11,7 +11,7 @@ import nitime.analysis as tsa
 import numpy as np
 
 
-def time_series_from_file(nifti_files, coords, TR, normalize=None,
+def time_series_from_file(nifti_files, coords=None, TR=None, normalize=None,
                           average=False, filter=None, verbose=False):
     """ Make a time series from a Analyze file, provided coordinates into the
             file
@@ -23,12 +23,19 @@ def time_series_from_file(nifti_files, coords, TR, normalize=None,
         The full path(s) to the file(s) from which the time-series is (are)
         extracted
 
-    coords: ndarray or list/tuple of ndarray
+    coords: ndarray or list/tuple of ndarray, optional.
         x,y,z (inplane,inplane,slice) coordinates of the ROI(s) from which the
-        time-series is (are) derived.
+        time-series is (are) derived. If coordinates are provided, the
+        resulting time-series object will have 2 dimentsions. The first is the
+        coordinate dimension, in order of the provided coordinates and the
+        second is time. If set to None, all the coords in the volume will be
+        used and the coordinate system will be preserved - the output will be 4
+        dimensional, with time as the last dimension.
 
-    TR: float, optional
-        The TR of the fmri measurement
+    TR: float or TimeArray, optional
+        The TR of the fmri measurement. The units are seconds, if provided as a float
+        argument. Otherwise, in the units of the TimeArray object
+        provided. Default: 1 second.
 
     normalize: bool, optional
         Whether to normalize the activity in each voxel, defaults to
@@ -65,6 +72,11 @@ def time_series_from_file(nifti_files, coords, TR, normalize=None,
     by the averaging.
 
     """
+
+    # The default behavior is to assume that the TR is one second:
+    if TR is None:
+        TR = 1.0
+
     if normalize is not None:
         if normalize not in ('percent', 'zscore'):
             e_s = "Normalization of fMRI time-series can only be done"
@@ -76,23 +88,29 @@ def time_series_from_file(nifti_files, coords, TR, normalize=None,
             print "Reading %s" % nifti_files
         im = load(nifti_files)
         data = im.get_data()
-        #If the input is the coords of several ROIs
-        if isinstance(coords, tuple) or isinstance(coords, list):
-            n_roi = len(coords)
-            out_data = [[]] * n_roi
-            tseries = [[]] * n_roi
-            for i in xrange(n_roi):
-                tseries[i] = _tseries_from_nifti_helper(
-                    np.array(coords[i]).astype(int),
-                    data,
-                    TR,
-                    filter,
-                    normalize,
-                    average)
-        else:
-            tseries = _tseries_from_nifti_helper(coords.astype(int), data, TR,
-                                                 filter, normalize, average)
+        # If coordinates are provided as input, read data only from these coordinates:
+        if coords is not None:
+            #If the input is the coords of several ROIs
+            if isinstance(coords, tuple) or isinstance(coords, list):
+                n_roi = len(coords)
+                out_data = [[]] * n_roi
+                tseries = [[]] * n_roi
+                for i in xrange(n_roi):
+                    tseries[i] = _tseries_from_nifti_helper(
+                        np.array(coords[i]).astype(int),
+                        data,
+                        TR,
+                        filter,
+                        normalize,
+                        average)
+            else:
+                tseries = _tseries_from_nifti_helper(coords.astype(int), data, TR,
+                                                     filter, normalize, average)
 
+        # The default behavior reads in all the coordinates in the volume:
+        else:
+            tseries = _tseries_from_nifti_helper(coords, data, TR,
+                                                     filter, normalize, average)
     #Otherwise loop over the files and concatenate:
     elif isinstance(nifti_files, tuple) or isinstance(nifti_files, list):
         tseries_list = []
@@ -101,29 +119,35 @@ def time_series_from_file(nifti_files, coords, TR, normalize=None,
                 print "Reading %s" % f
             im = load(f)
             data = im.get_data()
+            if coords is not None:
+                #If the input is the coords of several ROIs
+                if isinstance(coords, tuple) or isinstance(coords, list):
+                    n_roi = len(coords)
+                    out_data = [[]] * n_roi
+                    tseries_list.append([[]] * n_roi)
+                    for i in xrange(n_roi):
+                        tseries_list[-1][i] = _tseries_from_nifti_helper(
+                            np.array(coords[i]).astype(int),
+                            data,
+                            TR,
+                            filter,
+                            normalize,
+                            average)
 
-            #If the input is the coords of several ROIs
-            if isinstance(coords, tuple) or isinstance(coords, list):
-                n_roi = len(coords)
-                out_data = [[]] * n_roi
-                tseries_list.append([[]] * n_roi)
-                for i in xrange(n_roi):
-                    tseries_list[-1][i] = _tseries_from_nifti_helper(
-                        np.array(coords[i]).astype(int),
+                else:
+                    tseries_list.append(_tseries_from_nifti_helper(
+                        np.array(coords).astype(int),
                         data,
                         TR,
                         filter,
                         normalize,
-                        average)
+                        average))
 
+            # The default behavior reads in all the coordinates in the volume:
             else:
-                tseries_list.append(_tseries_from_nifti_helper(
-                    np.array(coords).astype(int),
-                    data,
-                    TR,
-                    filter,
-                    normalize,
-                    average))
+                tseries_list.append(_tseries_from_nifti_helper(coords, data, TR,
+                                                               filter, normalize, average))
+
 
         #Concatenate the time-series from the different scans:
         if isinstance(coords, tuple) or isinstance(coords, list):
@@ -145,8 +169,13 @@ def _tseries_from_nifti_helper(coords, data, TR, filter, normalize, average):
     Helper function for the function time_series_from_nifti, which does the
     core operations of pulling out data from a data array given coords and then
     normalizing and averaging if needed
+
     """
-    out_data = np.asarray(data[coords[0], coords[1], coords[2]])
+    if coords is not None:
+        out_data = np.asarray(data[coords[0], coords[1], coords[2]])
+    else:
+        out_data = data
+
     tseries = ts.TimeSeries(out_data, sampling_interval=TR)
 
     if filter is not None:
@@ -179,8 +208,14 @@ def _tseries_from_nifti_helper(coords, data, TR, filter, normalize, average):
         tseries = tsa.NormalizationAnalyzer(tseries).percent_change
     elif normalize == 'zscore':
         tseries = tsa.NormalizationAnalyzer(tseries).z_score
+
     if average:
-        tseries.data = np.mean(tseries.data, 0)
+        if coords is None:
+            tseries.data = np.mean(np.reshape(tseries.data,
+                                              (np.array(tseries.shape[:-1]).prod(),
+                                               tseries.shape[-1])),0)
+        else:
+            tseries.data = np.mean(tseries.data, 0)
 
     return tseries
 

@@ -10,6 +10,7 @@ import numpy.testing as npt
 
 import nitime
 import nitime.fmri.io as io
+import nitime.timeseries as ts
 
 #Skip the tests if you can't import nibabel:
 try:
@@ -60,3 +61,23 @@ def test_time_series_from_file():
 
     #Make sure that we didn't mess up the sampling interval:
     npt.assert_equal(t4.sampling_interval,nitime.TimeArray(1.35))
+
+    # Test the default behavior:
+    data = nibabel.load(fmri_file1).get_data()
+    t5 = ts_ff(fmri_file1)
+    npt.assert_equal(t5.shape, data.shape)
+    npt.assert_equal(t5.sampling_interval, ts.TimeArray(1, time_unit='s'))
+
+    # Test initializing TR with a TimeArray:
+    t6= ts_ff(fmri_file1, TR=ts.TimeArray(1350, time_unit='ms'))
+    npt.assert_equal(t4.sampling_interval, t6.sampling_interval)
+
+    # Check the concatenation dimensions:
+    t7 = ts_ff([fmri_file1, fmri_file2])
+    npt.assert_equal([t7.shape[:3], t7.shape[-1]], [data.shape[:3], data.shape[-1]*2])
+
+    t8 = ts_ff([fmri_file1, fmri_file2], average=True)
+    npt.assert_equal(t8.shape[0], data.shape[-1]*2)
+
+    t9 = ts_ff([fmri_file1, fmri_file2], average=True, normalize='zscore')
+    npt.assert_almost_equal(t9.data.mean(), 0)
