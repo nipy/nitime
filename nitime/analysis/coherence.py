@@ -260,10 +260,13 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
 
         adaptive: bool, default to True
             Whether to set the weights for the tapered spectra according to the
-            adaptive algorithm [Thompson2007]_.
+            adaptive algorithm (Thompson, 2007).
 
-            .. [Thompson2007] Thompson, DJ Jackknifing multitaper spectrum
-            estimates. IEEE Signal Processing Magazing. 24: 20-30
+        Notes
+        -----
+
+        Thompson, DJ (2007) Jackknifing multitaper spectrum estimates. IEEE
+        Signal Processing Magazing. 24: 20-30
 
         """
 

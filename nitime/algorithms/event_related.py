@@ -43,16 +43,15 @@ def fir(timeseries, design):
     Notes
     -----
 
-    Implements equation 4 in[Burock2000]_:
+    Implements equation 4 in Burock(2000):
 
     .. math::
 
         \hat{h} = (X^T X)^{-1} X^T y
 
-    .. [Burock2000] M.A. Burock and A.M.Dale (2000). Estimation and Detection
-        of Event-Related fMRI Signals with Temporally Correlated Noise: A
-        Statistically Efficient and Unbiased Approach. Human Brain Mapping,
-        11:249-260
+    M.A. Burock and A.M.Dale (2000). Estimation and Detection of Event-Related
+    fMRI Signals with Temporally Correlated Noise: A Statistically Efficient
+    and Unbiased Approach. Human Brain Mapping, 11:249-260
 
     """
     X = np.matrix(design)
