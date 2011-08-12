@@ -6,6 +6,7 @@ __all__ = ['tri', 'triu', 'tril', 'mask_indices', 'tril_indices',
            'tril_indices_from', 'triu_indices', 'triu_indices_from',
            ]
 
+import numpy as np
 from numpy.core.numeric import asanyarray, subtract, arange, \
      greater_equal, multiply, ones, asarray, alltrue, where
 
@@ -165,14 +166,6 @@ def vander(x, N=None):
            [ 27,   9,   3,   1],
            [125,  25,   5,   1]])
 
-    The determinant of a square Vandermonde matrix is the product
-    of the differences between the values of the input vector:
-
-    >>> np.linalg.det(np.vander(x))
-    48.000000000000043
-    >>> (5-3)*(5-2)*(5-1)*(3-2)*(3-1)*(2-1)
-    48
-
     """
     x = asarray(x)
     if N is None: N=len(x)
@@ -252,15 +245,7 @@ def histogram2d(x,y, bins=10, range=None, normed=False, weights=None):
     >>> x, y = np.random.randn(2, 100)
     >>> H, xedges, yedges = np.histogram2d(x, y, bins=(5, 8))
     >>> H.shape, xedges.shape, yedges.shape
-    ((5,8), (6,), (9,))
-
-    We can now use the Matplotlib to visualize this 2-dimensional histogram:
-
-    >>> extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
-    >>> import matplotlib.pyplot as plt
-    >>> plt.imshow(H, extent=extent)
-    <matplotlib.image.AxesImage object at ...>
-    >>> plt.show()
+    ((5, 8), (6,), (9,))
 
     """
     from numpy import histogramdd

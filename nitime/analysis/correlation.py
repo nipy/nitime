@@ -37,7 +37,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
         >>> c1.xcorr.sampling_rate
         3.1415926536 Hz
         >>> c1.xcorr.t0
-        -15.915494309150001 s
+        -15.91549430915 s
 
         """
 

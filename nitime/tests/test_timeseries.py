@@ -505,7 +505,7 @@ def test_TimeSeries_repr():
     >>> tseries1.sampling_rate
     3.0 Hz
     >>> tseries1.sampling_interval
-    0.33333333333300003 s
+    0.333333333333 s
     >>> a = ts.UniformTime(length=1,sampling_rate=2)
 
     >>> b = ts.TimeSeries(data=[1,2,3],sampling_interval=a.sampling_interval)
