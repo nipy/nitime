@@ -9,7 +9,7 @@ Summary of changes
 Version 0.3 of nitime includes several additions and improvements: 
 
 #. Testing: Test coverage of nitime has improved substantially. At this point,
-   81 % of the code is executed when the test suite is executed. This includes
+   83 % of the code is executed when the test suite is executed. This includes
    a full 100% execution of all l.o.c. in most of the algorithms
    sub-module. Work led by Ariel Rokem.
 
