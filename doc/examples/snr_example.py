@@ -12,7 +12,7 @@ The estimate of the information is based on the formula
 
 .. math::
 
-      I(S,R) = \int_{0}^{Nyquist}log_2(1+SNR(\omega)d\omega
+      I(S,R) = \int_{0}^{Nyquist}log_2(1+SNR(\omega))d\omega
 
 
 Where $SNR(\omega)$ is the ratio of the signal power and the noise power at the

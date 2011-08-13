@@ -201,7 +201,7 @@ def subcolormap(xmin, xmax, cmap):
     return colors.LinearSegmentedColormap('local', cd, N=256)
 
 
-def drawmatrix_channels(in_m, channel_names=None, fig=None, x_tick_rot=90,
+def drawmatrix_channels(in_m, channel_names=None, fig=None, x_tick_rot=0,
                         size=None, cmap=plt.cm.RdBu_r, colorbar=True,
                         color_anchor=None, title=None):
     """Creates a lower-triangle of the matrix of an nxn set of values. This is
