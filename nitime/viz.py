@@ -30,8 +30,13 @@ try:
     import networkx as nx
     #If not, throw an error and get on with business:
 except ImportError:
-    print("Networkx is not available. Some visualization tools might not work"
-            "\n To download networkx: http://networkx.lanl.gov/")
+    e_s = "Networkx is not available. Some visualization tools might not work"
+    e_s += "\n To download networkx: http://networkx.lanl.gov/"
+    print e_s
+    class NetworkxNotInstalled(object):
+        def __getattribute__(self,x):
+            raise ImportError(e_s)
+    nx = NetworkxNotInstalled()
 
 
 def plot_tseries(time_series, fig=None, axis=0,
