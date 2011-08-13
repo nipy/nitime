@@ -65,10 +65,9 @@ specific setup:
 
 """
 
-data_file_path = test_dir_path = os.path.join(nitime.__path__[0],
-                                              'fmri/tests/')
+data_path = test_dir_path = os.path.join(nitime.__path__[0], 'data')
 
-fmri_file = os.path.join(data_file_path, 'fmri1.nii.gz')
+fmri_file = os.path.join(data_path, 'fmri1.nii.gz')
 
 
 """

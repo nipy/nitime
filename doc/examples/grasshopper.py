@@ -144,7 +144,7 @@ cut-off (800 Hz).
 
 stim2 = np.loadtxt(os.path.join(data_path,'grasshopper_stimulus2.txt'))
 stim2 = volt2dB(stim2, maxdB=76.4286)
-spike_times2 = np.loadtxt(os.path.join(data_path,'data/grasshopper_spike_times2.txt'))
+spike_times2 = np.loadtxt(os.path.join(data_path,'grasshopper_spike_times2.txt'))
 
 
 """

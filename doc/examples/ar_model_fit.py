@@ -1,8 +1,8 @@
 """ .. _model_fit:
 
-=======================================
+========================================
 Fitting an MAR model: analyzer interface
-=======================================
+========================================
 
 In this example, we will use the Analyzer interface to fit a multi-variate
 auto-regressive model with two time-series influencing each other.

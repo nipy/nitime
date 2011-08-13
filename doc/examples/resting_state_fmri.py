@@ -55,7 +55,7 @@ We use csv2rec to read the data in from file to a recarray:
 
 data_path = os.path.join(nitime.__path__[0],'data')
 
-data_rec = os.path.join(data_path,csv2rec('fmri_timeseries.csv'))
+data_rec = csv2rec(os.path.join(data_path,'fmri_timeseries.csv'))
 
 """
 This data structure contains in its dtype a field 'names', which contains the

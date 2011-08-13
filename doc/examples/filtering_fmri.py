@@ -346,7 +346,7 @@ the following line will find the path to this data on the specific computer:
 """
 
 data_file_path = test_dir_path = os.path.join(nitime.__path__[0],
-                                              'fmri/tests/')
+                                              'data')
 
 fmri_file = os.path.join(data_file_path, 'fmri1.nii.gz')
 
