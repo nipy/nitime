@@ -47,7 +47,8 @@ Most of the release process is automated by the :file:`release` script in the
    git tag -a rel/x.y -m"Releasing version x.y"
    git push --tags origin master
 
-#. Drafting a short release announcement with highlights of the release. 
+#. Draft a short release announcement with highlights of the release (and send
+   it off!). 
 
 #. Increment the version number in the :file:`version.py` file and comment the
    line with the additional ``version_extra``, so that you get back the ``dev``
