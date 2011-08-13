@@ -9,19 +9,20 @@ import numpy as np
 import numpy.testing as npt
 
 import nitime
-import nitime.fmri.io as io
 import nitime.timeseries as ts
 
 #Skip the tests if you can't import nibabel:
 try:
-    import nibabel
+    import nitime.fmri.io as io
     no_nibabel = False
-except ImportError:
+    no_nibabel_msg=''
+except ImportError,e:
     no_nibabel = True
+    no_nibabel_msg=e.args[0]
 
 test_dir_path = os.path.join(nitime.__path__[0],'fmri/tests')
 
-@npt.dec.skipif(no_nibabel)
+@npt.dec.skipif(no_nibabel,no_nibabel_msg)
 def test_time_series_from_file():
 
     """Testing reading of data from nifti files, using nibabel"""
@@ -63,7 +64,7 @@ def test_time_series_from_file():
     npt.assert_equal(t4.sampling_interval,nitime.TimeArray(1.35))
 
     # Test the default behavior:
-    data = nibabel.load(fmri_file1).get_data()
+    data = io.load(fmri_file1).get_data()
     t5 = ts_ff(fmri_file1)
     npt.assert_equal(t5.shape, data.shape)
     npt.assert_equal(t5.sampling_interval, ts.TimeArray(1, time_unit='s'))
