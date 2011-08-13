@@ -34,26 +34,21 @@ long_description = """
  Nitime: timeseries analysis for neuroscience data
 ===================================================
 
-Nitime contains a core of numerical algorithms for time-series analysis both in
-the time and spectral domains, a set of container objects to represent
-time-series, and auxiliary objects that expose a high level interface to the
-numerical machinery and make common analysis tasks easy to express with compact
-and semantically clear code.
+Nitime is library of tools and algorithms for the analysis of time-series data
+from neuroscience experiments. It contains a implementation of numerical
+algorithms for time-series analysis both in the time and spectral domains, a
+set of container objects to represent time-series, and auxiliary objects that
+expose a high level interface to the numerical machinery and make common
+analysis tasks easy to express with compact and semantically clear code.
 
-Website
-=======
+Website and mailing list
+========================
 
-Current information can always be found at the NIPY website is located
-here::
+Current information can always be found at the nitime `website`_. Questions and
+comments can be directed to the mailing `list`_. 
 
-    http://nipy.org/nitime
-
-Mailing Lists
-=============
-
-Please see the developer's list here::
-
-    http://mail.scipy.org/mailman/listinfo/nipy-devel
+.. _website: http://nipy.org/nitime
+.. _list: http://mail.scipy.org/mailman/listinfo/nipy-devel
 
 Code
 ====
@@ -80,7 +75,7 @@ for usage, and a DISCLAIMER OF ALL WARRANTIES.
 
 All trademarks referenced herein are property of their respective holders.
 
-Copyright (c) 2006-2010, NIPY Developers
+Copyright (c) 2006-2011, NIPY Developers
 All rights reserved.
 """
 
