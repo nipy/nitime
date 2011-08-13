@@ -53,13 +53,12 @@ Contributors to this release
 * Ariel Rokem
 * Christopher Burns 
 * Fernando Perez 
-* Michael Waskom 
-* Paul Ivanov 
-* Yaroslav Halchenko 
-* Ariel Rokem
 * Jarrod Millman 
 * Killian Koepsell
+* Michael Waskom 
 * Mike Trumpis
+* Paul Ivanov 
+* Yaroslav Halchenko 
 
 .. Note::
 
