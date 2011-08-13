@@ -17,4 +17,8 @@ semantically clear code.
    documentation
    whatsnew/index
    examples/index
-  
+
+Questions? Comments? Please `email`_ us.
+
+.. _email: http://projects.scipy.org/mailman/listinfo/nipy-devel
+
