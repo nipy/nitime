@@ -9,13 +9,13 @@ Summary of changes
 Version 0.3 of nitime includes several additions and improvements: 
 
 #. Testing: Test coverage of nitime has improved substantially. At this point,
-   83 % of the code is executed when the test suite is executed. This includes
+   84 % of the code is executed when the test suite is executed. This includes
    a full 100% execution of all l.o.c. in most of the algorithms
    sub-module. Work led by Ariel Rokem.
 
 #. Style and layout improvements: The layout of the algorithms and analysis
    sub-modules have been simplified and a large majority of the code-base has
-   been modified to conform with PEP8 standards. Work done by Ariel Rokem, with
+   been modified to conform with PEP8 standards. Work led by Ariel Rokem, with
    additional thanks to Alex Gramfort for pushing for these changes and helping
    to bring them about.
 
@@ -41,7 +41,7 @@ Version 0.3 of nitime includes several additions and improvements:
 
 #. Epoch slicing: Additional work on TimeSeries objects, towards an
    implementation. This feature is still at an experimental stage at this
-   point. Work led by Ariel Rokem, Fernando Perez Killian Koepsell and Paul
+   point. Work led by Ariel Rokem, Fernando Perez, Killian Koepsell and Paul
    Ivanov.  
    
 

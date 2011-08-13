@@ -11,7 +11,4 @@ Contents:
    :maxdepth: 2
 
    note_about_discussion		
-   base_classes
-   interval_object
-   time_series_access
    multitaper_jackknife

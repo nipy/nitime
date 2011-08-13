@@ -24,4 +24,4 @@ Nitime:
 
 Users should consult these pages to learn about new features, bug
 fixes and backwards incompatibilities. Developers should summarize the
-development work they do here in a user friendly format.
+development work they do here.

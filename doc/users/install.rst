@@ -42,19 +42,20 @@ Nibabel_
 Getting the latest release
 --------------------------
 
-Grab the latest release of the source-code at this page_ 
+If you have easy_install_ available on your system, nitime can be downloaded and
+install by issuing::
+
+    easy_install nitime
+
+.. _easy_install: easy-install_
+
+Otherwise, you can grab the latest release of the source-code at this page_ 
 
 .. _page: gh-download_
 
 Or, at the cheeseshop_
 
 .. _cheeseshop: nitime-pypi_
-
-You can also download and install by issuing::
-
-    easy_install nitime
-
-If you have easy_install installed.
 
 If you want to download the source-code as it is being developed (pre-release),
 follow the instructions here: :ref:`following-latest`
