@@ -20,7 +20,7 @@ except ImportError,e:
     no_nibabel = True
     no_nibabel_msg=e.args[0]
 
-test_dir_path = os.path.join(nitime.__path__[0],'fmri/tests')
+data_path = os.path.join(nitime.__path__[0],'data')
 
 @npt.dec.skipif(no_nibabel,no_nibabel_msg)
 def test_time_series_from_file():
@@ -31,8 +31,8 @@ def test_time_series_from_file():
     ts_ff = io.time_series_from_file
 
     #File names:
-    fmri_file1 = os.path.join(test_dir_path,'fmri1.nii.gz')
-    fmri_file2 = os.path.join(test_dir_path,'fmri2.nii.gz')
+    fmri_file1 = os.path.join(data_path,'fmri1.nii.gz')
+    fmri_file2 = os.path.join(data_path,'fmri2.nii.gz')
 
     #Spatial coordinates into the volumes:
     coords1 = np.array([[5,5,5,5],[5,5,5,5],[1,2,3,4]])

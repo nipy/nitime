@@ -26,11 +26,14 @@ of interest:
 
 """
 
+import os
+
 #Import from other libraries:
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.mlab import csv2rec
 
+import nitime
 #Import the time-series objects:
 from nitime.timeseries import TimeSeries
 #Import the analysis objects:
@@ -50,7 +53,9 @@ We use csv2rec to read the data in from file to a recarray:
 
 """
 
-data_rec = csv2rec('data/fmri_timeseries.csv')
+data_path = os.path.join(nitime.__path__[0],'data')
+
+data_rec = os.path.join(data_path,csv2rec('fmri_timeseries.csv'))
 
 """
 This data structure contains in its dtype a field 'names', which contains the

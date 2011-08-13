@@ -25,9 +25,12 @@ use in the analysis:
 
 """
 
+import os
+
 from matplotlib.mlab import csv2rec
 import matplotlib.pyplot as plt
 
+import nitime
 import nitime.timeseries as ts
 import nitime.analysis as nta
 import nitime.viz as viz
@@ -41,7 +44,9 @@ Next, we load the data into a recarray from the csv file, using csv2rec
 
 """
 
-data = csv2rec('data/event_related_fmri.csv')
+data_path = os.path.join(nitime.__path__[0],'data')
+
+data = csv2rec(os.path.join(data_path,'event_related_fmri.csv'))
 
 
 """

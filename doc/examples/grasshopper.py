@@ -21,8 +21,11 @@ stimulus 'preferred' by this neuron.
 We start by importing the required modules:
 """
 
+import os
+
 import numpy as np
 
+import nitime
 import nitime.timeseries as ts
 import nitime.analysis as tsa
 import nitime.viz as viz
@@ -39,7 +42,10 @@ spike-times are given in micro-seconds:
 
 """
 
-spike_times = np.loadtxt('data/grasshopper_spike_times1.txt')
+data_path = os.path.join(nitime.__path__[0],'data')
+
+spike_times = np.loadtxt(os.path.join(data_path,'grasshopper_spike_times1.txt'))
+                         
 spike_ev = ts.Events(spike_times, time_unit='us')
 
 
@@ -53,7 +59,7 @@ the stimulus see [Rokem2006]_).
 
 """
 
-stim = np.loadtxt('data/grasshopper_stimulus1.txt')
+stim = np.loadtxt(os.path.join(data_path,'grasshopper_stimulus1.txt'))
 
 
 """
@@ -136,9 +142,9 @@ cut-off (800 Hz).
 """
 
 
-stim2 = np.loadtxt('data/grasshopper_stimulus2.txt')
+stim2 = np.loadtxt(os.path.join(data_path,'grasshopper_stimulus2.txt'))
 stim2 = volt2dB(stim2, maxdB=76.4286)
-spike_times2 = np.loadtxt('data/grasshopper_spike_times2.txt')
+spike_times2 = np.loadtxt(os.path.join(data_path,'data/grasshopper_spike_times2.txt'))
 
 
 """

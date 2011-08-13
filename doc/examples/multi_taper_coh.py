@@ -25,11 +25,14 @@ objects and as upper and lower bounds on the frequency range analyzed:
 
 """
 
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.mlab import csv2rec
 import scipy.stats.distributions as dist
 
+import nitime
 from nitime.timeseries import TimeSeries
 from nitime import utils
 import nitime.algorithms as alg
@@ -47,7 +50,9 @@ We read in the data into a recarray from a csv file:
 
 """
 
-data_rec = csv2rec('data/fmri_timeseries.csv')
+data_path = os.path.join(nitime.__path__[0],'data')
+
+data_rec = csv2rec(os.path.join(data_path,'fmri_timeseries.csv'))
 
 
 """

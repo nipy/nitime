@@ -104,5 +104,5 @@ PACKAGES = ['nitime',
             'nitime.analysis.tests',
             ]
 PACKAGE_DATA = {"nitime": ["LICENSE", "tests/*.txt", "tests/*.npy",
-                                  "fmri/tests/*.nii.gz"]}
+                                  "data/*.nii.gz","data/*.txt", "data/*.csv"]}
 REQUIRES = ["numpy", "matplotlib", "scipy"]

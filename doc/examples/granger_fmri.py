@@ -75,8 +75,9 @@ f_lb = 0.02
 We read in the resting state fMRI data into a recarray from a csv file:
 
 """
+data_path = os.path.join(nitime.__path__[0],'data')
 
-data_rec = csv2rec('data/fmri_timeseries.csv')
+data_rec = csv2rec(os.path.join(data_path,'fmri_timeseries.csv'))
 
 roi_names = np.array(data_rec.dtype.names)
 nseq = len(roi_names)
