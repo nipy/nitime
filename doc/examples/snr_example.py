@@ -113,20 +113,21 @@ for idx, noise in enumerate([1, 10, 50, 100]):
     of the signal and also the response of the system at different repetitions
     is very similar to the original signal.
 
-    .. image:: fig/snr_example_01.png
-
-    A special visualization function :func:`viz.plot_snr` is used in order to
-    display the signal power (blue) and the noise power (green), both in the left
-    sub-plot. In addition, the SNR (blue) and the cumulative information (as a
-    function of frequency bands, starting from low frequencies, in red) are
-    dislplayed in the right subplot.
-
     """
 
     tseries = ts.TimeSeries(sample[-1], sampling_rate=1.)
     fig_snr.append(viz.plot_snr(tseries))
 
 """
+
+.. image:: fig/snr_example_01.png
+
+A special visualization function :func:`viz.plot_snr` is used in order to
+display the signal power (blue) and the noise power (green), both in the
+left sub-plot. In addition, the SNR (blue) and the cumulative information
+(as a function of frequency bands, starting from low frequencies, in red)
+are dislplayed in the right subplot.
+
 
 .. image:: fig/snr_example_02.png
 
