@@ -233,26 +233,30 @@ def dB(x, power=True):
 #-----------------------------------------------------------------------------
 # Stats utils
 #-----------------------------------------------------------------------------
-def normalize_coherence(x, dof, out=None):
+def normalize_coherence(x, dof, copy=True):
     """
     The generally accepted choice to transform coherence measures into
     a more normal distribution
 
     Parameters
     ----------
-
     x: ndarray, real
        square-root of magnitude-square coherence measures
     dof: int
        number of degrees of freedom in the multitaper model
+    copy: bool
+        Copy or return inplace modified x.
+
+    Return
+    ------
+    y : ndarray, real
+        The transformed array.
     """
-    if out is None:
-        y = np.arctanh(x)
-    else:
-        np.arctanh(x, x)
-        y = x
-    y *= np.sqrt(dof)
-    return y
+    if copy:
+        x = x.copy()
+    np.arctanh(x, x)
+    x *= np.sqrt(dof)
+    return x
 
 
 def normal_coherence_to_unit(y, dof, out=None):
@@ -1947,7 +1951,7 @@ def generate_mar(a, cov, N):
     # this rearranges the equation to read:
     # X(i) = E(i) - sum_{j=1}^{P} a(j)X(i-j)
     # where X(n) n < 0 is taken to be 0
-    # In terms of the code: X is mar and E is nz, P is n_order  
+    # In terms of the code: X is mar and E is nz, P is n_order
     for i in xrange(N):
         for j in xrange(min(i, n_order)):  # j logically in set {1, 2, ..., P}
             mar[i, :] -= np.dot(a[j], mar[i - j - 1, :])
@@ -2033,7 +2037,7 @@ def bayesian_information_criterion(ecov, p, m, Ntotal):
     Notes
     -----
     This is an implementation of equation (51) in Ding et al. (2006):
-        
+
     .. math ::
 
     BIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m log(N_{total})}{N_{total}},
