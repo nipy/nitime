@@ -157,7 +157,7 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     >>> import nitime.algorithms as alg
     >>> ar_seq, nz, alpha = ar_generator()
     >>> fgrid, hz = alg.freq_response(1.0, a=np.r_[1, -alpha])
-    >>> sdf_ar = (hz*hz.conj()).real
+    >>> sdf_ar = (hz * hz.conj()).real
 
     """
     if coefs is None:
@@ -185,7 +185,7 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
 
 
 def circularize(x, bottom=0, top=2 * np.pi, deg=False):
-    """ Maps the input into the continuous interval (bottom,top) where
+    """Maps the input into the continuous interval (bottom, top) where
     bottom defaults to 0 and top defaults to 2*pi
 
     Parameters
@@ -193,18 +193,19 @@ def circularize(x, bottom=0, top=2 * np.pi, deg=False):
 
     x: ndarray - the input array
 
-    bottom: float, optional (defaults to 0). If you want to set the bottom of
-    the interval into which you modulu to something else than 0
+    bottom: float, optional (defaults to 0).
+        If you want to set the bottom of the interval into which you
+        modulu to something else than 0.
 
-    top: float, optional (defaults to 2*pi). If you want to set the top of the
-    interval into which you modulu to something else than 2*pi
+    top: float, optional (defaults to 2*pi).
+        If you want to set the top of the interval into which you
+        modulu to something else than 2*pi
 
     Returns
     -------
     The input array, mapped into the interval (bottom,top)
 
     """
-
     x = np.asarray([x])
 
     if  (np.all(x[np.isfinite(x)] >= bottom) and
