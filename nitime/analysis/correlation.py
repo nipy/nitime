@@ -1,8 +1,6 @@
 import numpy as np
 
-import nitime.timeseries as ts
 from nitime import descriptors as desc
-from nitime import utils as tsu
 from nitime import timeseries as ts
 from nitime import algorithms as tsa
 

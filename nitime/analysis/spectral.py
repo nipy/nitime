@@ -296,11 +296,11 @@ class FilterAnalyzer(desc.ResetMixin):
         if in_ts is not None:
             data = in_ts.data
             Fs = in_ts.sampling_rate
-            tu = in_ts.time_unit
+            # tu = in_ts.time_unit
         else:
             data = self.data
             Fs = self.sampling_rate
-            tu = self.time_unit
+            # tu = self.time_unit
 
         #filtfilt only operates channel-by-channel, so we need to loop over the
         #channels, if the data is multi-channel data:
@@ -609,7 +609,7 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
                              sampling_rate=sampling_rate, ns=5,
                              normed='area')
 
-            nd = (w.shape[0] - 1) / 2
+            # nd = (w.shape[0] - 1) / 2
             a_signal.data[...] = (np.convolve(data, np.real(w), mode='same') +
                             1j * np.convolve(data, np.imag(w), mode='same'))
         else:
@@ -617,7 +617,7 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
                 w = self.wavelet(f, sd, sampling_rate=sampling_rate,
                                  ns=5, normed='area')
 
-                nd = (w.shape[0] - 1) / 2
+                # nd = (w.shape[0] - 1) / 2
                 a_signal.data[i, ...] = (
                     np.convolve(data, np.real(w), mode='same') +
                     1j * np.convolve(data, np.imag(w), mode='same'))

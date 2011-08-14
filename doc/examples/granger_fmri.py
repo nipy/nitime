@@ -51,7 +51,6 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.mlab import csv2rec
-from scipy.stats import nanmean
 
 import nitime
 import nitime.analysis as nta
