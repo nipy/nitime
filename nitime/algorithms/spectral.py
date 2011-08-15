@@ -12,11 +12,18 @@ XXX
 """
 
 import numpy as np
-from matplotlib import mlab
 from scipy import linalg
 from scipy import signal as sig
 from scipy import interpolate
 import nitime.utils as utils
+
+import matplotlib
+
+# Normalization of DC component was fixed in later versions of mlab:
+if matplotlib.__version__ >= '1.0':
+    import matplotlib.mlab as mlab
+else: 
+    import nitime.mlab_spectral as mlab
 
 # To suppport older versions of numpy that don't have tril_indices:
 from nitime.index_utils import tril_indices, triu_indices

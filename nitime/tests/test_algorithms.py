@@ -6,6 +6,14 @@ import numpy.testing.decorators as dec
 
 from scipy.signal import signaltools
 
+import matplotlib
+
+# Normalization of DC component was fixed in later versions of mlab:
+if matplotlib.__version__ >= '1.0':
+    import matplotlib.mlab as mlab
+else: 
+    import nitime.mlab_spectral as mlab
+
 import nitime
 from nitime import algorithms as tsa
 from nitime import utils as ut
@@ -139,8 +147,6 @@ def test_get_spectra():
 def test_psd_matlab():
 
     """ Test the results of mlab csd/psd against saved results from Matlab"""
-
-    from matplotlib import mlab
 
     test_dir_path = os.path.join(nitime.__path__[0], 'tests')
 
