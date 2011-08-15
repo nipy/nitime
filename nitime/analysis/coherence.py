@@ -3,7 +3,6 @@ import warnings
 import numpy as np
 import scipy.stats.distributions as dist
 
-import nitime.timeseries as ts
 from nitime import descriptors as desc
 from nitime import utils as tsu
 from nitime import algorithms as tsa
@@ -62,8 +61,8 @@ class CoherenceAnalyzer(BaseAnalyzer):
         """
         BaseAnalyzer.__init__(self, input)
 
-        #Set the variables for spectral estimation (can also be entered by
-        #user):
+        # Set the variables for spectral estimation (can also be entered by
+        # user):
         if method is None:
             self.method = {'this_method': 'welch',
                            'Fs': self.input.sampling_rate}
@@ -77,14 +76,16 @@ class CoherenceAnalyzer(BaseAnalyzer):
         self._unwrap_phases = unwrap_phases
 
         # The following only applies to the welch method:
-        if (self.method.get('this_method')=='welch' or
+        if (self.method.get('this_method') == 'welch' or
             self.method.get('this_method') is None):
 
-            # If the input is shorter than NFFT, all the coherences will be 1 per
-            # definition. Throw a warning about that:
+            # If the input is shorter than NFFT, all the coherences will be
+            # 1 per definition. Throw a warning about that:
             self.method['NFFT'] = self.method.get('NFFT', tsa.default_nfft)
-            self.method['n_overlap'] = self.method.get('n_overlap', tsa.default_n_overlap)
-            if self.input.shape[-1] < (self.method['NFFT'] + self.method['n_overlap']):
+            self.method['n_overlap'] = self.method.get('n_overlap',
+                                                       tsa.default_n_overlap)
+            if (self.input.shape[-1] <
+                            (self.method['NFFT'] + self.method['n_overlap'])):
                 e_s = "In nitime.analysis, the provided input time-series is"
                 e_s += " shorter than the requested NFFT + n_overlap. All "
                 e_s += "coherence values will be set to 1."
@@ -300,7 +301,7 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
 
     @desc.setattr_on_read
     def df(self):
-        #The degrees of freedom:
+        # The degrees of freedom:
         return 2 * self.NW - 1
 
     @desc.setattr_on_read
@@ -321,7 +322,7 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
                                             self.eigs,
                                             sides='onesided')[0]
 
-        #Set the weights to be the square root of the eigen-values:
+        # Set the weights to be the square root of the eigen-values:
         else:
             wshape = [1] * len(self.spectra.shape)
             wshape[0] = channel_n

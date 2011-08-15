@@ -8,6 +8,7 @@ import numpy as np
 import scipy.linalg as linalg
 import scipy.signal as sig
 
+
 #-----------------------------------------------------------------------------
 # Spectral estimation testing utilities
 #-----------------------------------------------------------------------------
@@ -130,7 +131,8 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
        which is a sequence shown to be well-estimated by an order 8 AR system.
     drop_transients: float
        How many samples to drop from the beginning of the sequence (the
-       transient phases of the process), so that the process can be considered stationary.
+       transient phases of the process), so that the process can be considered
+       stationary.
     v: float array
        Optionally, input a specific sequence of noise samples (this over-rides
        the sigma parameter). Default: None
@@ -157,7 +159,7 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     >>> import nitime.algorithms as alg
     >>> ar_seq, nz, alpha = ar_generator()
     >>> fgrid, hz = alg.freq_response(1.0, a=np.r_[1, -alpha])
-    >>> sdf_ar = (hz*hz.conj()).real
+    >>> sdf_ar = (hz * hz.conj()).real
 
     """
     if coefs is None:
@@ -185,7 +187,7 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
 
 
 def circularize(x, bottom=0, top=2 * np.pi, deg=False):
-    """ Maps the input into the continuous interval (bottom,top) where
+    """Maps the input into the continuous interval (bottom, top) where
     bottom defaults to 0 and top defaults to 2*pi
 
     Parameters
@@ -193,18 +195,19 @@ def circularize(x, bottom=0, top=2 * np.pi, deg=False):
 
     x: ndarray - the input array
 
-    bottom: float, optional (defaults to 0). If you want to set the bottom of
-    the interval into which you modulu to something else than 0
+    bottom: float, optional (defaults to 0).
+        If you want to set the bottom of the interval into which you
+        modulu to something else than 0.
 
-    top: float, optional (defaults to 2*pi). If you want to set the top of the
-    interval into which you modulu to something else than 2*pi
+    top: float, optional (defaults to 2*pi).
+        If you want to set the top of the interval into which you
+        modulu to something else than 2*pi
 
     Returns
     -------
     The input array, mapped into the interval (bottom,top)
 
     """
-
     x = np.asarray([x])
 
     if  (np.all(x[np.isfinite(x)] >= bottom) and
@@ -226,32 +229,38 @@ def dB(x, power=True):
     2) dB(x) = 10log10(|x|^2) = 20log10(|x|)  (if power==False)
     """
     if not power:
-        return 20*np.log10(np.abs(x))
-    return 10*np.log10(np.abs(x))
+        return 20 * np.log10(np.abs(x))
+    return 10 * np.log10(np.abs(x))
+
 
 #-----------------------------------------------------------------------------
 # Stats utils
 #-----------------------------------------------------------------------------
-def normalize_coherence(x, dof, out=None):
+
+def normalize_coherence(x, dof, copy=True):
     """
     The generally accepted choice to transform coherence measures into
     a more normal distribution
 
     Parameters
     ----------
-
     x: ndarray, real
        square-root of magnitude-square coherence measures
     dof: int
        number of degrees of freedom in the multitaper model
+    copy: bool
+        Copy or return inplace modified x.
+
+    Returns
+    -------
+    y : ndarray, real
+        The transformed array.
     """
-    if out is None:
-        y = np.arctanh(x)
-    else:
-        np.arctanh(x, x)
-        y = x
-    y *= np.sqrt(dof)
-    return y
+    if copy:
+        x = x.copy()
+    np.arctanh(x, x)
+    x *= np.sqrt(dof)
+    return x
 
 
 def normal_coherence_to_unit(y, dof, out=None):
@@ -265,6 +274,7 @@ def normal_coherence_to_unit(y, dof, out=None):
         x = y
     np.tanh(x, x)
     return x
+
 
 def expected_jk_variance(K):
     """Compute the expected value of the jackknife variance estimate
@@ -287,7 +297,9 @@ def expected_jk_variance(K):
     """
 
     kf = float(K)
-    return (1/kf) * (kf-1)/(kf-0.5) * ( (kf-1)/(kf-2) )**2 * (kf-3)/(kf-2)
+    return ((1 / kf) * (kf - 1) / (kf - 0.5) *
+            ((kf - 1) / (kf - 2)) ** 2 * (kf - 3) / (kf - 2))
+
 
 def jackknifed_sdf_variance(yk, eigvals, sides='onesided', adaptive=True):
     r"""
@@ -346,7 +358,7 @@ def jackknifed_sdf_variance(yk, eigvals, sides='onesided', adaptive=True):
             # compute the weights
             weights, _ = adaptive_weights(spectra_i, eigs_i, sides=sides)
         else:
-            weights = eigs_i[:,None]
+            weights = eigs_i[:, None]
         # this is the leave-one-out estimate of the sdf
         jk_sdf.append(
             mtm_cross_spectrum(
@@ -415,7 +427,7 @@ def jackknifed_coh_variance(tx, ty, eigvals, adaptive=True):
             wx, _ = adaptive_weights(tx_i, eigs_i, sides=sides)
             wy, _ = adaptive_weights(ty_i, eigs_i, sides=sides)
         else:
-            wx = wy = eigs_i[:,None]
+            wx = wy = eigs_i[:, None]
         # The CSD
         sxy_i = alg.mtm_cross_spectrum(tx_i, ty_i, (wx, wy), sides=sides)
         # The PSDs
@@ -424,11 +436,11 @@ def jackknifed_coh_variance(tx, ty, eigvals, adaptive=True):
         # these are the | c_i | samples
         msc = np.abs(sxy_i)
         msc /= np.sqrt(sxx_i * syy_i)
-        jk_coh.append( msc )
+        jk_coh.append(msc)
 
     jk_coh = np.array(jk_coh)
     # now normalize the coherence estimates and take the mean
-    normalize_coherence(jk_coh, 2 * K - 2, jk_coh)
+    normalize_coherence(jk_coh, 2 * K - 2, copy=False)  # inplace
     jk_avg = np.mean(jk_coh, axis=0)
 
     jk_var = (jk_coh - jk_avg)
@@ -491,16 +503,16 @@ def adaptive_weights(yk, eigvals, sides='onesided', max_iter=150):
         """
         # we'll hope this is a correct length for L
         N = yk.shape[-1]
-        L = N/2 + 1 if sides=='onesided' else N
+        L = N / 2 + 1 if sides == 'onesided' else N
         return (np.multiply.outer(np.sqrt(eigvals), np.ones(L)), 2 * K)
     rt_eig = np.sqrt(eigvals)
 
     # combine the SDFs in the traditional way in order to estimate
     # the variance of the timeseries
     N = yk.shape[1]
-    sdf = mtm_cross_spectrum(yk, yk, eigvals[:,None], sides=sides)
+    sdf = mtm_cross_spectrum(yk, yk, eigvals[:, None], sides=sides)
     L = sdf.shape[-1]
-    var_est = np.trapz(sdf, dx=np.pi/L) / (2*np.pi)
+    var_est = np.trapz(sdf, dx=np.pi / L) / (2 * np.pi)
 
     # The process is to iteratively switch solving for the following
     # two expressions:
@@ -516,8 +528,9 @@ def adaptive_weights(yk, eigvals, sides='onesided', max_iter=150):
     # (1/2pi) int_{-pi}^{pi} E{B_k(f)} = sig^2(1-lam_k)
 
     # start with an estimate from incomplete data--the first 2 tapers
-    sdf_iter = mtm_cross_spectrum(yk[:2], yk[:2], eigvals[:2,None], sides=sides)
-    err = np.zeros((K,L))
+    sdf_iter = mtm_cross_spectrum(yk[:2], yk[:2], eigvals[:2, None],
+                                  sides=sides)
+    err = np.zeros((K, L))
     for n in range(max_iter):
         d_k = sdf_iter[None, :] / (eigvals[:, None] * sdf_iter[None, :] + \
                                   (1 - eigvals[:, None]) * var_est)
@@ -539,12 +552,12 @@ def adaptive_weights(yk, eigvals, sides='onesided', max_iter=150):
         # Issue a warning and return non-converged weights:
         e_s = 'Breaking due to iterative meltdown in '
         e_s += 'nitime.utils.adaptive_weights.'
-        warnings.warn(e_s,RuntimeWarning)
-
+        warnings.warn(e_s, RuntimeWarning)
 
     weights = d_k
     nu = 2 * (weights ** 2).sum(axis=-2)
     return weights, nu
+
 
 #-----------------------------------------------------------------------------
 # Eigensystem utils
@@ -583,17 +596,18 @@ def tridisolve(d, e, b, overwrite_b=True):
     for k in xrange(1, N):
         # e^(k-1) = e(k-1) / d(k-1)
         # d(k) = d(k) - e^(k-1)e(k-1) / d(k-1)
-        t = ew[k-1]
-        ew[k-1] = t/dw[k-1]
-        dw[k] = dw[k] - t*ew[k-1]
+        t = ew[k - 1]
+        ew[k - 1] = t / dw[k - 1]
+        dw[k] = dw[k] - t * ew[k - 1]
     for k in xrange(1, N):
-        x[k] = x[k] - ew[k-1]*x[k-1]
-    x[N-1] = x[N-1]/dw[N-1]
-    for k in xrange(N-2, -1, -1):
-        x[k] = x[k]/dw[k] - ew[k]*x[k+1]
+        x[k] = x[k] - ew[k - 1] * x[k - 1]
+    x[N - 1] = x[N - 1] / dw[N - 1]
+    for k in xrange(N - 2, -1, -1):
+        x[k] = x[k] / dw[k] - ew[k] * x[k + 1]
 
     if not overwrite_b:
         return x
+
 
 def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
     """Perform an inverse iteration to find the eigenvector corresponding
@@ -628,7 +642,7 @@ def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
     # the eigenvector is unique up to sign change, so iterate
     # until || |x^(n)| - |x^(n-1)| ||^2 < rtol
     x0 /= norm_x
-    while np.linalg.norm( np.abs(x0) - np.abs(x_prev) ) > rtol:
+    while np.linalg.norm(np.abs(x0) - np.abs(x_prev)) > rtol:
         x_prev = x0.copy()
         tridisolve(eig_diag, e, x0)
         norm_x = np.linalg.norm(x0)
@@ -639,12 +653,14 @@ def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
 # Correlation/Covariance utils
 #-----------------------------------------------------------------------------
 
+
 def remove_bias(x, axis):
     "Subtracts an estimate of the mean from signal x at axis"
     padded_slice = [slice(d) for d in x.shape]
     padded_slice[axis] = np.newaxis
     mn = np.mean(x, axis=axis)
     return x - mn[tuple(padded_slice)]
+
 
 def crosscov(x, y, axis=-1, all_lags=False, debias=True, normalize=True):
     """Returns the crosscovariance sequence between two ndarrays.
@@ -693,7 +709,7 @@ def crosscov(x, y, axis=-1, all_lags=False, debias=True, normalize=True):
         x = remove_bias(x, axis)
         y = remove_bias(y, axis)
     slicing = [slice(d) for d in x.shape]
-    slicing[axis] = slice(None,None,-1)
+    slicing[axis] = slice(None, None, -1)
     cxy = fftconvolve(x, y[tuple(slicing)].conj(), axis=axis, mode='full')
     N = x.shape[axis]
     if normalize:
@@ -742,6 +758,7 @@ def crosscorr(x, y, **kwargs):
     kwargs['debias'] = False
     rxy = crosscov(x, y, **kwargs)
     return rxy
+
 
 def autocov(x, **kwargs):
     """Returns the autocovariance of signal s at all lags.
@@ -805,8 +822,6 @@ def autocorr(x, **kwargs):
     R_{xx}[k]=E\{X[n+k]X^{*}[n]\}
 
     where X is a discrete, stationary (ergodic) random process
-
-
 
     """
     # do same computation as autocovariance,
@@ -1903,6 +1918,7 @@ def autocov_vector(x, nlags=None):
     """
     return crosscov_vector(x, x, nlags=nlags)
 
+
 def generate_mar(a, cov, N):
     """
     Generates a multivariate autoregressive dataset given the formula:
@@ -1946,7 +1962,7 @@ def generate_mar(a, cov, N):
     # this rearranges the equation to read:
     # X(i) = E(i) - sum_{j=1}^{P} a(j)X(i-j)
     # where X(n) n < 0 is taken to be 0
-    # In terms of the code: X is mar and E is nz, P is n_order  
+    # In terms of the code: X is mar and E is nz, P is n_order
     for i in xrange(N):
         for j in xrange(min(i, n_order)):  # j logically in set {1, 2, ..., P}
             mar[i, :] -= np.dot(a[j], mar[i - j - 1, :])
@@ -2032,7 +2048,7 @@ def bayesian_information_criterion(ecov, p, m, Ntotal):
     Notes
     -----
     This is an implementation of equation (51) in Ding et al. (2006):
-        
+
     .. math ::
 
     BIC(m) = 2 log(|\Sigma|) + \frac{2p^2 m log(N_{total})}{N_{total}},

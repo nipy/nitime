@@ -132,11 +132,11 @@ class OneTimeProperty(object):
         if obj is None:
             # Being called on the class, return the original function. This
             # way, introspection works on the class.
-            #return func
+            # return func
             return self.getter
 
-        #Errors in the following line are errors in setting a
-        #OneTimeProperty
+        # Errors in the following line are errors in setting a
+        # OneTimeProperty
         val = self.getter(obj)
 
         setattr(obj, self.name, val)

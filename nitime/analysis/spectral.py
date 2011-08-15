@@ -13,7 +13,8 @@ from .base import BaseAnalyzer
 
 class SpectralAnalyzer(BaseAnalyzer):
     """ Analyzer object for spectral analysis"""
-    def __init__(self, input=None, method=None, BW=None, adaptive=False, low_bias=False):
+    def __init__(self, input=None, method=None, BW=None, adaptive=False,
+                 low_bias=False):
         """
         The initialization of the
 
@@ -71,7 +72,6 @@ class SpectralAnalyzer(BaseAnalyzer):
         self.BW = BW
         self.adaptive = adaptive
         self.low_bias = low_bias
-
 
     @desc.setattr_on_read
     def psd(self):
@@ -205,10 +205,10 @@ class SpectralAnalyzer(BaseAnalyzer):
                     low_bias=self.low_bias)
         else:
             f, spectrum_multi_taper, _ = tsa.multi_taper_psd(self.input.data,
-                                                          Fs=self.input.sampling_rate,
-                                                          BW=self.BW,
-                                                          adaptive=self.adaptive,
-                                                          low_bias=self.low_bias)
+                                                  Fs=self.input.sampling_rate,
+                                                  BW=self.BW,
+                                                  adaptive=self.adaptive,
+                                                  low_bias=self.low_bias)
 
         return f, spectrum_multi_taper
 
@@ -296,11 +296,9 @@ class FilterAnalyzer(desc.ResetMixin):
         if in_ts is not None:
             data = in_ts.data
             Fs = in_ts.sampling_rate
-            tu = in_ts.time_unit
         else:
             data = self.data
             Fs = self.sampling_rate
-            tu = self.time_unit
 
         #filtfilt only operates channel-by-channel, so we need to loop over the
         #channels, if the data is multi-channel data:
@@ -609,7 +607,7 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
                              sampling_rate=sampling_rate, ns=5,
                              normed='area')
 
-            nd = (w.shape[0] - 1) / 2
+            # nd = (w.shape[0] - 1) / 2
             a_signal.data[...] = (np.convolve(data, np.real(w), mode='same') +
                             1j * np.convolve(data, np.imag(w), mode='same'))
         else:
@@ -617,7 +615,7 @@ class MorletWaveletAnalyzer(BaseAnalyzer):
                 w = self.wavelet(f, sd, sampling_rate=sampling_rate,
                                  ns=5, normed='area')
 
-                nd = (w.shape[0] - 1) / 2
+                # nd = (w.shape[0] - 1) / 2
                 a_signal.data[i, ...] = (
                     np.convolve(data, np.real(w), mode='same') +
                     1j * np.convolve(data, np.imag(w), mode='same'))

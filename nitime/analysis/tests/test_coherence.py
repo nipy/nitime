@@ -8,10 +8,11 @@ import nitime.timeseries as ts
 import nitime.analysis as nta
 
 import platform
-if float(platform.python_version()[:3])<2.5:
+if float(platform.python_version()[:3]) < 2.5:
     old_python = True
 else:
     old_python = False
+
 
 def test_CoherenceAnalyzer():
     methods = (None,
@@ -33,11 +34,11 @@ def test_CoherenceAnalyzer():
             if method is None:
                 # This is the default behavior (grab the NFFT from the number
                 # of frequencies):
-                npt.assert_equal(C.coherence.shape,(n_series, n_series,
-                                                    C.frequencies.shape[0]))
+                npt.assert_equal(C.coherence.shape, (n_series, n_series,
+                                                     C.frequencies.shape[0]))
 
-            elif (method['this_method']=='welch' or
-                  method['this_method']=='periodogram_csd'):
+            elif (method['this_method'] == 'welch' or
+                  method['this_method'] == 'periodogram_csd'):
                 npt.assert_equal(C.coherence.shape, (n_series, n_series,
                                                      method['NFFT'] // 2 + 1))
             else:
@@ -53,13 +54,14 @@ def test_CoherenceAnalyzer():
             # The very first one is a nan, test from second and onwards:
             npt.assert_almost_equal(C.delay[0, 1][1:], -1 * C.delay[1, 0][1:])
 
-            if method is not None and method['this_method']=='welch':
-                S = nta.SpectralAnalyzer(T , method)
+            if method is not None and method['this_method'] == 'welch':
+                S = nta.SpectralAnalyzer(T, method)
                 npt.assert_almost_equal(S.cpsd[0], C.frequencies)
                 npt.assert_almost_equal(S.cpsd[1], C.spectrum)
             # Test that partial coherence runs through and has the right number
             # of dimensions:
             npt.assert_equal(len(C.coherence_partial.shape), 4)
+
 
 def test_SparseCoherenceAnalyzer():
     Fs = np.pi
@@ -93,7 +95,7 @@ def test_SparseCoherenceAnalyzer():
     # Make sure that you would get an error if you provided a method other than
     # 'welch':
     npt.assert_raises(ValueError, nta.SparseCoherenceAnalyzer, T,
-                                                    method=dict(this_method='foo'))
+                                                method=dict(this_method='foo'))
 
 
 def test_MTCoherenceAnalyzer():
@@ -118,7 +120,8 @@ def test_MTCoherenceAnalyzer():
 def test_warn_short_tseries():
     """
 
-    A warning is provided when the time-series is shorter than the NFFT + n_overlap.
+    A warning is provided when the time-series is shorter than
+    the NFFT + n_overlap.
 
     The implementation of this test is based on this:
     http://docs.python.org/library/warnings.html#testing-warnings
@@ -131,7 +134,8 @@ def test_warn_short_tseries():
         # Trigger a warning.
         # The following should throw a warning, because 70 is smaller than the
         # default NFFT=64 + n_overlap=32:
-        nta.CoherenceAnalyzer(ts.TimeSeries(np.random.rand(2,70),sampling_rate=1))
+        nta.CoherenceAnalyzer(ts.TimeSeries(np.random.rand(2, 70),
+                                            sampling_rate=1))
         # Verify some things
         npt.assert_equal(len(w), 1)
 
@@ -153,7 +157,7 @@ def test_SeedCoherenceAnalyzer():
     T_seed2 = ts.TimeSeries(np.vstack([seed1, seed2]), sampling_rate=Fs)
     T_target = ts.TimeSeries(np.vstack([seed1, target]), sampling_rate=Fs)
     for this_method in methods:
-        if this_method is None or this_method['this_method']=='welch':
+        if this_method is None or this_method['this_method'] == 'welch':
             C1 = nta.CoherenceAnalyzer(T, method=this_method)
             C2 = nta.SeedCoherenceAnalyzer(T_seed1, T_target,
                                            method=this_method)
@@ -168,6 +172,7 @@ def test_SeedCoherenceAnalyzer():
         else:
             npt.assert_raises(ValueError, nta.SeedCoherenceAnalyzer, T_seed1,
                               T_target, this_method)
+
 
 def test_SeedCoherenceAnalyzer_same_Fs():
     """

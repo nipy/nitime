@@ -32,7 +32,6 @@ estimating the AR coefficients and the error/innovations power.
 
 import numpy as np
 import scipy.linalg as linalg
-import scipy.signal as sig
 
 import nitime.utils as utils
 from spectral import freq_response
@@ -169,7 +168,7 @@ def AR_est_LD(x, order, rxx=None):
 def lwr_recursion(r):
     r"""Perform a Levinson-Wiggins[Whittle]-Robinson recursion to
     find the coefficients a(i) that satisfy the matrix version
-    of the Yule-Walker system of P+1 equations:
+    of the Yule-Walker system of P + 1 equations:
 
     sum_{i=0}^{P} a(i)r(k-i) = 0, for k = {1,2,...,P}
 
@@ -192,7 +191,7 @@ def lwr_recursion(r):
     Parameters
     ----------
 
-    r : ndarray, shape (P+1, nc, nc)
+    r : ndarray, shape (P + 1, nc, nc)
 
     Returns
     -------

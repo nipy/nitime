@@ -93,7 +93,6 @@ def time_series_from_file(nifti_files, coords=None, TR=None, normalize=None,
             #If the input is the coords of several ROIs
             if isinstance(coords, tuple) or isinstance(coords, list):
                 n_roi = len(coords)
-                out_data = [[]] * n_roi
                 tseries = [[]] * n_roi
                 for i in xrange(n_roi):
                     tseries[i] = _tseries_from_nifti_helper(
@@ -123,7 +122,6 @@ def time_series_from_file(nifti_files, coords=None, TR=None, normalize=None,
                 #If the input is the coords of several ROIs
                 if isinstance(coords, tuple) or isinstance(coords, list):
                     n_roi = len(coords)
-                    out_data = [[]] * n_roi
                     tseries_list.append([[]] * n_roi)
                     for i in xrange(n_roi):
                         tseries_list[-1][i] = _tseries_from_nifti_helper(

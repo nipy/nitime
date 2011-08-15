@@ -161,7 +161,7 @@ A = nta.SeedCoherenceAnalyzer(time_series_seed, time_series_target,
 """
 
 Similarly, the SeedCorrelationAnalyzer receives as input seed and target
-time-series: 
+time-series:
 
 """
 
@@ -194,9 +194,9 @@ for this_seed in range(n_seeds):
     # Extract the coherence and average across these frequency bands:
     coh.append(np.mean(A.coherence[this_seed][:, freq_idx], -1))  # Averaging on the
                                                                  # last dimension
-                                                                
-    cor.append(B.corrcoef[this_seed]) # No need to do any additional
-                                         # computation
+
+    cor.append(B.corrcoef[this_seed])  # No need to do any additional
+                                       # computation
 
 
 """
@@ -247,15 +247,15 @@ for this_vox in range(n_seeds):
     ax_cor[-1].matshow(vol_cor[this_vox][:, :, random_slice].squeeze())
     ax_cor[-1].set_title('Seed coords: %s' % coords_seeds[:, this_vox])
 
-for x in zip (['Coherence', 'Correlation'],[fig01,fig02]):
-    suptit = '%s between all the voxels in slice: '%x[0]
+for x in zip(['Coherence', 'Correlation'], [fig01, fig02]):
+    suptit = '%s between all the voxels in slice: ' % x[0]
     suptit += '%i and seed voxels' % random_slice
     x[1].suptitle(suptit)
 
 
 """
 
-We can now compare the results in the coherence: 
+We can now compare the results in the coherence:
 
 
 .. image:: fig/seed_analysis_01.png

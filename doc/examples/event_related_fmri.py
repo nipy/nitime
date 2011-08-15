@@ -7,9 +7,9 @@ Event-related fMRI
 ==================
 
 Extracting the average time-series from one signal, time-locked to the
-occurence of some type of event in another signal is a very typical operation in
-the analysis of time-series from neuroscience experiments. Therefore, we have
-an additional example of this kind of analysis in :ref:`grasshopper`
+occurence of some type of event in another signal is a very typical operation
+in the analysis of time-series from neuroscience experiments. Therefore, we
+have an additional example of this kind of analysis in :ref:`grasshopper`
 
 The following example is taken from an fMRI experiment in which a subject was
 viewing a motion stimulus, while fMRI BOLD was recorded. The time-series in
@@ -44,9 +44,9 @@ Next, we load the data into a recarray from the csv file, using csv2rec
 
 """
 
-data_path = os.path.join(nitime.__path__[0],'data')
+data_path = os.path.join(nitime.__path__[0], 'data')
 
-data = csv2rec(os.path.join(data_path,'event_related_fmri.csv'))
+data = csv2rec(os.path.join(data_path, 'event_related_fmri.csv'))
 
 
 """
