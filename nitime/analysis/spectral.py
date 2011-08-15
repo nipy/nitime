@@ -296,11 +296,9 @@ class FilterAnalyzer(desc.ResetMixin):
         if in_ts is not None:
             data = in_ts.data
             Fs = in_ts.sampling_rate
-            # tu = in_ts.time_unit
         else:
             data = self.data
             Fs = self.sampling_rate
-            # tu = self.time_unit
 
         #filtfilt only operates channel-by-channel, so we need to loop over the
         #channels, if the data is multi-channel data:
