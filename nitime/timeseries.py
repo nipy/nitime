@@ -454,8 +454,8 @@ class UniformTime(np.ndarray, TimeInterface):
                 valid_tspecs.append(tspecs_w_data[name])
 
         if (tspec not in valid_tspecs):
-            l = ['sampling_interval', 'sampling_rate', 'length', 'duration']
-            #args = [arg for t,arg in zip(tspec,l) if t]
+            # l = ['sampling_interval', 'sampling_rate', 'length', 'duration']
+            # args = [arg for t,arg in zip(tspec,l) if t]
             raise ValueError("Invalid time specification.\n" +
                 "You provided: %s \n"
                 "%s \nsee docstring for more info."
