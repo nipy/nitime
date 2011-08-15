@@ -230,15 +230,15 @@ the known coefficients that generated the data:
 """
 
 fig01 = plt.figure()
-ax01 = fig01.add_subplot(1,1,1)
+ax01 = fig01.add_subplot(1, 1, 1)
 
 # This is the estimate:
-Sxx_est = np.abs(Sw[0,0])
-Syy_est = np.abs(Sw[1,1])
+Sxx_est = np.abs(Sw[0, 0])
+Syy_est = np.abs(Sw[1, 1])
 
 # This is the 'true' value, corrected for one-sided spectral density functions
-Sxx_true = Sw_true[0,0].real
-Syy_true = Sw_true[1,1].real
+Sxx_true = Sw_true[0, 0].real
+Syy_true = Sw_true[1, 1].real
 
 """
 
@@ -264,8 +264,8 @@ ax01.plot(w, Sxx_true, 'b', label='true Sxx(w)')
 ax01.plot(w, Sxx_est, 'b--', label='estimated Sxx(w)')
 ax01.plot(w, Syy_true, 'g', label='true Syy(w)')
 ax01.plot(w, Syy_est, 'g--', label='estimated Syy(w)')
-ax01.plot(w,np.mean(c_x,0),'r',label='Sxx(w) - MT PSD')
-ax01.plot(w,np.mean(c_y,0),'r--',label='Syy(w) - MT PSD')
+ax01.plot(w, np.mean(c_x, 0), 'r', label='Sxx(w) - MT PSD')
+ax01.plot(w, np.mean(c_y, 0), 'r--', label='Syy(w) - MT PSD')
 
 ax01.legend()
 
@@ -280,12 +280,12 @@ addition, there is the instanteaneous causality between the processes:
 """
 
 fig02 = plt.figure()
-ax02 = fig02.add_subplot(1,1,1)
+ax02 = fig02.add_subplot(1, 1, 1)
 
 # x causes y plot
-ax02.plot(w, f_x2y,label='X => Y')
+ax02.plot(w, f_x2y, label='X => Y')
 # y causes x plot
-ax02.plot(w, f_y2x,label='Y => X')
+ax02.plot(w, f_y2x, label='Y => X')
 # instantaneous causality
 ax02.plot(w, f_xy, label='X:Y')
 
@@ -309,22 +309,22 @@ processes. We also compare to the empirically calculated coherence:
 """
 
 fig03 = plt.figure()
-ax03 = fig03.add_subplot(1,1,1)
+ax03 = fig03.add_subplot(1, 1, 1)
 
 # total causality
-ax03.plot(w, f_xy + f_x2y + f_y2x,label='Total causality')
+ax03.plot(w, f_xy + f_x2y + f_y2x, label='Total causality')
 
 #Interdepence:
 f_id = alg.interdependence_xy(Sw)
-ax03.plot(w, f_id,label='Interdependence')
+ax03.plot(w, f_id, label='Interdependence')
 
-coh = np.empty((N,33))
+coh = np.empty((N, 33))
 
 for i in xrange(N):
-    frex,this_coh = alg.coherence(z[i])
-    coh[i] = this_coh[0,1]
+    frex, this_coh = alg.coherence(z[i])
+    coh[i] = this_coh[0, 1]
 
-ax03.plot(frex,np.mean(coh,0),label='Coherence')
+ax03.plot(frex, np.mean(coh, axis=0), label='Coherence')
 
 ax03.legend()
 

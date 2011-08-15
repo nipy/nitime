@@ -31,7 +31,6 @@ def fit_model(x1, x2, order=None, max_order=10,
         order of the model.
 
     """
-
     c_old = np.inf
     n_process = 2
     Ntotal = n_process * x1.shape[-1]
@@ -39,14 +38,15 @@ def fit_model(x1, x2, order=None, max_order=10,
     # If model order was provided as an input:
     if order is not None:
         lag = order + 1
-        Rxx = utils.autocov_vector(np.vstack([x1,x2]), nlags=lag)
+        Rxx = utils.autocov_vector(np.vstack([x1, x2]), nlags=lag)
         coef, ecov = alg.lwr_recursion(np.array(Rxx).transpose(2, 0, 1))
 
     # If the model order is not known and provided as input:
     else:
         for lag in xrange(1, max_order):
-            Rxx_new = utils.autocov_vector(np.vstack([x1,x2]), nlags=lag)
-            coef_new, ecov_new = alg.lwr_recursion(np.array(Rxx_new).transpose(2, 0, 1))
+            Rxx_new = utils.autocov_vector(np.vstack([x1, x2]), nlags=lag)
+            coef_new, ecov_new = alg.lwr_recursion(
+                                        np.array(Rxx_new).transpose(2, 0, 1))
             order_new = coef_new.shape[0]
             c_new = criterion(ecov_new, n_process, order_new, Ntotal)
             if c_new > c_old:
@@ -62,10 +62,12 @@ def fit_model(x1, x2, order=None, max_order=10,
                 coef = coef_new
                 ecov = ecov_new
         else:
-            e_s = "Model estimation order did not converge at max_order=%s" % max_order
+            e_s = ("Model estimation order did not converge at max_order = %s"
+                                                                  % max_order)
             raise ValueError(e_s)
 
     return order, Rxx, coef, ecov
+
 
 class GrangerAnalyzer(BaseAnalyzer):
     """Analyzer for computing all-to-all Granger 'causality' """
@@ -87,8 +89,10 @@ class GrangerAnalyzer(BaseAnalyzer):
         max_order: if the order is estimated, this is the maximal order to
              estimate for.
         n_freqs: int (optional)
-            The size of the sampling grid in the frequency domain. Defaults to 1024
+            The size of the sampling grid in the frequency domain.
+            Defaults to 1024
         criterion:
+            XXX
         """
         self.data = input.data
         self.sampling_rate = input.sampling_rate
@@ -100,9 +104,10 @@ class GrangerAnalyzer(BaseAnalyzer):
         if ij is None:
             # The following gets the full list of combinations of
             # non-same i's and j's:
-            x,y = np.meshgrid(np.arange(self._n_process), np.arange(self._n_process))
-            self.ij = zip(x[np.tril_indices_from(x,-1)],
-                          y[np.tril_indices_from(y,-1)])
+            x, y = np.meshgrid(np.arange(self._n_process),
+                               np.arange(self._n_process))
+            self.ij = zip(x[np.tril_indices_from(x, -1)],
+                          y[np.tril_indices_from(y, -1)])
         else:
             self.ij = ij
 
@@ -110,12 +115,12 @@ class GrangerAnalyzer(BaseAnalyzer):
     def _model(self):
         model = dict(order={}, autocov={}, model_coef={}, error_cov={})
         for i, j in self.ij:
-            model[i, j] = {}
+            model[i, j] = dict()
             order_t, Rxx_t, coef_t, ecov_t = fit_model(self.data[i],
-                                                       self.data[j],
-                                                       order=self._order,
-                                                       max_order=self._max_order,
-                                                       criterion=self._criterion)
+                                                   self.data[j],
+                                                   order=self._order,
+                                                   max_order=self._max_order,
+                                                   criterion=self._criterion)
             model['order'][i, j] = order_t
             model['autocov'][i, j] = Rxx_t
             model['model_coef'][i, j] = coef_t
@@ -129,7 +134,7 @@ class GrangerAnalyzer(BaseAnalyzer):
             return self._model['order']
         else:
             order = {}
-            for i,j in self.ij:
+            for i, j in self.ij:
                 order[i, j] = self._order
             return order
 
@@ -150,10 +155,11 @@ class GrangerAnalyzer(BaseAnalyzer):
         """
         This returns a dict with the values computed by
         :func:`granger_causality_xy`, rather than arrays, so that we can delay
-        the allocation of arrays as much as possible. 
+        the allocation of arrays as much as possible.
 
-        """ 
-        gc = dict(frequencies={}, gc_xy={}, gc_yx={}, gc_sim={}, spectral_density={})
+        """
+        gc = dict(frequencies={}, gc_xy={}, gc_yx={}, gc_sim={},
+                  spectral_density={})
         for i, j in self.ij:
             w, f_x2y, f_y2x, f_xy, Sw = \
                alg.granger_causality_xy(self.model_coef[i, j],
@@ -172,7 +178,6 @@ class GrangerAnalyzer(BaseAnalyzer):
     def frequencies(self):
         return utils.get_freqs(self.sampling_rate, self._n_freqs)
 
-
     def _dict2arr(self, key):
         """
         A helper function that will generate an array with all nan's and insert
@@ -184,11 +189,11 @@ class GrangerAnalyzer(BaseAnalyzer):
         arr = np.empty((self._n_process,
                         self._n_process,
                         self.frequencies.shape[0]))
-        
+
         arr.fill(np.nan)
 
         # 'Translate' from dict form into matrix form:
-        for i,j in self.ij:
+        for i, j in self.ij:
             arr[j, i, :] = self._granger_causality[key][i, j]
         return arr
 

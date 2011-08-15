@@ -50,9 +50,9 @@ We read in the data into a recarray from a csv file:
 
 """
 
-data_path = os.path.join(nitime.__path__[0],'data')
+data_path = os.path.join(nitime.__path__[0], 'data')
 
-data_rec = csv2rec(os.path.join(data_path,'fmri_timeseries.csv'))
+data_rec = csv2rec(os.path.join(data_path, 'fmri_timeseries.csv'))
 
 
 """

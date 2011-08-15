@@ -79,12 +79,12 @@ class CoherenceAnalyzer(BaseAnalyzer):
         if (self.method.get('this_method') == 'welch' or
             self.method.get('this_method') is None):
 
-            # If the input is shorter than NFFT, all the coherences will be 1 per
-            # definition. Throw a warning about that:
+            # If the input is shorter than NFFT, all the coherences will be
+            # 1 per definition. Throw a warning about that:
             self.method['NFFT'] = self.method.get('NFFT', tsa.default_nfft)
             self.method['n_overlap'] = self.method.get('n_overlap',
                                                        tsa.default_n_overlap)
-            if (self.input.shape[-1] < 
+            if (self.input.shape[-1] <
                             (self.method['NFFT'] + self.method['n_overlap'])):
                 e_s = "In nitime.analysis, the provided input time-series is"
                 e_s += " shorter than the requested NFFT + n_overlap. All "
