@@ -16,6 +16,8 @@ from matplotlib import mlab
 from scipy import linalg
 from scipy import signal as sig
 from scipy import interpolate
+from scipy import fftpack
+
 import nitime.utils as utils
 
 # To suppport older versions of numpy that don't have tril_indices:
@@ -239,7 +241,7 @@ def periodogram(s, Fs=2 * np.pi, Sk=None, N=None,
         N = Sk.shape[-1]
     else:
         N = s.shape[-1] if not N else N
-        Sk = np.fft.fft(s, n=N)
+        Sk = fftpack.fft(s, n=N)
     pshape = list(Sk.shape)
     norm = float(s.shape[-1])
 
@@ -332,7 +334,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
             N = NFFT
         else:
             N = s.shape[-1]
-        Sk_loc = np.fft.fft(s, n=N)
+        Sk_loc = fftpack.fft(s, n=N)
     # reset s.shape
     s.shape = s_shape
 
@@ -678,7 +680,7 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
     # windows are orthonormal, they effectively scale the signal by 1/N
 
     # XXX: scipy fft is faster
-    tapered_spectra = np.fft.fft(tapered)
+    tapered_spectra = fftpack.fft(tapered)
 
     last_freq = N / 2 + 1 if sides == 'onesided' else N
 
@@ -810,7 +812,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
     tapered = s[sig_sl] * dpss
 
     # compute the y_{i,k}(f)
-    tapered_spectra = np.fft.fft(tapered)
+    tapered_spectra = fftpack.fft(tapered)
 
     # compute the cross-spectral density functions
     last_freq = N / 2 + 1 if sides == 'onesided' else N

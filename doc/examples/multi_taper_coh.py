@@ -31,6 +31,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.mlab import csv2rec
 import scipy.stats.distributions as dist
+from scipy import fftpack
 
 import nitime
 from nitime.timeseries import TimeSeries
@@ -105,7 +106,7 @@ magnitude of the squared spectra (the power) for each tapered time-series:
 
 
 tdata = tapers[None, :, :] * pdata[:, None, :]
-tspectra = np.fft.fft(tdata)
+tspectra = fftpack.fft(tdata)
 ## mag_sqr_spectra = np.abs(tspectra)
 ## np.power(mag_sqr_spectra, 2, mag_sqr_spectra)
 

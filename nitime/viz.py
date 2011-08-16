@@ -12,6 +12,7 @@ if "nose" in sys.modules:
 
 # Then do all the rest of it:
 import numpy as np
+from scipy import fftpack
 from matplotlib import mpl
 from matplotlib import pyplot as plt
 import matplotlib.ticker as ticker
@@ -1368,9 +1369,9 @@ def winspect(win, f, name=None):
     ax1.set_ylabel('Window amplitude')
     ax1.set_ylim(-0.1, 1.1)
     ax1.set_xlim(0, npts)
-    wf = np.fft.fft(win)
+    wf = fftpack.fft(win)
     ax1.set_xticks(np.arange(npts / 8., npts, npts / 8.))
-    toplot = np.abs(np.fft.fftshift(wf).real)
+    toplot = np.abs(fftpack.fftshift(wf).real)
     toplot /= np.max(toplot)
     toplot = np.log(toplot)
     ax2.plot(toplot, label=name)
