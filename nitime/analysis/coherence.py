@@ -37,6 +37,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
 
         Examples
         --------
+        >>> import nitime.timeseries as ts
         >>> np.set_printoptions(precision=4)  # for doctesting
         >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),
         ...                                 sampling_rate=np.pi)

@@ -9,6 +9,8 @@ __all__ = ['tri', 'triu', 'tril', 'mask_indices', 'tril_indices',
 from numpy.core.numeric import asanyarray, subtract, arange, \
      greater_equal, multiply, ones, asarray, where
 
+# Need to import numpy for the doctests! 
+import numpy as np  
 
 def tri(N, M=None, k=0, dtype=float):
     """

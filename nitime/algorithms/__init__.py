@@ -52,10 +52,10 @@ data containers implemented in :mod:`nitime.timeseries`
 
 
 """
-from .spectral import *
-from .cohere import *
-from .wavelet import *
-from .event_related import *
-from .autoregressive import *
-from .filter import *
-from .correlation import *
+from nitime.algorithms.spectral import *
+from nitime.algorithms.cohere import *
+from nitime.algorithms.wavelet import *
+from nitime.algorithms.event_related import *
+from nitime.algorithms.autoregressive import *
+from nitime.algorithms.filter import *
+from nitime.algorithms.correlation import *

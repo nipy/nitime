@@ -29,4 +29,4 @@ import analysis
 
 from timeseries import *
 
-from .testlib import test
+from nitime.testlib import test
