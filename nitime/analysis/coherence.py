@@ -2,6 +2,7 @@ import warnings
 
 import numpy as np
 import scipy.stats.distributions as dist
+from scipy import fftpack
 
 from nitime import descriptors as desc
 from nitime import utils as tsu
@@ -308,7 +309,7 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def spectra(self):
         tdata = self.tapers[None, :, :] * self.input.data[:, None, :]
-        tspectra = np.fft.fft(tdata)
+        tspectra = fftpack.fft(tdata)
         return tspectra
 
     @desc.setattr_on_read

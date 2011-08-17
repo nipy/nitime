@@ -15,6 +15,7 @@ XXX
 """
 
 import numpy as np
+from scipy import fftpack
 import matplotlib.mlab as mlab
 
 from spectral import get_spectra, get_spectra_bi
@@ -869,8 +870,8 @@ def correlation_spectrum(x1, x2, Fs=2 * np.pi, norm=False):
 
     x1 = x1 - np.mean(x1)
     x2 = x2 - np.mean(x2)
-    x1_f = np.fft.fft(x1)
-    x2_f = np.fft.fft(x2)
+    x1_f = fftpack.fft(x1)
+    x2_f = fftpack.fft(x2)
     D = np.sqrt(np.sum(x1 ** 2) * np.sum(x2 ** 2))
     n = x1.shape[0]
 
@@ -1025,7 +1026,7 @@ def cache_fft(time_series, ij, lb=0, ub=None,
             #Windowing:
             thisSlice = window_vals * thisSlice  # No detrending
             #Derive the fft for that slice:
-            Slices[iSlice, :] = (np.fft.fft(thisSlice)[lb_idx:ub_idx])
+            Slices[iSlice, :] = (fftpack.fft(thisSlice)[lb_idx:ub_idx])
 
         FFT_slices[i_channel] = Slices
 

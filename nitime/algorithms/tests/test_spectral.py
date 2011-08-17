@@ -5,6 +5,7 @@ Tests for the algorithms.spectral submodule
 
 import numpy as np
 import scipy
+from scipy import fftpack
 import numpy.testing as npt
 import numpy.testing.decorators as dec
 import nose.tools as nt
@@ -106,7 +107,7 @@ def test_periodogram():
     """Test some of the inputs to periodogram """
 
     arsig, _, _ = utils.ar_generator(N=1024)
-    Sk = np.fft.fft(arsig)
+    Sk = fftpack.fft(arsig)
 
     f1, c1 = tsa.periodogram(arsig)
     f2, c2 = tsa.periodogram(arsig, Sk=Sk)
@@ -132,7 +133,7 @@ def test_periodogram_csd():
 
     tseries = np.vstack([arsig1, arsig2])
 
-    Sk = np.fft.fft(tseries)
+    Sk = fftpack.fft(tseries)
 
     f1, c1 = tsa.periodogram_csd(tseries)
     f2, c2 = tsa.periodogram_csd(tseries, Sk=Sk)
@@ -272,7 +273,7 @@ def test_mtm_cross_spectrum():
 
         tdata = tapers * data
 
-        tspectra = np.fft.fft(tdata)
+        tspectra = fftpack.fft(tdata)
 
         L = N / 2 + 1
         sides = 'onesided'

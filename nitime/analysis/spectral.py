@@ -2,6 +2,7 @@
 import numpy as np
 import scipy
 import scipy.signal as signal
+from scipy import fftpack
 
 from nitime import descriptors as desc
 from nitime import utils as tsu
@@ -173,7 +174,7 @@ class SpectralAnalyzer(BaseAnalyzer):
         data = self.input.data
         sampling_rate = self.input.sampling_rate
 
-        fft = np.fft.fft
+        fft = fftpack.fft
         f = tsu.get_freqs(sampling_rate, data.shape[-1])
         spectrum_fourier = fft(data)[..., :f.shape[0]]
         return f, spectrum_fourier
@@ -426,7 +427,7 @@ class FilterAnalyzer(desc.ResetMixin):
         if self.ub is None:
             self.ub = freqs[-1]
 
-        power = np.fft.fft(self.data)
+        power = fftpack.fft(self.data)
         idx_0 = np.hstack([np.where(freqs < self.lb)[0],
                            np.where(freqs > self.ub)[0]])
 
@@ -436,7 +437,7 @@ class FilterAnalyzer(desc.ResetMixin):
         power[..., -1 * idx_0] = 0  # Take care of the negative frequencies
         power[..., 0] = keep_dc  # And put the DC back in when you're done:
 
-        data_out = np.fft.ifft(power)
+        data_out = fftpack.ifft(power)
 
         data_out = np.real(data_out)  # In order to make sure that you are not
                                       # left with float-precision residual

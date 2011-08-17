@@ -5,6 +5,7 @@ import numpy.testing as npt
 import numpy.testing.decorators as dec
 
 from scipy.signal import signaltools
+from scipy import fftpack
 
 import nitime
 from nitime import algorithms as tsa
@@ -156,7 +157,7 @@ def test_psd_matlab():
     fxx, f = mlab.psd(ts0, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                       scale_by_freq=True)
 
-    fxx_mlab = np.fft.fftshift(fxx).squeeze()
+    fxx_mlab = fftpack.fftshift(fxx).squeeze()
 
     fxx_matlab = np.loadtxt(os.path.join(test_dir_path, 'fxx_matlab.txt'))
 
