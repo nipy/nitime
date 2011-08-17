@@ -2,17 +2,30 @@ import warnings
 
 import numpy as np
 import numpy.testing as npt
+import matplotlib
 import matplotlib.mlab as mlab
 
 import nitime.timeseries as ts
 import nitime.analysis as nta
 
 import platform
+
+# Some tests might require python version 2.5 or above: 
 if float(platform.python_version()[:3]) < 2.5:
     old_python = True
 else:
     old_python = False
 
+# Matplotlib older than 0.99 will have some issues with the normalization of t
+
+if float(matplotlib.__version__[:3]) < 0.99:
+    w_s = "You have a relatively old version of Matplotlib. " 
+    w_s += " Estimation of the PSD DC component might not be as expected"
+    w_s += " Consider updating Matplotlib: http://matplotlib.sourceforge.net/"
+    warnings.warn(w_s, Warning)
+    old_mpl = True
+else:
+    old_mpl = False
 
 def test_CoherenceAnalyzer():
     methods = (None,
@@ -63,6 +76,7 @@ def test_CoherenceAnalyzer():
             npt.assert_equal(len(C.coherence_partial.shape), 4)
 
 
+@npt.dec.skipif(old_mpl)
 def test_SparseCoherenceAnalyzer():
     Fs = np.pi
     t = np.arange(256)

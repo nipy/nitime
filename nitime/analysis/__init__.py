@@ -24,10 +24,10 @@ these methods with the new parameter setting.
 
 """
 
-from .coherence import *
-from .correlation import *
-from .event_related import *
-from .normalization import *
-from .snr import *
-from .spectral import *
-from .granger import *
+from nitime.analysis.coherence import *
+from nitime.analysis.correlation import *
+from nitime.analysis.event_related import *
+from nitime.analysis.normalization import *
+from nitime.analysis.snr import *
+from nitime.analysis.spectral import *
+from nitime.analysis.granger import *
