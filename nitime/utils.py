@@ -7,6 +7,8 @@ import warnings
 import numpy as np
 import scipy.linalg as linalg
 import scipy.signal as sig
+from scipy import fftpack
+from scipy.signal.signaltools import _centered
 
 
 #-----------------------------------------------------------------------------
@@ -837,13 +839,8 @@ def fftconvolve(in1, in2, mode="full", axis=None):
     importing locally the stuff only needed for this function
 
     """
-    #Locally import stuff only required for this:
-    from scipy.fftpack import fftn, fft, ifftn, ifft
-    from scipy.signal.signaltools import _centered
-    from numpy import array, product
-
-    s1 = array(in1.shape)
-    s2 = array(in2.shape)
+    s1 = np.array(in1.shape)
+    s2 = np.array(in2.shape)
     complex_result = (np.issubdtype(in1.dtype, np.complex) or
                       np.issubdtype(in2.dtype, np.complex))
 
@@ -863,20 +860,20 @@ def fftconvolve(in1, in2, mode="full", axis=None):
     # Always use 2**n-sized FFT
     fsize = 2 ** np.ceil(np.log2(size))
     if axis is None:
-        IN1 = fftn(in1, fsize)
-        IN1 *= fftn(in2, fsize)
-        ret = ifftn(IN1)[fslice].copy()
+        IN1 = fftpack.fftn(in1, fsize)
+        IN1 *= fftpack.fftn(in2, fsize)
+        ret = fftpack.ifftn(IN1)[fslice].copy()
     else:
-        IN1 = fft(in1, fsize, axis=axis)
-        IN1 *= fft(in2, fsize, axis=axis)
-        ret = ifft(IN1, axis=axis)[fslice].copy()
+        IN1 = fftpack.fft(in1, fsize, axis=axis)
+        IN1 *= fftpack.fft(in2, fsize, axis=axis)
+        ret = fftpack.ifft(IN1, axis=axis)[fslice].copy()
     del IN1
     if not complex_result:
         ret = ret.real
     if mode == "full":
         return ret
     elif mode == "same":
-        if product(s1, axis=0) > product(s2, axis=0):
+        if np.product(s1, axis=0) > np.product(s2, axis=0):
             osize = s1
         else:
             osize = s2
@@ -1809,7 +1806,7 @@ def hilbert_from_new_scipy(x, N=None, axis=-1):
     if np.iscomplexobj(x):
         print "Warning: imaginary part of x ignored."
         x = np.real(x)
-    Xf = np.fft.fft(x, N, axis=axis)
+    Xf = fftpack.fft(x, N, axis=axis)
     h = np.zeros(N)
     if N % 2 == 0:
         h[0] = h[N / 2] = 1
@@ -1822,7 +1819,7 @@ def hilbert_from_new_scipy(x, N=None, axis=-1):
         ind = [np.newaxis] * x.ndim
         ind[axis] = slice(None)
         h = h[ind]
-    x = np.fft.ifft(Xf * h, axis=axis)
+    x = fftpack.ifft(Xf * h, axis=axis)
     return x
 
 

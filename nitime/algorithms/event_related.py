@@ -6,6 +6,7 @@ Event-related analysis
 
 import numpy as np
 import scipy.linalg as linalg
+from scipy import fftpack
 
 
 def fir(timeseries, design):
@@ -90,9 +91,9 @@ def freq_domain_xcorr(tseries, events, t_before, t_after, Fs=1):
         time-series) of an LTI.
 
     """
-    fft = np.fft.fft
-    ifft = np.fft.ifft
-    fftshift = np.fft.fftshift
+    fft = fftpack.fft
+    ifft = fftpack.ifft
+    fftshift = fftpack.fftshift
 
     xcorr = np.real(fftshift(ifft(fft(tseries) *
                                   fft(np.fliplr([events])))))
@@ -134,9 +135,9 @@ def freq_domain_xcorr_zscored(tseries, events, t_before, t_after, Fs=1):
 
     """
 
-    fft = np.fft.fft
-    ifft = np.fft.ifft
-    fftshift = np.fft.fftshift
+    fft = fftpack.fft
+    ifft = fftpack.ifft
+    fftshift = fftpack.fftshift
 
     xcorr = np.real(fftshift(ifft(fft(tseries) * fft(np.fliplr([events])))))
 

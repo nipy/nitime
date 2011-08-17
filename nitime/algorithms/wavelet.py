@@ -5,6 +5,7 @@ Wavelets
 """
 
 import numpy as np
+from scipy import fftpack
 
 
 def wfmorlet_fft(f0, sd, sampling_rate, ns=5, nt=None):
@@ -22,7 +23,7 @@ def wfmorlet_fft(f0, sd, sampling_rate, ns=5, nt=None):
     if nt == None:
         st = 1. / (2. * np.pi * sd)
         nt = 2 * int(ns * st * sampling_rate) + 1
-    f = np.fft.fftfreq(nt, 1. / sampling_rate)
+    f = fftpack.fftfreq(nt, 1. / sampling_rate)
     wf = 2 * np.exp(-(f - f0) ** 2 / (2 * sd ** 2)) * np.sqrt(sampling_rate /
                                                     (np.sqrt(np.pi) * sd))
     wf[f < 0] = 0
@@ -70,7 +71,7 @@ def wlogmorlet_fft(f0, sd, sampling_rate, ns=5, nt=None):
     if nt == None:
         st = 1. / (2. * np.pi * sd)
         nt = 2 * int(ns * st * sampling_rate) + 1
-    f = np.fft.fftfreq(nt, 1. / sampling_rate)
+    f = fftpack.fftfreq(nt, 1. / sampling_rate)
 
     sfl = np.log(1 + 1. * sd / f0)
     wf = (2 * np.exp(-(np.log(f) - np.log(f0)) ** 2 / (2 * sfl ** 2)) *
@@ -94,7 +95,7 @@ def wlogmorlet(f0, sd, sampling_rate, ns=5, normed='area'):
     st = 1. / (2. * np.pi * sd)
     w_sz = int(ns * st * sampling_rate)  # half time window size
     wf = wlogmorlet_fft(f0, sd, sampling_rate=sampling_rate, nt=2 * w_sz + 1)
-    w = np.fft.fftshift(np.fft.ifft(wf))
+    w = fftpack.fftshift(fftpack.ifft(wf))
     if normed == 'area':
         w /= w.real.sum()
     elif normed == 'max':

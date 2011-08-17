@@ -13,6 +13,7 @@ import numpy.testing as npt
 from scipy.signal import signaltools
 import matplotlib
 import matplotlib.mlab as mlab
+from scipy import fftpack
 
 import nitime
 import nitime.algorithms as tsa
@@ -227,8 +228,8 @@ def test_coherence_linear_dependence():
     noise = 0.1 * np.random.randn(t.shape[-1])
     y = alpha * np.roll(x, m) + noise
 
-    f_noise = np.fft.fft(noise)[0:N / 2]
-    f_x = np.fft.fft(x)[0:N / 2]
+    f_noise = fftpack.fft(noise)[0:N / 2]
+    f_x = fftpack.fft(x)[0:N / 2]
 
     c_t = (1 / (1 + (f_noise / (f_x * (alpha ** 2)))))
 
@@ -278,7 +279,7 @@ def test_cached_coherence():
     # Check that the fft of the first window is what we expect:
     hann = mlab.window_hanning(np.ones(NFFT))
     w_ts = ts[0][:NFFT] * hann
-    w_ft = np.fft.fft(w_ts)[0:n_freqs]
+    w_ft = fftpack.fft(w_ts)[0:n_freqs]
 
     # This is the result of the function:
     first_window_fft = cache['FFT_slices'][0][0]
