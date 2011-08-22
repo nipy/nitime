@@ -24,6 +24,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
 
         Examples
         --------
+        >>> np.set_printoptions(precision=4)  # for doctesting
         >>> t1 = ts.TimeSeries(data = np.sin(np.arange(0,
         ...                    10*np.pi,10*np.pi/100)).reshape(2,50),
         ...                                      sampling_rate=np.pi)
