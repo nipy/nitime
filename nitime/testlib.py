@@ -12,20 +12,31 @@ import numpy as np
 #-----------------------------------------------------------------------------
 
 
-def test(doctests=False):
+def test(doctests=True, first_package_wins=True, extra_argv=None):
     """
 
     Run the nitime test suite using nose.
+
+    Parameters
+    ----------
+
+    doctests: bool, optional
+       Whether to run the doctests. Defaults to True
+
+    first_package_wins: bool, optional
+       Don't evict packages from sys.module, if detecting another package with
+       the same name in some other location(nosetests default behavior is to do
+       that).
+       
+    extra_argv: string, list or tuple, optional
+       Additional argument (string) or arguments (list or tuple of strings) to
+       be passed to nose when running the tests.
 
     """
     # Import this internally, so that nose doesn't get pulled into sys.modules,
     # unless you are really running the test-suite.
     from nose.core import TestProgram
 
-    #Make sure that you only change the print options during the testing
-    #of nitime and don't affect the user session after that:
-    opt_dict = np.get_printoptions()
-    np.set_printoptions(precision=4)
     # We construct our own argv manually, so we must set argv[0] ourselves
     argv = ['nosetests',
             # Name the package to actually test, in this case nitime
@@ -42,14 +53,23 @@ def test(doctests=False):
             '--exe',
             ]
 
+    # If someone wants to add some other argv
+    if extra_argv is not None:
+        if isinstance(extra_argv, list) or isinstance(extra_argv, list):
+            for this in extra_argv: argv.append(this)
+        else:
+            argv.append(extra_argv)
+
+    if first_package_wins:
+        argv.append('--first-package-wins=1')
+            
     if doctests:
         argv.append('--with-doctest')
-
+        
     # Now nose can run
-    try:
-        TestProgram(argv=argv)#, exit=False)
-    finally:
-        np.set_printoptions(**opt_dict)
+    result = TestProgram(argv=argv, exit=False)
+
+    return result
 
 # Tell nose that the test() function itself isn't a test, otherwise we get a
 # recursive loop inside nose.
