@@ -34,10 +34,6 @@ def test(doctests=True, first_package_wins=True, extra_argv=None):
        be passed to nose when running the tests.
 
     """
-    # Import this internally, so that nose doesn't get pulled into sys.modules,
-    # unless you are really running the test-suite.
-    from nose.core import TestProgram
-
     # We construct our own argv manually, so we must set argv[0] ourselves
     argv = ['nosetests',
             # Name the package to actually test, in this case nitime
@@ -68,7 +64,7 @@ def test(doctests=True, first_package_wins=True, extra_argv=None):
         argv.append('--with-doctest')
         
     # Now nose can run
-    return NumpyTestProgram(argv=argv, exit=False)
+    return NumpyTestProgram(argv=argv, exit=False).result
 
 # Tell nose that the test() function itself isn't a test, otherwise we get a
 # recursive loop inside nose.
