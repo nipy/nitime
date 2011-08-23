@@ -6,6 +6,7 @@
 
 # Third-party
 import numpy as np
+from numpy.testing.noseclasses import NumpyTestProgram
 
 #-----------------------------------------------------------------------------
 # Functions and classes
@@ -61,13 +62,13 @@ def test(doctests=True, first_package_wins=True, extra_argv=None):
             argv.append(extra_argv)
 
     if first_package_wins:
-        argv.append('--first-package-wins')
+        argv.append('--first-package-wins=True')
             
     if doctests:
         argv.append('--with-doctest')
         
     # Now nose can run
-    result = TestProgram(argv=argv, exit=False)
+    result = NumpyTestProgram(argv=argv, exit=False)
 
     return result
 
