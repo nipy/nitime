@@ -62,15 +62,13 @@ def test(doctests=True, first_package_wins=True, extra_argv=None):
             argv.append(extra_argv)
 
     if first_package_wins:
-        argv.append('--first-package-wins=True')
+        argv.append('--first-package-wins')
             
     if doctests:
         argv.append('--with-doctest')
         
     # Now nose can run
-    result = NumpyTestProgram(argv=argv, exit=False)
-
-    return result
+    return NumpyTestProgram(argv=argv, exit=False)
 
 # Tell nose that the test() function itself isn't a test, otherwise we get a
 # recursive loop inside nose.
