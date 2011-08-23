@@ -61,7 +61,7 @@ def test(doctests=True, first_package_wins=True, extra_argv=None):
             argv.append(extra_argv)
 
     if first_package_wins:
-        argv.append('--first-package-wins=1')
+        argv.append('--first-package-wins')
             
     if doctests:
         argv.append('--with-doctest')
