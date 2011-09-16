@@ -608,6 +608,21 @@ def test_Epochs():
         # expected array.
         npt.assert_raises(ValueError, t.during, dict(e=e1d))
 
+def test_basic_slicing():
+    t = ts.TimeArray(range(4))
+
+    for x in range(3):
+        ep  = ts.Epochs(.5,x+.5)
+        npt.assert_equal(len(t[ep]), x)
+
+    # epoch starts before timeseries
+    npt.assert_equal(len(t[ts.Epochs(-1,3)]), len(t)-1)
+    # epoch ends after timeseries
+    npt.assert_equal(len(t[ts.Epochs(.5,5)]), len(t)-1)
+    # epoch starts before and ends after timeseries
+    npt.assert_equal(len(t[ts.Epochs(-1,100)]), len(t))
+    ep  = ts.Epochs(20,100)
+    npt.assert_equal(len(t[ep]), 0)
 
 
 def test_Events():

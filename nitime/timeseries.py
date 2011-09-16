@@ -305,8 +305,8 @@ class TimeArray(np.ndarray, TimeInterface):
 
         # These two should be called with modes, such that they catch the right
         # slice
-        start = self.index_at(e.start, mode='before')
-        stop = self.index_at(e.stop, mode='after')
+        start = self.index_at(e.start, mode='after')
+        stop = self.index_at(e.stop, mode='before')
 
         # If *either* the start or stop index object comes back as the empty
         # array, then it means the condition is not satisfied, we return the
