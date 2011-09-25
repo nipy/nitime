@@ -12,6 +12,59 @@ from numpy.testing.noseclasses import NumpyTestProgram
 # Functions and classes
 #-----------------------------------------------------------------------------
 
+def import_nose():
+    """
+    Import nose only when needed.
+    """
+    fine_nose = True
+    minimum_nose_version = (0,10,0)
+    try:
+        import nose
+        from nose.tools import raises
+    except ImportError:
+        fine_nose = False
+    else:
+        if nose.__versioninfo__ < minimum_nose_version:
+            fine_nose = False
+
+    if not fine_nose:
+        msg = 'Need nose >= %d.%d.%d for tests - see ' \
+              'http://somethingaboutorange.com/mrl/projects/nose' % \
+              minimum_nose_version
+
+        raise ImportError(msg)
+
+    return nose
+
+def fpw_opt_str():
+    """
+    Return first-package-wins option string for this version of nose
+
+    Versions of nose prior to 1.1.0 needed ``=True`` for ``first-package-wins``,
+    versions after won't accept it.
+
+    changeset: 816:c344a4552d76
+    http://code.google.com/p/python-nose/issues/detail?id=293
+
+    Returns
+    -------
+    fpw_str : str
+    Either '--first-package-wins' or '--first-package-wins=True' depending
+    on the nose version we are running.
+    """
+    # protect nose import to provide comprehensible error if missing
+    nose = import_nose()
+    config = nose.config.Config()
+    fpw_str = '--first-package-wins'
+    opt_parser = config.getParser('')
+    opt_def = opt_parser.get_option('--first-package-wins')
+    if opt_def is None:
+        raise RuntimeError('Nose does not accept "first-package-wins"'
+                           ' - is this an old nose version?')
+    if opt_def.takes_value(): # the =True variant
+        fpw_str += '=True'
+    return fpw_str
+
 
 def test(doctests=True, first_package_wins=True, extra_argv=None):
     """
@@ -58,7 +111,7 @@ def test(doctests=True, first_package_wins=True, extra_argv=None):
             argv.append(extra_argv)
 
     if first_package_wins:
-        argv.append('--first-package-wins')
+        argv.append(fpw_opt_str())
             
     if doctests:
         argv.append('--with-doctest')
