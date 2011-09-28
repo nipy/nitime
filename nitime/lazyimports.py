@@ -13,8 +13,6 @@ throughout nitime.
 >>> from nitime.lazyimports import mlab # lazy import for matplotlib.mlab
 
 """
-import nitime.descriptors as desc
-
 class LazyImport(object):
     """
     This class takes the module name as a parameter, and acts as a proxy for
@@ -26,24 +24,36 @@ class LazyImport(object):
     >>> mlab = LazyImport('matplotlib.mlab')
 
     No import happens on the above line, until we do something like call an
-    mlab method, or cause mlab to represent itself in some manner, or try to
-    do tab completion on mlab in IPython. For example, now the LazyImport will
-    do an actual import, and call the __repr__ on the imported module.
-
+    mlab method or try to do tab completion or introspection on mlab in IPython. 
+    
+    >>> mlab
+    <module 'matplotlib.mlab' will be lazily loaded>
+    
+    Now the LazyImport will do an actual import, and call the dist function of
+    the imported module.
+    
+    >>> mlab.dist(1969,2011)
+    42.0
     >>> mlab
     <module 'matplotlib.mlab' from '.../site-packages/matplotlib/mlab.pyc'>
     """
     def __init__(self, modname):
         self.__lazyname__= modname
-    @desc.auto_attr # one-time property
-    def __lazyimported__(self):
-        name = object.__getattribute__(self,'__lazyname__')
-        return __import__(name, fromlist=name.split('.'))
     def __getattribute__(self,x):
-        return object.__getattribute__(self,'__lazyimported__').__getattribute__(x)
+        # This method will be called only once
+        name = object.__getattribute__(self,'__lazyname__')
+        module =__import__(name, fromlist=name.split('.'))
+        # Now that we've done the import, cutout the middleman
+        class LoadedLazyImport(object): 
+            __getattribute__ = module.__getattribute__
+            __repr__ = module.__repr__
+        object.__setattr__(self,'__class__', LoadedLazyImport)
+        return module.__getattribute__(x)
     def __repr__(self):
-        return object.__getattribute__(self,'__lazyimported__').__repr__()
+        return "<module '%s' will be lazily loaded>" %\
+                object.__getattribute__(self,'__lazyname__')
 
+# matplotlib.mlab
 mlab = LazyImport('matplotlib.mlab')
 
 # scipy
