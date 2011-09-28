@@ -5,8 +5,7 @@
 #-----------------------------------------------------------------------------
 
 # Third-party
-import numpy as np
-from numpy.testing.noseclasses import NumpyTestProgram
+from nitime.lazyimports import noseclasses # numpy.testing.noseclasses
 
 #-----------------------------------------------------------------------------
 # Functions and classes
@@ -117,7 +116,7 @@ def test(doctests=True, first_package_wins=True, extra_argv=None):
         argv.append('--with-doctest')
         
     # Now nose can run
-    return NumpyTestProgram(argv=argv, exit=False).result
+    return noseclasses.NumpyTestProgram(argv=argv, exit=False).result
 
 # Tell nose that the test() function itself isn't a test, otherwise we get a
 # recursive loop inside nose.
