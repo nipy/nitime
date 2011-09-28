@@ -1,8 +1,8 @@
 import warnings
 
 import numpy as np
-import scipy.stats.distributions as dist
-from scipy import fftpack
+from nitime.lazyimports import distributions as dist # scipy.stats.distributions
+from nitime.lazyimports import fftpack               # scipy.fftpack
 
 from nitime import descriptors as desc
 from nitime import utils as tsu

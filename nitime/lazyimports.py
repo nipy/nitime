@@ -44,4 +44,17 @@ class LazyImport(object):
     def __repr__(self):
         return object.__getattribute__(self,'__lazyimported__').__repr__()
 
-mlab=LazyImport('matplotlib.mlab')
+mlab = LazyImport('matplotlib.mlab')
+
+# scipy
+scipy = LazyImport('scipy')
+stats = LazyImport('scipy.stats')
+linalg = LazyImport('scipy.linalg')
+signal = LazyImport('scipy.signal')
+signaltools = LazyImport('scipy.signal.signaltools')
+fftpack = LazyImport('scipy.fftpack')
+interpolate = LazyImport('scipy.interpolate')
+distributions = LazyImport('scipy.stats.distributions')
+
+# numpy.testing
+noseclasses = LazyImport('numpy.testing.noseclasses')

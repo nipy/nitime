@@ -1,8 +1,8 @@
 
 import numpy as np
-import scipy
-import scipy.signal as signal
-from scipy import fftpack
+from nitime.lazyimports import scipy   # scipy
+from nitime.lazyimports import signal  # scipy.signal
+from nitime.lazyimports import fftpack # scipy.fftpack
 
 from nitime import descriptors as desc
 from nitime import utils as tsu

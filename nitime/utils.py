@@ -5,10 +5,10 @@ XXX write top level doc-string
 """
 import warnings
 import numpy as np
-import scipy.linalg as linalg
-import scipy.signal as sig
-from scipy import fftpack
-from scipy.signal.signaltools import _centered
+from nitime.lazyimports import linalg         # scipy.linalg
+from nitime.lazyimports import signal as sig  # scipy.signal
+from nitime.lazyimports import fftpack        # scipy.fftpack
+from nitime.lazyimports import signaltools    # scipy.signal.signaltools
 
 
 #-----------------------------------------------------------------------------
@@ -877,9 +877,9 @@ def fftconvolve(in1, in2, mode="full", axis=None):
             osize = s1
         else:
             osize = s2
-        return _centered(ret, osize)
+        return signaltools._centered(ret, osize)
     elif mode == "valid":
-        return _centered(ret, abs(s2 - s1) + 1)
+        return signaltools._centered(ret, abs(s2 - s1) + 1)
 
 
 #-----------------------------------------------------------------------------

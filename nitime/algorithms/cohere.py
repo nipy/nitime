@@ -15,8 +15,8 @@ XXX
 """
 
 import numpy as np
-from scipy import fftpack
-import matplotlib.mlab as mlab
+from nitime.lazyimports import fftpack # scipy.fftpack
+from nitime.lazyimports import mlab    # matplotlib.mlab
 
 from spectral import get_spectra, get_spectra_bi
 import nitime.utils as utils
