@@ -731,3 +731,25 @@ def test_index_at_20101206():
     #no t0
     TS_A = ts.TimeSeries(A, sampling_interval=2)
     npt.assert_equal(TS_A.time.index_at(TS_A.time), np.arange(40))
+
+def test_masked_array_timeseries():
+    # make sure masked arrays passed in stay as masked arrays
+    masked = np.ma.masked_invalid([0,np.nan,2])
+    t = ts.TimeSeries(masked, sampling_interval=1)
+    npt.assert_equal(t.data.mask, [False, True, False])
+
+    # make sure regular arrays passed don't become masked
+    notmasked = np.array([0,np.nan,2])
+    t2 = ts.TimeSeries(notmasked, sampling_interval=1)
+    npt.assert_raises(AttributeError, t2.data.__getattribute__,'mask')
+
+def test_masked_array_events():
+    # make sure masked arrays passed in stay as masked arrays
+    masked = np.ma.masked_invalid([0,np.nan,2])
+    e = ts.Events([1,2,3], d=masked)
+    npt.assert_equal(e.data['d'].mask, [False, True, False])
+
+    # make sure regular arrays passed don't become masked
+    notmasked = np.array([0,np.nan,2])
+    e2 = ts.Events([1,2,3], d=notmasked)
+    npt.assert_raises(AttributeError, e2.data['d'].__getattribute__,'mask')

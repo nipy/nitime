@@ -768,7 +768,7 @@ class TimeSeriesBase(object):
                              (time_unit, time_unit_conversion.keys()))
 
         #: the data is an arbitrary numpy array
-        self.data = np.asarray(data)
+        self.data = np.asanyarray(data)
         self.time_unit = time_unit
 
         # Every instance carries an empty metadata dict, which we promise never
@@ -1296,7 +1296,7 @@ class Events(TimeInterface):
         new_data = {}
         for k, v in data.iteritems():
             if np.iterable(v):
-                v = np.asarray(v)
+                v = np.asanyarray(v)
             else:
                 # For scalars, we do NOT want to create 0-d arrays, which are
                 # rather tricky to work with.  So if the input value is not an
