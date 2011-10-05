@@ -4,7 +4,7 @@ import nitime.lazyimports as l
 import numpy.testing as npt
 import numpy.testing.decorators as dec
 
-def test_get_time_unit():
+def test_lazy():
     mlab = l.LazyImport('matplotlib.mlab')
     #reload(mlab)
     # repr for mlab should be <module 'matplotlib.mlab' will be lazily loaded>
