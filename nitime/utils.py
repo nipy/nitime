@@ -5,10 +5,10 @@ XXX write top level doc-string
 """
 import warnings
 import numpy as np
-from nitime.lazyimports import linalg         # scipy.linalg
-from nitime.lazyimports import signal as sig  # scipy.signal
-from nitime.lazyimports import fftpack        # scipy.fftpack
-from nitime.lazyimports import signaltools    # scipy.signal.signaltools
+from nitime.lazy import scipy_linalg as linalg
+from nitime.lazy import scipy_signal as sig
+from nitime.lazy import scipy_fftpack as fftpack
+from nitime.lazy import scipy_signal_signaltools as signaltools
 
 
 #-----------------------------------------------------------------------------

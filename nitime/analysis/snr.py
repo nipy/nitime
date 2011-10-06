@@ -1,5 +1,5 @@
 import numpy as np
-from nitime.lazyimports import stats # scipy.stats
+from nitime.lazy import scipy_stats as stats
 
 from nitime import descriptors as desc
 from nitime import algorithms as tsa

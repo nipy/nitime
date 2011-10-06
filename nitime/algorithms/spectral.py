@@ -12,11 +12,11 @@ XXX
 """
 
 import numpy as np
-from nitime.lazyimports import mlab          # matplotlib.mlab
-from nitime.lazyimports import linalg        # scipy.linalg
-from nitime.lazyimports import signal as sig # scipy.signal
-from nitime.lazyimports import interpolate   # scipy.interpolate
-from nitime.lazyimports import fftpack       # scipy.fftpack
+from nitime.lazy import matplotlib_mlab as mlab
+from nitime.lazy import scipy_linalg as linalg
+from nitime.lazy import scipy_signal as sig
+from nitime.lazy import scipy_interpolate as interpolate
+from nitime.lazy import scipy_fftpack as fftpack
 
 import nitime.utils as utils
 

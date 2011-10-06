@@ -5,7 +5,7 @@ Wavelets
 """
 
 import numpy as np
-from nitime.lazyimports import fftpack # scipy.fftpack
+from nitime.lazy import scipy_fftpack as fftpack
 
 
 def wfmorlet_fft(f0, sd, sampling_rate, ns=5, nt=None):

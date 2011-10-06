@@ -5,8 +5,8 @@ Event-related analysis
 """
 
 import numpy as np
-from nitime.lazyimports import linalg  # scipy.linalg
-from nitime.lazyimports import fftpack # scipy.fftpack
+from nitime.lazy import scipy_linalg as linalg
+from nitime.lazy import scipy_fftpack as fftpack
 
 
 def fir(timeseries, design):
