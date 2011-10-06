@@ -31,7 +31,7 @@ estimating the AR coefficients and the error/innovations power.
 
 
 import numpy as np
-import scipy.linalg as linalg
+from nitime.lazy import scipy_linalg as linalg
 
 import nitime.utils as utils
 from spectral import freq_response
