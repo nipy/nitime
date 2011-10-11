@@ -4,9 +4,6 @@
 # Imports
 #-----------------------------------------------------------------------------
 
-# Third-party
-import numpy as np
-from numpy.testing.noseclasses import NumpyTestProgram
 
 #-----------------------------------------------------------------------------
 # Functions and classes
@@ -87,6 +84,7 @@ def test(doctests=True, first_package_wins=True, extra_argv=None):
        be passed to nose when running the tests.
 
     """
+    from numpy.testing import noseclasses
     # We construct our own argv manually, so we must set argv[0] ourselves
     argv = ['nosetests',
             # Name the package to actually test, in this case nitime
@@ -115,9 +113,10 @@ def test(doctests=True, first_package_wins=True, extra_argv=None):
             
     if doctests:
         argv.append('--with-doctest')
-        
+    plugins = [noseclasses.KnownFailure()]
     # Now nose can run
-    return NumpyTestProgram(argv=argv, exit=False).result
+    return noseclasses.NumpyTestProgram(argv=argv, exit=False,
+            addplugins=plugins).result
 
 # Tell nose that the test() function itself isn't a test, otherwise we get a
 # recursive loop inside nose.
