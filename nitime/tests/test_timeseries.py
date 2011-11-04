@@ -753,3 +753,41 @@ def test_masked_array_events():
     notmasked = np.array([0,np.nan,2])
     e2 = ts.Events([1,2,3], d=notmasked)
     npt.assert_raises(AttributeError, e2.data['d'].__getattribute__,'mask')
+
+def test_event_subclass_slicing():
+    "Subclassing Events should preserve the subclass after slicing"
+    class Events_with_X(ts.Events):
+        "A class which shows as attributes all of the event data"
+        def __getattr__(self,k):
+            return self.data[k]
+        pass
+    time = np.linspace(0,10,11)
+    x,y = np.sin(time),np.cos(time)
+    e = Events_with_X(time, **dict(x=x,y=y))
+    npt.assert_equal(e.x, e.data['x'])
+    npt.assert_equal(e.y, e.data['y'])
+    slice_of_e = e[:4]
+    slice_of_e.x # should not raise attribute error
+    slice_of_e.y # should not raise attribute error
+    npt.assert_equal(slice_of_e.x, x[:4])
+    npt.assert_equal(slice_of_e.y, y[:4])
+    assert(slice_of_e.__class__ == Events_with_X)
+
+def test_epochs_subclass_slicing():
+    "Subclassing Epochs should preserve the subclass after slicing"
+    class Epochs_with_X(ts.Epochs):
+        "An epoch class with extra 'stuff'"
+        def total_duration(self):
+            """Duration array for the epoch"""
+            # XXX: bug in duration after slicing - attr_onread should be reset
+            # after slicing
+            #return self.duration.sum()
+            return (self.stop - self.start).sum()
+
+    time_0 = range(10)
+    e = Epochs_with_X(time_0, duration=.2)
+    npt.assert_equal(e.total_duration(), ts.TimeArray(2.0))
+
+    slice_of_e = e[:5]
+    npt.assert_equal(slice_of_e.total_duration(), ts.TimeArray(1.0))
+    assert(slice_of_e.__class__ == Epochs_with_X)
