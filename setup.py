@@ -2,6 +2,7 @@
 """Setup file for the Python nitime package."""
 
 import os
+import sys
 
 # BEFORE importing distutils, remove MANIFEST. distutils doesn't properly
 # update it when the contents of directories change.
@@ -32,9 +33,14 @@ opts = dict(name=NAME,
             requires=REQUIRES,
             )
 
+# For some commands, use setuptools.  Note that we do NOT list install here!
+# If you want a setuptools-enhanced install, just run 'setupegg.py install'
+needs_setuptools = set(('develop', ))
+if len(needs_setuptools.intersection(sys.argv)) > 0:
+    import setuptools
+
 # Only add setuptools-specific flags if the user called for setuptools, but
 # otherwise leave it alone
-import sys
 if 'setuptools' in sys.modules:
     opts['zip_safe'] = False
 
