@@ -798,3 +798,24 @@ def test_Epochs_duration_after_slicing():
     npt.assert_equal(len(e.duration), len(e))
     slice_of_e = e[:3]
     npt.assert_equal(len(slice_of_e.duration), len(slice_of_e))
+
+def test_UniformTime_preserves_uniformity():
+    "Uniformity: allow ops which keep it, and deny those which break it"
+    utime = ts.UniformTime(t0=0, length=10, sampling_rate=1)
+
+    def assign_to_one_element_of(t): t[0]=42
+    nt.assert_raises(ValueError, assign_to_one_element_of,utime)
+
+    # same as utime, but starting 10s later
+    utime10 = ts.UniformTime(t0=10, length=10, sampling_rate=1)
+    utime += 10 # constants treated as having same units as utime
+    npt.assert_equal(utime,utime10)
+
+    # same as utime, but with a lower sampling rate
+    utime_2 = ts.UniformTime(t0=10, length=10, sampling_interval=2)
+    utime += np.arange(10)
+    npt.assert_equal(utime,utime_2)
+
+    nonuniform = np.concatenate((range(2),range(3), range(5)))
+    def iadd_nonuniform(t): t+=nonuniform
+    nt.assert_raises(ValueError, iadd_nonuniform, utime)
