@@ -1216,8 +1216,9 @@ class Epochs(object):
         # create the static dict needed for fast version of __init__
         static = self.__dict__.copy()
         static['data'] = self.data[key]
-        return Epochs(start=None, static=static)  # `start` is a required
-                                                  # argument
+        # self.__class__ here is Epochs or a subclass of Epochs
+        # and `start` is a required argument
+        return self.__class__(start=None, static=static)
 
     def __repr__(self):
         if self.data.ndim == 0:
@@ -1355,4 +1356,6 @@ class Events(TimeInterface):
         # XXX: I don't really understand how labels and index are supposed to
         # be used, so I'm not implementing them when slicing events - pi
         # 2010-12-04
-        return Events(newtime, **newdata)
+
+        # self.__class__ here is Events or a subclass of Events
+        return self.__class__(newtime, **newdata)
