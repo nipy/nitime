@@ -613,11 +613,41 @@ class UniformTime(np.ndarray, TimeInterface):
             return np.ndarray.__getitem__(self, key)
 
     def __setitem__(self, key, val):
+        raise ValueError("""Setting of individual indices would break uniformity:
+            You can either use += on the full array, OR
+            create a new TimeArray from this UniformTime""")
+
+    def _convert_and_check_uniformity(self,val):
         # look at the units - convert the values to what they need to be (in
-        # the base_unit) and then delegate to the ndarray.__setitem__
+        # the base_unit) and then delegate to the ndarray.__iadd__
         if not hasattr(val, '_conversion_factor'):
+            if getattr(np.asarray(val), 'dtype', None) == np.int32:
+                # we'll overflow if val's dtype is np.int32
+                val = np.array(val, dtype=np.int64)
             val *= self._conversion_factor
-        return np.ndarray.__setitem__(self, key, val)
+        if hasattr(val, 'ndim') and val.ndim == 1:
+            # we have to check that adding this will preserve uniformity
+            dv = np.diff(val)
+            uniformity_breaks, = np.where(dv!=dv[0])
+            if len(uniformity_breaks) != 0:
+                raise ValueError(
+                    """All elements in the operand array must have a constant
+                    interval between them in order to preserve uniformity.
+                    Uniformity is broken at these indices: %s
+                    """ %str(uniformity_breaks))
+            self.sampling_interval += dv[0]
+            self.sampling_rate = Frequency(1.0 / (float(self.sampling_interval) /
+                                        time_unit_conversion[self.time_unit]),
+                                        time_unit=self.time_unit)
+        return val
+
+    def __iadd__(self, val):
+        val = self._convert_and_check_uniformity(val)
+        return np.ndarray.__iadd__(self, val)
+
+    def __isub__(self, val):
+        val = self._convert_and_check_uniformity(val)
+        return np.ndarray.__isub__(self, val)
 
     def index_at(self, t, boolean=False):
         """Find the index that corresponds to the time bin containing t
