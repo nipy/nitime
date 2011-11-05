@@ -1125,7 +1125,7 @@ class TimeSeries(TimeSeriesBase):
 _epochtype = np.dtype({'names': ['start', 'stop'], 'formats': [np.int64] * 2})
 
 
-class Epochs(object):
+class Epochs(desc.ResetMixin):
     """Represents a time interval"""
     def __init__(self, t0=None, stop=None, offset=None, start=None,
                  duration=None, time_unit=None, static=None, **kwargs):
@@ -1135,6 +1135,9 @@ class Epochs(object):
         # XXX: add this sort of fast __init__ to all other classes
         if static is not None:
             self.__dict__.update(static)
+            # we have to reset the duration OneTimeProperty, since it refers
+            # to computations performed on the former object
+            self.reset()
             return
 
         if t0 is None and start is None:
