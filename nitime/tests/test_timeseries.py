@@ -813,8 +813,14 @@ def test_UniformTime_preserves_uniformity():
 
     # same as utime, but with a lower sampling rate
     utime_2 = ts.UniformTime(t0=10, length=10, sampling_interval=2)
-    utime += np.arange(10)
+    utime += np.arange(10) # make utime match utime_2
     npt.assert_equal(utime,utime_2)
+    npt.assert_equal(utime.sampling_interval,utime_2.sampling_interval)
+
+    utime = ts.UniformTime(t0=5, length=10, sampling_rate=1)
+    utime *= 2 # alternative way to make utime match utime_2
+    npt.assert_equal(utime.sampling_interval,utime_2.sampling_interval)
+    npt.assert_equal(utime.sampling_rate,utime_2.sampling_rate)
 
     nonuniform = np.concatenate((range(2),range(3), range(5)))
     def iadd_nonuniform(t): t+=nonuniform

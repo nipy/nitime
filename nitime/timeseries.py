@@ -617,7 +617,7 @@ class UniformTime(np.ndarray, TimeInterface):
             You can either use += on the full array, OR
             create a new TimeArray from this UniformTime""")
 
-    def _convert_and_check_uniformity(self,val):
+    def _convert_and_check_uniformity(self, val):
         # look at the units - convert the values to what they need to be (in
         # the base_unit) and then delegate to the ndarray.__iadd__
         if not hasattr(val, '_conversion_factor'):
@@ -648,6 +648,19 @@ class UniformTime(np.ndarray, TimeInterface):
     def __isub__(self, val):
         val = self._convert_and_check_uniformity(val)
         return np.ndarray.__isub__(self, val)
+
+    def __imul__(self, val):
+        np.ndarray.__imul__(self, val)
+        self.sampling_interval *= val
+        self.sampling_rate = Frequency(self.sampling_rate / val)
+        return self
+
+    def __idiv__(self, val):
+        np.ndarray.__idiv__(self, val)
+        self.sampling_interval /= val
+        self.sampling_rate = Frequency(self.sampling_rate * val)
+        return self
+
 
     def index_at(self, t, boolean=False):
         """Find the index that corresponds to the time bin containing t
