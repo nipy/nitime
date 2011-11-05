@@ -791,3 +791,10 @@ def test_epochs_subclass_slicing():
     slice_of_e = e[:5]
     npt.assert_equal(slice_of_e.total_duration(), ts.TimeArray(1.0))
     assert(slice_of_e.__class__ == Epochs_with_X)
+
+def test_Epochs_duration_after_slicing():
+    "some attributes which get set on read should be reset after slicing"
+    e = ts.Epochs(range(10),duration=.1)
+    npt.assert_equal(len(e.duration), len(e))
+    slice_of_e = e[:3]
+    npt.assert_equal(len(slice_of_e.duration), len(slice_of_e))
