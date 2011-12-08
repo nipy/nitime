@@ -221,6 +221,30 @@ class TimeArray(np.ndarray, TimeInterface):
             val *= self._conversion_factor
         return np.ndarray.__setitem__(self, key, val)
 
+    def _convert_if_needed(self,val):
+        if not hasattr(val, '_conversion_factor'):
+            if getattr(np.asarray(val), 'dtype', None) == np.int32:
+                # we'll overflow if val's dtype is np.int32
+                val = np.array(val, dtype=np.int64)
+            val *= self._conversion_factor
+        return val
+
+    def __add__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__add__(self,val)
+
+    def __sub__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__sub__(self,val)
+
+    def __radd__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__radd__(self,val)
+
+    def __rsub__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__rsub__(self,val)
+
     def index_at(self, t, tol=None, mode='closest'):
         """ Returns the integer indices that corresponds to the time t
 
