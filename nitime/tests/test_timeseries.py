@@ -54,6 +54,41 @@ def test_TimeArray():
     npt.assert_equal(t1, t2)
 
 
+def test_TimeArray_math():
+    "Addition and subtraction should convert to TimeArray units"
+    time1 = ts.TimeArray(range(10), time_unit='ms')
+    time2 = ts.TimeArray(range(1,11), time_unit='ms')
+    # units should be converted to whatever units the array has
+    time3 = time1 + 1
+    npt.assert_equal(time2,time3)
+    time4 = time2 - 1
+    npt.assert_equal(time1,time4)
+    # floats should also work
+    time3 = time1 + 1.0
+    npt.assert_equal(time2,time3)
+    time4 = time2 - 1.0
+    npt.assert_equal(time1,time4)
+
+    # test the r* versions
+    time3 = 1 + time1
+    npt.assert_equal(time2,time3)
+    time4 = 1 - time2
+    npt.assert_equal(-time1,time4)
+    # floats should also work
+    time3 = 1.0 + time1
+    npt.assert_equal(time2,time3)
+    time4 = 1.0 - time2
+    npt.assert_equal(-time1,time4)
+
+    timeunits = ts.TimeArray(range(10), time_unit='s')
+    timeunits.convert_unit('ms')
+    # now, math with non-TimeArrays should be based on the new time_unit
+
+    # here the range() list gets converted to a TimeArray with the same units
+    # as timeunits (which is now 'ms')
+    tnew = timeunits + range(10)
+    npt.assert_equal(tnew, timeunits+time1) # recall that time1 was 0-10ms
+
 def test_TimeArray_init_int64():
     """Make sure that we can initialize TimeArray with an array of ints"""
     time = ts.TimeArray(np.int64(1))
