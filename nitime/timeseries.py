@@ -698,7 +698,7 @@ class UniformTime(np.ndarray, TimeInterface):
         # check that index is within range
         if ta.min() < self.t0 or ta.max() >= self.t0 + self.duration:
             raise ValueError('index out of range')
-        idx = (ta.view(np.ndarray) - self.t0) // self.sampling_interval
+        idx = (ta - self.t0) // self.sampling_interval
         if boolean:
             bool_idx = np.zeros(len(self), dtype=bool)
             bool_idx[idx] = True
