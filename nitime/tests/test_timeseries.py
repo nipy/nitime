@@ -89,6 +89,20 @@ def test_TimeArray_math():
     tnew = timeunits + range(10)
     npt.assert_equal(tnew, timeunits+time1) # recall that time1 was 0-10ms
 
+def test_TimeArray_comparison():
+    "Comparison with unitless quantities should convert to TimeArray units"
+    time = ts.TimeArray(range(10), time_unit='ms')
+    npt.assert_equal(time < 5 , [True]*5+[False]*5)
+    npt.assert_equal(time >= 5 , [False]*5+[True]*5)
+    npt.assert_equal(time <= 5 , [True]*6+[False]*4)
+    npt.assert_equal(time > 5 , [False]*6+[True]*4)
+    time.convert_unit('s')
+    # now all of time is < 1 in the new time_unit
+    npt.assert_equal(time < 5 , [True]*10)
+    npt.assert_equal(time <= 5 , [True]*10)
+    npt.assert_equal(time > 5 , [False]*10)
+    npt.assert_equal(time >= 5 , [False]*10)
+
 def test_TimeArray_init_int64():
     """Make sure that we can initialize TimeArray with an array of ints"""
     time = ts.TimeArray(np.int64(1))
