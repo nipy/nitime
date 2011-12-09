@@ -245,6 +245,22 @@ class TimeArray(np.ndarray, TimeInterface):
         val = self._convert_if_needed(val)
         return np.ndarray.__rsub__(self,val)
 
+    def __lt__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__lt__(self,val)
+
+    def __gt__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__gt__(self,val)
+
+    def __le__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__le__(self,val)
+
+    def __ge__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__ge__(self,val)
+
     def index_at(self, t, tol=None, mode='closest'):
         """ Returns the integer indices that corresponds to the time t
 
