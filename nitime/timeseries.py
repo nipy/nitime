@@ -205,7 +205,7 @@ class TimeArray(np.ndarray, TimeInterface):
 
     def __getitem__(self, key):
         # return scalar TimeArray in case key is integer
-        if isinstance(key, int) or isinstance(key, np.int64):
+        if isinstance(key, (int, np.int64, np.int32)):
             return self[[key]].reshape(())
         elif isinstance(key, float):
             return self.at(key)
@@ -223,7 +223,8 @@ class TimeArray(np.ndarray, TimeInterface):
 
     def _convert_if_needed(self,val):
         if not hasattr(val, '_conversion_factor'):
-            if getattr(np.asarray(val), 'dtype', None) == np.int32:
+            val = np.asarray(val)
+            if getattr(val, 'dtype', None) == np.int32:
                 # we'll overflow if val's dtype is np.int32
                 val = np.array(val, dtype=np.int64)
             val *= self._conversion_factor
@@ -643,7 +644,7 @@ class UniformTime(np.ndarray, TimeInterface):
 
     def __getitem__(self, key):
         # return scalar TimeArray in case key is integer
-        if isinstance(key, int) or isinstance(key, np.int64):
+        if isinstance(key, (int, np.int64, np.int32)):
             return self[[key]].reshape(()).view(TimeArray)
         elif isinstance(key, float) or isinstance(key, TimeInterface):
             return self.at(key)
@@ -661,7 +662,8 @@ class UniformTime(np.ndarray, TimeInterface):
         # look at the units - convert the values to what they need to be (in
         # the base_unit) and then delegate to the ndarray.__iadd__
         if not hasattr(val, '_conversion_factor'):
-            if getattr(np.asarray(val), 'dtype', None) == np.int32:
+            val = np.asarray(val)
+            if getattr(val, 'dtype', None) == np.int32:
                 # we'll overflow if val's dtype is np.int32
                 val = np.array(val, dtype=np.int64)
             val *= self._conversion_factor
