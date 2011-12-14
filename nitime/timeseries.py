@@ -205,7 +205,7 @@ class TimeArray(np.ndarray, TimeInterface):
 
     def __getitem__(self, key):
         # return scalar TimeArray in case key is integer
-        if isinstance(key, int):
+        if isinstance(key, int) or isinstance(key, np.int64):
             return self[[key]].reshape(())
         elif isinstance(key, float):
             return self.at(key)
@@ -643,7 +643,7 @@ class UniformTime(np.ndarray, TimeInterface):
 
     def __getitem__(self, key):
         # return scalar TimeArray in case key is integer
-        if isinstance(key, int):
+        if isinstance(key, int) or isinstance(key, np.int64):
             return self[[key]].reshape(()).view(TimeArray)
         elif isinstance(key, float) or isinstance(key, TimeInterface):
             return self.at(key)
