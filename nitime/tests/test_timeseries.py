@@ -874,3 +874,13 @@ def test_UniformTime_preserves_uniformity():
     nonuniform = np.concatenate((range(2),range(3), range(5)))
     def iadd_nonuniform(t): t+=nonuniform
     nt.assert_raises(ValueError, iadd_nonuniform, utime)
+
+def test_index_int64():
+    "indexing with int64 should still return a valid TimeArray"
+    a = range(10)
+    b = ts.TimeArray(a)
+    assert b[0] == b[np.int64(0)]
+    assert repr(b[0]) == repr(b[np.int64(0)])
+    assert b[0] == b[np.int32(0)]
+    assert repr(b[0]) == repr(b[np.int32(0)])
+
