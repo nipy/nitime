@@ -205,7 +205,7 @@ class TimeArray(np.ndarray, TimeInterface):
 
     def __getitem__(self, key):
         # return scalar TimeArray in case key is integer
-        if isinstance(key, int):
+        if isinstance(key, (int, np.int64, np.int32)):
             return self[[key]].reshape(())
         elif isinstance(key, float):
             return self.at(key)
@@ -220,6 +220,47 @@ class TimeArray(np.ndarray, TimeInterface):
         if not hasattr(val, '_conversion_factor'):
             val *= self._conversion_factor
         return np.ndarray.__setitem__(self, key, val)
+
+    def _convert_if_needed(self,val):
+        if not hasattr(val, '_conversion_factor'):
+            val = np.asarray(val)
+            if getattr(val, 'dtype', None) == np.int32:
+                # we'll overflow if val's dtype is np.int32
+                val = np.array(val, dtype=np.int64)
+            val *= self._conversion_factor
+        return val
+
+    def __add__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__add__(self,val)
+
+    def __sub__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__sub__(self,val)
+
+    def __radd__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__radd__(self,val)
+
+    def __rsub__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__rsub__(self,val)
+
+    def __lt__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__lt__(self,val)
+
+    def __gt__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__gt__(self,val)
+
+    def __le__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__le__(self,val)
+
+    def __ge__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__ge__(self,val)
 
     def index_at(self, t, tol=None, mode='closest'):
         """ Returns the integer indices that corresponds to the time t
@@ -603,7 +644,7 @@ class UniformTime(np.ndarray, TimeInterface):
 
     def __getitem__(self, key):
         # return scalar TimeArray in case key is integer
-        if isinstance(key, int):
+        if isinstance(key, (int, np.int64, np.int32)):
             return self[[key]].reshape(()).view(TimeArray)
         elif isinstance(key, float) or isinstance(key, TimeInterface):
             return self.at(key)
@@ -621,7 +662,8 @@ class UniformTime(np.ndarray, TimeInterface):
         # look at the units - convert the values to what they need to be (in
         # the base_unit) and then delegate to the ndarray.__iadd__
         if not hasattr(val, '_conversion_factor'):
-            if getattr(np.asarray(val), 'dtype', None) == np.int32:
+            val = np.asarray(val)
+            if getattr(val, 'dtype', None) == np.int32:
                 # we'll overflow if val's dtype is np.int32
                 val = np.array(val, dtype=np.int64)
             val *= self._conversion_factor
@@ -674,7 +716,7 @@ class UniformTime(np.ndarray, TimeInterface):
         # check that index is within range
         if ta.min() < self.t0 or ta.max() >= self.t0 + self.duration:
             raise ValueError('index out of range')
-        idx = (ta.view(np.ndarray) - self.t0) // self.sampling_interval
+        idx = (ta - self.t0) // self.sampling_interval
         if boolean:
             bool_idx = np.zeros(len(self), dtype=bool)
             bool_idx[idx] = True
