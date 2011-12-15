@@ -1447,3 +1447,6 @@ class Events(TimeInterface):
 
         # self.__class__ here is Events or a subclass of Events
         return self.__class__(newtime, **newdata)
+
+    def __len__(self):
+        return len(self.time)

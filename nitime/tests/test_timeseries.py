@@ -747,7 +747,8 @@ def test_Events():
         # fancy indexing (w/ boolean mask)
         npt.assert_equal(ev1[ev3.index.trial == 0].data['j'], y[0:2])
 
-
+        # len() function is implemented and working
+        assert len(t) == len(ev1) == len(ev2) == len(ev3)
 
 def test_Events_scalar():
     t = ts.TimeArray(1, time_unit='ms')
