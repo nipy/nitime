@@ -728,7 +728,7 @@ class UniformTime(np.ndarray, TimeInterface):
         elif ta.ndim == 0:
             return idx[()]
         else:
-            return idx
+            return idx.view(np.ndarray)
 
     def slice_during(self, e):
         """ Returns the slice that corresponds to Epoch e"""
