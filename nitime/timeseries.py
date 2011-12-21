@@ -203,6 +203,10 @@ class TimeArray(np.ndarray, TimeInterface):
             return np.ndarray.__repr__(self / float(self._conversion_factor)
              )[:-1] + ", time_unit='%s')" % self.time_unit
 
+    def __str__(self):
+        """Return a nice string representation of this TimeArray"""
+        return self.__repr__()
+
     def __getitem__(self, key):
         # return scalar TimeArray in case key is integer
         if isinstance(key, (int, np.int64, np.int32)):
