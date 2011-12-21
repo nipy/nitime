@@ -266,6 +266,36 @@ class TimeArray(np.ndarray, TimeInterface):
         val = self._convert_if_needed(val)
         return np.ndarray.__eq__(self,val)
 
+    def min(self, *args,**kwargs):
+        ret = TimeArray(np.ndarray.min(self, *args,**kwargs),
+            time_unit=base_unit)
+        ret.convert_unit(self.time_unit)
+        return ret
+
+    def max(self, *args,**kwargs):
+        ret = TimeArray(np.ndarray.max(self, *args,**kwargs),
+            time_unit=base_unit)
+        ret.convert_unit(self.time_unit)
+        return ret
+
+    def mean(self, *args,**kwargs):
+        ret = TimeArray(np.ndarray.mean(self, *args,**kwargs),
+            time_unit=base_unit)
+        ret.convert_unit(self.time_unit)
+        return ret
+
+    def ptp(self, *args,**kwargs):
+        ret = TimeArray(np.ndarray.ptp(self, *args,**kwargs),
+            time_unit=base_unit)
+        ret.convert_unit(self.time_unit)
+        return ret
+
+    def sum(self, *args,**kwargs):
+        ret = TimeArray(np.ndarray.sum(self, *args,**kwargs),
+            time_unit=base_unit)
+        ret.convert_unit(self.time_unit)
+        return ret
+
     def index_at(self, t, tol=None, mode='closest'):
         """ Returns the integer indices that corresponds to the time t
 
