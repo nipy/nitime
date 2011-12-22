@@ -203,6 +203,10 @@ class TimeArray(np.ndarray, TimeInterface):
             return np.ndarray.__repr__(self / float(self._conversion_factor)
              )[:-1] + ", time_unit='%s')" % self.time_unit
 
+    def __str__(self):
+        """Return a nice string representation of this TimeArray"""
+        return self.__repr__()
+
     def __getitem__(self, key):
         # return scalar TimeArray in case key is integer
         if isinstance(key, (int, np.int64, np.int32)):
@@ -261,6 +265,40 @@ class TimeArray(np.ndarray, TimeInterface):
     def __ge__(self,val):
         val = self._convert_if_needed(val)
         return np.ndarray.__ge__(self,val)
+
+    def __eq__(self,val):
+        val = self._convert_if_needed(val)
+        return np.ndarray.__eq__(self,val)
+
+    def min(self, *args,**kwargs):
+        ret = TimeArray(np.ndarray.min(self, *args,**kwargs),
+            time_unit=base_unit)
+        ret.convert_unit(self.time_unit)
+        return ret
+
+    def max(self, *args,**kwargs):
+        ret = TimeArray(np.ndarray.max(self, *args,**kwargs),
+            time_unit=base_unit)
+        ret.convert_unit(self.time_unit)
+        return ret
+
+    def mean(self, *args,**kwargs):
+        ret = TimeArray(np.ndarray.mean(self, *args,**kwargs),
+            time_unit=base_unit)
+        ret.convert_unit(self.time_unit)
+        return ret
+
+    def ptp(self, *args,**kwargs):
+        ret = TimeArray(np.ndarray.ptp(self, *args,**kwargs),
+            time_unit=base_unit)
+        ret.convert_unit(self.time_unit)
+        return ret
+
+    def sum(self, *args,**kwargs):
+        ret = TimeArray(np.ndarray.sum(self, *args,**kwargs),
+            time_unit=base_unit)
+        ret.convert_unit(self.time_unit)
+        return ret
 
     def index_at(self, t, tol=None, mode='closest'):
         """ Returns the integer indices that corresponds to the time t
@@ -724,7 +762,7 @@ class UniformTime(np.ndarray, TimeInterface):
         elif ta.ndim == 0:
             return idx[()]
         else:
-            return idx
+            return idx.view(np.ndarray)
 
     def slice_during(self, e):
         """ Returns the slice that corresponds to Epoch e"""

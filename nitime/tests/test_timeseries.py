@@ -93,15 +93,17 @@ def test_TimeArray_comparison():
     "Comparison with unitless quantities should convert to TimeArray units"
     time = ts.TimeArray(range(10), time_unit='ms')
     npt.assert_equal(time < 5 , [True]*5+[False]*5)
-    npt.assert_equal(time >= 5 , [False]*5+[True]*5)
-    npt.assert_equal(time <= 5 , [True]*6+[False]*4)
     npt.assert_equal(time > 5 , [False]*6+[True]*4)
+    npt.assert_equal(time <= 5, [True]*6+[False]*4)
+    npt.assert_equal(time >= 5, [False]*5+[True]*5)
+    npt.assert_equal(time == 5, [False]*5+[True] + [False]*4)
     time.convert_unit('s')
     # now all of time is < 1 in the new time_unit
     npt.assert_equal(time < 5 , [True]*10)
-    npt.assert_equal(time <= 5 , [True]*10)
     npt.assert_equal(time > 5 , [False]*10)
-    npt.assert_equal(time >= 5 , [False]*10)
+    npt.assert_equal(time <= 5, [True]*10)
+    npt.assert_equal(time >= 5, [False]*10)
+    npt.assert_equal(time == 5, [False]*10)
 
 def test_TimeArray_init_int64():
     """Make sure that we can initialize TimeArray with an array of ints"""
@@ -884,4 +886,15 @@ def test_index_int64():
     assert repr(b[0]) == repr(b[np.int64(0)])
     assert b[0] == b[np.int32(0)]
     assert repr(b[0]) == repr(b[np.int32(0)])
+
+def test_timearray_math_functions():
+    "Calling TimeArray.min() .max(), mean() should return TimeArrays"
+    a = np.arange(2,11)
+    for f in ['min','max','mean', 'ptp', 'sum']:
+        for tu in ['s', 'ms', 'ps', 'D']:
+            b = ts.TimeArray(a, time_unit=tu)
+            assert getattr(b, f)().__class__ == ts.TimeArray
+            assert getattr(b, f)().time_unit== b.time_unit
+            # comparison with unitless should convert to the TimeArray's units
+            assert getattr(b, f)() == getattr(a,f)()
 
