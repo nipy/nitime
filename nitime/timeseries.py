@@ -925,7 +925,7 @@ class TimeSeriesBase(object):
         elif self.data.ndim == 1:
             return self.data[key]  # time is the last dimension
         else:
-            return self.data[:, key]  # time is the last dimension
+            return self.data[..., key]  # time is the last dimension
 
     def __repr__(self):
         rep = self.__class__.__name__ + ":"
