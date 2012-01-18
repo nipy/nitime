@@ -325,7 +325,10 @@ def test_UniformTime_index_at():
 
 #Test the overloaded __getitem__ and __setitem:
 #
-#def test_TimeArray_getset():
+def test_TimeArray_getset():
+    t1 = ts.TimeSeries(data = np.random.rand(4, 24, 60), sampling_rate=1)
+    npt.assert_equal(t1[0],t1.data[...,0])
+    
 
 
 
