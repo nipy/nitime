@@ -1,5 +1,5 @@
 import numpy as np
-from scipy import factorial
+from scipy.misc import factorial
 
 
 def gamma_hrf(duration, A=1., tau=1.08, n=3, delta=2.05, Fs=1.0):
