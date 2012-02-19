@@ -955,16 +955,13 @@ def multi_intersect(input):
 
     Notes
     -----
-    Simply runs intersect1d_nu iteratively on the inputs
+    Simply runs intersect1d iteratively on the inputs
     """
-    output = np.intersect1d_nu(input[0], input[1])
+    arr  = input[0].ravel()
+    for this in input[1:]:
+        arr = np.intersect1d(arr, this.ravel())
 
-    for i in input:
-
-        output = np.intersect1d_nu(output, i)
-
-    return output
-
+    return arr
 
 def zero_pad(time_series, NFFT):
     """Pad a time-series with zeros on either side, depending on its length"""
