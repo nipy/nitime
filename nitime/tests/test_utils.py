@@ -200,3 +200,14 @@ def test_information_criteria():
     # nt.assert_equal(np.argmin(AIC), 2)
     # nt.assert_equal(np.argmin(AICc), 2)
     nt.assert_equal(np.argmin(BIC), 2)
+
+
+def test_multi_intersect():
+    """
+    Testing the multi-intersect utility function
+    """
+
+    arr1 = np.array(np.arange(1000).reshape(2,500))
+    arr2 = np.array([[1,0.1,0.2],[0.3,0.4, 0.5]])
+    arr3 = np.array(1)
+    npt.assert_equal(1, utils.multi_intersect([arr1, arr2, arr3]))
