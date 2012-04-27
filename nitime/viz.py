@@ -223,8 +223,12 @@ def drawmatrix_channels(in_m, channel_names=None, fig=None, x_tick_rot=0,
     cmap (optional): a matplotlib colormap to be used for displaying the values
     of the connections on the graph
 
-    title : optional, string
-      If given, title to be drawn atop the matrix.
+    title (optional): string to title the figure (can be like '$\alpha$')
+
+    color_anchor (optional): determine the mapping from values to colormap
+        if None, min and max of colormap correspond to min and max of in_m
+        if 0, min and max of colormap correspond to max of abs(in_m)
+        if (a,b), min and max of colormap correspond to (a,b)
 
     Returns
     -------
@@ -255,7 +259,7 @@ def drawmatrix_channels(in_m, channel_names=None, fig=None, x_tick_rot=0,
     #If you want to draw the colorbar:
     if colorbar:
         divider = make_axes_locatable(ax_im)
-        ax_cb = divider.new_vertical(size="20%", pad=0.2, pack_start=True)
+        ax_cb = divider.new_vertical(size="10%", pad=0.1, pack_start=True)
         fig.add_axes(ax_cb)
 
     #Make a copy of the input, so that you don't make changes to the original
@@ -325,16 +329,16 @@ def drawmatrix_channels(in_m, channel_names=None, fig=None, x_tick_rot=0,
         #Set the ticks - if 0 is in the interval of values, set that, as well
         #as the maximal and minimal values:
         if min_val < 0:
-            ticks = [min_val, 0, max_val]
+            ticks = [color_min, min_val, 0, max_val, color_max]
         #Otherwise - only set the minimal and maximal value:
         else:
-            ticks = [min_val, max_val]
+            ticks = [color_min, min_val, max_val, color_max]
 
         #This makes the colorbar:
         cb = fig.colorbar(im, cax=ax_cb, orientation='horizontal',
                           cmap=cmap,
                           norm=im.norm,
-                          boundaries=np.linspace(min_val, max_val, 256),
+                          boundaries=np.linspace(color_min, color_max, 256),
                           ticks=ticks,
                           format='%.2f')
 
