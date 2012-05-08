@@ -112,7 +112,7 @@ ax01.plot(S_original.psd[0],
           label='Welch PSD')
 
 ax01.plot(S_original.spectrum_fourier[0],
-          S_original.spectrum_fourier[1][9],
+          np.abs(S_original.spectrum_fourier[1][9]),
           label='FFT')
 
 ax01.plot(S_original.periodogram[0],
