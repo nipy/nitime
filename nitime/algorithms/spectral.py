@@ -20,7 +20,7 @@ from nitime.lazy import scipy_fftpack as fftpack
 
 import nitime.utils as utils
 
-# To suppport older versions of numpy that don't have tril_indices:
+# To support older versions of numpy that don't have tril_indices:
 from nitime.index_utils import tril_indices, triu_indices
 
 
@@ -99,7 +99,7 @@ def get_spectra(time_series, method=None):
     """
     if method is None:
         method = {'this_method': 'welch'}  # The default
-    # If no choice of method was explicitely set, but other parameters were
+    # If no choice of method was explicitly set, but other parameters were
     # passed, assume that the method is mlab:
     this_method = method.get('this_method', 'welch')
 
@@ -139,7 +139,7 @@ def get_spectra(time_series, method=None):
                                        scale_by_freq=True)
 
                     fxy[i][j] = temp.squeeze()  # the output of mlab.csd has a
-                                                # wierd shape
+                                                # weird shape
     elif this_method in ('multi_taper_csd', 'periodogram_csd'):
         # these methods should work with similar signatures
         mdict = method.copy()
@@ -309,7 +309,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
     -------
 
     freqs, csd_est : ndarrays
-        The estimatated CSD and the frequency points vector.
+        The estimated CSD and the frequency points vector.
         The CSD{i,j}(f) are returned in a square "matrix" of vectors
         holding Sij(f). For an input array that is reshaped to (M,N),
         the output is (M,M,N)
@@ -383,8 +383,8 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
     Returns the Discrete Prolate Spheroidal Sequences of orders [0,Kmax-1]
     for a given frequency-spacing multiple NW and sequence length N.
 
-    Paramters
-    ---------
+    Parameters
+    ----------
     N : int
         sequence length
     NW : float, unitless
@@ -393,7 +393,7 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
     Kmax : int
         number of DPSS windows to return is Kmax (orders 0 through Kmax-1)
     interp_from: int (optional)
-        The dpss will can calculated using interpolation from a set of dpss
+        The dpss can be calculated using interpolation from a set of dpss
         with the same NW and Kmax, but shorter N. This is the length of this
         shorter set of dpss windows.
     interp_kind: str (optional)
@@ -633,7 +633,7 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
     -------
     (freqs, psd_est, var_or_nu) : ndarrays
         The first two arrays are the frequency points vector and the
-        estimatated PSD. The last returned array differs depending on whether
+        estimated PSD. The last returned array differs depending on whether
         the jackknife was used. It is either
 
         * The jackknife estimated variance of the log-psd, OR
