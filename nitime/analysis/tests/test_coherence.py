@@ -87,8 +87,10 @@ def test_SparseCoherenceAnalyzer():
     C2 = nta.CoherenceAnalyzer(T)
 
     # Coherence symmetry:
-    npt.assert_equal(np.abs(C1.coherence[0, 1]), np.abs(C1.coherence[1, 0]))
-    npt.assert_equal(np.abs(C1.coherency[0, 1]), np.abs(C1.coherency[1, 0]))
+    npt.assert_almost_equal(np.abs(C1.coherence[0, 1]),
+                            np.abs(C1.coherence[1, 0]))
+    npt.assert_almost_equal(np.abs(C1.coherency[0, 1]),
+                            np.abs(C1.coherency[1, 0]))
 
     # Make sure you get the same answers as you would from the standard
     # CoherenceAnalyzer:
