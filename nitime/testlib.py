@@ -63,13 +63,20 @@ def fpw_opt_str():
     return fpw_str
 
 
-def test(doctests=True, first_package_wins=True, extra_argv=None):
+def test(nose_arg='nitime', doctests=True, first_package_wins=True, extra_argv=None):
     """
 
     Run the nitime test suite using nose.
 
     Parameters
     ----------
+
+    nose_arg: string, optional
+        What the first nose argument should be. Defaults to 'nitime', which
+        will run all of the tests that can be found for the package, but this
+        argument allows you to test a subset of the test suite, such as
+        'nitime.tests.test_timeseries' or even a specific test using
+        'nitime.tests.test_timeseries:test_TimeArray_comparison'.
 
     doctests: bool, optional
        Whether to run the doctests. Defaults to True
@@ -78,7 +85,7 @@ def test(doctests=True, first_package_wins=True, extra_argv=None):
        Don't evict packages from sys.module, if detecting another package with
        the same name in some other location(nosetests default behavior is to do
        that).
-       
+
     extra_argv: string, list or tuple, optional
        Additional argument (string) or arguments (list or tuple of strings) to
        be passed to nose when running the tests.
@@ -88,7 +95,7 @@ def test(doctests=True, first_package_wins=True, extra_argv=None):
     # We construct our own argv manually, so we must set argv[0] ourselves
     argv = ['nosetests',
             # Name the package to actually test, in this case nitime
-            'nitime',
+            nose_arg,
 
             # extra info in tracebacks
             '--detailed-errors',
