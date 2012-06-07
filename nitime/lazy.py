@@ -29,9 +29,9 @@ If you want to lazily load another package in nitime, please add it to this
 file, and then ``from nitime.lazy import your_new_package``.
 
 If there's a package that you would like to lazily load in your own code that
-is not listed here, use the LazyImport class (which is in nitime.lazyimports).
+is not listed here, use the :class:`LazyImport` class (which is in
+:mod:`nitime.lazyimports`).
 """
-import sys
 from .lazyimports import LazyImport
 
 # matplotlib
@@ -46,3 +46,8 @@ scipy_signal = LazyImport('scipy.signal')
 scipy_signal_signaltools = LazyImport('scipy.signal.signaltools')
 scipy_stats = LazyImport('scipy.stats')
 scipy_stats_distributions = LazyImport('scipy.stats.distributions')
+
+def enabled():
+    "Are LazyImports globally enabled?"
+    import nitime.lazyimports as l
+    return not l.disable_lazy_imports
