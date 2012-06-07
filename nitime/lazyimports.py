@@ -20,6 +20,9 @@ import types
 # nitime, importing nitime will import this module.
 disable_lazy_imports = False
 
+if 'sphinx' in sys.modules:
+    disable_lazy_imports = True
+
 class LazyImport(types.ModuleType):
     """
     This class takes the module name as a parameter, and acts as a proxy for
@@ -68,4 +71,18 @@ class LazyImport(types.ModuleType):
                 object.__getattribute__(self,'__name__')
 
 if disable_lazy_imports:
-    LazyImport = lambda x: __import__(x) and sys.modules[x]
+    extra_doc = ''
+    if 'sphinx' in sys.modules:
+        extra_doc = """
+                    WARNING: To get Sphinx documentation to build we disable
+                    LazyImports, which makes Sphinx incorrectly report this
+                    class as have a base class of object. In reality,
+                    ``LazyImport``'s base class is ``types.ModuleType``
+                    """
+    class LazyImport(object):
+        __doc__ = extra_doc + LazyImport.__doc__
+        def __init__(self, x):
+            __import__(x)
+            self.module = sys.modules[x]
+        def __getattr__(self, x):
+            return self.module.__getattribute__(x)
