@@ -205,7 +205,7 @@ def subcolormap(xmin, xmax, cmap):
 def drawmatrix_channels(in_m, channel_names=None, fig=None, x_tick_rot=0,
                         size=None, cmap=plt.cm.RdBu_r, colorbar=True,
                         color_anchor=None, title=None):
-    """Creates a lower-triangle of the matrix of an nxn set of values. This is
+    r"""Creates a lower-triangle of the matrix of an nxn set of values. This is
     the typical format to show a symmetrical bivariate quantity (such as
     correlation or coherence between two different ROIs).
 
