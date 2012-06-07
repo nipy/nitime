@@ -18,8 +18,8 @@ Nitime:
 .. toctree::
    :maxdepth: 1
 
+   version0.4
    version0.3
-   development
 
 
 Users should consult these pages to learn about new features, bug
