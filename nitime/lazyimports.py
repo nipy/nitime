@@ -7,8 +7,8 @@ module is used, but effectively acting as the module in every other way
 (including inside IPython with respect to introspection and tab completion)
 with the *exception* of reload() - reloading a LazyImport has no effect.
 
-Commonly used nitime lazy imports are also defined in lazy.py, so they can be
-reused throughout nitime.
+Commonly used nitime lazy imports are also defined in :mod:`nitime.lazy`, so
+they can be reused throughout nitime.
 """
 import sys
 import types
@@ -71,16 +71,20 @@ class LazyImport(types.ModuleType):
                 object.__getattribute__(self,'__name__')
 
 if disable_lazy_imports:
-    extra_doc = ''
+    lazy_doc = """LazyImports have been globally disabled.
+    Please modify ``disable_lazy_imports`` boolean variable in
+    ``nitime.lazyimports`` in order to leverage lazy loading of modules.
+    """
     if 'sphinx' in sys.modules:
-        extra_doc = """
-                    WARNING: To get Sphinx documentation to build we disable
-                    LazyImports, which makes Sphinx incorrectly report this
-                    class as have a base class of object. In reality,
-                    ``LazyImport``'s base class is ``types.ModuleType``
-                    """
+        lazy_doc = """
+                   WARNING: To get Sphinx documentation to build we disable
+                   LazyImports, which makes Sphinx incorrectly report this
+                   class as having a base class of object. In reality,
+                   ``LazyImport``'s base class is ``types.ModuleType``
+                   """
+        lazy_doc += LazyImport.__doc__
     class LazyImport(object):
-        __doc__ = extra_doc + LazyImport.__doc__
+        __doc__ = lazy_doc
         def __init__(self, x):
             __import__(x)
             self.module = sys.modules[x]
