@@ -300,6 +300,20 @@ class TimeArray(np.ndarray, TimeInterface):
         ret.convert_unit(self.time_unit)
         return ret
 
+    def var(self, *args, **kwargs):
+        tmp = np.array(self, np.float) / self._conversion_factor
+        ret = TimeArray(tmp.var(*args,**kwargs), time_unit=self.time_unit)
+        return ret
+
+    def std(self, *args, **kwargs):
+        """Returns the standard deviation of this TimeArray (with time units)
+
+        for detailed information, see numpy.std()
+        """
+        ret = TimeArray(np.ndarray.std(self, *args,**kwargs),
+            time_unit=base_unit)
+        ret.convert_unit(self.time_unit)
+        return ret
     def index_at(self, t, tol=None, mode='closest'):
         """ Returns the integer indices that corresponds to the time t
 
