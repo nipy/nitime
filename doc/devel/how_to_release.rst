@@ -15,13 +15,14 @@ Most of the release process is automated by the :file:`release` script in the
    cleanly show who contributed as author of commits (get the previous release
    name from the tag list with ``git tag``)::
 
-   git log --pretty=format:"* %an" PREV_RELEASE... | sort | uniq
+   git log --pretty=format:"* %aN" PREV_RELEASE... | sort | uniq
 
 #. Uncomment the empty ``version_extra`` assignment in the :file:`version.py`
    file, so that the complete version-string will not have the ``dev`` suffix. 
 
 #. Update the website with announcements and links to the updated files on
-   github. Remember to put a short note both on the news page of the site.
+   github. Remember to put a short note both on the news page of the site, and
+   the index ``What's New`` section.
 
 #. Make sure that the released version of the docs is live on the site. 
 

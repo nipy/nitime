@@ -2,6 +2,8 @@
  Nitime news
 =============
 
+June 19 2012: Version 0.4 released.
+
 August 13 2011: Version 0.3 released. 
 
 November 9 2010: Version 0.2 released. 
