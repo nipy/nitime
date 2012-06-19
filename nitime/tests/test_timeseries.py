@@ -89,6 +89,8 @@ def test_TimeArray_math():
     tnew = timeunits + range(10)
     npt.assert_equal(tnew, timeunits+time1) # recall that time1 was 0-10ms
 
+    
+
 def test_TimeArray_comparison():
     "Comparison with unitless quantities should convert to TimeArray units"
     time = ts.TimeArray(range(10), time_unit='ms')
@@ -901,3 +903,11 @@ def test_timearray_math_functions():
             # comparison with unitless should convert to the TimeArray's units
             assert getattr(b, f)() == getattr(a,f)()
 
+def test_timearray_var_prod():
+    """
+    Variance and product change the TimeArray units, so they are not
+    implemented and raise an error
+    """
+    a = ts.TimeArray(range(10))
+    npt.assert_raises(NotImplementedError, a.var)
+    npt.assert_raises(NotImplementedError, a.prod)
