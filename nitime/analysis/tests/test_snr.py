@@ -22,4 +22,4 @@ def test_SNRAnalyzer():
     npt.assert_equal(SNR.mt_frequencies, MT.frequencies)
     npt.assert_equal(SNR.signal, np.mean(T.data, 0))
     f, c = MT_signal.spectrum_multi_taper
-    npt.assert_equal(SNR.mt_signal_psd, c)
+    npt.assert_almost_equal(SNR.mt_signal_psd, c)
