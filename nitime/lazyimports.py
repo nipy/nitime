@@ -1,12 +1,16 @@
 """ This module provides lazy import functionality to improve the import
-performance of nitime.
+performance of nitime. For example, some parts of nitime leverage and import
+matplotlib, which is quite a big package, yet most of the nitime code does not
+depend on matplotlib. By lazily-loading a module, we defer the overhead of
+importing it until the first time it is actually used, thereby speeding up
+nitime imports.
 
-A generic LazyImport class is implemented which takes the module name as a
-parameter, and acts as a proxy for that module, importing it only when the
-module is used, but effectively acting as the module in every other way
+A generic :class:`LazyImport` class is implemented which takes the module name
+as a parameter, and acts as a proxy for that module, importing it only when
+the module is used, but effectively acting as the module in every other way
 (including inside IPython with respect to introspection and tab completion)
-with the *exception* of reload() - reloading a LazyImport raises an
-ImportError.
+with the *exception* of reload() - reloading a :class:`LazyImport` raises an
+:class:`ImportError`.
 
 Commonly used nitime lazy imports are also defined in :mod:`nitime.lazy`, so
 they can be reused throughout nitime.
@@ -30,18 +34,19 @@ class LazyImport(types.ModuleType):
     that module, importing it only when the module is used, but effectively
     acting as the module in every other way (including inside IPython with
     respect to introspection and tab completion) with the *exception* of
-    reload()- reloading a LazyImport raises an ImportError.
+    reload()- reloading a :class:`LazyImport` raises an :class:`ImportError`.
 
     >>> mlab = LazyImport('matplotlib.mlab')
 
     No import happens on the above line, until we do something like call an
-    mlab method or try to do tab completion or introspection on mlab in IPython.
+    ``mlab`` method or try to do tab completion or introspection on ``mlab``
+    in IPython.
 
     >>> mlab
     <module 'matplotlib.mlab' will be lazily loaded>
 
-    Now the LazyImport will do an actual import, and call the dist function of
-    the imported module.
+    Now the :class:`LazyImport` will do an actual import, and call the dist
+    function of the imported module.
 
     >>> mlab.dist(1969,2011)
     42.0
@@ -73,16 +78,17 @@ class LazyImport(types.ModuleType):
                 object.__getattribute__(self,'__name__')
 
 if disable_lazy_imports:
-    lazy_doc = """LazyImports have been globally disabled.
+    lazy_doc = """:class:`LazyImports` have been globally disabled.
     Please modify ``disable_lazy_imports`` boolean variable in
-    ``nitime.lazyimports`` in order to leverage lazy loading of modules.
+    :mod:`nitime.lazyimports` in order to leverage lazy loading of modules.
     """
     if 'sphinx' in sys.modules:
         lazy_doc = """
                    WARNING: To get Sphinx documentation to build we disable
                    LazyImports, which makes Sphinx incorrectly report this
                    class as having a base class of object. In reality,
-                   ``LazyImport``'s base class is ``types.ModuleType``
+                   :class:`LazyImport`'s base class is
+                   :class:`types.ModuleType`.
                    """
         lazy_doc += LazyImport.__doc__
     class LazyImport(object):
