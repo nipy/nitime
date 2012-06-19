@@ -5,7 +5,8 @@ A generic LazyImport class is implemented which takes the module name as a
 parameter, and acts as a proxy for that module, importing it only when the
 module is used, but effectively acting as the module in every other way
 (including inside IPython with respect to introspection and tab completion)
-with the *exception* of reload() - reloading a LazyImport has no effect.
+with the *exception* of reload() - reloading a LazyImport raises an
+ImportError.
 
 Commonly used nitime lazy imports are also defined in :mod:`nitime.lazy`, so
 they can be reused throughout nitime.
@@ -29,7 +30,7 @@ class LazyImport(types.ModuleType):
     that module, importing it only when the module is used, but effectively
     acting as the module in every other way (including inside IPython with
     respect to introspection and tab completion) with the *exception* of
-    reload().
+    reload()- reloading a LazyImport raises an ImportError.
 
     >>> mlab = LazyImport('matplotlib.mlab')
 
@@ -64,7 +65,8 @@ class LazyImport(types.ModuleType):
             __getattribute__ = module.__getattribute__
             __repr__ = module.__repr__
         object.__setattr__(self,'__class__', LoadedLazyImport)
-        sys.modules[name] = self
+        # The next line will make "reload(l)" a silent no-op
+        #sys.modules[name] = self
         return module.__getattribute__(x)
     def __repr__(self):
         return "<module '%s' will be lazily loaded>" %\
