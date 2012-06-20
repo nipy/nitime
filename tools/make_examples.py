@@ -37,10 +37,12 @@ examples_header = """
 Examples
 ========
 
+.. include:: note_about_examples.txt
+
 .. toctree::
    :maxdepth: 2
    
-   note_about_examples
+   
 """
 #-----------------------------------------------------------------------------
 # Function defintions

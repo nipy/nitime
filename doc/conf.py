@@ -79,12 +79,15 @@ extensions = ['sphinx.ext.autodoc',
               'ipython_console_highlighting',
               'only_directives',
               'math_dollar',  # Support for $x$ math
-
               # For now, we use our own patched plot directive, we'll revert
               # back to the official one once our changes are upstream.
               #'matplotlib.sphinxext.plot_directive',
               'plot_directive',
+              'github'
               ]
+
+# ghissue config
+github_project_url = "https://github.com/nipy/nitime"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
