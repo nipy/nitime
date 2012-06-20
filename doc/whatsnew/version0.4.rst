@@ -10,9 +10,9 @@ Major changes introduced in version 0.4 of :mod:`nitime`:
 #.  :mod:`LazyImports <nitime.lazy>`: Imports of modules
      are delayed until they are actually used. Work led by Paul Ivanov
 
-#. :class:`<nitime.timeseries.TimeArray>` math: Mathematical operations such as multiplication/division, as
-     well as min/max/mean/sum are now implemented for the TimeArray class. Work led
-     by Paul Ivanov.
+#. :class:`TimeArray <nitime.timeseries.TimeArray>` math: Mathematical
+     operations such as multiplication/division, as well as min/max/mean/sum
+     are now implemented for the TimeArray class. Work led by Paul Ivanov.
 
 #. Replace numpy FFT with scipy FFT. This should improve performance. Work
     instigated and led by Alex Gramfort.
@@ -48,8 +48,8 @@ Detailed stats from the github repository
 -----------------------------------------
 
 GitHub stats for the last  311 days.
-We closed a total of 51 issues, 17 pull requests and 34 regular 
-issues; this is the full list (generated with the script 
+We closed a total of 51 issues, 17 pull requests and 34 regular
+issues; this is the full list (generated with the script
 `tools/github_stats.py`):
 
 Pull Requests (17):
@@ -80,7 +80,7 @@ Issues (34):
 * :ghissue:`104`: nose_arg gives test finer granularity
 * :ghissue:`103`: make the LazyImport jig pickleable
 * :ghissue:`102`: sphinx docs won't build (related to lazyimports?)
-* :ghissue:`87`: Test failures on 10.4 
+* :ghissue:`87`: Test failures on 10.4
 * :ghissue:`100`: magnitude of fft showing negative values
 * :ghissue:`101`: fix some typos
 * :ghissue:`99`: First of all, thanks a lot for the sweet correlation matrix visualization method! I noticed that the behavior of the color_anchor parameter is not what I expected. Let me know what you think
@@ -100,7 +100,7 @@ Issues (34):
 * :ghissue:`82`: nosetest w/o exit=False funks up in ipython
 * :ghissue:`81`: ENH : s/numpy.fft/scipy.fftpack
 * :ghissue:`32`: Add a "how to release" page in the docs
-* :ghissue:`35`: index_at seems to fail with negative times 
+* :ghissue:`35`: index_at seems to fail with negative times
 * :ghissue:`50`: Setting IIR filter lower bound to 0
 * :ghissue:`44`: Warning when using coherence with welch method and NFFT longer than the time-series itself
 * :ghissue:`68`: tril_indices not available in fairly recent numpy versions
