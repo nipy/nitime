@@ -560,6 +560,91 @@ def adaptive_weights(yk, eigvals, sides='onesided', max_iter=150):
     nu = 2 * (weights ** 2).sum(axis=-2)
     return weights, nu
 
+def detect_lines(s, tapers, p=None, **taper_kws):
+    """
+    Detect the presence of line spectra in s using the F-test
+    described in "Spectrum estimation and harmonic analysis" (Thompson 81).
+
+    s: ndarray
+        The sequence(s) to test. If s.ndim > 1, then test sequences in
+        the last axis in parallel
+
+    tapers: ndarray or container
+        Either the precomputed DPSS tapers, or the pair of parameters
+        (NW, K) needed to compute K tapers of length n_pts.
+
+    p: float
+        The confidence threshold: under the null hypothesis of
+        a locally white spectrum, there is an threshold such that
+        there is a (1-p)% chance of a line amplitude being larger
+        than that threshold. Only detect lines with amplitude greater
+        than this threshold. The default is 1/N, to control for false
+        positives.
+
+    taper_kws
+        Options for the tapered_spectra method, if no DPSS are provided.
+
+    Returns
+    -------
+
+    (freq, beta): sequence
+        The frequencies (normalized) and coefficients of the complex
+        exponentials detected in the spectrum. A pair is returned for
+        each sequence tested.
+
+        One can reconstruct the line components as such:
+
+        sn = 2*(beta[:,None]*np.exp(2*np.pi*np.arange(N)*freq[:,None])).real
+        sn = sn.sum(axis=0)
+
+    """
+    from nitime.algorithms import tapered_spectra, dpss_windows
+    import scipy.stats.distributions as dists
+    N = s.shape[-1]
+    if not isinstance(tapers, np.ndarray):
+        # then tapers is (NW, K)
+        args = (N,) + tuple(tapers)
+        dpss, _ = dpss_windows(*args)
+        # this whole block is hacky as hell
+        if taper_kws.pop('low_bias', False):
+            keepers = (eigvals > 0.9)
+            dpss = dpss[keepers]
+        tapers = dpss
+    K = tapers.shape[0]
+    U0 = tapers.sum(axis=1)
+    spectra = tapered_spectra(s, tapers, **taper_kws)
+    nfft = spectra.shape[-1]
+    spectra = spectra[...,:nfft/2 + 1]
+    U_sq = np.sum(U0**2)
+    mu = np.sum( U0[:,None] * spectra, axis=-2 ) / U_sq
+
+    numr = (K-1) * np.abs(mu)**2 * U_sq
+    spectra = np.rollaxis(spectra, -2, 0)
+    U0.shape = (K,) + (1,) * (spectra.ndim-1)
+    denomr = spectra - U0*mu
+    denomr = np.sum(np.abs(denomr)**2, axis=0)
+    f_stat = numr / denomr
+
+    if not p:
+        p = 1.0/nfft
+    thresh = dists.f.isf(p, 2, 2*K-2)
+    f_stat = np.atleast_2d(f_stat)
+    lines = ()
+    for fs in f_stat:
+        detected = np.where(fs > thresh)[0]
+        if len(detected):
+            lines = lines + ( (detected/float(nfft), mu[detected]), )
+        else:
+            lines = lines + ( (), )
+    if len(lines) == 1:
+        lines = lines[0]
+    return lines
+
+
+
+
+
+
 
 #-----------------------------------------------------------------------------
 # Eigensystem utils

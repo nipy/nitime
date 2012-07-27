@@ -522,8 +522,8 @@ def tapered_spectra(s, tapers, NFFT=None, low_bias=True):
         Number of FFT bins to compute
 
     low_bias: Boolean
-        Automatically select DPSS tapers corresponding to > 90%
-        energy concentration.
+        If compute DPSS, automatically select tapers corresponding to
+        > 90% energy concentration.
 
     Returns
     -------
@@ -554,12 +554,13 @@ def tapered_spectra(s, tapers, NFFT=None, low_bias=True):
             keepers = (eigvals > 0.9)
             dpss = dpss[keepers]
             eigvals = eigvals[keepers]
-    K = dpss.shape[0]
+        tapers = dpss
+    K = tapers.shape[0]
     sig_sl = [slice(None)] * len(s.shape)
     sig_sl.insert(len(s.shape) - 1, np.newaxis)
 
     # tapered.shape is (M, Kmax, N)
-    tapered = s[sig_sl] * dpss
+    tapered = s[sig_sl] * tapers
 
     # compute the y_{i,k}(f)
     t_spectra = fftpack.fft(tapered, n=NFFT, axis=-1)
