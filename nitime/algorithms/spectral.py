@@ -388,7 +388,7 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
     N : int
         sequence length
     NW : float, unitless
-        standardized half bandwidth corresponding to 2NW = BW*f0 = BW*N/dt
+        standardized half bandwidth corresponding to 2NW = BW/f0 = BW*N*dt
         but with dt taken as 1
     Kmax : int
         number of DPSS windows to return is Kmax (orders 0 through Kmax-1)
@@ -591,8 +591,10 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
     return sf
 
 
-def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
-                    jackknife=True, low_bias=True, sides='default', NFFT=None):
+def multi_taper_psd(
+        s, Fs=2 * np.pi, NW=None, BW=None, adaptive=False,
+        jackknife=True, low_bias=True, sides='default', NFFT=None
+        ):
     """Returns an estimate of the PSD function of s using the multitaper
     method. If the NW product, or the BW and Fs in Hz are not specified
     by the user, a bandwidth of 4 times the fundamental frequency,
@@ -607,22 +609,29 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
     Fs: float
         Sampling rate of the signal
 
+    NW: float
+        The normalized half-bandwidth of the data tapers, indicating a
+        multiple of the fundamental frequency of the DFT (Fs/N).
+        Common choices are n/2, for n >= 4. This parameter is unitless
+        and more MATLAB compatible. As an alternative, set the BW
+        parameter in Hz. See Notes on bandwidth.
+
     BW: float
-        The bandwidth of the windowing function will determine the number
-        tapers to use. This parameters represents trade-off between frequency
-        resolution (lower main lobe BW for the taper) and variance reduction
-        (higher BW and number of averaged estimates).
+        The sampling-relative bandwidth of the data tapers, in Hz.
 
     adaptive : {True/False}
        Use an adaptive weighting routine to combine the PSD estimates of
        different tapers.
+
     jackknife : {True/False}
        Use the jackknife method to make an estimate of the PSD variance
        at each point.
+
     low_bias : {True/False}
        Rather than use 2NW tapers, only use the tapers that have better than
        90% spectral concentration within the bandwidth (still using
        a maximum of 2NW tapers)
+
     sides : str (optional)   [ 'default' | 'onesided' | 'twosided' ]
          This determines which sides of the spectrum to return.
          For complex-valued inputs, the default is two-sided, for real-valued
@@ -640,20 +649,36 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
         * The degrees of freedom in a chi2 model of how the estimated
           PSD is distributed about the true log-PSD (this is either
           2*floor(2*NW), or calculated from adaptive weights)
+
+    Notes
+    -----
+
+    The bandwidth of the windowing function will determine the number
+    tapers to use. This parameters represents trade-off between frequency
+    resolution (lower main lobe BW for the taper) and variance reduction
+    (higher BW and number of averaged estimates). Typically, the number of
+    tapers is calculated as 2x the bandwidth-to-fundamental-frequency
+    ratio, as these eigenfunctions have the best energy concentration.
+
     """
     # have last axis be time series for now
-    N = s.shape[-1] if not NFFT else NFFT
+    N = s.shape[-1]
+    if NFFT is None or NFFT < N:
+        NFFT = N
     rest_of_dims = s.shape[:-1]
 
     s = s.reshape(int(np.product(rest_of_dims)), N)
     # de-mean this sucker
     s = utils.remove_bias(s, axis=-1)
 
-    # Get the number of tapers from the sampling rate and the bandwidth:
     if BW is not None:
-        NW = BW / (2 * Fs) * N
-    else:
+        # BW wins in a contest (since it was the original implementation)
+        norm_BW = np.round(BW * N / Fs)
+        NW = norm_BW / 2.0
+    elif NW is None:
+        # default NW
         NW = 4
+    # (else BW is None and NW is not None) ... all set
 
     Kmax = int(2 * NW)
 
@@ -679,10 +704,9 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
     # don't normalize the periodograms by 1/N as normal.. since the taper
     # windows are orthonormal, they effectively scale the signal by 1/N
 
-    # XXX: scipy fft is faster
-    tapered_spectra = fftpack.fft(tapered)
+    tapered_spectra = fftpack.fft(tapered, n=NFFT, axis=-1)
 
-    last_freq = N / 2 + 1 if sides == 'onesided' else N
+    last_freq = NFFT / 2 + 1 if sides == 'onesided' else NFFT
 
     # degrees of freedom at each timeseries, at each freq
     nu = np.empty((s.shape[0], last_freq))
@@ -718,9 +742,9 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
         )
 
     if sides == 'onesided':
-        freqs = np.linspace(0, Fs / 2, N / 2 + 1)
+        freqs = np.linspace(0, Fs / 2, NFFT / 2 + 1)
     else:
-        freqs = np.linspace(0, Fs, N, endpoint=False)
+        freqs = np.linspace(0, Fs, NFFT, endpoint=False)
 
     out_shape = rest_of_dims + (len(freqs),)
     sdf_est.shape = out_shape
@@ -733,8 +757,8 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
         return freqs, sdf_est, nu
 
 
-def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
-                    adaptive=False, sides='default'):
+def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
+                    adaptive=False, sides='default', NFFT=None):
     """Returns an estimate of the Cross Spectral Density (CSD) function
     between all (N choose 2) pairs of timeseries in s, using the multitaper
     method. If the NW product, or the BW and Fs in Hz are not specified by
@@ -750,18 +774,24 @@ def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
 
     Fs: float, Sampling rate of the signal
 
-    BW: float,
-       The bandwidth of the windowing function will determine the number tapers
-       to use. This parameters represents trade-off between frequency
-       resolution (lower main lobe BW for the taper) and variance reduction
-       (higher BW and number of averaged estimates).
+    NW: float
+        The normalized half-bandwidth of the data tapers, indicating a
+        multiple of the fundamental frequency of the DFT (Fs/N).
+        Common choices are n/2, for n >= 4. This parameter is unitless
+        and more MATLAB compatible. As an alternative, set the BW
+        parameter in Hz. See Notes on bandwidth.
+
+    BW: float
+        The sampling-relative bandwidth of the data tapers, in Hz.
 
     adaptive : {True, False}
        Use adaptive weighting to combine spectra
+
     low_bias : {True, False}
        Rather than use 2NW tapers, only use the tapers that have better than
        90% spectral concentration within the bandwidth (still using
        a maximum of 2NW tapers)
+
     sides : str (optional)   [ 'default' | 'onesided' | 'twosided' ]
          This determines which sides of the spectrum to return.  For
          complex-valued inputs, the default is two-sided, for real-valued
@@ -774,9 +804,22 @@ def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
         The estimatated CSD and the frequency points vector.
         The CSD{i,j}(f) are returned in a square "matrix" of vectors
         holding Sij(f). For an input array of (M,N), the output is (M,M,N)
+
+    Notes
+    -----
+
+    The bandwidth of the windowing function will determine the number
+    tapers to use. This parameters represents trade-off between frequency
+    resolution (lower main lobe BW for the taper) and variance reduction
+    (higher BW and number of averaged estimates). Typically, the number of
+    tapers is calculated as 2x the bandwidth-to-fundamental-frequency
+    ratio, as these eigenfunctions have the best energy concentration.
+
     """
     # have last axis be time series for now
     N = s.shape[-1]
+    if NFFT is None or NFFT < N:
+        NFFT = N
     rest_of = s.shape[:-1]
     M = int(np.product(rest_of))
 
@@ -784,11 +827,14 @@ def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
     # de-mean this sucker
     s = utils.remove_bias(s, axis=-1)
 
-    #Get the number of tapers from the sampling rate and the bandwidth:
     if BW is not None:
-        NW = BW / (2 * Fs) * N
-    else:
+        # BW wins in a contest (since it was the original implementation)
+        norm_BW = np.round(BW * N / Fs)
+        NW = norm_BW / 2.0
+    elif NW is None:
+        # default NW
         NW = 4
+    # (else BW is None and NW is not None) ... all set
 
     Kmax = int(2 * NW)
 
@@ -812,10 +858,10 @@ def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
     tapered = s[sig_sl] * dpss
 
     # compute the y_{i,k}(f)
-    tapered_spectra = fftpack.fft(tapered)
+    tapered_spectra = fftpack.fft(tapered, n=NFFT, axis=-1)
 
     # compute the cross-spectral density functions
-    last_freq = N / 2 + 1 if sides == 'onesided' else N
+    last_freq = NFFT / 2 + 1 if sides == 'onesided' else NFFT
 
     if adaptive:
         w = np.empty(tapered_spectra.shape[:-1] + (last_freq,))
@@ -847,9 +893,9 @@ def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
     csdfs[upper_idc] = csdfs[lower_idc].conj()
 
     if sides == 'onesided':
-        freqs = np.linspace(0, Fs / 2, N / 2 + 1)
+        freqs = np.linspace(0, Fs / 2, NFFT / 2 + 1)
     else:
-        freqs = np.linspace(0, Fs, N, endpoint=False)
+        freqs = np.linspace(0, Fs, NFFT, endpoint=False)
 
     return freqs, csdfs
 
