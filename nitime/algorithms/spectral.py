@@ -555,6 +555,8 @@ def tapered_spectra(s, tapers, NFFT=None, low_bias=True):
             dpss = dpss[keepers]
             eigvals = eigvals[keepers]
         tapers = dpss
+    else:
+        eigvals = None
     K = tapers.shape[0]
     sig_sl = [slice(None)] * len(s.shape)
     sig_sl.insert(len(s.shape) - 1, np.newaxis)
@@ -565,7 +567,7 @@ def tapered_spectra(s, tapers, NFFT=None, low_bias=True):
     # compute the y_{i,k}(f)
     t_spectra = fftpack.fft(tapered, n=NFFT, axis=-1)
     t_spectra.shape = rest_of_dims + (K, NFFT)
-    if isinstance(tapers, np.ndarray):
+    if eigvals is None:
         return t_spectra
     return t_spectra, eigvals
 
