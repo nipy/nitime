@@ -388,7 +388,7 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
     N : int
         sequence length
     NW : float, unitless
-        standardized half bandwidth corresponding to 2NW = BW*f0 = BW*N/dt
+        standardized bandwidth corresponding to NW = BW*f0 = BW*N/dt
         but with dt taken as 1
     Kmax : int
         number of DPSS windows to return is Kmax (orders 0 through Kmax-1)
@@ -418,7 +418,7 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
     Volume 57 (1978), 1371430
     """
     Kmax = int(Kmax)
-    W = float(NW) / N
+    W = float(NW) / (2 * N)
     nidx = np.arange(N, dtype='d')
 
     # In this case, we create the dpss windows of the smaller size
@@ -651,7 +651,7 @@ def multi_taper_psd(s, Fs=2 * np.pi, BW=None,  adaptive=False,
 
     # Get the number of tapers from the sampling rate and the bandwidth:
     if BW is not None:
-        NW = BW / (2 * Fs) * N
+        NW = float(BW) * N / Fs
     else:
         NW = 4
 
@@ -786,7 +786,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, BW=None, low_bias=True,
 
     #Get the number of tapers from the sampling rate and the bandwidth:
     if BW is not None:
-        NW = BW / (2 * Fs) * N
+        NW = float(BW) * N / Fs
     else:
         NW = 4
 
