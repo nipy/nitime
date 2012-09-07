@@ -729,7 +729,7 @@ def multi_taper_psd(
     """
     # have last axis be time series for now
     N = s.shape[-1]
-    M = np.product(s.shape[:-1])
+    M = int(np.product(s.shape[:-1]))
 
     if BW is not None:
         # BW wins in a contest (since it was the original implementation)
@@ -776,6 +776,7 @@ def multi_taper_psd(
 
     if jackknife:
         jk_var = np.empty_like(nu)
+        print M, type(M)
         for i in xrange(M):
             jk_var[i] = utils.jackknifed_sdf_variance(
                 spectra[i], eigvals, sides=sides, adaptive=adaptive
