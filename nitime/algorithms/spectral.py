@@ -565,7 +565,10 @@ def tapered_spectra(s, tapers, NFFT=None, low_bias=True):
     tapered = s[sig_sl] * tapers
 
     # compute the y_{i,k}(f)
-    t_spectra = fftpack.fft(tapered, n=NFFT, axis=-1)
+    if tapered.dtype in np.sctypes['float']:
+        t_spectra = fftpack.rfft(tapered, n=NFFT, axis=-1)
+    else:
+        t_spectra = fftpack.fft(tapered, n=NFFT, axis=-1)
     t_spectra.shape = rest_of_dims + (K, NFFT)
     if eigvals is None:
         return t_spectra
