@@ -20,10 +20,10 @@ def square_window_spectrum(N, Fs):
 
     Parameters
     ----------
-    N: int
+    N : int
        the size of the window
 
-    Fs: float
+    Fs : float
        The sampling rate
 
     Returns
@@ -59,10 +59,10 @@ def hanning_window_spectrum(N, Fs):
 
     Parameters
     ----------
-    N: int
+    N : int
        The size of the window
 
-    Fs: float
+    Fs : float
        The sampling rate
 
     Returns
@@ -110,43 +110,43 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     Parameters
     ----------
 
-    N: int
+    N : int
       sequence length
-    sigma: float
+    sigma : float
       power of the white noise driving process
-    coefs: sequence
+    coefs : sequence
       AR coefficients for k = 1, 2, ..., P
-    drop_transients: int
+    drop_transients : int
       number of initial IIR filter transient terms to drop
-    v: ndarray
+    v : ndarray
       custom noise process
 
     Parameters
     ----------
 
-    N: float
+    N : float
        The number of points in the AR process generated. Default: 512
-    sigma: float
+    sigma : float
        The variance of the noise in the AR process. Default: 1
-    coefs: list or array of floats
+    coefs : list or array of floats
        The AR model coefficients. Default: [2.7607, -3.8106, 2.6535, -0.9238],
        which is a sequence shown to be well-estimated by an order 8 AR system.
-    drop_transients: float
+    drop_transients : float
        How many samples to drop from the beginning of the sequence (the
        transient phases of the process), so that the process can be considered
        stationary.
-    v: float array
+    v : float array
        Optionally, input a specific sequence of noise samples (this over-rides
        the sigma parameter). Default: None
 
     Returns
     -------
 
-    u: ndarray
+    u : ndarray
        the AR sequence
-    v: ndarray
+    v : ndarray
        the unit-variance innovations sequence
-    coefs: ndarray
+    coefs : ndarray
        feedback coefficients from k=1,len(coefs)
 
     The form of the feedback coefficients is a little different than
@@ -195,13 +195,13 @@ def circularize(x, bottom=0, top=2 * np.pi, deg=False):
     Parameters
     ----------
 
-    x: ndarray - the input array
+    x : ndarray - the input array
 
-    bottom: float, optional (defaults to 0).
+    bottom : float, optional (defaults to 0).
         If you want to set the bottom of the interval into which you
         modulu to something else than 0.
 
-    top: float, optional (defaults to 2*pi).
+    top : float, optional (defaults to 2*pi).
         If you want to set the top of the interval into which you
         modulu to something else than 2*pi
 
@@ -246,11 +246,11 @@ def normalize_coherence(x, dof, copy=True):
 
     Parameters
     ----------
-    x: ndarray, real
+    x : ndarray, real
        square-root of magnitude-square coherence measures
-    dof: int
+    dof : int
        number of degrees of freedom in the multitaper model
-    copy: bool
+    copy : bool
         Copy or return inplace modified x.
 
     Returns
@@ -287,13 +287,13 @@ def expected_jk_variance(K):
     Paramters
     ---------
 
-    K: int
+    K : int
       Number of tapers used in the multitaper method
 
     Returns
     -------
 
-    evar: float
+    evar : float
       Expected value of the jackknife variance estimator
 
     """
@@ -311,20 +311,20 @@ def jackknifed_sdf_variance(yk, eigvals, sides='onesided', adaptive=True):
     Parameters
     ----------
 
-    yk: ndarray (K, L)
+    yk : ndarray (K, L)
        The K DFTs of the tapered sequences
-    eigvals: ndarray (K,)
+    eigvals : ndarray (K,)
        The eigenvalues corresponding to the K DPSS tapers
-    sides: str, optional
+    sides : str, optional
        Compute the jackknife pseudovalues over as one-sided or
        two-sided spectra
-    adpative: bool, optional
+    adpative : bool, optional
        Compute the adaptive weighting for each jackknife pseudovalue
 
     Returns
     -------
 
-    var:
+    var
        The estimate for log-sdf variance
 
     Notes
@@ -394,17 +394,17 @@ def jackknifed_coh_variance(tx, ty, eigvals, adaptive=True):
     Parameters
     ----------
 
-    tx: ndarray, (K, L)
+    tx : ndarray, (K, L)
        The K complex spectra of tapered timeseries x
-    ty: ndarray, (K, L)
+    ty : ndarray, (K, L)
        The K complex spectra of tapered timeseries y
-    eigvals: ndarray (K,)
+    eigvals : ndarray (K,)
        The eigenvalues associated with the K DPSS tapers
 
     Returns
     -------
 
-    jk_var: ndarray
+    jk_var : ndarray
        The variance computed in the transformed domain (see
        normalize_coherence)
     """
@@ -468,13 +468,13 @@ def adaptive_weights(yk, eigvals, sides='onesided', max_iter=150):
     Parameters
     ----------
 
-    yk: ndarray (K, N)
+    yk : ndarray (K, N)
        The K DFTs of the tapered sequences
-    eigvals: ndarray, length-K
+    eigvals : ndarray, length-K
        The eigenvalues of the DPSS tapers
-    sides: str
+    sides : str
        Whether to compute weights on a one-sided or two-sided spectrum
-    max_iter: int
+    max_iter : int
        Maximum number of iterations for weight computation
 
     Returns
@@ -572,17 +572,17 @@ def tridisolve(d, e, b, overwrite_b=True):
     Parameters
     ----------
 
-    d: ndarray
+    d : ndarray
       main diagonal stored in d[:]
-    e: ndarray
+    e : ndarray
       superdiagonal stored in e[:-1]
-    b: ndarray
+    b : ndarray
       RHS vector
 
     Returns
     -------
 
-    x: ndarray
+    x : ndarray
       Solution to Ax = b (if overwrite_b is False). Otherwise solution is
       stored in previous RHS vector b
 
@@ -618,21 +618,21 @@ def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
     Parameters
     ----------
 
-    d: ndarray
+    d : ndarray
       main diagonal of the tridiagonal system
-    e: ndarray
+    e : ndarray
       offdiagonal stored in e[:-1]
-    w: float
+    w : float
       eigenvalue of the eigenvector
-    x0: ndarray
+    x0 : ndarray
       initial point to start the iteration
-    rtol: float
+    rtol : float
       tolerance for the norm of the difference of iterates
 
     Returns
     -------
 
-    e: ndarray
+    e : ndarray
       The converged eigenvector
 
     """
@@ -671,21 +671,21 @@ def crosscov(x, y, axis=-1, all_lags=False, debias=True, normalize=True):
     Parameters
     ----------
 
-    x: ndarray
-    y: ndarray
-    axis: time axis
-    all_lags: {True/False}
+    x : ndarray
+    y : ndarray
+    axis : time axis
+    all_lags : {True/False}
        whether to return all nonzero lags, or to clip the length of s_xy
        to be the length of x and y. If False, then the zero lag covariance
        is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2
-    debias: {True/False}
+    debias : {True/False}
        Always removes an estimate of the mean along the axis, unless
        told not to (eg X and Y are known zero-mean)
 
     Returns
     -------
 
-    cxy: ndarray
+    cxy : ndarray
        The crosscovariance function
 
     Notes
@@ -730,10 +730,10 @@ def crosscorr(x, y, **kwargs):
     Parameters
     ----------
 
-    x: ndarray
-    y: ndarray
-    axis: time axis
-    all_lags: {True/False}
+    x : ndarray
+    y : ndarray
+    axis : time axis
+    all_lags : {True/False}
        whether to return all nonzero lags, or to clip the length of r_xy
        to be the length of x and y. If False, then the zero lag correlation
        is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2
@@ -741,7 +741,7 @@ def crosscorr(x, y, **kwargs):
     Returns
     -------
 
-    rxy: ndarray
+    rxy : ndarray
        The crosscorrelation function
 
     Notes
@@ -768,9 +768,9 @@ def autocov(x, **kwargs):
     Parameters
     ----------
 
-    x: ndarray
-    axis: time axis
-    all_lags: {True/False}
+    x : ndarray
+    axis : time axis
+    all_lags : {True/False}
        whether to return all nonzero lags, or to clip the length of r_xy
        to be the length of x and y. If False, then the zero lag correlation
        is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2
@@ -778,7 +778,7 @@ def autocov(x, **kwargs):
     Returns
     -------
 
-    cxx: ndarray
+    cxx : ndarray
        The autocovariance function
 
     Notes
@@ -807,9 +807,9 @@ def autocorr(x, **kwargs):
     Parameters
     ----------
 
-    x: ndarray
-    axis: time axis
-    all_lags: {True/False}
+    x : ndarray
+    axis : time axis
+    all_lags : {True/False}
        whether to return all nonzero lags, or to clip the length of r_xy
        to be the length of x and y. If False, then the zero lag correlation
        is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2
@@ -1752,7 +1752,7 @@ def fir_design_matrix(events, len_hrf):
     Parameters
     ----------
 
-    events: 1-d int array
+    events : 1-d int array
        Integers denoting different kinds of events, occuring at the time
        corresponding to the bin represented by each slot in the array. In
        time-bins in which no event occured, a 0 should be entered. If negative
@@ -1760,7 +1760,7 @@ def fir_design_matrix(events, len_hrf):
        events that should be contrasted with the postitive events (typically -1
        and 1 can be used for a simple contrast of two conditions)
 
-    len_hrf: int
+    len_hrf : int
        The expected length of the HRF (in the same time-units as the events are
        represented (presumably TR). The size of the block dedicated in the
        fir_matrix to each type of event
@@ -1768,7 +1768,7 @@ def fir_design_matrix(events, len_hrf):
     Returns
     -------
 
-    fir_matrix: matrix
+    fir_matrix : matrix
 
        The design matrix for FIR estimation
     """
@@ -1846,9 +1846,9 @@ def crosscov_vector(x, y, nlags=None):
     Parameters
     ----------
 
-    x, y: ndarray (nc, N)
+    x, y : ndarray (nc, N)
 
-    nlags: int, optional
+    nlags : int, optional
        compute lags for k in {0, ..., nlags-1}
 
     Returns
@@ -1899,9 +1899,9 @@ def autocov_vector(x, nlags=None):
     Parameters
     ----------
 
-    x: ndarray (nc, N)
+    x : ndarray (nc, N)
 
-    nlags: int, optional
+    nlags : int, optional
        compute lags for k in {0, ..., nlags-1}
 
     Returns
@@ -1976,20 +1976,21 @@ def akaike_information_criterion(ecov, p, m, Ntotal, corrected=False):
     Parameters
     ----------
 
-    ecov: float array
-       The error covariance of the system
-
-    p: the number of channels
-    m: int, the model order
-    Ntotal: the number of total time-points (across channels)
-
-    corrected: boolean (optional)
-       Whether to correct for small sample size
+    ecov : float array
+        The error covariance of the system
+    p
+        the number of channels
+    m : int
+        the model order
+    Ntotal
+        the number of total time-points (across channels)
+    corrected : boolean (optional)
+        Whether to correct for small sample size
 
     Returns
     -------
 
-    AIC: float
+    AIC : float
         The value of the AIC
 
 
@@ -2022,23 +2023,27 @@ def bayesian_information_criterion(ecov, p, m, Ntotal):
 
     Parameters
     ----------
-    ecov: float array
-       The error covariance of the system
+    ecov : float array
+        The error covariance of the system
 
-    p: int, the system size (how many variables).
+    p : int
+        the system size (how many variables).
 
-    m: int, the model order.
+    m : int
+        the model order.
 
-    corrected: boolean (optional)
-       Whether to correct for small sample size
+    corrected : boolean (optional)
+        Whether to correct for small sample size
 
 
     Returns
     -------
 
-    BIC: float
-       The value of the BIC
-    a: the resulting autocovariance vector
+    BIC : float
+        The value of the BIC
+    a
+        the resulting autocovariance vector
+
     Notes
     -----
     This is an implementation of equation (51) in Ding et al. (2006):
