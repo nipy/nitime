@@ -347,7 +347,7 @@ class TimeArray(np.ndarray, TimeInterface):
 
         Returns
         -------
-        The array with all the indices where the condition is met.
+        idx : The array with all the indices where the condition is met.
           """
         if not np.iterable(t):
             t = [t]
@@ -492,22 +492,29 @@ class UniformTime(np.ndarray, TimeInterface):
     Parameters
     ----------
 
-    length: int, the number of items in the time-array
+    length : int
+        the number of items in the time-array
 
-    duration: float, the duration to be represented (given in the time-unit) of
-    the array. If this item is an TimeArray, the units of the UniformTime
-    array resulting will 'inherit' the units of the duration. Otherwise, the
-    unit of the UniformTime will be set by that kwarg
+    duration : float
+        the duration to be represented (given in the time-unit) of the array.
+        If this item is an TimeArray, the units of the UniformTime array
+        resulting will 'inherit' the units of the duration. Otherwise, the
+        unit of the UniformTime will be set by that kwarg
 
-    sampling_rate: float, the sampling rate (in 1/time-unit)
+    sampling_rate : float
+        the sampling rate (in 1/time-unit)
 
-    sampling_interval: float, the inverse of the sampling_interval
+    sampling_interval : float
+        the inverse of the sampling_interval
 
-    t0: the value of the first time-point in the array (in time-unit)
+    t0 : float
+        the value of the first time-point in the array (in time-unit)
 
-    time_unit:
+    time_unit : string
+        the unit of time
 
-    copy: whether to make a copy of not. Needs to be set to False
+    copy : bool
+        whether to make a copy or not. Needs to be set to False
 
     XXX continue writing this
     """
@@ -1044,12 +1051,12 @@ class TimeSeries(TimeSeriesBase):
         t0 : float
           If you provide a sampling rate, you can optionally also provide a
           starting time.
-        time
+        time 
           Instead of sampling rate, you can explicitly provide an object of
-        class UniformTime. Note that you can still also provide a different
-        sampling_rate/sampling_interval/duration to take the place of the one
-        in this object, but only as long as the changes are consistent with the
-        length of the data.
+          class UniformTime. Note that you can still also provide a different
+          sampling_rate/sampling_interval/duration to take the place of the
+          one in this object, but only as long as the changes are consistent
+          with the length of the data.
 
         time_unit :  string
           The unit of time.
