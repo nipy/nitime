@@ -100,8 +100,28 @@ def get_time_unit(obj):
 class TimeArray(np.ndarray, TimeInterface):
     """Base-class for time representations, implementing the TimeInterface"""
     def __new__(cls, data, time_unit=None, copy=True):
-        """XXX Write a doc-string - in particular, mention the the default
-        time-units to be used are seconds (which is why it is set to None) """
+        """
+        Parameters
+        ----------
+        data : 1-d array or `TimeArray` class instance
+            Time points
+
+        time_unit : str, optional
+            The time-unit to use. This should be one of the keys of the
+            `time_unit_conversion` dict from the :mod:`timeseries` module,
+            which are SI units of time. Default: 's'
+
+        copy : bool, optional
+            Whether to create this instance by  copy of a
+
+        Note
+        ----
+        If the 'copy' input is set to False, input must be either a `TimeArray`
+        class instance, or an int64 array in the base unit of the module
+        (which, unless you change it, is picoseconds)
+
+
+        """
 
         # Check that the time units provided are sensible:
         if time_unit not in time_unit_conversion:
@@ -488,40 +508,38 @@ clock_tick = TimeArray(1, time_unit=base_unit)
 
 class UniformTime(np.ndarray, TimeInterface):
     """ A representation of time sampled uniformly
-
-    Parameters
-    ----------
-
-    length : int
-        the number of items in the time-array
-
-    duration : float
-        the duration to be represented (given in the time-unit) of the array.
-        If this item is an TimeArray, the units of the UniformTime array
-        resulting will 'inherit' the units of the duration. Otherwise, the
-        unit of the UniformTime will be set by that kwarg
-
-    sampling_rate : float
-        the sampling rate (in 1/time-unit)
-
-    sampling_interval : float
-        the inverse of the sampling_interval
-
-    t0 : float
-        the value of the first time-point in the array (in time-unit)
-
-    time_unit : string
-        the unit of time
-
-    copy : bool
-        whether to make a copy or not. Needs to be set to False
-
-    XXX continue writing this
     """
 
     def __new__(cls, data=None, length=None, duration=None, sampling_rate=None,
-                sampling_interval=None, t0=0, time_unit=None, copy=False):
-        """Create a new UniformTime """
+                sampling_interval=None, t0=0, time_unit=None):
+        """
+
+        Parameters
+        ----------
+        length : int
+            The number of items in the time-array
+
+        duration : float,
+            the duration to be represented (given in the time-unit) of the
+            array. If this item is an TimeArray, the units of the UniformTime
+            array resulting will 'inherit' the units of the
+            duration. Otherwise, the unit of the UniformTime will be set by
+            that kwarg
+
+        sampling_rate : float
+            The sampling rate (in Hz)
+
+        sampling_interval : float
+            The inverse of the sampling_interval
+
+        t0 : float, int or singleton `TimeArray`
+            The value of the first time-point in the array (unless given as a
+            `TimeArray`, should be in the time-unit)
+
+        time_unit : str, optional
+            The time unit to be used in the representation of time
+
+        """
 
         # Sanity checks. There are different valid combinations of inputs
         tspec = tuple(x is not None for x in
@@ -1280,7 +1298,36 @@ class Epochs(desc.ResetMixin):
     """Represents a time interval"""
     def __init__(self, t0=None, stop=None, offset=None, start=None,
                  duration=None, time_unit=None, static=None, **kwargs):
+        """
+        Parameters
+        ----------
+        t0 : 1-d array or `TimeArray`
+           A time relative to which the epochs started. Per default `t0` and
+          `start` are the same, but setting the `offset` parameter can adjust
+           that, so that the start-times are at a fixed time, relative to t0.
 
+        stop : 1-d array or `TimeArray`
+              The times of ends of epochs
+
+        offset : float, int or singleton `TimeArray`
+            A constant offset applied to t0 to set the starts of Epochs
+
+        start : 1-d array or `TimeArray`
+              The times of beginnings of epochs
+
+        duration : 1-d array or `TimeArray`
+           The durations of intervals.
+
+        time_unit : str, optional
+              The time unit of the object and all time-related things in it.
+              Default: 's'
+
+        static : dict, optional
+            For fast initialization of an `Epochs` object from another `Epochs`
+            object, this dict should contain all necessary items to have an
+            `Epoch` defined.
+
+        """
         # Short-circuit path for a fast initialization. This relies on `static`
         # to be a dict that contains everything that defines an Epochs class
         # XXX: add this sort of fast __init__ to all other classes
@@ -1433,7 +1480,22 @@ class Events(TimeInterface):
 
     def __init__(self, time, labels=None, indices=None,
                  time_unit=None, **data):
+        """
+        Parameters
+        ----------
+        time : array or TimeArray
+            The times at which events occured
 
+        labels : array, optional
+
+        indices : int array, optional
+
+
+        Notes
+        -----
+
+
+        """
         # The time data must be at least a 1-d array, NOT a time scalar
         if not np.iterable(time):
             time = [time]
