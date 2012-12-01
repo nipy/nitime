@@ -649,7 +649,7 @@ def test_Epochs():
         # next line is the same as t[ejag]
         npt.assert_raises(ValueError, t.__getitem__, ejag)
 
-        # if an epoch lies entirely between samples in the timeseries, return
+        # if an epoch lies entirely between samples in the timeseries,
         # return an empty array
         eshort = ts.Epochs(2.5, 2.7, time_unit=t.time_unit)
         npt.assert_equal(len(t[eshort].data), 0)
