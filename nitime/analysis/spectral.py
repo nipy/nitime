@@ -176,7 +176,7 @@ class SpectralAnalyzer(BaseAnalyzer):
 
         fft = fftpack.fft
         f = tsu.get_freqs(sampling_rate, data.shape[-1])
-        spectrum_fourier = fft(data)[..., :f.shape[0]]
+        spectrum_fourier = fft(data, axis=-1)[..., :f.shape[0]]
         return f, spectrum_fourier
 
     @desc.setattr_on_read
