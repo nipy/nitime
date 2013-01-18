@@ -33,10 +33,10 @@ def coherency(time_series, csd_method=None):
     Parameters
     ----------
 
-    time_series: n*t float array
+    time_series : n*t float array
        an array of n different time series of length t each
 
-    csd_method: dict, optional.
+    csd_method : dict, optional.
        See :func:`get_spectra` documentation for details
 
     Returns
@@ -123,10 +123,10 @@ def coherence(time_series, csd_method=None):
 
     Parameters
     ----------
-    time_series: float array
+    time_series : float array
        an array of different time series with time as the last dimension
 
-    csd_method: dict, optional
+    csd_method : dict, optional
        See :func:`algorithms.spectral.get_spectra` documentation for details
 
     Returns
