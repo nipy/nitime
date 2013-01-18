@@ -83,7 +83,7 @@ def AR_est_YW(x, order, rxx=None):
 
     Returns
     -------
-    ak, sig_sq: The estimated AR coefficients and innovations variance
+    ak, sig_sq : The estimated AR coefficients and innovations variance
 
     """
     if rxx is not None and type(rxx) == np.ndarray:
@@ -127,7 +127,7 @@ def AR_est_LD(x, order, rxx=None):
     Parameters
     ----------
 
-    x: ndarray
+    x : ndarray
       the zero-mean stochastic process
     order : int
       the AR model order--IE the rank of the system.
@@ -267,7 +267,7 @@ def MAR_est_LWR(x, order, rxx=None):
 
     Returns
     -------
-    a, ecov: The system coefficients and the estimated covariance
+    a, ecov : The system coefficients and the estimated covariance
     """
     Rxx = utils.autocov_vector(x, nlags=order)
     a, ecov = lwr_recursion(Rxx.transpose(2, 0, 1))
@@ -382,7 +382,7 @@ def spectral_matrix_xy(Hw, cov):
     Returns
     -------
 
-    Sw: ndarrays
+    Sw : ndarrays
       matrix of spectral density functions
     """
 

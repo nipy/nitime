@@ -40,7 +40,7 @@ def test_TimeArray():
     time1 = ts.TimeArray(10 ** 6)
     npt.assert_equal(time1.__repr__(), '1000000.0 s')
     #TimeArray can't be more than 1-d:
-    nt.assert_raises(ValueError, ts.Events, np.zeros((2, 2)))
+    nt.assert_raises(ValueError, ts.TimeArray, np.zeros((2, 2)))
 
     dt = ts.TimeArray(0.001, time_unit='s')
     tt = ts.TimeArray([dt])
@@ -649,7 +649,7 @@ def test_Epochs():
         # next line is the same as t[ejag]
         npt.assert_raises(ValueError, t.__getitem__, ejag)
 
-        # if an epoch lies entirely between samples in the timeseries, return
+        # if an epoch lies entirely between samples in the timeseries,
         # return an empty array
         eshort = ts.Epochs(2.5, 2.7, time_unit=t.time_unit)
         npt.assert_equal(len(t[eshort].data), 0)
@@ -748,7 +748,6 @@ def test_Events():
 
         # indexing w/ epoch
         ep = ts.Epochs(start=0, stop=1.5, time_unit='ms')
-        print ev1[ep]
         npt.assert_equal(ev1[ep].data['i'], x[0])
 
         # fancy indexing (w/ boolean mask)
