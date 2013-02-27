@@ -964,14 +964,32 @@ def multi_intersect(input):
     return arr
 
 def zero_pad(time_series, NFFT):
-    """Pad a time-series with zeros on either side, depending on its length"""
+    """
+    Pad a time-series with zeros on either side, depending on its length
 
-    n_channels, n_time_points = time_series.shape
+    Parameters
+    ----------
+    time_series : n-d array
+       Time-series data with time as the last dimension
+
+    NFFT : int
+       The length to pad the data up to.    
+       
+    """
+
+    n_dims = len(time_series.shape)
+    n_time_points = time_series.shape[-1]
+
+    if n_dims>1:
+        n_channels = time_series.shape[:-1]
+        shape_out = n_channels + (NFFT,)
+    else:
+        shape_out = NFFT
     # zero pad if time_series is too short
     if n_time_points < NFFT:
         tmp = time_series
-        time_series = np.zeros((n_channels, NFFT), time_series.dtype)
-        time_series[:, :n_time_points] = tmp
+        time_series = np.zeros(shape_out, time_series.dtype)
+        time_series[..., :n_time_points] = tmp
         del tmp
 
     return time_series
