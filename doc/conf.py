@@ -75,7 +75,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'sphinx.ext.pngmath',
               'numpydoc',
-              'inheritance_diagram',
+              'sphinx.ext.inheritance_diagram',
               'ipython_console_highlighting',
               'only_directives',
               'math_dollar',  # Support for $x$ math
