@@ -721,6 +721,10 @@ def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
       The converged eigenvector
 
     """
+    try:
+        from _utils import tridisolve
+    except ImportError:
+        pass
     eig_diag = d - w
     if x0 is None:
         x0 = np.random.randn(len(d))
