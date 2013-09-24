@@ -352,29 +352,31 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
         Fn = N / 2 + 1
         # last duplicate freq
         Fl = (N + 1) / 2
-        csd_mat = np.empty((M, M, Fn), 'D')
+        csd_pairs = np.empty((M, M, Fn), 'D')
         freqs = np.linspace(0, Fs / 2, Fn)
         for i in xrange(M):
             for j in xrange(i + 1):
-                csd_mat[i, j, 0] = Sk_loc[i, 0] * Sk_loc[j, 0].conj()
-                csd_mat[i, j, 1:Fl] = 2 * (Sk_loc[i, 1:Fl] *
-                                           Sk_loc[j, 1:Fl].conj())
+                csd_pairs[i, j, 0] = Sk_loc[i, 0] * Sk_loc[j, 0].conj()
+                csd_pairs[i, j, 1:Fl] = 2 * (Sk_loc[i, 1:Fl] *
+                                             Sk_loc[j, 1:Fl].conj())
                 if Fn > Fl:
-                    csd_mat[i, j, Fn - 1] = (Sk_loc[i, Fn - 1] *
-                                             Sk_loc[j, Fn - 1].conj())
+                    csd_pairs[i, j, Fn - 1] = (Sk_loc[i, Fn - 1] *
+                                               Sk_loc[j, Fn - 1].conj())
 
     else:
-        csd_mat = np.empty((M, M, N), 'D')
+        csd_pairs = np.empty((M, M, N), 'D')
         freqs = np.linspace(0, Fs / 2, N, endpoint=False)
         for i in xrange(M):
             for j in xrange(i + 1):
-                csd_mat[i, j] = Sk_loc[i] * Sk_loc[j].conj()
+                csd_pairs[i, j] = Sk_loc[i] * Sk_loc[j].conj()
     if normalize:
-        csd_mat /= norm
+        csd_pairs /= norm
 
-    upper_idc = triu_indices(M, k=1)
-    lower_idc = tril_indices(M, k=-1)
-    csd_mat[upper_idc] = csd_mat[lower_idc].conj()
+    csd_mat = csd_pairs.transpose(1,0,2).conj()
+    csd_mat += csd_pairs
+    diag_idc = (np.arange(M), np.arange(M))
+    csd_mat[diag_idc] /= 2
+
     return freqs, csd_mat
 
 
@@ -912,7 +914,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
     else:
         weights = np.sqrt(eigvals).reshape(K, 1)
 
-    csdfs = np.empty((M, M, last_freq), 'D')
+    csd_pairs = np.empty((M, M, last_freq), 'D')
     for i in xrange(M):
         if adaptive:
             wi = w[i]
@@ -925,11 +927,12 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
                 wj = weights
             ti = spectra[i]
             tj = spectra[j]
-            csdfs[i, j] = mtm_cross_spectrum(ti, tj, (wi, wj), sides=sides)
+            csd_pairs[i, j] = mtm_cross_spectrum(ti, tj, (wi, wj), sides=sides)
 
-    upper_idc = triu_indices(M, k=1)
-    lower_idc = tril_indices(M, k=-1)
-    csdfs[upper_idc] = csdfs[lower_idc].conj()
+    csdfs = csd_pairs.transpose(1,0,2).conj()
+    csdfs += csd_pairs
+    diag_idc = (np.arange(M), np.arange(M))
+    csdfs[diag_idc] /= 2
 
     if sides == 'onesided':
         freqs = np.linspace(0, Fs / 2, NFFT / 2 + 1)
