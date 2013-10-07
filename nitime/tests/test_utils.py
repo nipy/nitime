@@ -211,3 +211,83 @@ def test_multi_intersect():
     arr2 = np.array([[1,0.1,0.2],[0.3,0.4, 0.5]])
     arr3 = np.array(1)
     npt.assert_equal(1, utils.multi_intersect([arr1, arr2, arr3]))
+
+def test_detect_lines():
+    """
+    Tests detect_lines utility in the reliable low-SNR scenario.
+    """
+
+
+    N = 1000
+    fft_pow = int( np.ceil(np.log2(N) + 2) )
+    NW = 4
+    lines = np.sort(np.random.randint(100, 2**(fft_pow-4), size=(3,)))
+    while np.any( np.diff(lines) < 2*NW ):
+        lines = np.sort(np.random.randint(2**(fft_pow-4), size=(3,)))
+    lines = lines.astype('d')
+    #lines += np.random.randn(3) # displace from grid locations
+    lines /= 2.0**(fft_pow-2) # ensure they are well separated
+
+    phs = np.random.rand(3) * 2 * np.pi
+    # amps approximately such that RMS power = 1 +/- N(0,1)
+    amps = np.sqrt(2)/2 + np.abs( np.random.randn(3) )
+
+    nz_sig = 0.05
+    tx = np.arange(N)
+
+    harmonics = amps[:,None]*np.cos( 2*np.pi*tx*lines[:,None] + phs[:,None] )
+    harmonic = np.sum(harmonics, axis=0)
+    nz = np.random.randn(N) * nz_sig
+    sig = harmonic + nz
+
+    f, b = utils.detect_lines(sig, (NW, 2*NW), low_bias=True, NFFT=2**fft_pow)
+    h_est = 2*(b[:,None]*np.exp(2j*np.pi*tx*f[:,None])).real
+
+    nt.assert_true(
+        len(f) == 3, 'The wrong number of harmonic components were detected'
+        )
+
+    err = harmonic - np.sum(h_est, axis=0)
+    phs_est = np.angle(b)
+    phs_est[phs_est < 0] += 2*np.pi
+
+    phs_err = np.linalg.norm(phs_est - phs)**2
+    amp_err = np.linalg.norm(amps - 2*np.abs(b))**2 / np.linalg.norm(amps)**2
+    freq_err = np.linalg.norm(lines - f)**2
+
+    # FFT bin detections should be exact
+    npt.assert_equal(lines, f)
+    # amplitude estimation should be pretty good
+    nt.assert_true(amp_err < 1e-4, 'Harmonic amplitude was poorly estimated')
+    # phase estimation should be decent
+    nt.assert_true(phs_err < 1e-3, 'Harmonic phase was poorly estimated')
+    # the error relative to the noise power should be below 1
+    rel_mse = np.mean(err**2)/nz_sig**2
+    nt.assert_true(
+        rel_mse < 1,
+        'The error in detected harmonic components is too high relative to '\
+        'the noise level: %1.2e'%rel_mse
+        )
+
+def test_detect_lines_2dmode():
+    """
+    Test multi-sequence operation
+    """
+
+    N = 1000
+
+    sig = np.cos( 2*np.pi*np.arange(N) * 20./N ) + np.random.randn(N) * .01
+
+    sig2d = np.row_stack( (sig, sig, sig) )
+
+    lines = utils.detect_lines(sig2d, (4, 8), low_bias=True, NFFT=2**12)
+
+    nt.assert_true(len(lines)==3, 'Detect lines failed multi-sequence mode')
+
+    consistent1 = (lines[0][0] == lines[1][0]).all() and \
+      (lines[1][0] == lines[2][0]).all()
+    consistent2 = (lines[0][1] == lines[1][1]).all() and \
+      (lines[1][1] == lines[2][1]).all()
+
+    nt.assert_true(consistent1 and consistent2, 'Inconsistent results')
+
