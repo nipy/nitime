@@ -352,7 +352,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
         Fn = N / 2 + 1
         # last duplicate freq
         Fl = (N + 1) / 2
-        csd_pairs = np.empty((M, M, Fn), 'D')
+        csd_pairs = np.zeros((M, M, Fn), 'D')
         freqs = np.linspace(0, Fs / 2, Fn)
         for i in xrange(M):
             for j in xrange(i + 1):
@@ -364,7 +364,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
                                                Sk_loc[j, Fn - 1].conj())
 
     else:
-        csd_pairs = np.empty((M, M, N), 'D')
+        csd_pairs = np.zeros((M, M, N), 'D')
         freqs = np.linspace(0, Fs / 2, N, endpoint=False)
         for i in xrange(M):
             for j in xrange(i + 1):
@@ -914,7 +914,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
     else:
         weights = np.sqrt(eigvals).reshape(K, 1)
 
-    csd_pairs = np.empty((M, M, last_freq), 'D')
+    csd_pairs = np.zeros((M, M, last_freq), 'D')
     for i in xrange(M):
         if adaptive:
             wi = w[i]
