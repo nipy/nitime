@@ -37,7 +37,7 @@ opts = dict(name=NAME,
             )
 
 # add Cython extensions to the setup options
-exts = [ Extension('_utils', ['nitime/_utils.pyx'],
+exts = [ Extension('nitime._utils', ['nitime/_utils.pyx'],
                    include_dirs=[get_include()]) ]
 opts['cmdclass'] = dict(build_ext=build_pyx_ext)
 opts['ext_modules'] = exts
