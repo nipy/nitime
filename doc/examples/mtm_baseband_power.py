@@ -43,7 +43,7 @@ Create a nearly lowpass band-limited signal.
 s = np.cumsum( np.random.randn(N) )
 
 """
-Strinctly enforce the band-limited property in this signal.
+Strictly enforce the band-limited property in this signal.
 """
 
 (b, a) = signal.butter(3, W, btype='lowpass')
