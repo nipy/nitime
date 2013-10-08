@@ -189,11 +189,11 @@ def get_spectra_bi(x, y, method=None):
 # The following spectrum estimates are normalized to the following convention..
 # By definition, Sxx(w) = DTFT{Rxx(n)}, where Rxx(n) is the autocovariance
 # function of x(n). Therefore the integral from
-# [-PI, PI] of Sxx(w)/(2PI) is Rxx(0)
+# [-PI, PI] of Sxx(w)*dw/(2PI) is Rxx(0).
 # And from the definition of Rxx(n),
 # Rxx(0) = Expected-Value{x(n)x*(n)} = Expected-Value{ |x|^2 },
 # which is estimated as (x*x.conj()).mean()
-
+# In other words, sum(Sxx)/NFFT = var(x)
 
 def periodogram(s, Fs=2 * np.pi, Sk=None, N=None,
                 sides='default', normalize=True):
@@ -779,7 +779,6 @@ def multi_taper_psd(
 
     if jackknife:
         jk_var = np.empty_like(nu)
-        print M, type(M)
         for i in xrange(M):
             jk_var[i] = utils.jackknifed_sdf_variance(
                 spectra[i], eigvals, sides=sides, adaptive=adaptive
