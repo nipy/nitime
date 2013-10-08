@@ -350,3 +350,37 @@ def test_gh57():
         for adaptive in [True, False]:
             f, psd, sigma = tsa.multi_taper_psd(data, adaptive=adaptive,
                                                 jackknife=jk)
+
+
+def test_hermitian_periodogram_csd():
+    """
+    Make sure CSD matrices returned by various methods have
+    Hermitian symmetry.
+    """
+
+    sig = np.random.randn(4,256)
+
+    _, csd1 = tsa.periodogram_csd(sig)
+
+    for i in xrange(4):
+        for j in xrange(i+1):
+            xc1 = csd1[i,j]
+            xc2 = csd1[j,i]
+            npt.assert_equal(xc1, xc2.conj())
+
+def test_hermitian_multitaper_csd():
+    """
+    Make sure CSD matrices returned by various methods have
+    Hermitian symmetry.
+    """
+
+    sig = np.random.randn(4,256)
+
+    _, csd1 = tsa.multi_taper_csd(sig)
+
+    for i in xrange(4):
+        for j in xrange(i+1):
+            xc1 = csd1[i,j]
+            xc2 = csd1[j,i]
+            npt.assert_equal(xc1, xc2.conj())
+
