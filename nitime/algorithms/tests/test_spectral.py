@@ -368,6 +368,10 @@ def test_hermitian_periodogram_csd():
             xc2 = csd1[j,i]
             npt.assert_equal(xc1, xc2.conj())
 
+    _, psd = tsa.periodogram(sig)
+    for i in xrange(4):
+        npt.assert_equal(psd[i], csd1[i,i].real)
+
 def test_hermitian_multitaper_csd():
     """
     Make sure CSD matrices returned by various methods have
@@ -384,3 +388,6 @@ def test_hermitian_multitaper_csd():
             xc2 = csd1[j,i]
             npt.assert_equal(xc1, xc2.conj())
 
+    _, psd, _ = tsa.multi_taper_psd(sig)
+    for i in xrange(4):
+        npt.assert_equal(psd[i], csd1[i,i].real)
