@@ -492,9 +492,11 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
     for i, f in enumerate(fix_symmetric):
         if f:
             dpss[2 * i] *= -1
-    fix_skew = (dpss[1::2, 1] < 0)
-    for i, f in enumerate(fix_skew):
-        if f:
+    # rather than test the sign of one point, test the sign of the
+    # linear slope up to the first (largest) peak
+    pk = np.argmax( np.abs(dpss[1::2, :N/2]), axis=1 )
+    for i, p in enumerate(pk):
+        if np.sum(dpss[2 * i + 1, :p]) < 0:
             dpss[2 * i + 1] *= -1
 
     # Now find the eigenvalues of the original spectral concentration problem
