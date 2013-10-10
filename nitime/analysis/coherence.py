@@ -597,7 +597,7 @@ class SeedCoherenceAnalyzer(object):
 
         if ('this_method' in self.method.keys() and
             self.method['this_method'] != 'welch'):
-            e_s = "For SparseCoherenceAnalyzer, "
+            e_s = "For SeedCoherenceAnalyzer, "
             e_s += "spectral estimation method must be welch"
             raise ValueError(e_s)
 
