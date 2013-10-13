@@ -169,11 +169,31 @@ def test_dpss_windows():
     for this_d in d[0::2]:
         npt.assert_equal(this_d.sum(axis=-1) < 0, False)
 
-# XXX: make a test for
-# * the DPSS conventions
-# * DPSS orthonormality
-# * DPSS eigenvalues
+def test_dpss_properties():
+    """ Test conventions of Slepian eigenvectors """
 
+    N = 2000
+    NW = 200
+    d, lam = tsa.dpss_windows(N, NW, 2*NW-2)
+    # 2NW-2 lamdas should be all > 0.9
+    nt.assert_true(
+        (lam > 0.9).all(), 'Eigenvectors show poor spectral concentration'
+        )
+    # test orthonomality
+    err = np.linalg.norm(d.dot(d.T) - np.eye(2*NW-2), ord='fro')
+    nt.assert_true(err**2 < 1e-16, 'Eigenvectors not numerically orthonormal')
+    # test positivity of even functions
+    nt.assert_true(
+        (d[::2].sum(axis=1) > 0).all(),
+        'Even Slepian sequences should have positive DC'
+        )
+    # test positive initial slope of odd functions
+    # (this tests the sign of a linear slope)
+    pk = np.argmax(np.abs(d[1::2, :N/2]), axis=1)
+    t = True
+    for p, f in zip(pk, d[1::2]):
+        t = t and np.sum( np.arange(1,p+1) * f[:p] ) >= 0
+    nt.assert_true(t, 'Odd Slepians should begin positive-going')
 
 def test_get_spectra_bi():
     """
@@ -350,3 +370,44 @@ def test_gh57():
         for adaptive in [True, False]:
             f, psd, sigma = tsa.multi_taper_psd(data, adaptive=adaptive,
                                                 jackknife=jk)
+
+
+def test_hermitian_periodogram_csd():
+    """
+    Make sure CSD matrices returned by various methods have
+    Hermitian symmetry.
+    """
+
+    sig = np.random.randn(4,256)
+
+    _, csd1 = tsa.periodogram_csd(sig)
+
+    for i in xrange(4):
+        for j in xrange(i+1):
+            xc1 = csd1[i,j]
+            xc2 = csd1[j,i]
+            npt.assert_equal(xc1, xc2.conj())
+
+    _, psd = tsa.periodogram(sig)
+    for i in xrange(4):
+        npt.assert_equal(psd[i], csd1[i,i].real)
+
+def test_hermitian_multitaper_csd():
+    """
+    Make sure CSD matrices returned by various methods have
+    Hermitian symmetry.
+    """
+
+    sig = np.random.randn(4,256)
+
+    _, csd1 = tsa.multi_taper_csd(sig)
+
+    for i in xrange(4):
+        for j in xrange(i+1):
+            xc1 = csd1[i,j]
+            xc2 = csd1[j,i]
+            npt.assert_equal(xc1, xc2.conj())
+
+    _, psd, _ = tsa.multi_taper_psd(sig)
+    for i in xrange(4):
+        npt.assert_equal(psd[i], csd1[i,i].real)

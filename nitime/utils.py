@@ -514,7 +514,8 @@ def adaptive_weights(yk, eigvals, sides='onesided', max_iter=150):
     N = yk.shape[1]
     sdf = mtm_cross_spectrum(yk, yk, eigvals[:, None], sides=sides)
     L = sdf.shape[-1]
-    var_est = np.trapz(sdf, dx=np.pi / L) / (2 * np.pi)
+    var_est = np.sum(sdf, axis=-1) / N
+    bband_sup = (1-eigvals)*var_est
 
     # The process is to iteratively switch solving for the following
     # two expressions:
@@ -533,32 +534,167 @@ def adaptive_weights(yk, eigvals, sides='onesided', max_iter=150):
     sdf_iter = mtm_cross_spectrum(yk[:2], yk[:2], eigvals[:2, None],
                                   sides=sides)
     err = np.zeros((K, L))
+    # for numerical considerations, don't bother doing adaptive
+    # weighting after 150 dB down
+    min_pwr = sdf_iter.max() * 10 ** (-150/20.)
+    default_weights = np.where(sdf_iter < min_pwr)[0]
+    adaptiv_weights = np.where(sdf_iter >= min_pwr)[0]
+
+    w_def = rt_eig[:,None] * sdf_iter[default_weights]
+    w_def /= eigvals[:, None] * sdf_iter[default_weights] + bband_sup[:,None]
+
+    d_sdfs = np.abs(yk[:,adaptiv_weights])**2
+    if L < N:
+        d_sdfs *= 2
+    sdf_iter = sdf_iter[adaptiv_weights]
+    yk = yk[:,adaptiv_weights]
     for n in range(max_iter):
-        d_k = sdf_iter[None, :] / (eigvals[:, None] * sdf_iter[None, :] + \
-                                  (1 - eigvals[:, None]) * var_est)
-        d_k *= rt_eig[:, None]
+        d_k = rt_eig[:,None] * sdf_iter[None, :]
+        d_k /= eigvals[:, None]*sdf_iter[None, :] + bband_sup[:,None]
         # Test for convergence -- this is overly conservative, since
         # iteration only stops when all frequencies have converged.
         # A better approach is to iterate separately for each freq, but
         # that is a nonvectorized algorithm.
-        # Take the RMS difference in weights from the previous iterate
-        # across frequencies. If the maximum RMS error across freqs is
-        # less than 1e-10, then we're converged
-        err -= d_k
-        if (err ** 2).mean(axis=0).max() < 1e-10:
+        #sdf_iter = mtm_cross_spectrum(yk, yk, d_k, sides=sides)
+        sdf_iter = np.sum( d_k**2 * d_sdfs, axis=0 )
+        sdf_iter /= np.sum( d_k**2, axis=0 )
+        # Compute the cost function from eq 5.4 in Thomson 1982
+        cfn = eigvals[:,None] * (sdf_iter[None,:] - d_sdfs)
+        cfn /= (eigvals[:,None] * sdf_iter[None,:] + bband_sup[:,None])**2
+        cfn = np.sum(cfn, axis=0)
+        # there seem to be some pathological freqs sometimes ..
+        # this should be a good heuristic
+        if np.percentile(cfn**2, 95) < 1e-12:
             break
-        # update the iterative estimate with this d_k
-        sdf_iter = mtm_cross_spectrum(yk, yk, d_k, sides=sides)
-        err = d_k
     else:  # If you have reached maximum number of iterations
         # Issue a warning and return non-converged weights:
         e_s = 'Breaking due to iterative meltdown in '
         e_s += 'nitime.utils.adaptive_weights.'
         warnings.warn(e_s, RuntimeWarning)
-
-    weights = d_k
+    weights = np.zeros( (K,L) )
+    weights[:,adaptiv_weights] = d_k
+    weights[:,default_weights] = w_def
     nu = 2 * (weights ** 2).sum(axis=-2)
     return weights, nu
+
+def detect_lines(s, tapers, p=None, **taper_kws):
+    """
+    Detect the presence of line spectra in s using the F-test
+    described in "Spectrum estimation and harmonic analysis" (Thompson 81).
+    Strategies for detecting harmonics in low SNR include increasing the
+    number of FFT points (NFFT keyword arg) and/or increasing the stability
+    of the spectral estimate by using more tapers (higher NW parameter).
+
+    s: ndarray
+        The sequence(s) to test. If s.ndim > 1, then test sequences in
+        the last axis in parallel
+
+    tapers: ndarray or container
+        Either the precomputed DPSS tapers, or the pair of parameters
+        (NW, K) needed to compute K tapers of length n_pts.
+
+    p: float
+        The confidence threshold: under the null hypothesis of
+        a locally white spectrum, there is a threshold such that
+        there is a (1-p)% chance of a line amplitude being larger
+        than that threshold. Only detect lines with amplitude greater
+        than this threshold. The default is 1/N, to control for false
+        positives.
+
+    taper_kws
+        Options for the tapered_spectra method, if no DPSS are provided.
+
+    Returns
+    -------
+
+    (freq, beta): sequence
+        The frequencies (normalized in [0, .5]) and coefficients of the
+        complex exponentials detected in the spectrum. A pair is returned
+        for each sequence tested.
+
+        One can reconstruct the line components as such:
+
+        sn = 2*(beta[:,None]*np.exp(i*2*np.pi*np.arange(N)*freq[:,None])).real
+        sn = sn.sum(axis=0)
+
+    """
+    from nitime.algorithms import tapered_spectra, dpss_windows
+    import scipy.stats.distributions as dists
+    import scipy.ndimage as ndimage
+    N = s.shape[-1]
+    # Some boiler-plate --
+    # 1) set up tapers
+    # 2) perform FFT on all windowed series
+    if not isinstance(tapers, np.ndarray):
+        # then tapers is (NW, K)
+        args = (N,) + tuple(tapers)
+        dpss, eigvals = dpss_windows(*args)
+        if taper_kws.pop('low_bias', False):
+            keepers = (eigvals > 0.9)
+            dpss = dpss[keepers]
+        tapers = dpss
+    # spectra is (n_arr, K, nfft)
+    spectra = tapered_spectra(s, tapers, **taper_kws)
+    nfft = spectra.shape[-1]
+    spectra = spectra[...,:nfft/2 + 1]
+
+    # Set up some data for the following calculations --
+    #   get the DC component of the taper spectra
+    K = tapers.shape[0]
+    U0 = tapers.sum(axis=1)
+    U_sq = np.sum(U0**2)
+    #  first order linear regression for mu to explain spectra
+    mu = np.sum( U0[:,None] * spectra, axis=-2 ) / U_sq
+
+    # numerator of F-stat -- strength of regression
+    numr = 0.5 * np.abs(mu)**2 * U_sq
+    numr[...,0] = 1; # don't care about DC
+    # denominator -- strength of residual
+    spectra = np.rollaxis(spectra, -2, 0)
+    U0.shape = (K,) + (1,) * (spectra.ndim-1)
+    denomr = spectra - U0*mu
+    denomr = np.sum(np.abs(denomr)**2, axis=0) / (2*K-2)
+    denomr[...,0] = 1;
+    f_stat = numr / denomr
+
+    # look for lines in each F-spectrum
+    if not p:
+        # the number of simultaneous tests are nfft/2, so this puts
+        # the expected value for false detection somewhere less than 1
+        p = 1.0/nfft
+    #thresh = dists.f.isf(p, 2, 2*K-2)
+    thresh = dists.f.isf(p, 2, K-1)
+    f_stat = np.atleast_2d(f_stat)
+    mu = np.atleast_2d(mu)
+    lines = ()
+    for fs, m in zip(f_stat, mu):
+        detected = np.where(fs > thresh)[0]
+        # do a quick pass through the detected lines to reject multiple
+        # hits within the 2NW resolution of the MT analysis -- approximate
+        # 2NW by K
+        ddiff = np.diff(detected)
+        flagged_groups, last_group = ndimage.label( (ddiff < K).astype('i') )
+        for g in xrange(1,last_group+1):
+            idx = np.where(flagged_groups==g)[0]
+            idx = np.r_[idx, idx[-1]+1]
+            # keep the super-threshold point with largest amplitude
+            mx = np.argmax(np.abs(m[ detected[idx] ]))
+            i_sv = detected[idx[mx]]
+            detected[idx] = -1
+            detected[idx[mx]] = i_sv
+        detected = detected[detected>0]
+        if len(detected):
+            lines = lines + ( (detected/float(nfft), m[detected]), )
+        else:
+            lines = lines + ( (), )
+    if len(lines) == 1:
+        lines = lines[0]
+    return lines
+
+
+
+
+
 
 
 #-----------------------------------------------------------------------------
@@ -636,6 +772,10 @@ def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
       The converged eigenvector
 
     """
+    try:
+        from _utils import tridisolve
+    except ImportError:
+        pass
     eig_diag = d - w
     if x0 is None:
         x0 = np.random.randn(len(d))
