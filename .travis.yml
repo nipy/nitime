@@ -6,7 +6,7 @@
 # and it is impractical to build them
 language: erlang
 env:
-    # Enable python 2 and python 3 builds. Python3 available in Ubuntu 12.04.
+    # Enable python 2 for now, we will add python3 later
     - PYTHON=python PYSUF=''
 install:
     - sudo apt-get update
