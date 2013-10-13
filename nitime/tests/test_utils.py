@@ -228,18 +228,11 @@ def test_zero_pad():
     zp2 = utils.zero_pad(ts2, NFFT)
     npt.assert_equal(zp2.shape[-1], NFFT)
     
-    
-    
 
-
-
-
-=======
 def test_detect_lines():
     """
     Tests detect_lines utility in the reliable low-SNR scenario.
     """
-
 
     N = 1000
     fft_pow = int( np.ceil(np.log2(N) + 2) )
@@ -313,5 +306,4 @@ def test_detect_lines_2dmode():
       (lines[1][1] == lines[2][1]).all()
 
     nt.assert_true(consistent1 and consistent2, 'Inconsistent results')
->>>>>>> 372f86aab232f1601dabfc04738a8c4abb12a92b
 

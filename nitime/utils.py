@@ -692,59 +692,60 @@ def detect_lines(s, tapers, p=None, **taper_kws):
     return lines
 
 
-
-
-
-
-
 #-----------------------------------------------------------------------------
 # Eigensystem utils
 #-----------------------------------------------------------------------------
 
-def tridisolve(d, e, b, overwrite_b=True):
-    """
-    Symmetric tridiagonal system solver, from Golub and Van Loan pg 157
+# If we can get it, we want the cythonized version
+try:
+    from _utils import tridisolve
 
-    Parameters
-    ----------
+# If that doesn't work, we define it here:
+except ImportError:
+    def tridisolve(d, e, b, overwrite_b=True):
+        """
+        Symmetric tridiagonal system solver, from Golub and Van Loan pg 157
 
-    d : ndarray
-      main diagonal stored in d[:]
-    e : ndarray
-      superdiagonal stored in e[:-1]
-    b : ndarray
-      RHS vector
+        Parameters
+        ----------
 
-    Returns
-    -------
+        d : ndarray
+          main diagonal stored in d[:]
+        e : ndarray
+          superdiagonal stored in e[:-1]
+        b : ndarray
+          RHS vector
 
-    x : ndarray
-      Solution to Ax = b (if overwrite_b is False). Otherwise solution is
-      stored in previous RHS vector b
+        Returns
+        -------
 
-    """
-    N = len(b)
-    # work vectors
-    dw = d.copy()
-    ew = e.copy()
-    if overwrite_b:
-        x = b
-    else:
-        x = b.copy()
-    for k in xrange(1, N):
-        # e^(k-1) = e(k-1) / d(k-1)
-        # d(k) = d(k) - e^(k-1)e(k-1) / d(k-1)
-        t = ew[k - 1]
-        ew[k - 1] = t / dw[k - 1]
-        dw[k] = dw[k] - t * ew[k - 1]
-    for k in xrange(1, N):
-        x[k] = x[k] - ew[k - 1] * x[k - 1]
-    x[N - 1] = x[N - 1] / dw[N - 1]
-    for k in xrange(N - 2, -1, -1):
-        x[k] = x[k] / dw[k] - ew[k] * x[k + 1]
+        x : ndarray
+          Solution to Ax = b (if overwrite_b is False). Otherwise solution is
+          stored in previous RHS vector b
 
-    if not overwrite_b:
-        return x
+        """
+        N = len(b)
+        # work vectors
+        dw = d.copy()
+        ew = e.copy()
+        if overwrite_b:
+            x = b
+        else:
+            x = b.copy()
+        for k in xrange(1, N):
+            # e^(k-1) = e(k-1) / d(k-1)
+            # d(k) = d(k) - e^(k-1)e(k-1) / d(k-1)
+            t = ew[k - 1]
+            ew[k - 1] = t / dw[k - 1]
+            dw[k] = dw[k] - t * ew[k - 1]
+        for k in xrange(1, N):
+            x[k] = x[k] - ew[k - 1] * x[k - 1]
+        x[N - 1] = x[N - 1] / dw[N - 1]
+        for k in xrange(N - 2, -1, -1):
+            x[k] = x[k] / dw[k] - ew[k] * x[k + 1]
+
+        if not overwrite_b:
+            return x
 
 
 def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
@@ -772,10 +773,6 @@ def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
       The converged eigenvector
 
     """
-    try:
-        from _utils import tridisolve
-    except ImportError:
-        pass
     eig_diag = d - w
     if x0 is None:
         x0 = np.random.randn(len(d))
