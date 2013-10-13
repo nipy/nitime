@@ -50,8 +50,6 @@ class LazyImport(types.ModuleType):
 
     >>> mlab.dist(1969,2011)
     42.0
-    >>> mlab
-    <module 'matplotlib.mlab' from '.../site-packages/matplotlib/mlab.pyc'>
     """
     def __getattribute__(self,x):
         # This method will be called only once, since we'll change
