@@ -324,8 +324,7 @@ def jackknifed_sdf_variance(yk, eigvals, sides='onesided', adaptive=True):
     Returns
     -------
 
-    var
-       The estimate for log-sdf variance
+    var : The estimate for log-sdf variance
 
     Notes
     -----
@@ -585,15 +584,15 @@ def detect_lines(s, tapers, p=None, **taper_kws):
     number of FFT points (NFFT keyword arg) and/or increasing the stability
     of the spectral estimate by using more tapers (higher NW parameter).
 
-    s: ndarray
+    s : ndarray
         The sequence(s) to test. If s.ndim > 1, then test sequences in
         the last axis in parallel
 
-    tapers: ndarray or container
+    tapers : ndarray or container
         Either the precomputed DPSS tapers, or the pair of parameters
         (NW, K) needed to compute K tapers of length n_pts.
 
-    p: float
+    p : float
         The confidence threshold: under the null hypothesis of
         a locally white spectrum, there is a threshold such that
         there is a (1-p)% chance of a line amplitude being larger
@@ -607,7 +606,7 @@ def detect_lines(s, tapers, p=None, **taper_kws):
     Returns
     -------
 
-    (freq, beta): sequence
+    (freq, beta) : sequence
         The frequencies (normalized in [0, .5]) and coefficients of the
         complex exponentials detected in the spectrum. A pair is returned
         for each sequence tested.
@@ -704,7 +703,8 @@ try:
 except ImportError:
     def tridisolve(d, e, b, overwrite_b=True):
         """
-        Symmetric tridiagonal system solver, from Golub and Van Loan pg 157
+        Symmetric tridiagonal system solver,
+        from Golub and Van Loan, Matrix Computations pg 157
 
         Parameters
         ----------
@@ -1110,8 +1110,8 @@ def zero_pad(time_series, NFFT):
        Time-series data with time as the last dimension
 
     NFFT : int
-       The length to pad the data up to.    
-       
+       The length to pad the data up to.
+
     """
 
     n_dims = len(time_series.shape)

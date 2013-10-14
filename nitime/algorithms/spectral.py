@@ -36,10 +36,10 @@ def get_spectra(time_series, method=None):
 
     Parameters
     ----------
-    time_series: float array
+    time_series : float array
         The time-series, where time is the last dimension
 
-    method: dict, optional
+    method : dict, optional
 
         contains: this_method:'welch'
            indicates that :func:`mlab.psd` will be used in
@@ -87,11 +87,11 @@ def get_spectra(time_series, method=None):
     Returns
     -------
 
-    f: float array
+    f : float array
         The central frequencies for the frequency bands for which the spectra
         are estimated
 
-    fxy: float array
+    fxy : float array
         A semi-filled matrix with the cross-spectra of the signals. The csd of
         signal i and signal j is in f[j][i], but not in f[i][j] (which will be
         filled with zeros). For i=j fxy[i][j] is the psd of signal i.
@@ -163,19 +163,19 @@ def get_spectra_bi(x, y, method=None):
     x,y : float arrays
         Time-series data
 
-    method: dict, optional
+    method : dict, optional
        See :func:`get_spectra` documentation for details
 
     Returns
     -------
-    f: float array
+    f : float array
         The central frequencies for the frequency
         bands for which the spectra are estimated
-    fxx: float array
+    fxx : float array
          The psd of the first signal
-    fyy: float array
+    fyy : float array
         The psd of the second signal
-    fxy: float array
+    fxy : float array
         The cross-spectral density of the two signals
 
     """
@@ -208,7 +208,7 @@ def periodogram(s, Fs=2 * np.pi, Sk=None, N=None,
         Signal(s) for which to estimate the PSD, time dimension in the last
         axis
 
-    Fs: float (optional)
+    Fs : float (optional)
        The sampling rate. Defaults to 2*pi
 
     Sk : ndarray (optional)
@@ -227,7 +227,7 @@ def periodogram(s, Fs=2 * np.pi, Sk=None, N=None,
 
     Returns
     -------
-    (f, psd): tuple
+    (f, psd) : tuple
        f: The central frequencies for the frequency bands
        PSD estimate for each row of s
 
@@ -287,7 +287,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
     s : ndarray
         Signals for which to estimate the CSD, time dimension in the last axis
 
-    Fs: float (optional)
+    Fs : float (optional)
        The sampling rate. Defaults to 2*pi
 
     Sk : ndarray (optional)
@@ -394,11 +394,11 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
         but with dt taken as 1
     Kmax : int
         number of DPSS windows to return is Kmax (orders 0 through Kmax-1)
-    interp_from: int (optional)
+    interp_from : int (optional)
         The dpss can be calculated using interpolation from a set of dpss
         with the same NW and Kmax, but shorter N. This is the length of this
         shorter set of dpss windows.
-    interp_kind: str (optional)
+    interp_kind : str (optional)
         This input variable is passed to scipy.interpolate.interp1d and
         specifies the kind of interpolation as a string ('linear', 'nearest',
         'zero', 'slinear', 'quadratic, 'cubic') or as an integer specifying the
@@ -515,27 +515,27 @@ def tapered_spectra(s, tapers, NFFT=None, low_bias=True):
     Parameters
     ----------
 
-    s: ndarray, (n_arr, n_pts)
+    s : ndarray, (n_arr, n_pts)
         An array whose rows are timeseries.
 
-    tapers: ndarray or container
+    tapers : ndarray or container
         Either the precomputed DPSS tapers, or the pair of parameters
         (NW, K) needed to compute K tapers of length n_pts.
 
-    NFFT: int
+    NFFT : int
         Number of FFT bins to compute
 
-    low_bias: Boolean
+    low_bias : Boolean
         If compute DPSS, automatically select tapers corresponding to
         > 90% energy concentration.
 
     Returns
     -------
 
-    t_spectra: ndarray, shaped (n_arr, K, NFFT)
+    t_spectra : ndarray, shaped (n_arr, K, NFFT)
       The FFT of the tapered sequences in s. First dimension is squeezed
       out if n_arr is 1.
-    eigvals: ndarray
+    eigvals : ndarray
       The eigenvalues are also returned if DPSS are calculated here.
 
     """
@@ -585,10 +585,10 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
     Parameters
     ----------
 
-    tx, ty: ndarray (K, ..., N)
+    tx, ty : ndarray (K, ..., N)
        The complex DFTs of the tapered sequence
 
-    weights: ndarray, or 2-tuple or list
+    weights : ndarray, or 2-tuple or list
        Weights can be specified as a length-2 list of weights for spectra tx
        and ty respectively. Alternatively, if tx is ty and this function is
        computing the spectral density function of a single sequence, the
@@ -598,7 +598,7 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
        * scalars, if the shape of the array is (K, ..., 1)
        * vectors, with the shape of the array being the same as tx or ty
 
-    sides: str in {'onesided', 'twosided'}
+    sides : str in {'onesided', 'twosided'}
        For the symmetric spectra of a real sequence, optionally combine half
        of the frequencies and scale the duplicate frequencies in the range
        (0, F_nyquist).
@@ -609,7 +609,7 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
     spectral densities are always computed as
 
     :math:`S_{xy}^{mt}(f) = \frac{\sum_k
-    [d_k^x(f)y_k^x(f)][d_k^y(f)(y_k^y(f))^{*}]}{[\sum_k
+    [d_k^x(f)s_k^x(f)][d_k^y(f)(s_k^y(f))^{*}]}{[\sum_k
     d_k^x(f)^2]^{\frac{1}{2}}[\sum_k d_k^y(f)^2]^{\frac{1}{2}}}`
 
     """
@@ -677,17 +677,17 @@ def multi_taper_psd(
        An array of sampled random processes, where the time axis is assumed to
        be on the last axis
 
-    Fs: float
+    Fs : float
         Sampling rate of the signal
 
-    NW: float
+    NW : float
         The normalized half-bandwidth of the data tapers, indicating a
         multiple of the fundamental frequency of the DFT (Fs/N).
         Common choices are n/2, for n >= 4. This parameter is unitless
         and more MATLAB compatible. As an alternative, set the BW
         parameter in Hz. See Notes on bandwidth.
 
-    BW: float
+    BW : float
         The sampling-relative bandwidth of the data tapers, in Hz.
 
     adaptive : {True/False}
@@ -827,16 +827,16 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
         assumed to be on the last axis. If ndim > 2, the number of time
         series to compare will still be taken as prod(s.shape[:-1])
 
-    Fs: float, Sampling rate of the signal
+    Fs : float, Sampling rate of the signal
 
-    NW: float
+    NW : float
         The normalized half-bandwidth of the data tapers, indicating a
         multiple of the fundamental frequency of the DFT (Fs/N).
         Common choices are n/2, for n >= 4. This parameter is unitless
         and more MATLAB compatible. As an alternative, set the BW
         parameter in Hz. See Notes on bandwidth.
 
-    BW: float
+    BW : float
         The sampling-relative bandwidth of the data tapers, in Hz.
 
     adaptive : {True, False}
