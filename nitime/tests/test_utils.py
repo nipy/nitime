@@ -212,11 +212,27 @@ def test_multi_intersect():
     arr3 = np.array(1)
     npt.assert_equal(1, utils.multi_intersect([arr1, arr2, arr3]))
 
+
+def test_zero_pad():
+    """
+    Test the zero_pad function
+    """
+    # Freely assume that time is the last dimension:
+    ts1 = np.empty((64, 64, 35, 32))
+    NFFT = 64 
+    zp1 = utils.zero_pad(ts1, NFFT)
+    npt.assert_equal(zp1.shape[-1], NFFT)
+
+    # Try this with something with only 1 dimension:
+    ts2 = np.empty(64)
+    zp2 = utils.zero_pad(ts2, NFFT)
+    npt.assert_equal(zp2.shape[-1], NFFT)
+    
+
 def test_detect_lines():
     """
     Tests detect_lines utility in the reliable low-SNR scenario.
     """
-
 
     N = 1000
     fft_pow = int( np.ceil(np.log2(N) + 2) )
