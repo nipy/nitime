@@ -858,7 +858,7 @@ def fftconvolve(in1, in2, mode="full", axis=None):
         fslice = tuple(fslice)
 
     # Always use 2**n-sized FFT
-    fsize = 2 ** np.ceil(np.log2(size))
+    fsize = 2 ** int(np.ceil(np.log2(size)))
     if axis is None:
         IN1 = fftpack.fftn(in1, fsize)
         IN1 *= fftpack.fftn(in2, fsize)
@@ -973,8 +973,8 @@ def zero_pad(time_series, NFFT):
        Time-series data with time as the last dimension
 
     NFFT : int
-       The length to pad the data up to.    
-       
+       The length to pad the data up to.
+
     """
 
     n_dims = len(time_series.shape)
