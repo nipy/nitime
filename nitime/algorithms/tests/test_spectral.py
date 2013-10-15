@@ -386,11 +386,16 @@ def test_hermitian_periodogram_csd():
         for j in xrange(i+1):
             xc1 = csd1[i,j]
             xc2 = csd1[j,i]
-            npt.assert_equal(xc1, xc2.conj())
+            npt.assert_equal(
+                xc1, xc2.conj(), err_msg='Periodogram CSD not Hermitian'
+                )
 
     _, psd = tsa.periodogram(sig)
     for i in xrange(4):
-        npt.assert_equal(psd[i], csd1[i,i].real)
+        npt.assert_almost_equal(
+            psd[i], csd1[i,i].real,
+            err_msg='Periodgram CSD diagonal inconsistent with real PSD'
+            )
 
 def test_hermitian_multitaper_csd():
     """
@@ -400,14 +405,75 @@ def test_hermitian_multitaper_csd():
 
     sig = np.random.randn(4,256)
 
-    _, csd1 = tsa.multi_taper_csd(sig)
+    _, csd1 = tsa.multi_taper_csd(sig, adaptive=False)
 
     for i in xrange(4):
         for j in xrange(i+1):
             xc1 = csd1[i,j]
             xc2 = csd1[j,i]
-            npt.assert_equal(xc1, xc2.conj())
+            npt.assert_equal(
+                xc1, xc2.conj(), err_msg='MTM CSD not Hermitian'
+                )
 
-    _, psd, _ = tsa.multi_taper_psd(sig)
+    _, psd, _ = tsa.multi_taper_psd(sig, adaptive=False)
     for i in xrange(4):
-        npt.assert_equal(psd[i], csd1[i,i].real)
+        npt.assert_almost_equal(
+            psd[i], csd1[i,i].real,
+            err_msg='MTM CSD diagonal inconsistent with real PSD'
+            )
+
+def test_periodogram_spectral_normalization():
+    """
+    Check that the spectral estimators are normalized in the
+    correct Watts/Hz fashion
+    """
+
+    x = np.random.randn(1024)
+    f1, Xp1 = tsa.periodogram(x)
+    f2, Xp2 = tsa.periodogram(x, Fs=100)
+    f3, Xp3 = tsa.periodogram(x, N=2**12)
+
+    p1 = np.sum(Xp1) * 2 * np.pi / 2**10
+    p2 = np.sum(Xp2) * 100 / 2**10
+    p3 = np.sum(Xp3) * 2 * np.pi / 2**12
+    nt.assert_true( np.abs(p1 - p2) < 1e-14,
+                    'Inconsistent frequency normalization in periodogram (1)' )
+    nt.assert_true( np.abs(p3 - p2) < 1e-8,
+                    'Inconsistent frequency normalization in periodogram (2)' )
+
+    td_var = np.var(x)
+    # assure that the estimators are at least in the same
+    # order of magnitude as the time-domain variance
+    nt.assert_true( np.log10(p1/td_var) < 1,
+                    'Incorrect frequency normalization in periodogram' )
+
+    # check the freq vector while we're here
+    nt.assert_true( f2.max() == 50, 'Periodogram returns wrong frequency bins' )
+
+def test_multitaper_spectral_normalization():
+    """
+    Check that the spectral estimators are normalized in the
+    correct Watts/Hz fashion
+    """
+
+    x = np.random.randn(1024)
+    f1, Xp1, _ = tsa.multi_taper_psd(x)
+    f2, Xp2, _ = tsa.multi_taper_psd(x, Fs=100)
+    f3, Xp3, _ = tsa.multi_taper_psd(x, NFFT=2**12)
+
+    p1 = np.sum(Xp1) * 2 * np.pi / 2**10
+    p2 = np.sum(Xp2) * 100 / 2**10
+    p3 = np.sum(Xp3) * 2 * np.pi / 2**12
+    nt.assert_true( np.abs(p1 - p2) < 1e-14,
+                    'Inconsistent frequency normalization in MTM PSD (1)' )
+    nt.assert_true( np.abs(p3 - p2) < 1e-8,
+                    'Inconsistent frequency normalization in MTM PSD (2)' )
+
+    td_var = np.var(x)
+    # assure that the estimators are at least in the same
+    # order of magnitude as the time-domain variance
+    nt.assert_true( np.log10(p1/td_var) < 1,
+                    'Incorrect frequency normalization in MTM PSD' )
+
+    # check the freq vector while we're here
+    nt.assert_true( f2.max() == 50, 'MTM PSD returns wrong frequency bins' )

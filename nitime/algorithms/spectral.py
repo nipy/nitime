@@ -186,14 +186,15 @@ def get_spectra_bi(x, y, method=None):
     return f, fxx, fyy, fxy
 
 
-# The following spectrum estimates are normalized to the following convention..
-# By definition, Sxx(w) = DTFT{Rxx(n)}, where Rxx(n) is the autocovariance
+# The following spectrum estimates are normalized to the convention
+# adopted by MATLAB (or at least spectrum.psd)
+# By definition, Sxx(f) = DTFT{Rxx(n)}, where Rxx(n) is the autocovariance
 # function of x(n). Therefore the integral from
-# [-PI, PI] of Sxx(w)*dw/(2PI) is Rxx(0).
+# [-Fs/2, Fs/2] of Sxx(f)*df is Rxx(0).
 # And from the definition of Rxx(n),
 # Rxx(0) = Expected-Value{x(n)x*(n)} = Expected-Value{ |x|^2 },
 # which is estimated as (x*x.conj()).mean()
-# In other words, sum(Sxx)/NFFT = var(x)
+# In other words, sum(Sxx) * Fs / NFFT ~ var(x)
 
 def periodogram(s, Fs=2 * np.pi, Sk=None, N=None,
                 sides='default', normalize=True):
@@ -231,11 +232,6 @@ def periodogram(s, Fs=2 * np.pi, Sk=None, N=None,
        f: The central frequencies for the frequency bands
        PSD estimate for each row of s
 
-    Notes
-    -----
-    setting dw = 2*PI/N, then the integral from -PI, PI (or 0,PI) of PSD/(2PI)
-    will be nearly equal to sxx(0), where sxx is the autocovariance function
-    of s(n). By definition, sxx(0) = E{s(n)s*(n)} ~ (s*s.conj()).mean()
     """
     if Sk is not None:
         N = Sk.shape[-1]
@@ -243,7 +239,6 @@ def periodogram(s, Fs=2 * np.pi, Sk=None, N=None,
         N = s.shape[-1] if not N else N
         Sk = fftpack.fft(s, n=N)
     pshape = list(Sk.shape)
-    norm = float(s.shape[-1])
 
     # if the time series is a complex vector, a one sided PSD is invalid:
     if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
@@ -267,7 +262,7 @@ def periodogram(s, Fs=2 * np.pi, Sk=None, N=None,
         P = (Sk * Sk.conj()).real
         freqs = np.linspace(0, Fs, N, endpoint=False)
     if normalize:
-        P /= norm
+        P /= (Fs * s.shape[-1])
     return freqs, P
 
 
@@ -314,12 +309,6 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
         holding Sij(f). For an input array that is reshaped to (M,N),
         the output is (M,M,N)
 
-    Notes
-    -----
-    setting dw = 2*PI/N, then the integral from -PI, PI (or 0,PI) of PSD/(2PI)
-    will be nearly equal to sxy(0), where sxx is the crosscovariance function
-    of s1(n), s2(n). By definition, sxy(0) = E{s1(n)s2*(n)} ~
-    (s1*s2.conj()).mean()
     """
     s_shape = s.shape
     s.shape = (np.prod(s_shape[:-1]), s_shape[-1])
@@ -339,7 +328,6 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
     s.shape = s_shape
 
     M = Sk_loc.shape[0]
-    norm = float(s.shape[-1])
 
     # if the time series is a complex vector, a one sided PSD is invalid:
     if (sides == 'default' and np.iscomplexobj(s)) or sides == 'twosided':
@@ -370,7 +358,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
             for j in xrange(i + 1):
                 csd_pairs[i, j] = Sk_loc[i] * Sk_loc[j].conj()
     if normalize:
-        csd_pairs /= norm
+        csd_pairs /= (Fs*N)
 
     csd_mat = csd_pairs.transpose(1,0,2).conj()
     csd_mat += csd_pairs
@@ -796,7 +784,8 @@ def multi_taper_psd(
     sdf_est = mtm_cross_spectrum(
         spectra, spectra, weights, sides=sides
         )
-
+    sdf_est /= Fs
+    
     if sides == 'onesided':
         freqs = np.linspace(0, Fs / 2, NFFT / 2 + 1)
     else:
@@ -934,7 +923,8 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
     csdfs += csd_pairs
     diag_idc = (np.arange(M), np.arange(M))
     csdfs[diag_idc] /= 2
-
+    csdfs /= Fs
+    
     if sides == 'onesided':
         freqs = np.linspace(0, Fs / 2, NFFT / 2 + 1)
     else:
