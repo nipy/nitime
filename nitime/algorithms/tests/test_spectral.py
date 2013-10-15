@@ -444,7 +444,7 @@ def test_periodogram_spectral_normalization():
     td_var = np.var(x)
     # assure that the estimators are at least in the same
     # order of magnitude as the time-domain variance
-    nt.assert_true( np.log10(p1/td_var) < 1,
+    nt.assert_true( np.abs(np.log10(p1/td_var)) < 1,
                     'Incorrect frequency normalization in periodogram' )
 
     # check the freq vector while we're here
@@ -472,7 +472,7 @@ def test_multitaper_spectral_normalization():
     td_var = np.var(x)
     # assure that the estimators are at least in the same
     # order of magnitude as the time-domain variance
-    nt.assert_true( np.log10(p1/td_var) < 1,
+    nt.assert_true( np.abs(np.log10(p1/td_var)) < 1,
                     'Incorrect frequency normalization in MTM PSD' )
 
     # check the freq vector while we're here
