@@ -178,8 +178,14 @@ class SpectralAnalyzer(BaseAnalyzer):
         sampling_rate = self.input.sampling_rate
 
         fft = fftpack.fft
-        f = tsu.get_freqs(sampling_rate, data.shape[-1])
-        spectrum_fourier = fft(data)[..., :f.shape[0]]
+        if np.any(np.iscomplex(data)):
+            # Get negative frequencies, as well as positive:
+            f = np.linspace(-sampling_rate/2., sampling_rate/2., data.shape[-1])
+            spectrum_fourier = np.fft.fftshift(fft(data))
+        else:
+            f = tsu.get_freqs(sampling_rate, data.shape[-1])
+            spectrum_fourier = fft(data)[..., :f.shape[0]]
+            
         return f, spectrum_fourier
 
     @desc.setattr_on_read
