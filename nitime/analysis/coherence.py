@@ -638,7 +638,7 @@ class SeedCoherenceAnalyzer(object):
         #target.
 
         #This is the kind of input that cache_fft expects:
-        ij = zip(np.arange(data.shape[0]), np.arange(data.shape[0]))
+        ij = list(zip(np.arange(data.shape[0]), np.arange(data.shape[0])))
 
         f, cache = tsa.cache_fft(data, ij, lb=self.lb, ub=self.ub,
                                  method=self.method,
@@ -668,7 +668,7 @@ class SeedCoherenceAnalyzer(object):
         #This is a list of indices into the cached fft window libraries,
         #setting the index of the seed to be -1, so that it is easily
         #distinguished from the target indices:
-        ij = zip(np.ones_like(target_chan_idx) * -1, target_chan_idx)
+        ij = list(zip(np.ones_like(target_chan_idx) * -1, target_chan_idx))
 
         #If there is more than one channel in the seed time-series:
         if len(self.seed.shape) > 1:

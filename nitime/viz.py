@@ -194,10 +194,10 @@ def subcolormap(xmin, xmax, cmap):
         if tmp == [] or tmp[-1][0] < xmax:
             tmp = tmp + [(xmax, rgbmax[k], rgbmax[k])]
         #now scale all this to (0,1)
-        square = zip(*tmp)
+        square = list(zip(*tmp))
         xbreaks = [(x - xmin) / (xmax - xmin) for x in square[0]]
         square[0] = xbreaks
-        tmp = zip(*square)
+        tmp = list(zip(*square))
         cd[k] = tmp
     return colors.LinearSegmentedColormap('local', cd, N=256)
 

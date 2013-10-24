@@ -108,8 +108,8 @@ class GrangerAnalyzer(BaseAnalyzer):
             # non-same i's and j's:
             x, y = np.meshgrid(np.arange(self._n_process),
                                np.arange(self._n_process))
-            self.ij = zip(x[tril_indices_from(x, -1)],
-                          y[tril_indices_from(y, -1)])
+            self.ij = list(zip(x[tril_indices_from(x, -1)],
+                          y[tril_indices_from(y, -1)]))
         else:
             self.ij = ij
 

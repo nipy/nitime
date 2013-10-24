@@ -1427,7 +1427,7 @@ class Epochs(desc.ResetMixin):
         if self.data.ndim == 0:
             z = (self.start, self.stop)
         else:
-            z = zip(self.start, self.stop)
+            z = list(zip(self.start, self.stop))
         rep = self.__class__.__name__ + "(" + z.__repr__()
         return rep + ", as (start,stop) tuples)"
 
