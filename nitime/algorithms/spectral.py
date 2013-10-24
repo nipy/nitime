@@ -959,5 +959,5 @@ def freq_response(b, a=1., n_freqs=1024, sides='onesided'):
     http://en.wikipedia.org/wiki/Z-transform
     """
     # transitioning to scipy freqz
-    real_n = n_freqs / 2 + 1 if sides == 'onesided' else n_freqs
+    real_n = n_freqs // 2 + 1 if sides == 'onesided' else n_freqs
     return sig.freqz(b, a=a, worN=real_n, whole=sides != 'onesided')
