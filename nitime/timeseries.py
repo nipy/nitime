@@ -1542,7 +1542,7 @@ class Events(TimeInterface):
             dt = [('i%d' % i, np.int64)
                   for i in range(len(indices or ()))] or np.int64
 
-        self.index = np.array(zip(*(indices or ())),
+        self.index = np.array(list(zip(*(indices or ()))),
                                        dtype=dt).view(np.recarray)
 
         #Should data be a recarray?
