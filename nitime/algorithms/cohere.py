@@ -1179,7 +1179,7 @@ def cache_to_relative_phase(cache, ij):
     Phi_xy = np.zeros((channels_i, channels_j, freqs), dtype=np.complex)
 
     #These checks take time, so do them up front, not in every iteration:
-    if FFT_slices.items()[0][1].shape[0] > 1:
+    if list(FFT_slices.items())[0][1].shape[0] > 1:
         if FFT_conj_slices:
             for i, j in ij:
                 phi = np.angle(FFT_slices[i] * FFT_conj_slices[j])
@@ -1239,7 +1239,7 @@ def cache_to_coherency(cache, ij):
     Cxy = np.zeros((channels_i, channels_j, freqs), dtype=np.complex)
 
     #These checks take time, so do them up front, not in every iteration:
-    if FFT_slices.items()[0][1].shape[0] > 1:
+    if list(FFT_slices.items())[0][1].shape[0] > 1:
         if FFT_conj_slices:
             for i, j in ij:
                 #dbg:
