@@ -502,6 +502,8 @@ class TimeArray(np.ndarray, TimeInterface):
         else:
             return np.divide(self, d)
 
+    __truediv__ = __div__ # called by python3
+
 # Globally define a single tick of the base unit:
 clock_tick = TimeArray(1, time_unit=base_unit)
 
