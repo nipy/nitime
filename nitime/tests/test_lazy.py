@@ -31,5 +31,8 @@ def test_lazy_noreload():
     if sys.version_info.major == 2:
         npt.assert_raises(ImportError, reload, mod)
     elif sys.version_info.major == 3:
-        import imp
-        npt.assert_raises(TypeError, imp.reload, mod)
+        if sys.version_info.minor == 2:
+            npt.assert_raises(ImportError, reload, mod)
+        elif sys.version_info.minor == 3:
+            import imp
+            npt.assert_raises(TypeError, imp.reload, mod)
