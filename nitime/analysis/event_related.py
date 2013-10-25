@@ -144,7 +144,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         #Make a list to put the outputs in:
         h = [0] * self._len_h
 
-        for i in xrange(self._len_h):
+        for i in range(self._len_h):
             #XXX Check that the offset makes sense (there can't be an event
             #happening within one offset duration of the beginning of the
             #time-series:
@@ -192,14 +192,14 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         #Make a list to put the outputs in:
         h = [0] * self._len_h
 
-        for i in xrange(self._len_h):
+        for i in range(self._len_h):
             data = self.data[i]
             u = np.unique(self.events[i])
             event_types = u[np.unique(self.events[i]) != 0]
             h[i] = np.empty((event_types.shape[0],
                              self.len_et / 2),
                             dtype=complex)
-            for e_idx in xrange(event_types.shape[0]):
+            for e_idx in range(event_types.shape[0]):
                 this_e = (self.events[i] == event_types[e_idx]) * 1.0
                 if self._zscore:
                     this_h = tsa.freq_domain_xcorr_zscored(data,
@@ -244,13 +244,13 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         #Make a list for the output
         h = [0] * self._len_h
 
-        for i in xrange(self._len_h):
+        for i in range(self._len_h):
             data = self.data[i]
             u = np.unique(self.events[i])
             event_types = u[np.unique(self.events[i]) != 0]
             #Make a list in here as well:
             this_list = [0] * event_types.shape[0]
-            for e_idx in xrange(event_types.shape[0]):
+            for e_idx in range(event_types.shape[0]):
                 idx = np.where(self.events[i] == event_types[e_idx])
 
                 idx_w_len = np.array([idx[0] + count + self.offset for count
@@ -274,7 +274,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
         if self._is_ts:
             # Loop over channels
-            for i in xrange(self._len_h):
+            for i in range(self._len_h):
                 data = self.data[i]
                 u = np.unique(self.events[i])
                 event_types = u[np.unique(self.events[i]) != 0]
@@ -288,7 +288,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                 offset = np.arange(self.offset,
                                    self.offset + self.len_et)[:, np.newaxis]
                 # Loop over event types
-                for e_idx in xrange(event_types.shape[0]):
+                for e_idx in range(event_types.shape[0]):
                     idx = np.where(self.events[i] == event_types[e_idx])[0]
                     event_trig = data[idx + offset]
                     #Correct baseline by removing the first point in the series
@@ -310,7 +310,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             h = [0] * self._len_h
 
             # Loop over channels
-            for i in xrange(self._len_h):
+            for i in range(self._len_h):
                 #If this is a list with one element:
                 if self._len_h == 1:
                     event_trig = self.data[0][idx + add_offset]
@@ -336,7 +336,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
         if self._is_ts:
             # Loop over channels
-            for i in xrange(self._len_h):
+            for i in range(self._len_h):
                 data = self.data[i]
                 u = np.unique(self.events[i])
                 event_types = u[np.unique(self.events[i]) != 0]
@@ -350,7 +350,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
                 offset = np.arange(self.offset,
                                    self.offset + self.len_et)[:, np.newaxis]
                 # Loop over event types
-                for e_idx in xrange(event_types.shape[0]):
+                for e_idx in range(event_types.shape[0]):
                     idx = np.where(self.events[i] == event_types[e_idx])[0]
                     event_trig = data[idx + offset]
                     #Correct baseline by removing the first point in the series
@@ -372,7 +372,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             h = [0] * self._len_h
 
             # Loop over channels
-            for i in xrange(self._len_h):
+            for i in range(self._len_h):
                 #If this is a list with one element:
                 if self._len_h == 1:
                     event_trig = self.data[0][idx + add_offset]

@@ -3,6 +3,7 @@
 XXX write top level doc-string
 
 """
+from __future__ import print_function
 import warnings
 import numpy as np
 from nitime.lazy import scipy_linalg as linalg
@@ -351,7 +352,7 @@ def jackknifed_sdf_variance(yk, eigvals, sides='onesided', adaptive=True):
     jk_sdf = []
     # get the leave-one-out estimates -- ideally, weights are recomputed
     # for each leave-one-out. This is now the case.
-    for i in xrange(K):
+    for i in range(K):
         items = list(all_orders.difference([i]))
         spectra_i = np.take(yk, items, axis=0)
         eigs_i = np.take(eigvals, items)
@@ -419,7 +420,7 @@ def jackknifed_coh_variance(tx, ty, eigvals, adaptive=True):
     import nitime.algorithms as alg
 
     # get the leave-one-out estimates
-    for i in xrange(K):
+    for i in range(K):
         items = list(all_orders.difference([i]))
         tx_i = np.take(tx, items, axis=0)
         ty_i = np.take(ty, items, axis=0)
@@ -498,10 +499,10 @@ def adaptive_weights(yk, eigvals, sides='onesided', max_iter=150):
     from nitime.algorithms import mtm_cross_spectrum
     K = len(eigvals)
     if len(eigvals) < 3:
-        print """
+        print("""
         Warning--not adaptively combining the spectral estimators
         due to a low number of tapers.
-        """
+        """)
         # we'll hope this is a correct length for L
         N = yk.shape[-1]
         L = N / 2 + 1 if sides == 'onesided' else N
@@ -673,7 +674,7 @@ def detect_lines(s, tapers, p=None, **taper_kws):
         # 2NW by K
         ddiff = np.diff(detected)
         flagged_groups, last_group = ndimage.label( (ddiff < K).astype('i') )
-        for g in xrange(1,last_group+1):
+        for g in range(1,last_group+1):
             idx = np.where(flagged_groups==g)[0]
             idx = np.r_[idx, idx[-1]+1]
             # keep the super-threshold point with largest amplitude
@@ -732,16 +733,16 @@ except ImportError:
             x = b
         else:
             x = b.copy()
-        for k in xrange(1, N):
+        for k in range(1, N):
             # e^(k-1) = e(k-1) / d(k-1)
             # d(k) = d(k) - e^(k-1)e(k-1) / d(k-1)
             t = ew[k - 1]
             ew[k - 1] = t / dw[k - 1]
             dw[k] = dw[k] - t * ew[k - 1]
-        for k in xrange(1, N):
+        for k in range(1, N):
             x[k] = x[k] - ew[k - 1] * x[k - 1]
         x[N - 1] = x[N - 1] / dw[N - 1]
-        for k in xrange(N - 2, -1, -1):
+        for k in range(N - 2, -1, -1):
             x[k] = x[k] / dw[k] - ew[k] * x[k + 1]
 
         if not overwrite_b:
@@ -1814,7 +1815,7 @@ def intersect_coords(coords1, coords2):
 
     ans = np.array([[], [], []], dtype='int')  # Initialize as a 3 row variable
     # Loop over the longer of the coordinate sets
-    for i in xrange(coords_long.shape[-1]):
+    for i in range(coords_long.shape[-1]):
         # For each coordinate:
         this_coords = coords_long[:, i]
         # Find the matches in the other set of coordinates:
@@ -1956,7 +1957,7 @@ def hilbert_from_new_scipy(x, N=None, axis=-1):
     if N <= 0:
         raise ValueError("N must be positive.")
     if np.iscomplexobj(x):
-        print "Warning: imaginary part of x ignored."
+        print("Warning: imaginary part of x ignored.")
         x = np.real(x)
     Xf = fftpack.fft(x, N, axis=axis)
     h = np.zeros(N)
@@ -2023,7 +2024,7 @@ def crosscov_vector(x, y, nlags=None):
     # Take the expectation over an outer-product
     # between x(t) and conj{y(t-k)} for each t
 
-    for k in xrange(nlags):
+    for k in range(nlags):
         # rxy(k) = E{ x(t)y*(t-k) }
         prod = x[:, None, k:] * y[None, :, :N - k].conj()
 ##         # rxy(k) = E{ x(t)y*(t+k) }
@@ -2112,8 +2113,8 @@ def generate_mar(a, cov, N):
     # X(i) = E(i) - sum_{j=1}^{P} a(j)X(i-j)
     # where X(n) n < 0 is taken to be 0
     # In terms of the code: X is mar and E is nz, P is n_order
-    for i in xrange(N):
-        for j in xrange(min(i, n_order)):  # j logically in set {1, 2, ..., P}
+    for i in range(N):
+        for j in range(min(i, n_order)):  # j logically in set {1, 2, ..., P}
             mar[i, :] -= np.dot(a[j], mar[i - j - 1, :])
 
     return mar.transpose(), nz.transpose()

@@ -49,7 +49,7 @@ def boxcar_filter(time_series, lb=0, ub=0.5, n_iterations=2):
     #over 2-d inputs:
     if len(time_series.shape) == 1:
         time_series = np.array([time_series])
-    for i in xrange(time_series.shape[0]):
+    for i in range(time_series.shape[0]):
         if ub:
             #Start by applying a low-pass to the signal.  Pad the signal on
             #each side with the initial and terminal signal value:
@@ -59,7 +59,7 @@ def boxcar_filter(time_series, lb=0, ub=0.5, n_iterations=2):
 
             #Filter operation is a convolution with the box-car(iterate,
             #n_iterations times over this operation):
-            for iteration in xrange(n_iterations):
+            for iteration in range(n_iterations):
                 conv_s = np.convolve(pad_s, boxcar_ub)
 
             #Extract the low pass signal by excising the central
@@ -76,7 +76,7 @@ def boxcar_filter(time_series, lb=0, ub=0.5, n_iterations=2):
 
             #Filter operation is a convolution with the box-car(iterate,
             #n_iterations times over this operation):
-            for iteration in xrange(n_iterations):
+            for iteration in range(n_iterations):
                 conv_s = np.convolve(pad_s, boxcar_lb)
 
             #Extract the low pass signal by excising the central

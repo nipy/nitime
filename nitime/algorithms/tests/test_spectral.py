@@ -285,7 +285,7 @@ def test_mtm_cross_spectrum():
     tapers, eigs = tsa.dpss_windows(N, NW, 2 * NW - 1)
 
     est_psd = []
-    for k in xrange(n_reps):
+    for k in range(n_reps):
         data, nz, alpha = utils.ar_generator(N=N)
         fgrid, hz = tsa.freq_response(1.0, a=np.r_[1, -alpha], n_freqs=n_freqs)
         # 'one-sided', so multiply by 2:
@@ -334,7 +334,7 @@ def test_multi_taper_psd_csd():
     est_psd = []
     est_csd = []
     for jk in [True, False]:
-        for k in xrange(n_reps):
+        for k in range(n_reps):
             for adaptive in [True, False]:
                 ar_seq, nz, alpha = utils.ar_generator(N=N, drop_transients=10)
                 ar_seq -= ar_seq.mean()
@@ -382,8 +382,8 @@ def test_hermitian_periodogram_csd():
 
     _, csd1 = tsa.periodogram_csd(sig)
 
-    for i in xrange(4):
-        for j in xrange(i+1):
+    for i in range(4):
+        for j in range(i+1):
             xc1 = csd1[i,j]
             xc2 = csd1[j,i]
             npt.assert_equal(
@@ -391,7 +391,7 @@ def test_hermitian_periodogram_csd():
                 )
 
     _, psd = tsa.periodogram(sig)
-    for i in xrange(4):
+    for i in range(4):
         npt.assert_almost_equal(
             psd[i], csd1[i,i].real,
             err_msg='Periodgram CSD diagonal inconsistent with real PSD'
@@ -407,8 +407,8 @@ def test_hermitian_multitaper_csd():
 
     _, csd1 = tsa.multi_taper_csd(sig, adaptive=False)
 
-    for i in xrange(4):
-        for j in xrange(i+1):
+    for i in range(4):
+        for j in range(i+1):
             xc1 = csd1[i,j]
             xc2 = csd1[j,i]
             npt.assert_equal(
@@ -416,7 +416,7 @@ def test_hermitian_multitaper_csd():
                 )
 
     _, psd, _ = tsa.multi_taper_psd(sig, adaptive=False)
-    for i in xrange(4):
+    for i in range(4):
         npt.assert_almost_equal(
             psd[i], csd1[i,i].real,
             err_msg='MTM CSD diagonal inconsistent with real PSD'

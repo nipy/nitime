@@ -45,7 +45,7 @@ def fit_model(x1, x2, order=None, max_order=10,
 
     # If the model order is not known and provided as input:
     else:
-        for lag in xrange(1, max_order):
+        for lag in range(1, max_order):
             Rxx_new = utils.autocov_vector(np.vstack([x1, x2]), nlags=lag)
             coef_new, ecov_new = alg.lwr_recursion(
                                         np.array(Rxx_new).transpose(2, 0, 1))

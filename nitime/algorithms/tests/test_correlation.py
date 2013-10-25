@@ -3,7 +3,6 @@ import numpy.testing as npt
 
 import nitime.algorithms as tsa
 
-
 def test_seed_correlation():
 
     seed = np.random.rand(10)

@@ -66,9 +66,9 @@ class CorrelationAnalyzer(BaseAnalyzer):
                           tseries_length,
                           t_points * 2 - 1))
         data = self.input.data
-        for i in xrange(tseries_length):
+        for i in range(tseries_length):
             data_i = data[i]
-            for j in xrange(i, tseries_length):
+            for j in range(i, tseries_length):
                 xcorr[i, j] = np.correlate(data_i,
                                           data[j],
                                           mode='full')
@@ -100,9 +100,9 @@ class CorrelationAnalyzer(BaseAnalyzer):
                           tseries_length,
                           t_points * 2 - 1))
         data = self.input.data
-        for i in xrange(tseries_length):
+        for i in range(tseries_length):
             data_i = data[i]
-            for j in xrange(i, tseries_length):
+            for j in range(i, tseries_length):
                 xcorr[i, j] = np.correlate(data_i,
                                           data[j],
                                           mode='full')

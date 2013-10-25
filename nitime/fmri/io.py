@@ -1,4 +1,5 @@
 """ Input and output for fmri data files"""
+from __future__ import print_function
 
 try:
     from nibabel import load
@@ -85,7 +86,7 @@ def time_series_from_file(nifti_files, coords=None, TR=None, normalize=None,
     #If just one string was provided:
     if isinstance(nifti_files, str):
         if verbose:
-            print "Reading %s" % nifti_files
+            print("Reading %s" % nifti_files)
         im = load(nifti_files)
         data = im.get_data()
         # If coordinates are provided as input, read data only from these coordinates:
@@ -94,7 +95,7 @@ def time_series_from_file(nifti_files, coords=None, TR=None, normalize=None,
             if isinstance(coords, tuple) or isinstance(coords, list):
                 n_roi = len(coords)
                 tseries = [[]] * n_roi
-                for i in xrange(n_roi):
+                for i in range(n_roi):
                     tseries[i] = _tseries_from_nifti_helper(
                         np.array(coords[i]).astype(int),
                         data,
@@ -115,7 +116,7 @@ def time_series_from_file(nifti_files, coords=None, TR=None, normalize=None,
         tseries_list = []
         for f in nifti_files:
             if verbose:
-                print "Reading %s" % f
+                print("Reading %s" % f)
             im = load(f)
             data = im.get_data()
             if coords is not None:
@@ -123,7 +124,7 @@ def time_series_from_file(nifti_files, coords=None, TR=None, normalize=None,
                 if isinstance(coords, tuple) or isinstance(coords, list):
                     n_roi = len(coords)
                     tseries_list.append([[]] * n_roi)
-                    for i in xrange(n_roi):
+                    for i in range(n_roi):
                         tseries_list[-1][i] = _tseries_from_nifti_helper(
                             np.array(coords[i]).astype(int),
                             data,
@@ -151,9 +152,9 @@ def time_series_from_file(nifti_files, coords=None, TR=None, normalize=None,
         if isinstance(coords, tuple) or isinstance(coords, list):
             tseries = [[]] * n_roi
             #Do this per ROI
-            for i in xrange(n_roi):
+            for i in range(n_roi):
                 tseries[i] = ts.concatenate_time_series(
-                    [tseries_list[k][i] for k in xrange(len(tseries_list))])
+                    [tseries_list[k][i] for k in range(len(tseries_list))])
 
         else:
             tseries = ts.concatenate_time_series(tseries_list)

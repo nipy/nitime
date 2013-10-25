@@ -32,6 +32,7 @@ import numpy as np
 
 # Our own
 from nitime import descriptors as desc
+import six
 
 #-----------------------------------------------------------------------------
 # Module globals
@@ -94,7 +95,7 @@ def get_time_unit(obj):
     except TypeError:
         return None
     else:
-        return get_time_unit(it.next())
+        return get_time_unit(six.advance_iterator(it))
 
 
 class TimeArray(np.ndarray, TimeInterface):
@@ -1518,7 +1519,7 @@ class Events(TimeInterface):
         # Ensure that the dict of data values has a known, uniform structure:
         # all values must be arrays, with at least one dimension.
         new_data = {}
-        for k, v in data.iteritems():
+        for k, v in six.iteritems(data):
             if np.iterable(v):
                 v = np.asanyarray(v)
             else:

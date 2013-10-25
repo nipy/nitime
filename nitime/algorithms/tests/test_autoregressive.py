@@ -130,14 +130,14 @@ def test_MAR_est_LWR():
     z = np.empty((N, n_process, L))
     nz = np.empty((N, n_process, L))
 
-    for i in xrange(N):
+    for i in range(N):
         z[i], nz[i] = utils.generate_mar(am, cov, L)
 
     a_est = []
     cov_est = []
 
     # This loop runs MAR_est_LWR:
-    for i in xrange(N):
+    for i in range(N):
         Rxx = (tsa.MAR_est_LWR(z[i], order=n_lags))
         a_est.append(Rxx[0])
         cov_est.append(Rxx[1])
@@ -179,7 +179,7 @@ def test_MAR_est_LWR():
 
 def test_lwr():
     "test solution of lwr recursion"
-    for trial in xrange(3):
+    for trial in range(3):
         nc = np.random.randint(2, high=10)
         P = np.random.randint(2, high=6)
         # nc is channels, P is lags (order)
@@ -193,8 +193,8 @@ def test_lwr():
         # = sum_{i=1}^{P} R(k-i)^T A(i)^T = -R(k)^T
         # = sum_{i=1}^{P} R(i-k)A(i)^T = -R(k)^T
         rmat = np.zeros((nc * P, nc * P))
-        for k in xrange(1, P + 1):
-            for i in xrange(1, P + 1):
+        for k in range(1, P + 1):
+            for i in range(1, P + 1):
                 im = i - k
                 if im < 0:
                     r1 = r[-im].T
@@ -204,7 +204,7 @@ def test_lwr():
 
         rvec = np.zeros((nc * P, nc))
         avec = np.zeros((nc * P, nc))
-        for m in xrange(P):
+        for m in range(P):
             rvec[m * nc:(m + 1) * nc] = -r[m + 1].T
             avec[m * nc:(m + 1) * nc] = a[m].T
 

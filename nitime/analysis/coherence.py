@@ -104,8 +104,8 @@ class CoherenceAnalyzer(BaseAnalyzer):
                               tseries_length,
                               spectrum_length), dtype=complex)
 
-        for i in xrange(tseries_length):
-            for j in xrange(i, tseries_length):
+        for i in range(tseries_length):
+            for j in range(i, tseries_length):
                 coherency[i][j] = tsa.coherency_spec(self.spectrum[i][j],
                                                      self.spectrum[i][i],
                                                      self.spectrum[j][j])
@@ -151,8 +151,8 @@ class CoherenceAnalyzer(BaseAnalyzer):
                               tseries_length,
                               spectrum_length))
 
-        for i in xrange(tseries_length):
-            for j in xrange(i, tseries_length):
+        for i in range(tseries_length):
+            for j in range(i, tseries_length):
                 coherence[i][j] = tsa.coherence_spec(self.spectrum[i][j],
                                                      self.spectrum[i][i],
                                                      self.spectrum[j][j])
@@ -176,8 +176,8 @@ class CoherenceAnalyzer(BaseAnalyzer):
                             tseries_length,
                             spectrum_length))
 
-        for i in xrange(tseries_length):
-            for j in xrange(i, tseries_length):
+        for i in range(tseries_length):
+            for j in range(i, tseries_length):
                 phase[i][j] = np.angle(
                     self.spectrum[i][j])
 
@@ -190,8 +190,8 @@ class CoherenceAnalyzer(BaseAnalyzer):
         """ The delay in seconds between the two time series """
         p_shape = self.phase.shape[:-1]
         delay = np.zeros(self.phase.shape)
-        for i in xrange(p_shape[0]):
-            for j in xrange(p_shape[1]):
+        for i in range(p_shape[0]):
+            for j in range(p_shape[1]):
                 this_phase = self.phase[i, j]
                 #If requested, unwrap the phases:
                 if self._unwrap_phases:
@@ -214,9 +214,9 @@ class CoherenceAnalyzer(BaseAnalyzer):
                                 tseries_length,
                                 spectrum_length))
 
-        for i in xrange(tseries_length):
-            for j in xrange(tseries_length):
-                for k in xrange(tseries_length):
+        for i in range(tseries_length):
+            for j in range(tseries_length):
+                for k in range(tseries_length):
                     if j == k or i == k:
                         pass
                     else:
@@ -318,7 +318,7 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
         w = np.empty((channel_n, self.df, self._L))
 
         if self._adaptive:
-            for i in xrange(channel_n):
+            for i in range(channel_n):
                 # this is always a one-sided spectrum?
                 w[i] = tsu.adaptive_weights(self.spectra[i],
                                             self.eigs,
@@ -342,8 +342,8 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
         psd_mat = np.zeros((2, nrows, nrows, self._L), 'd')
         coh_mat = np.zeros((nrows, nrows, self._L), 'd')
 
-        for i in xrange(self.input.data.shape[0]):
-            for j in xrange(i):
+        for i in range(self.input.data.shape[0]):
+            for j in range(i):
                 sxy = tsa.mtm_cross_spectrum(self.spectra[i], self.spectra[j],
                                            (self.weights[i], self.weights[j]),
                                            sides='onesided')
@@ -369,8 +369,8 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
         coh_var = np.zeros((self.input.data.shape[0],
                             self.input.data.shape[0],
                             self._L), 'd')
-        for i in xrange(self.input.data.shape[0]):
-            for j in xrange(i):
+        for i in range(self.input.data.shape[0]):
+            for j in range(i):
                 if i != j:
                     coh_var[i, j] = tsu.jackknifed_coh_variance(
                         self.spectra[i],
