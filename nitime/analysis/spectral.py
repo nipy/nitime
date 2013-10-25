@@ -51,7 +51,7 @@ class SpectralAnalyzer(BaseAnalyzer):
         >>> s1.method['this_method']
         'welch'
         >>> s1.method['Fs'] # doctest: +ELLIPSIS
-        3.14159265359... Hz
+        3.1415926535... Hz
         >>> f,s = s1.psd
         >>> f
         array([ 0.    ,  0.0491,  0.0982,  0.1473,  0.1963,  0.2454,  0.2945,

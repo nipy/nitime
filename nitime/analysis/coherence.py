@@ -44,7 +44,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
         ...                                 sampling_rate=np.pi)
         >>> c1 = CoherenceAnalyzer(t1)
         >>> c1.method['Fs'] # doctest: +ELLIPSIS
-        3.14159265359... Hz
+        3.1415926535... Hz
         >>> c1.method['this_method']
         'welch'
         >>> c1.coherence[0,1]

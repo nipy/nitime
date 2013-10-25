@@ -34,7 +34,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
         array([[ 1., -1.],
                [-1.,  1.]])
         >>> c1.xcorr.sampling_rate  # doctest: +ELLIPSIS
-        3.1415926536... Hz
+        3.141592653... Hz
         >>> c1.xcorr.t0  # doctest: +ELLIPSIS
         -15.91549430915... s
 
