@@ -43,8 +43,8 @@ class CoherenceAnalyzer(BaseAnalyzer):
         >>> t1 = ts.TimeSeries(data = np.arange(0,1024,1).reshape(2,512),
         ...                                 sampling_rate=np.pi)
         >>> c1 = CoherenceAnalyzer(t1)
-        >>> c1.method['Fs']
-        3.14159265359 Hz
+        >>> c1.method['Fs'] # doctest: +ELLIPSIS
+        3.14159265359... Hz
         >>> c1.method['this_method']
         'welch'
         >>> c1.coherence[0,1]

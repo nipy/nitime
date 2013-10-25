@@ -33,10 +33,10 @@ class CorrelationAnalyzer(BaseAnalyzer):
         >>> c1.corrcoef
         array([[ 1., -1.],
                [-1.,  1.]])
-        >>> c1.xcorr.sampling_rate
-        3.1415926536 Hz
-        >>> c1.xcorr.t0
-        -15.91549430915 s
+        >>> c1.xcorr.sampling_rate  # doctest: +ELLIPSIS
+        3.1415926536... Hz
+        >>> c1.xcorr.t0  # doctest: +ELLIPSIS
+        -15.91549430915... s
 
         """
 

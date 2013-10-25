@@ -62,7 +62,7 @@ class ResetMixin(object):
     ...
     ...     @auto_attr
     ...     def y(self):
-    ...         print '*** y computation executed ***'
+    ...         print('*** y computation executed ***')
     ...         return self.x / 2.0
     ...
 
