@@ -789,6 +789,7 @@ class UniformTime(np.ndarray, TimeInterface):
         self.sampling_rate = Frequency(self.sampling_rate * val)
         return self
 
+    __itruediv__ =  __idiv__ # for py3k
 
     def index_at(self, t, boolean=False):
         """Find the index that corresponds to the time bin containing t
@@ -881,6 +882,7 @@ class UniformTime(np.ndarray, TimeInterface):
         else:
             return np.divide(self, d)
 
+    __truediv__ =  __div__ # for py3k
 
 ##Frequency:
 
@@ -999,6 +1001,8 @@ class TimeSeriesBase(object):
         out = self.copy()
         out.data = out.data.__div__(other)
         return out
+    
+    __truediv__ =  __div__ # for py3k
 
     def __iadd__(self, other):
         self.data.__iadd__(other)
@@ -1013,9 +1017,10 @@ class TimeSeriesBase(object):
         return self
 
     def __idiv__(self, other):
-        self.data.__idiv__(other)
+        self.data.__itruediv__(other)
         return self
 
+    __itruediv__ =  __idiv__ # for py3k
 
 class TimeSeries(TimeSeriesBase):
     """Represent data collected at uniform intervals.
