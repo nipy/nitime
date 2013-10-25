@@ -130,8 +130,8 @@ def get_spectra(time_series, method=None):
                             time_series.shape[0],
                             fxy_len), dtype=complex)  # Make sure it's complex
 
-            for i in xrange(time_series.shape[0]):
-                for j in xrange(i, time_series.shape[0]):
+            for i in range(time_series.shape[0]):
+                for j in range(i, time_series.shape[0]):
                     #Notice funny indexing, in order to conform to the
                     #conventions of the other methods:
                     temp, f = mlab.csd(time_series[j], time_series[i],
@@ -342,8 +342,8 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
         Fl = (N + 1) / 2
         csd_pairs = np.zeros((M, M, Fn), 'D')
         freqs = np.linspace(0, Fs / 2, Fn)
-        for i in xrange(M):
-            for j in xrange(i + 1):
+        for i in range(M):
+            for j in range(i + 1):
                 csd_pairs[i, j, 0] = Sk_loc[i, 0] * Sk_loc[j, 0].conj()
                 csd_pairs[i, j, 1:Fl] = 2 * (Sk_loc[i, 1:Fl] *
                                              Sk_loc[j, 1:Fl].conj())
@@ -354,8 +354,8 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
     else:
         csd_pairs = np.zeros((M, M, N), 'D')
         freqs = np.linspace(0, Fs / 2, N, endpoint=False)
-        for i in xrange(M):
-            for j in xrange(i + 1):
+        for i in range(M):
+            for j in range(i + 1):
                 csd_pairs[i, j] = Sk_loc[i] * Sk_loc[j].conj()
     if normalize:
         csd_pairs /= (Fs*N)
@@ -468,7 +468,7 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
         # find the corresponding eigenvectors via inverse iteration
         t = np.linspace(0, np.pi, N)
         dpss = np.zeros((Kmax, N), 'd')
-        for k in xrange(Kmax):
+        for k in range(Kmax):
             dpss[k] = utils.tridi_inverse_iteration(
                 diagonal, off_diag, w[k], x0=np.sin((k + 1) * t)
                 )
@@ -757,7 +757,7 @@ def multi_taper_psd(
     nu = np.empty((M, last_freq))
     if adaptive:
         weights = np.empty((M, K, last_freq))
-        for i in xrange(M):
+        for i in range(M):
             weights[i], nu[i] = utils.adaptive_weights(
                 spectra[i], eigvals, sides=sides
                 )
@@ -769,7 +769,7 @@ def multi_taper_psd(
 
     if jackknife:
         jk_var = np.empty_like(nu)
-        for i in xrange(M):
+        for i in range(M):
             jk_var[i] = utils.jackknifed_sdf_variance(
                 spectra[i], eigvals, sides=sides, adaptive=adaptive
                 )
@@ -897,7 +897,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
     if adaptive:
         w = np.empty((M, K, last_freq))
         nu = np.empty((M, last_freq))
-        for i in xrange(M):
+        for i in range(M):
             w[i], nu[i] = utils.adaptive_weights(
                 spectra[i], eigvals, sides=sides
                 )
@@ -905,12 +905,12 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
         weights = np.sqrt(eigvals).reshape(K, 1)
 
     csd_pairs = np.zeros((M, M, last_freq), 'D')
-    for i in xrange(M):
+    for i in range(M):
         if adaptive:
             wi = w[i]
         else:
             wi = weights
-        for j in xrange(i + 1):
+        for j in range(i + 1):
             if adaptive:
                 wj = w[j]
             else:
@@ -959,5 +959,5 @@ def freq_response(b, a=1., n_freqs=1024, sides='onesided'):
     http://en.wikipedia.org/wiki/Z-transform
     """
     # transitioning to scipy freqz
-    real_n = n_freqs / 2 + 1 if sides == 'onesided' else n_freqs
+    real_n = n_freqs // 2 + 1 if sides == 'onesided' else n_freqs
     return sig.freqz(b, a=a, worN=real_n, whole=sides != 'onesided')

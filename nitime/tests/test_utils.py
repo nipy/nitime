@@ -72,7 +72,7 @@ def test_tridi_inverse_iteration():
     sp_data[2, 1:] = sup_diag[:-1]
     A = spdiags(sp_data, [-1, 0, 1], N, N)
     E = np.zeros((K,N), 'd')
-    for j in xrange(K):
+    for j in range(K):
         e = utils.tridi_inverse_iteration(
             ab[1], sup_diag, w[j], x0=np.sin((j+1)*t)
             )
@@ -162,7 +162,7 @@ def test_information_criteria():
     z = np.empty((N, n_process, L))
     nz = np.empty((N, n_process, L))
 
-    for i in xrange(N):
+    for i in range(N):
         z[i], nz[i] = utils.generate_mar(am, cov, L)
 
     AIC = []
@@ -176,7 +176,7 @@ def test_information_criteria():
 
         Rxx = np.empty((N, n_process, n_process, n_lags))
 
-        for i in xrange(N):
+        for i in range(N):
             Rxx[i] = utils.autocov_vector(z[i], nlags=n_lags)
 
         Rxx = Rxx.mean(axis=0)

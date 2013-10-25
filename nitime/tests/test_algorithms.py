@@ -78,8 +78,8 @@ def test_periodogram():
 
 def permutation_system(N):
     p = np.zeros((N, N))
-    targets = range(N)
-    for i in xrange(N):
+    targets = list(range(N))
+    for i in range(N):
         popper = np.random.randint(0, high=len(targets))
         j = targets.pop(popper)
         p[i, j] = 1

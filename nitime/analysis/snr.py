@@ -106,7 +106,7 @@ class SNRAnalyzer(BaseAnalyzer):
         p = np.empty((self.noise.data.shape[0],
                      self.noise.data.shape[-1] / 2 + 1))
 
-        for i in xrange(p.shape[0]):
+        for i in range(p.shape[0]):
             _, p[i], _ = tsa.multi_taper_psd(self.noise.data[i],
                                     Fs=self.input.sampling_rate,
                                     BW=self.bandwidth,

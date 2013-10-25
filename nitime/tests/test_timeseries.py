@@ -34,7 +34,7 @@ def test_get_time_unit():
 
 def test_TimeArray():
 
-    time1 = ts.TimeArray(range(100), time_unit='ms')
+    time1 = ts.TimeArray(list(range(100)), time_unit='ms')
     time2 = time1 + time1
     npt.assert_equal(time2.time_unit, 'ms')
     time1 = ts.TimeArray(10 ** 6)
@@ -56,8 +56,8 @@ def test_TimeArray():
 
 def test_TimeArray_math():
     "Addition and subtraction should convert to TimeArray units"
-    time1 = ts.TimeArray(range(10), time_unit='ms')
-    time2 = ts.TimeArray(range(1,11), time_unit='ms')
+    time1 = ts.TimeArray(list(range(10)), time_unit='ms')
+    time2 = ts.TimeArray(list(range(1,11)), time_unit='ms')
     # units should be converted to whatever units the array has
     time3 = time1 + 1
     npt.assert_equal(time2,time3)
@@ -80,20 +80,20 @@ def test_TimeArray_math():
     time4 = 1.0 - time2
     npt.assert_equal(-time1,time4)
 
-    timeunits = ts.TimeArray(range(10), time_unit='s')
+    timeunits = ts.TimeArray(list(range(10)), time_unit='s')
     timeunits.convert_unit('ms')
     # now, math with non-TimeArrays should be based on the new time_unit
 
     # here the range() list gets converted to a TimeArray with the same units
     # as timeunits (which is now 'ms')
-    tnew = timeunits + range(10)
+    tnew = timeunits + list(range(10))
     npt.assert_equal(tnew, timeunits+time1) # recall that time1 was 0-10ms
 
     
 
 def test_TimeArray_comparison():
     "Comparison with unitless quantities should convert to TimeArray units"
-    time = ts.TimeArray(range(10), time_unit='ms')
+    time = ts.TimeArray(list(range(10)), time_unit='ms')
     npt.assert_equal(time < 5 , [True]*5+[False]*5)
     npt.assert_equal(time > 5 , [False]*6+[True]*4)
     npt.assert_equal(time <= 5, [True]*6+[False]*4)
@@ -159,7 +159,7 @@ def test_TimeArray_new():
         for flag, assertion in [(True, nt.assert_not_equal),
                 (False, nt.assert_equal)]:
             #list -doesn't make sense to set copy=True
-            time2 = ts.TimeArray(range(5), time_unit=unit, copy=True)
+            time2 = ts.TimeArray(list(range(5)), time_unit=unit, copy=True)
             #numpy array (float) - doesn't make sense to set copy=True
             time2f = ts.TimeArray(np.arange(5.), time_unit=unit, copy=True)
             #TimeArray
@@ -237,8 +237,8 @@ def test_TimeArray_div():
 
 
 def test_TimeArray_index_at():
-    time1 = ts.TimeArray(range(10), time_unit='ms')
-    for i in xrange(5):
+    time1 = ts.TimeArray(list(range(10)), time_unit='ms')
+    for i in range(5):
         # The return value is always an array, so we keep it for multiple tests
         i_arr = np.array(i)
         # Check 'closest' indexing mode first
@@ -267,8 +267,8 @@ def test_TimeArray_index_at():
 
 
 def test_TimeArray_at():
-    time1 = ts.TimeArray(range(10), time_unit='ms')
-    for i in xrange(10):
+    time1 = ts.TimeArray(list(range(10)), time_unit='ms')
+    for i in range(10):
         this = time1.at(i)
         i_ms = ts.TimeArray(i / 1000.)
         npt.assert_equal(this, ts.TimeArray(i, time_unit='ms'))
@@ -287,7 +287,7 @@ def test_TimeArray_at():
 
 
 def test_TimeArray_at2():
-    time1 = ts.TimeArray(range(10), time_unit='ms')
+    time1 = ts.TimeArray(list(range(10)), time_unit='ms')
     for i in [1]:
         i_ms = ts.TimeArray(i / 1000.)
         this_secs = time1.at(i_ms, tol=1)
@@ -299,7 +299,7 @@ def test_TimeArray_at2():
 def test_UniformTime_index_at():
     time1 = ts.UniformTime(t0=1000, length=10, sampling_rate=1000, time_unit='ms')
     mask = [False] * 10
-    for i in xrange(10):
+    for i in range(10):
         idx = time1.index_at(ts.TimeArray(1000 + i, time_unit='ms'))
         npt.assert_equal(idx, np.array(i))
         mask[i] = True
@@ -581,17 +581,17 @@ def test_TimeSeries_repr():
 
 
 def test_Epochs():
-    tms = ts.TimeArray(data=range(100), time_unit='ms')
-    tmin = ts.TimeArray(data=range(100), time_unit='m')
-    tsec = ts.TimeArray(data=range(100), time_unit='s')
+    tms = ts.TimeArray(data=list(range(100)), time_unit='ms')
+    tmin = ts.TimeArray(data=list(range(100)), time_unit='m')
+    tsec = ts.TimeArray(data=list(range(100)), time_unit='s')
 
     utms = ts.UniformTime(length=100, sampling_interval=1, time_unit='ms')
     utmin = ts.UniformTime(length=100, sampling_interval=1, time_unit='m')
     utsec = ts.UniformTime(length=100, sampling_interval=1, time_unit='s')
 
-    tsms = ts.TimeSeries(data=range(100), sampling_interval=1, time_unit='ms')
-    tsmin = ts.TimeSeries(data=range(100), sampling_interval=1, time_unit='m')
-    tssec = ts.TimeSeries(data=range(100), sampling_interval=1, time_unit='s')
+    tsms = ts.TimeSeries(data=list(range(100)), sampling_interval=1, time_unit='ms')
+    tsmin = ts.TimeSeries(data=list(range(100)), sampling_interval=1, time_unit='m')
+    tssec = ts.TimeSeries(data=list(range(100)), sampling_interval=1, time_unit='s')
 
     # one millisecond epoch
     e1ms = ts.Epochs(0, 1, time_unit='ms')
@@ -639,8 +639,8 @@ def test_Epochs():
         npt.assert_equal(t[e2][0], (0, 10))
         npt.assert_equal(t[e2][1], (1, 11))
         # check the data for each epoch
-        npt.assert_equal(t[e2].data[0], range(10))
-        npt.assert_equal(t[e2].data[1], range(10, 20))
+        npt.assert_equal(t[e2].data[0], list(range(10)))
+        npt.assert_equal(t[e2].data[1], list(range(10, 20)))
         npt.assert_equal(t[e2].duration, e2[0].duration)
 
         # slice with Epochs of different length (not supported for timeseries,
@@ -665,7 +665,7 @@ def test_Epochs():
         npt.assert_raises(ValueError, t.during, dict(e=e1d))
 
 def test_basic_slicing():
-    t = ts.TimeArray(range(4))
+    t = ts.TimeArray(list(range(4)))
 
     for x in range(3):
         ep  = ts.Epochs(.5,x+.5)
@@ -840,7 +840,7 @@ def test_epochs_subclass_slicing():
             #return self.duration.sum()
             return (self.stop - self.start).sum()
 
-    time_0 = range(10)
+    time_0 = list(range(10))
     e = Epochs_with_X(time_0, duration=.2)
     npt.assert_equal(e.total_duration(), ts.TimeArray(2.0))
 
@@ -850,7 +850,7 @@ def test_epochs_subclass_slicing():
 
 def test_Epochs_duration_after_slicing():
     "some attributes which get set on read should be reset after slicing"
-    e = ts.Epochs(range(10),duration=.1)
+    e = ts.Epochs(list(range(10)),duration=.1)
     npt.assert_equal(len(e.duration), len(e))
     slice_of_e = e[:3]
     npt.assert_equal(len(slice_of_e.duration), len(slice_of_e))
@@ -878,13 +878,13 @@ def test_UniformTime_preserves_uniformity():
     npt.assert_equal(utime.sampling_interval,utime_2.sampling_interval)
     npt.assert_equal(utime.sampling_rate,utime_2.sampling_rate)
 
-    nonuniform = np.concatenate((range(2),range(3), range(5)))
+    nonuniform = np.concatenate((list(range(2)),list(range(3)), list(range(5))))
     def iadd_nonuniform(t): t+=nonuniform
     nt.assert_raises(ValueError, iadd_nonuniform, utime)
 
 def test_index_int64():
     "indexing with int64 should still return a valid TimeArray"
-    a = range(10)
+    a = list(range(10))
     b = ts.TimeArray(a)
     assert b[0] == b[np.int64(0)]
     assert repr(b[0]) == repr(b[np.int64(0)])
@@ -907,6 +907,6 @@ def test_timearray_var_prod():
     Variance and product change the TimeArray units, so they are not
     implemented and raise an error
     """
-    a = ts.TimeArray(range(10))
+    a = ts.TimeArray(list(range(10)))
     npt.assert_raises(NotImplementedError, a.var)
     npt.assert_raises(NotImplementedError, a.prod)

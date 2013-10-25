@@ -3,9 +3,12 @@
 Depends on matplotlib. Some functions depend also on networkx
 
 """
+from __future__ import print_function
 
 # If you are running nosetests right now, you might want to use 'agg' as a backend:
 import sys
+from six.moves import map
+from six.moves import zip
 if "nose" in sys.modules:
     import matplotlib
     matplotlib.use('agg')
@@ -33,7 +36,7 @@ try:
 except ImportError:
     e_s = "Networkx is not available. Some visualization tools might not work"
     e_s += "\n To download networkx: http://networkx.lanl.gov/"
-    print e_s
+    print(e_s)
     class NetworkxNotInstalled(object):
         def __getattribute__(self,x):
             raise ImportError(e_s)
@@ -111,7 +114,7 @@ def plot_tseries(time_series, fig=None, axis=0,
         delta = this_e
         e_u = time_series.data + delta
         e_d = time_series.data - delta
-        for i in xrange(e_u.shape[0]):
+        for i in range(e_u.shape[0]):
             ax.fill_between(this_time, e_d[i], e_u[i], alpha=error_alpha)
 
     return fig
@@ -158,7 +161,7 @@ def matshow_tseries(time_series, fig=None, axis=0, xtick_n=5, time_unit=None,
     this_time = time_series.time / float(conv_fac)
     ax.matshow(time_series.data)
 
-    ax.set_xticks(range(len(this_time))[::len(this_time) / xtick_n])
+    ax.set_xticks(list(range(len(this_time)))[::len(this_time) / xtick_n])
     ax.set_xticklabels(this_time[::len(this_time) / xtick_n])
 
     if xlabel is None:
@@ -194,10 +197,10 @@ def subcolormap(xmin, xmax, cmap):
         if tmp == [] or tmp[-1][0] < xmax:
             tmp = tmp + [(xmax, rgbmax[k], rgbmax[k])]
         #now scale all this to (0,1)
-        square = zip(*tmp)
+        square = list(zip(*tmp))
         xbreaks = [(x - xmin) / (xmax - xmin) for x in square[0]]
         square[0] = xbreaks
-        tmp = zip(*square)
+        tmp = list(zip(*square))
         cd[k] = tmp
     return colors.LinearSegmentedColormap('local', cd, N=256)
 
@@ -296,7 +299,7 @@ def drawmatrix_channels(in_m, channel_names=None, fig=None, x_tick_rot=0,
     ax.grid(True)
     #Label each of the cells with the row and the column:
     if channel_names is not None:
-        for i in xrange(0, m.shape[0]):
+        for i in range(0, m.shape[0]):
             if i < (m.shape[0] - 1):
                 ax.text(i - 0.3, i, channel_names[i], rotation=x_tick_rot)
             if i > 0:
@@ -790,7 +793,7 @@ def draw_graph(G,
         labels = map(str, nodes)
 
     if labels:
-        lab_idx = range(len(labels))
+        lab_idx = list(range(len(labels)))
         labels_dict = dict(zip(lab_idx, labels))
         nx.draw_networkx_labels(G,
                                 pos,
@@ -1066,7 +1069,7 @@ def mkgraph(cmat, threshold=0.0, threshold2=None):
 
     # Now make the actual graph
     G = nx.Graph(weighted=True)
-    G.add_nodes_from(range(nrow))
+    G.add_nodes_from(list(range(nrow)))
     # To keep the weights of the graph to simple values, we store the
     # normalize ones in a separate dict that we'll stuff into the graph
     # metadata.
@@ -1134,7 +1137,7 @@ def plot_snr(tseries, lb=0, ub=None, fig=None):
     else:
         this = tseries.data
 
-    for i in xrange(this.shape[0]):
+    for i in range(this.shape[0]):
         A.append(nta.SNRAnalyzer(ts.TimeSeries(this[i],
                                     sampling_rate=tseries.sampling_rate)))
         info.append(A[-1].mt_information)
@@ -1238,7 +1241,7 @@ def plot_snr_diff(tseries1, tseries2, lb=0, ub=None, fig=None,
         this1 = tseries1.data
         this2 = tseries2.data
 
-    for i in xrange(this1.shape[0]):
+    for i in range(this1.shape[0]):
         SNR1.append(nta.SNRAnalyzer(ts.TimeSeries(this1[i],
                                     sampling_rate=tseries1.sampling_rate),
                                 bandwidth=bandwidth,
@@ -1334,7 +1337,7 @@ def plot_corr_diff(tseries1, tseries2, fig=None,
     corr_e1 = []
     corr_e2 = []
 
-    for i in xrange(tseries1.shape[0]):
+    for i in range(tseries1.shape[0]):
         SNR1.append(nta.SNRAnalyzer(ts.TimeSeries(tseries1.data[i],
                                     sampling_rate=tseries1.sampling_rate)))
 

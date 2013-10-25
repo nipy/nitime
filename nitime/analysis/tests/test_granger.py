@@ -44,7 +44,7 @@ def test_model_fit():
     z = np.empty((N, n_process, L))
     nz = np.empty((N, n_process, L))
 
-    for i in xrange(N):
+    for i in range(N):
         z[i], nz[i] = utils.generate_mar(am, cov, L)
 
     # First we test that the model fitting procedure recovers the coefficients,
@@ -53,7 +53,7 @@ def test_model_fit():
     coef = np.empty((N, n_process, n_process, order))
     ecov = np.empty((N, n_process, n_process))
 
-    for i in xrange(N):
+    for i in range(N):
         this_order, this_Rxx, this_coef, this_ecov = gc.fit_model(z[i][0],
                                                                   z[i][1],
                                                                   order=2)
@@ -66,7 +66,7 @@ def test_model_fit():
 
     # Next we test that the automatic model order estimation procedure works:
     est_order = []
-    for i in xrange(N):
+    for i in range(N):
         this_order, this_Rxx, this_coef, this_ecov = gc.fit_model(z[i][0],
                                                                   z[i][1])
         est_order.append(this_order)

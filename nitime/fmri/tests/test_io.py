@@ -16,7 +16,7 @@ try:
     import nitime.fmri.io as io
     no_nibabel = False
     no_nibabel_msg=''
-except ImportError,e:
+except ImportError as e:
     no_nibabel = True
     no_nibabel_msg=e.args[0]
 

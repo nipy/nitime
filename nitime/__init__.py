@@ -21,12 +21,12 @@ have all of these things at their fingertips.
 
 __docformat__ = 'restructuredtext'
 
-from version import  __version__
+from .version import  __version__
 
-import algorithms
-import timeseries
-import analysis
+from . import algorithms
+from . import timeseries
+from . import analysis
 
-from timeseries import *
+from .timeseries import *
 
 from nitime.testlib import test
