@@ -32,6 +32,7 @@ import numpy as np
 
 # Our own
 from nitime import descriptors as desc
+import six
 
 #-----------------------------------------------------------------------------
 # Module globals
@@ -94,7 +95,7 @@ def get_time_unit(obj):
     except TypeError:
         return None
     else:
-        return get_time_unit(it.next())
+        return get_time_unit(six.advance_iterator(it))
 
 
 class TimeArray(np.ndarray, TimeInterface):
@@ -502,6 +503,8 @@ class TimeArray(np.ndarray, TimeInterface):
         else:
             return np.divide(self, d)
 
+    __truediv__ = __div__ # called by python3
+
 # Globally define a single tick of the base unit:
 clock_tick = TimeArray(1, time_unit=base_unit)
 
@@ -787,6 +790,7 @@ class UniformTime(np.ndarray, TimeInterface):
         self.sampling_rate = Frequency(self.sampling_rate * val)
         return self
 
+    __itruediv__ =  __idiv__ # for py3k
 
     def index_at(self, t, boolean=False):
         """Find the index that corresponds to the time bin containing t
@@ -879,6 +883,7 @@ class UniformTime(np.ndarray, TimeInterface):
         else:
             return np.divide(self, d)
 
+    __truediv__ =  __div__ # for py3k
 
 ##Frequency:
 
@@ -997,6 +1002,8 @@ class TimeSeriesBase(object):
         out = self.copy()
         out.data = out.data.__div__(other)
         return out
+    
+    __truediv__ =  __div__ # for py3k
 
     def __iadd__(self, other):
         self.data.__iadd__(other)
@@ -1011,9 +1018,10 @@ class TimeSeriesBase(object):
         return self
 
     def __idiv__(self, other):
-        self.data.__idiv__(other)
+        self.data.__itruediv__(other)
         return self
 
+    __itruediv__ =  __idiv__ # for py3k
 
 class TimeSeries(TimeSeriesBase):
     """Represent data collected at uniform intervals.
@@ -1425,7 +1433,7 @@ class Epochs(desc.ResetMixin):
         if self.data.ndim == 0:
             z = (self.start, self.stop)
         else:
-            z = zip(self.start, self.stop)
+            z = list(zip(self.start, self.stop))
         rep = self.__class__.__name__ + "(" + z.__repr__()
         return rep + ", as (start,stop) tuples)"
 
@@ -1511,7 +1519,7 @@ class Events(TimeInterface):
         # Ensure that the dict of data values has a known, uniform structure:
         # all values must be arrays, with at least one dimension.
         new_data = {}
-        for k, v in data.iteritems():
+        for k, v in six.iteritems(data):
             if np.iterable(v):
                 v = np.asanyarray(v)
             else:
@@ -1540,7 +1548,7 @@ class Events(TimeInterface):
             dt = [('i%d' % i, np.int64)
                   for i in range(len(indices or ()))] or np.int64
 
-        self.index = np.array(zip(*(indices or ())),
+        self.index = np.array(list(zip(*(indices or ()))),
                                        dtype=dt).view(np.recarray)
 
         #Should data be a recarray?

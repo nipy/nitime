@@ -16,7 +16,7 @@ try:
     nx.__class__ # will raise an error if nx could not be imported in viz
     no_networkx = False
     no_networkx_msg = ''
-except ImportError,e:
+except ImportError as e:
     no_networkx = True
     no_networkx_msg = e.args[0]
 

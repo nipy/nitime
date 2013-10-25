@@ -18,7 +18,7 @@ import numpy as np
 from nitime.lazy import scipy_fftpack as fftpack
 from nitime.lazy import matplotlib_mlab as mlab
 
-from spectral import get_spectra, get_spectra_bi
+from .spectral import get_spectra, get_spectra_bi
 import nitime.utils as utils
 
 # To suppport older versions of numpy that don't have tril_indices:
@@ -77,8 +77,8 @@ def coherency(time_series, csd_method=None):
                   time_series.shape[0],
                   f.shape[0]), dtype=complex)  # Make sure it's complex
 
-    for i in xrange(time_series.shape[0]):
-        for j in xrange(i, time_series.shape[0]):
+    for i in range(time_series.shape[0]):
+        for j in range(i, time_series.shape[0]):
             c[i][j] = coherency_spec(fxy[i][j], fxy[i][i], fxy[j][j])
 
     idx = tril_indices(time_series.shape[0], -1)
@@ -165,8 +165,8 @@ def coherence(time_series, csd_method=None):
                   time_series.shape[0],
                   f.shape[0]))
 
-    for i in xrange(time_series.shape[0]):
-        for j in xrange(i, time_series.shape[0]):
+    for i in range(time_series.shape[0]):
+        for j in range(i, time_series.shape[0]):
             c[i][j] = coherence_spec(fxy[i][j], fxy[i][i], fxy[j][j])
 
     idx = tril_indices(time_series.shape[0], -1)
@@ -267,8 +267,8 @@ def coherency_regularized(time_series, epsilon, alpha, csd_method=None):
                   time_series.shape[0],
                   f.shape[0]), dtype=complex)  # Make sure it's complex
 
-    for i in xrange(time_series.shape[0]):
-        for j in xrange(i, time_series.shape[0]):
+    for i in range(time_series.shape[0]):
+        for j in range(i, time_series.shape[0]):
             c[i][j] = _coherency_reqularized(fxy[i][j], fxy[i][i],
                                              fxy[j][j], epsilon, alpha)
 
@@ -370,8 +370,8 @@ def coherence_regularized(time_series, epsilon, alpha, csd_method=None):
                   time_series.shape[0],
                   f.shape[0]), complex)
 
-    for i in xrange(time_series.shape[0]):
-        for j in xrange(i, time_series.shape[0]):
+    for i in range(time_series.shape[0]):
+        for j in range(i, time_series.shape[0]):
             c[i][j] = _coherence_reqularized(fxy[i][j], fxy[i][i],
                                              fxy[j][j], epsilon, alpha)
 
@@ -465,8 +465,8 @@ def coherency_bavg(time_series, lb=0, ub=None, csd_method=None):
     c = np.zeros((time_series.shape[0],
                   time_series.shape[0]), dtype=complex)
 
-    for i in xrange(time_series.shape[0]):
-        for j in xrange(i, time_series.shape[0]):
+    for i in range(time_series.shape[0]):
+        for j in range(i, time_series.shape[0]):
             c[i][j] = _coherency_bavg(fxy[i][j][lb_idx:ub_idx],
                                       fxy[i][i][lb_idx:ub_idx],
                                       fxy[j][j][lb_idx:ub_idx])
@@ -564,8 +564,8 @@ def coherence_bavg(time_series, lb=0, ub=None, csd_method=None):
     c = np.zeros((time_series.shape[0],
                   time_series.shape[0]))
 
-    for i in xrange(time_series.shape[0]):
-        for j in xrange(i, time_series.shape[0]):
+    for i in range(time_series.shape[0]):
+        for j in range(i, time_series.shape[0]):
             c[i][j] = _coherence_bavg(fxy[i][j][lb_idx:ub_idx],
                                       fxy[i][i][lb_idx:ub_idx],
                                       fxy[j][j][lb_idx:ub_idx])
@@ -664,8 +664,8 @@ def coherence_partial(time_series, r, csd_method=None):
                   time_series.shape[0],
                   f.shape[0]), dtype=complex)
 
-    for i in xrange(time_series.shape[0]):
-        for j in xrange(i, time_series.shape[0]):
+    for i in range(time_series.shape[0]):
+        for j in range(i, time_series.shape[0]):
             f, fxx, frr, frx = get_spectra_bi(time_series[i], r, csd_method)
             f, fyy, frr, fry = get_spectra_bi(time_series[j], r, csd_method)
             c[i, j] = coherence_partial_spec(fxy[i][j], fxy[i][i],
@@ -752,8 +752,8 @@ def coherency_phase_spectrum(time_series, csd_method=None):
                   time_series.shape[0],
                   f.shape[0]))
 
-    for i in xrange(time_series.shape[0]):
-        for j in xrange(i + 1, time_series.shape[0]):
+    for i in range(time_series.shape[0]):
+        for j in range(i + 1, time_series.shape[0]):
             p[i][j] = np.angle(fxy[i][j])
             p[j][i] = np.angle(fxy[i][j].conjugate())
 
@@ -799,8 +799,8 @@ def coherency_phase_delay(time_series, lb=0, ub=None, csd_method=None):
     p = np.zeros((time_series.shape[0], time_series.shape[0],
                   f[lb_idx:ub_idx].shape[-1]))
 
-    for i in xrange(time_series.shape[0]):
-        for j in xrange(i, time_series.shape[0]):
+    for i in range(time_series.shape[0]):
+        for j in range(i, time_series.shape[0]):
             p[i][j] = _coherency_phase_delay(f[lb_idx:ub_idx],
                                              fxy[i][j][lb_idx:ub_idx])
             p[j][i] = _coherency_phase_delay(f[lb_idx:ub_idx],
@@ -1010,7 +1010,7 @@ def cache_fft(time_series, ij, lb=0, ub=None,
     # of every channel.  If prefer_speed_over_memory, cache the conjugate
     # as well
 
-    i_times = range(0, n_time_points - NFFT + 1, NFFT - n_overlap)
+    i_times = list(range(0, n_time_points - NFFT + 1, NFFT - n_overlap))
     n_slices = len(i_times)
     FFT_slices = {}
     FFT_conj_slices = {}
@@ -1019,7 +1019,7 @@ def cache_fft(time_series, ij, lb=0, ub=None,
         #dbg:
         #print i_channel
         Slices = np.zeros((n_slices, n_freqs), dtype=np.complex)
-        for iSlice in xrange(n_slices):
+        for iSlice in range(n_slices):
             thisSlice = time_series[i_channel,
                                     i_times[iSlice]:i_times[iSlice] + NFFT]
 
@@ -1179,7 +1179,7 @@ def cache_to_relative_phase(cache, ij):
     Phi_xy = np.zeros((channels_i, channels_j, freqs), dtype=np.complex)
 
     #These checks take time, so do them up front, not in every iteration:
-    if FFT_slices.items()[0][1].shape[0] > 1:
+    if list(FFT_slices.items())[0][1].shape[0] > 1:
         if FFT_conj_slices:
             for i, j in ij:
                 phi = np.angle(FFT_slices[i] * FFT_conj_slices[j])
@@ -1239,7 +1239,7 @@ def cache_to_coherency(cache, ij):
     Cxy = np.zeros((channels_i, channels_j, freqs), dtype=np.complex)
 
     #These checks take time, so do them up front, not in every iteration:
-    if FFT_slices.items()[0][1].shape[0] > 1:
+    if list(FFT_slices.items())[0][1].shape[0] > 1:
         if FFT_conj_slices:
             for i, j in ij:
                 #dbg:

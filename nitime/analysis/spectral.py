@@ -50,8 +50,8 @@ class SpectralAnalyzer(BaseAnalyzer):
         >>> s1 = SpectralAnalyzer(t1)
         >>> s1.method['this_method']
         'welch'
-        >>> s1.method['Fs']
-        3.14159265359 Hz
+        >>> s1.method['Fs'] # doctest: +ELLIPSIS
+        3.1415926535... Hz
         >>> f,s = s1.psd
         >>> f
         array([ 0.    ,  0.0491,  0.0982,  0.1473,  0.1963,  0.2454,  0.2945,
@@ -101,7 +101,7 @@ class SpectralAnalyzer(BaseAnalyzer):
             flat_data = np.reshape(self.input.data, (-1,
                                                      self.input.data.shape[-1]))
             flat_psd = np.empty((flat_data.shape[0], psd_len), dtype=dt)
-            for i in xrange(flat_data.shape[0]):
+            for i in range(flat_data.shape[0]):
                 #'f' are the center frequencies of the frequency bands
                 #represented in the psd. These are identical in each iteration
                 #of the loop, so they get reassigned into the same variable in
@@ -209,7 +209,7 @@ class SpectralAnalyzer(BaseAnalyzer):
 
         #If multi-channel data:
         if len(self.input.data.shape) > 1:
-            for i in xrange(self.input.data.shape[0]):
+            for i in range(self.input.data.shape[0]):
                 # 'f' are the center frequencies of the frequency bands
                 # represented in the MT psd. These are identical in each
                 # iteration of the loop, so they get reassigned into the same
@@ -321,7 +321,7 @@ class FilterAnalyzer(desc.ResetMixin):
         #channels, if the data is multi-channel data:
         if len(data.shape) > 1:
             out_data = np.empty(data.shape, dtype=data.dtype)
-            for i in xrange(data.shape[0]):
+            for i in range(data.shape[0]):
                 out_data[i] = signal.filtfilt(b, a, data[i])
                 #Make sure to preserve the DC:
                 dc = np.mean(data[i])

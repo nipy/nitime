@@ -33,10 +33,10 @@ class CorrelationAnalyzer(BaseAnalyzer):
         >>> c1.corrcoef
         array([[ 1., -1.],
                [-1.,  1.]])
-        >>> c1.xcorr.sampling_rate
-        3.1415926536 Hz
-        >>> c1.xcorr.t0
-        -15.91549430915 s
+        >>> c1.xcorr.sampling_rate  # doctest: +ELLIPSIS
+        3.141592653... Hz
+        >>> c1.xcorr.t0  # doctest: +ELLIPSIS
+        -15.91549430915... s
 
         """
 
@@ -66,9 +66,9 @@ class CorrelationAnalyzer(BaseAnalyzer):
                           tseries_length,
                           t_points * 2 - 1))
         data = self.input.data
-        for i in xrange(tseries_length):
+        for i in range(tseries_length):
             data_i = data[i]
-            for j in xrange(i, tseries_length):
+            for j in range(i, tseries_length):
                 xcorr[i, j] = np.correlate(data_i,
                                           data[j],
                                           mode='full')
@@ -100,9 +100,9 @@ class CorrelationAnalyzer(BaseAnalyzer):
                           tseries_length,
                           t_points * 2 - 1))
         data = self.input.data
-        for i in xrange(tseries_length):
+        for i in range(tseries_length):
             data_i = data[i]
-            for j in xrange(i, tseries_length):
+            for j in range(i, tseries_length):
                 xcorr[i, j] = np.correlate(data_i,
                                           data[j],
                                           mode='full')

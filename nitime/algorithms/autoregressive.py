@@ -34,7 +34,7 @@ import numpy as np
 from nitime.lazy import scipy_linalg as linalg
 
 import nitime.utils as utils
-from spectral import freq_response
+from .spectral import freq_response
 
 
 def AR_est_YW(x, order, rxx=None):
@@ -219,12 +219,12 @@ def lwr_recursion(r):
     sigb[:] = r[0]
 
     # iteratively find sequences A_{p+1}(i) and B_{p+1}(i)
-    for p in xrange(P):
+    for p in range(P):
 
         # calculate delta_{p+1}
         # delta_{p+1} = r(p+1) + sum_{i=1}^{p} a(i)r(p+1-i)
         delta[:] = r[p + 1]
-        for i in xrange(1, p + 1):
+        for i in range(1, p + 1):
             delta += np.dot(a[i - 1], r[p + 1 - i])
 
         # intermediate values XXX: should turn these into solution-problems
@@ -235,9 +235,9 @@ def lwr_recursion(r):
         ao = a.copy()
         # a_{p+1}(i) = a_{p}(i) - ka*b_{p}(p+1-i) for i in {1,2,...,p}
         # b_{p+1}(i) = b_{p}(i) - kb*a_{p}(p+1-i) for i in {1,2,...,p}
-        for i in xrange(1, p + 1):
+        for i in range(1, p + 1):
             a[i - 1] -= np.dot(ka, b[p - i])
-        for i in xrange(1, p + 1):
+        for i in range(1, p + 1):
             b[i - 1] -= np.dot(kb, ao[p - i])
 
         a[p] = -ka
