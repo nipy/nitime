@@ -28,4 +28,8 @@ def test_lazy_noreload():
     mod = l.LazyImport('sys')
     # accessing module dictionary will trigger an import
     len(mod.__dict__)
-    npt.assert_raises(ImportError, reload, mod)
+    if sys.version_info.major == 2:
+        npt.assert_raises(ImportError, reload, mod)
+    elif sys.version_info.major == 3:
+        import imp
+        npt.assert_raises(TypeError, imp.reload, mod)
