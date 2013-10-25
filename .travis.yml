@@ -6,25 +6,23 @@
 # and it is impractical to build them
 language: erlang
 env:
-    # Enable python 2 for now, we will add python3 later
     - PYTHON=python PYSUF=''
+    - PYTHON=python3 PYSUF='3'
 install:
+    - sudo add-apt-repository -y ppa:takluyver/python3
+    - sudo add-apt-repository -y ppa:chris-lea/cython
     - sudo apt-get update
-    - sudo apt-get install $PYTHON-dev
-    - sudo apt-get install $PYTHON-numpy
-    - sudo apt-get install $PYTHON-scipy
-    - sudo apt-get install $PYTHON-matplotlib
-    - sudo apt-get install $PYTHON-setuptools
-    - sudo apt-get install $PYTHON-nose
+    - sudo apt-get install $PYTHON-dev $PYTHON-numpy $PYTHON-scipy $PYTHON-matplotlib $PYTHON-setuptools $PYTHON-nose
     - sudo easy_install$PYSUF nibabel # Latest pypi
-    # Cython easy_install breaks with error about refnanny.c; maybe something
-    # to do with having a previous cython version;
-    # http://mail.python.org/pipermail//cython-devel/2012-April/002344.html
-    - curl -O http://www.cython.org/release/Cython-0.18.zip
-    - unzip Cython-0.18.zip
-    - cd Cython-0.18
-    - sudo python$PYSUF setup.py install
-    - cd ..
+    ## Cython easy_install breaks with error about refnanny.c; maybe something
+    ## to do with having a previous cython version;
+    ## http://mail.python.org/pipermail//cython-devel/2012-April/002344.html
+    ## (for now, we are using chris-lea's PPA instead of installing manually)
+    #- curl -O http://www.cython.org/release/Cython-0.18.zip
+    #- unzip Cython-0.18.zip
+    #- cd Cython-0.18
+    #- sudo python$PYSUF setup.py install
+    #- cd ..
     # NITIME:
     - $PYTHON setup.py build
     - sudo $PYTHON setup.py install
