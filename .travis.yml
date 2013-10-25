@@ -13,7 +13,7 @@ install:
     - sudo add-apt-repository -y ppa:chris-lea/cython
     - sudo apt-get update
     - sudo apt-get install $PYTHON-dev $PYTHON-numpy $PYTHON-scipy $PYTHON-matplotlib $PYTHON-setuptools $PYTHON-nose
-    - sudo easy_install$PYSUF nibabel # Latest pypi
+    - sudo easy_install$PYSUF nibabel six # Latest pypi
     ## Cython easy_install breaks with error about refnanny.c; maybe something
     ## to do with having a previous cython version;
     ## http://mail.python.org/pipermail//cython-devel/2012-April/002344.html
