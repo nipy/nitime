@@ -26,6 +26,7 @@ from .version import  __version__
 from . import algorithms
 from . import timeseries
 from . import analysis
+from . import six
 
 from .timeseries import *
 

@@ -32,7 +32,7 @@ import numpy as np
 
 # Our own
 from nitime import descriptors as desc
-import six
+import nitime.six as six
 
 #-----------------------------------------------------------------------------
 # Module globals

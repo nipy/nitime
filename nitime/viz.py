@@ -7,8 +7,8 @@ from __future__ import print_function
 
 # If you are running nosetests right now, you might want to use 'agg' as a backend:
 import sys
-from six.moves import map
-from six.moves import zip
+from nitime.six.moves import map
+from nitime.six.moves import zip
 if "nose" in sys.modules:
     import matplotlib
     matplotlib.use('agg')
