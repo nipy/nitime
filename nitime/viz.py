@@ -31,7 +31,7 @@ import nitime.analysis as nta
 # for you with a fixed version of that module:
 import matplotlib
 if matplotlib.__version__[:3] == '1.3':
-    import nitime.mpl_units as mpl_units
+    import nitime._mpl_units as mpl_units
     import matplotlib.axis as ax
     ax.munits = mpl_units
     
