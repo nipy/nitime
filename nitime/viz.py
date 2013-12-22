@@ -12,7 +12,7 @@ from nitime.six.moves import zip
 if "nose" in sys.modules:
     import matplotlib
     matplotlib.use('agg')
-
+     
 # Then do all the rest of it:
 import numpy as np
 from scipy import fftpack
@@ -27,6 +27,14 @@ import nitime.utils as tsu
 from nitime.utils import threshold_arr, minmax_norm, rescale_arr
 import nitime.analysis as nta
 
+# Matplotlib 1.3 has a bug in it, so if that's what you have, we'll replace it
+# for you with a fixed version of that module:
+import matplotlib
+if matplotlib.__version__[:3] == '1.3':
+    import nitime._mpl_units as mpl_units
+    import matplotlib.axis as ax
+    ax.munits = mpl_units
+    
 from nitime.utils import triu_indices
 
 #Some visualization functions require networkx. Import that if possible:
