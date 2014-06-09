@@ -303,13 +303,13 @@ def test_cached_coherence():
     npt.assert_raises(ValueError, tsa.cache_fft, ts, ij, method=methods[2])
 
     # Take the method in which the window is defined on input:
-    freqs, cache1 = tsa.cache_fft(ts, ij, method=methods[4])
+    freqs, cache1 = tsa.cache_fft(ts, ij, method=methods[3])
     # And compare it to the method in which it isn't:
     freqs, cache2 = tsa.cache_fft(ts, ij, method=methods[4])
     npt.assert_equal(cache1, cache2)
 
     # Do the same, while setting scale_by_freq to False:
-    freqs, cache1 = tsa.cache_fft(ts, ij, method=methods[4],
+    freqs, cache1 = tsa.cache_fft(ts, ij, method=methods[3],
                                   scale_by_freq=False)
     freqs, cache2 = tsa.cache_fft(ts, ij, method=methods[4],
                                   scale_by_freq=False)
