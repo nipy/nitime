@@ -10,21 +10,22 @@ import warnings
 import numpy as np
 import numpy.testing as npt
 from scipy.signal import signaltools
-try: 
+
+try:
     import matplotlib
     import matplotlib.mlab as mlab
-    has_mpl = True 
+    has_mpl = True
     # Matplotlib older than 0.99 will have some issues with the normalization
     # of t:
     if float(matplotlib.__version__[:3]) < 0.99:
-        w_s = "You have a relatively old version of Matplotlib. " 
+        w_s = "You have a relatively old version of Matplotlib. "
         w_s += " Estimation of the PSD DC component might not be as expected."
         w_s +=" Consider updating Matplotlib: http://matplotlib.sourceforge.net/"
         warnings.warn(w_s, Warning)
         old_mpl = True
     else:
         old_mpl = False
-        
+
 except ImportError:
     raise nose.SkipTest()
 
@@ -33,8 +34,6 @@ from scipy import fftpack
 import nitime
 import nitime.algorithms as tsa
 import nitime.utils as utils
-
-
 
 #Define globally
 test_dir_path = os.path.join(nitime.__path__[0], 'tests')
@@ -306,13 +305,13 @@ def test_cached_coherence():
     # Take the method in which the window is defined on input:
     freqs, cache1 = tsa.cache_fft(ts, ij, method=methods[4])
     # And compare it to the method in which it isn't:
-    freqs, cache2 = tsa.cache_fft(ts, ij, method=methods[1])
+    freqs, cache2 = tsa.cache_fft(ts, ij, method=methods[4])
     npt.assert_equal(cache1, cache2)
 
     # Do the same, while setting scale_by_freq to False:
     freqs, cache1 = tsa.cache_fft(ts, ij, method=methods[4],
                                   scale_by_freq=False)
-    freqs, cache2 = tsa.cache_fft(ts, ij, method=methods[1],
+    freqs, cache2 = tsa.cache_fft(ts, ij, method=methods[4],
                                   scale_by_freq=False)
     npt.assert_equal(cache1, cache2)
 
