@@ -2,32 +2,38 @@
 
 Tests of functions under algorithms.coherence
 
-
 """
-
+import nose
 import os
 import warnings
 
 import numpy as np
 import numpy.testing as npt
 from scipy.signal import signaltools
-import matplotlib
-import matplotlib.mlab as mlab
+try: 
+    import matplotlib
+    import matplotlib.mlab as mlab
+    has_mpl = True 
+    # Matplotlib older than 0.99 will have some issues with the normalization
+    # of t:
+    if float(matplotlib.__version__[:3]) < 0.99:
+        w_s = "You have a relatively old version of Matplotlib. " 
+        w_s += " Estimation of the PSD DC component might not be as expected."
+        w_s +=" Consider updating Matplotlib: http://matplotlib.sourceforge.net/"
+        warnings.warn(w_s, Warning)
+        old_mpl = True
+    else:
+        old_mpl = False
+        
+except ImportError:
+    raise nose.SkipTest()
+
 from scipy import fftpack
 
 import nitime
 import nitime.algorithms as tsa
 import nitime.utils as utils
 
-# Matplotlib older than 0.99 will have some issues with the normalization of t
-if float(matplotlib.__version__[:3]) < 0.99:
-    w_s = "You have a relatively old version of Matplotlib. " 
-    w_s += " Estimation of the PSD DC component might not be as expected."
-    w_s += " Consider updating Matplotlib: http://matplotlib.sourceforge.net/"
-    warnings.warn(w_s, Warning)
-    old_mpl = True
-else:
-    old_mpl = False
 
 
 #Define globally
@@ -40,13 +46,14 @@ y = x + np.random.rand(t.shape[-1])
 
 tseries = np.vstack([x, y])
 
-methods = (None,
-           {"this_method": 'welch', "NFFT": 256, "Fs": 2 * np.pi},
+methods = [None,
            {"this_method": 'multi_taper_csd', "Fs": 2 * np.pi},
-           {"this_method": 'periodogram_csd', "Fs": 2 * np.pi, "NFFT": 256},
-           {"this_method": 'welch', "NFFT": 256, "Fs": 2 * np.pi,
-            "window": mlab.window_hanning(np.ones(256))})
+           {"this_method": 'periodogram_csd', "Fs": 2 * np.pi, "NFFT": 256}]
 
+if has_mpl:
+    methods.append({"this_method": 'welch', "NFFT": 256, "Fs": 2 * np.pi,
+                    "window": mlab.window_hanning(np.ones(256))})
+    methods.append({"this_method": 'welch', "NFFT": 256, "Fs": 2 * np.pi})
 
 def test_coherency():
     """
