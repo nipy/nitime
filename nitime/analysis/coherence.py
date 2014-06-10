@@ -23,15 +23,15 @@ class CoherenceAnalyzer(BaseAnalyzer):
         Parameters
         ----------
 
-        input: TimeSeries object
+        input : TimeSeries object
            Containing the data to analyze.
 
-        method: dict, optional,
+        method : dict, optional,
             This is the method used for spectral analysis of the signal for the
             coherence caclulation. See :func:`algorithms.get_spectra`
             documentation for details.
 
-        unwrap_phases: bool, optional
+        unwrap_phases : bool, optional
            Whether to unwrap the phases. This should be True if you assume that
            the time-delay is the same for all the frequency bands. See
            _[Sun2005] for details. Default : False
@@ -246,9 +246,9 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
         Parameters
         ----------
 
-        input: TimeSeries object
+        input : TimeSeries object
 
-        bandwidth: float,
+        bandwidth : float,
            The bandwidth of the windowing function will determine the number
            tapers to use. This parameters represents trade-off between
            frequency resolution (lower main lobe bandwidth for the taper) and
@@ -256,12 +256,12 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
            estimates). Per default will be set to 4 times the fundamental
            frequency, such that NW=4
 
-        alpha: float, default =0.05
+        alpha : float, default =0.05
             This is the alpha used to construct a confidence interval around
             the multi-taper csd estimate, based on a jack-knife estimate of the
             variance [Thompson2007]_.
 
-        adaptive: bool, default to True
+        adaptive : bool, default to True
             Whether to set the weights for the tapered spectra according to the
             adaptive algorithm (Thompson, 2007).
 
@@ -418,14 +418,13 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
         Parameters
         ----------
 
-        time_series: a time-series object
+        time_series : a time-series object
 
-        ij: a list of tuples, each containing a pair of indices.
-
+        ij : a list of tuples, each containing a pair of indices.
            The resulting cache will contain the fft of time-series in the rows
            indexed by the unique elements of the union of i and j
 
-        lb,ub: float,optional, default: lb=0, ub=None (max frequency)
+        lb,ub : float,optional, default: lb=0, ub=None (max frequency)
 
             define a frequency band of interest
 
@@ -433,9 +432,9 @@ class SparseCoherenceAnalyzer(BaseAnalyzer):
 
             Does exactly what the name implies. If you have enough memory
 
-        method: optional, dict
-
-        The method for spectral estimation (see :func:`algorithms.get_spectra`)
+        method : optional, dict
+             The method for spectral estimation (see
+             :func:`algorithms.get_spectra`)
 
         """
 

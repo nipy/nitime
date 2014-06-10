@@ -19,7 +19,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
         Parameters
         ----------
 
-        input: TimeSeries object
+        input : TimeSeries object
            Containing the data to analyze.
 
         Examples
@@ -56,7 +56,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
         Returns
         -------
 
-        TimeSeries: the time-dependent cross-correlation, with zero-lag
+        TimeSeries : the time-dependent cross-correlation, with zero-lag
         at time=0
 
         """
@@ -89,7 +89,7 @@ class CorrelationAnalyzer(BaseAnalyzer):
         Returns
         -------
 
-        TimeSeries: A TimeSeries object
+        TimeSeries : A TimeSeries object
             the time-dependent cross-correlation, with zero-lag at time=0
 
         """
@@ -131,9 +131,9 @@ class SeedCorrelationAnalyzer(object):
         Parameters
         ----------
 
-        seed_time_series: a time-series object
+        seed_time_series : a TimeSeries object
 
-        target_time_series: a time-series object
+        target_time_series : a TimeSeries object
 
         """
         self.seed = seed_time_series

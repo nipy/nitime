@@ -714,15 +714,15 @@ def coherency_phase_spectrum(time_series, csd_method=None):
     Parameters
     ----------
 
-    time_series: n*t float array
+    time_series : n*t float array
     The time series, with t, time, as the last dimension
 
     Returns
     -------
 
-    f: mid frequencies of the bands
+    f : mid frequencies of the bands
 
-    p: an array with the pairwise phase spectrum between the time
+    p : an array with the pairwise phase spectrum between the time
     series, where p[i][j] is the phase spectrum between time series[i] and
     time_series[j]
 

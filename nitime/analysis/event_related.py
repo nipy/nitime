@@ -21,33 +21,31 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         """
         Parameters
         ----------
-        time_series: a time-series object
+        time_series : a time-series object
            A time-series with data on which the event-related analysis proceeds
 
-        events_time_series: a TimeSeries object or an Events object
+        events_time_series : a TimeSeries object or an Events object
+            The events which occured in tandem with the time-series in the
+            EventRelatedAnalyzer. This object's data has to have the same
+            dimensions as the data in the EventRelatedAnalyzer object. In each
+            sample in the time-series, there is an integer, which denotes the
+            kind of event which occured at that time. In time-bins in which no
+            event occured, a 0 should be entered. The data in this time series
+            object needs to have the same dimensionality as the data in the
+            data time-series
 
-        The events which occured in tandem with the time-series in the
-        EventRelatedAnalyzer. This object's data has to have the same
-        dimensions as the data in the EventRelatedAnalyzer object. In each
-        sample in the time-series, there is an integer, which denotes the kind
-        of event which occured at that time. In time-bins in which
-        no event occured, a 0 should be entered. The data in this time series
-        object needs to have the same dimensionality as the data in the data
-        time-series
+        len_et : int
+            The expected length of the event-triggered quantity (in the same
+            time-units as the events are represented (presumably number of TRs,
+            for fMRI data). For example, the size of the block dedicated in the
+            fir_matrix to each type of event
 
-        len_et: int
+        zscore : a flag to return the result in zscore (where relevant)
 
-        The expected length of the event-triggered quantity (in the same
-        time-units as the events are represented (presumably number of TRs, for
-        fMRI data). For example, the size of the block dedicated in the
-        fir_matrix to each type of event
-
-        zscore: a flag to return the result in zscore (where relevant)
-
-        correct_baseline: a flag to correct the baseline according to the first
+        correct_baseline : a flag to correct the baseline according to the first
         point in the event-triggered average (where possible)
 
-        offset: the offset of the beginning of the event-related time-series,
+        offset : the offset of the beginning of the event-related time-series,
         relative to the event occurence
         """
         #XXX Change so that the offset and length of the eta can be given in
@@ -138,8 +136,8 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         order of the unique components in the events time-series). shape[-1]
         corresponds to time, and has length = len_et
 
-        XXX code needs to be changed to use flattening (see 'eta' below)
         """
+        # XXX code needs to be changed to use flattening (see 'eta' below)
 
         #Make a list to put the outputs in:
         h = [0] * self._len_h
