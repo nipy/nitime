@@ -673,7 +673,7 @@ def detect_lines(s, tapers, p=None, **taper_kws):
         # hits within the 2NW resolution of the MT analysis -- approximate
         # 2NW by K
         ddiff = np.diff(detected)
-        flagged_groups, last_group = ndimage.label( (ddiff < K).astype('i') )
+        flagged_groups, last_group = ndimage.label( (ddiff < K) )
         for g in range(1,last_group+1):
             idx = np.where(flagged_groups==g)[0]
             idx = np.r_[idx, idx[-1]+1]
