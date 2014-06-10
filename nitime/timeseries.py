@@ -1101,6 +1101,7 @@ class TimeSeries(TimeSeriesBase):
         4.0 Hz
 
         Or data and sampling rate:
+
         >>> ts = TimeSeries([1,2,3],sampling_rate=2)
         >>> ts.time
         UniformTime([ 0. ,  0.5,  1. ], time_unit='s')
@@ -1110,6 +1111,7 @@ class TimeSeries(TimeSeriesBase):
         0.5 s
 
         A time series where we specify the start time and sampling interval:
+
         >>> ts = TimeSeries([1,2,3],t0=4.25,sampling_interval=0.5)
         >>> ts.data
         array([1, 2, 3])

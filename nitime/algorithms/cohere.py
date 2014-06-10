@@ -8,10 +8,6 @@ magnitude of the time-shift-independent correlation between the time-series
 time-delay (the phase-delay between the time-series in a particular frequency
 band).
 
-This library contains the following functions:
-
-XXX
-
 """
 
 import numpy as np

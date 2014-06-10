@@ -5,10 +5,6 @@ representation of time-series. Several methods can be used and this module
 contains implementations of several algorithms for the calculation of spectral
 transforms.
 
-The functions in this module are:
-
-XXX
-
 """
 
 import numpy as np
