@@ -76,7 +76,7 @@ def is_pull_request(issue):
     return 'pull_request_url' in issue
 
 
-def issues_closed_since(period=timedelta(days=365), project="nipy/nitime", pulls=False):
+def issues_closed_since(period=timedelta(days=730), project="nipy/nitime", pulls=False):
     """Get all issues closed since a particular point in time. period
 can either be a datetime object, or a timedelta object. In the
 latter case, it is used as a time before the present."""
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         days = int(sys.argv[1])
     else:
-        days = 30
+        days = 730
 
     # turn off to play interactively without redownloading, use %run -i
     if 1:

@@ -233,7 +233,6 @@ def test_detect_lines():
     """
     Tests detect_lines utility in the reliable low-SNR scenario.
     """
-
     N = 1000
     fft_pow = int( np.ceil(np.log2(N) + 2) )
     NW = 4

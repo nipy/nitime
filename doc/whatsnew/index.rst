@@ -18,6 +18,7 @@ Nitime:
 .. toctree::
    :maxdepth: 1
 
+   version0.5
    version0.4
    version0.3
 
