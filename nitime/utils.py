@@ -1,7 +1,5 @@
 """Miscellaneous utilities for time series analysis.
 
-XXX write top level doc-string
-
 """
 from __future__ import print_function
 import warnings
