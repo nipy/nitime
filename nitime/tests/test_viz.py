@@ -9,11 +9,10 @@ import numpy.testing as npt
 
 from nitime.timeseries import TimeSeries
 from nitime.analysis import CorrelationAnalyzer
-from nitime.viz import drawmatrix_channels, drawgraph_channels, plot_xcorr, nx
+from nitime.viz import drawmatrix_channels, drawgraph_channels, plot_xcorr
 
 try:
-
-    nx.__class__ # will raise an error if nx could not be imported in viz
+    import nx
     no_networkx = False
     no_networkx_msg = ''
 except ImportError as e:
@@ -41,6 +40,6 @@ def test_plot_xcorr():
                        line_labels=['a', 'b'])
 
 
-@npt.dec.skipif(no_networkx,no_networkx_msg)
+@npt.dec.skipif(no_networkx, no_networkx_msg)
 def test_drawgraph_channels():
     fig04 = drawgraph_channels(C.corrcoef, roi_names)

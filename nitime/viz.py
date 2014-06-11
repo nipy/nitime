@@ -46,7 +46,7 @@ except ImportError:
     e_s += "\n To download networkx: http://networkx.lanl.gov/"
     print(e_s)
     class NetworkxNotInstalled(object):
-        def __getattribute__(self,x):
+        def __getattribute__(self, x):
             raise ImportError(e_s)
     nx = NetworkxNotInstalled()
 
