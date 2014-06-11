@@ -30,7 +30,7 @@ import nitime.analysis as nta
 # Matplotlib 1.3 has a bug in it, so if that's what you have, we'll replace it
 # for you with a fixed version of that module:
 import matplotlib
-if matplotlib.__version__[:3] == '1.3':
+if matplotlib.__version__[:3] == '1.3' or matplotlib.__version__[:3] == '1.4':
     import nitime._mpl_units as mpl_units
     import matplotlib.axis as ax
     ax.munits = mpl_units
