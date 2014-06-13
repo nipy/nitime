@@ -7,8 +7,9 @@ Summary of changes
 
 Major changes introduced in version 0.5 of :mod:`nitime`:
 
-#.  Python 3 support. Work led by Paul Ivanov and Ariel Rokem, with help from
- Thomas Kluyver, and Matthew Brett.
+#.  Python 3 support. Work led by Paul Ivanov and Ariel Rokem, with help from Thomas Kluyver, and Matthew Brett.
+
+#.  Multi-taper F-test for harmonic components. Work led by Mike Trumpis.
 
 #.  Continuous integration testing with Travis. Work led by Ariel Rokem.
 
