@@ -3,6 +3,7 @@
 # Library imports
 import os
 import sys
+import compileall
 
 from subprocess import Popen, PIPE, CalledProcessError, check_call
 
@@ -24,9 +25,9 @@ def sh(cmd):
 
 def compile_tree():
     """Compile all Python files below current directory."""
-    vstr = '.'.join(map(str,sys.version_info[:2]))
-    stat = os.system('python %s/lib/python%s/compileall.py .' %
-                     (sys.prefix,vstr))
+    vstr = '.'.join(map(str, sys.version_info[:2]))
+    ca = compileall.__file__
+    stat = os.system('python %s .' % ca)
     if stat:
         msg = '*** ERROR: Some Python files in tree do NOT compile! ***\n'
         msg += 'See messages above for the actual file that produced it.\n'

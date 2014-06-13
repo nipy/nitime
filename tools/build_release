@@ -25,7 +25,7 @@ sh('./setup.py sdist --formats=gztar,zip')
 sh('python ./setup_egg.py bdist_egg')
 
 # Create a windows distribution
-sh("python setup.py bdist_wininst")
+# sh("python setup.py bdist_wininst")
 
 # Change name so retarded Vista runs the installer correctly
-#sh("rename 's/linux-i686/win32-setup/' dist/*.exe")
+# sh("rename 's/linux-i686/win32-setup/' dist/*.exe")
