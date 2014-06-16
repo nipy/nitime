@@ -28,11 +28,13 @@ def test_lazy_noreload():
     mod = l.LazyImport('sys')
     # accessing module dictionary will trigger an import
     len(mod.__dict__)
-    if sys.version_info.major == 2:
+    # do not use named tuple feature for Python 2.6 compatibility
+    major, minor = sys.version_info[:2]
+    if major == 2:
         npt.assert_raises(ImportError, reload, mod)
-    elif sys.version_info.major == 3:
+    elif major == 3:
         import imp
-        if sys.version_info.minor == 2:
+        if minor == 2:
             npt.assert_raises(ImportError, imp.reload, mod)
-        elif sys.version_info.minor == 3:
+        elif minor == 3:
             npt.assert_raises(TypeError, imp.reload, mod)
