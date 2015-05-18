@@ -16,7 +16,7 @@ if "nose" in sys.modules:
 # Then do all the rest of it:
 import numpy as np
 from scipy import fftpack
-from matplotlib import mpl
+import matplotlib as mpl
 from matplotlib import pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib.colors as colors
