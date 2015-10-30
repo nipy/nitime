@@ -89,7 +89,7 @@ def test_TimeArray_math():
     tnew = timeunits + list(range(10))
     npt.assert_equal(tnew, timeunits+time1) # recall that time1 was 0-10ms
 
-    
+
 
 def test_TimeArray_comparison():
     "Comparison with unitless quantities should convert to TimeArray units"
@@ -330,7 +330,7 @@ def test_UniformTime_index_at():
 def test_TimeArray_getset():
     t1 = ts.TimeSeries(data = np.random.rand(2, 3, 4), sampling_rate=1)
     npt.assert_equal(t1[0],t1.data[...,0])
-    
+
 
 
 
@@ -542,7 +542,7 @@ def test_TimeSeries():
     tseries2 = tseries1 * 2
     npt.assert_equal(tseries1.data * 2, tseries2.data)
     npt.assert_equal(tseries1.time, tseries2.time)
-    tseries2 /= 2
+    tseries2 = tseries2 / 2
     npt.assert_equal(tseries1.data, tseries2.data)
     npt.assert_equal(tseries1.time, tseries2.time)
 
