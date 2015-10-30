@@ -12,7 +12,7 @@ from nitime.analysis import CorrelationAnalyzer
 from nitime.viz import drawmatrix_channels, drawgraph_channels, plot_xcorr
 
 try:
-    import nx
+    import networkx
     no_networkx = False
     no_networkx_msg = ''
 except ImportError as e:
