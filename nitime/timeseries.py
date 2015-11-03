@@ -290,7 +290,7 @@ class TimeArray(np.ndarray, TimeInterface):
     def __eq__(self,val):
         val = self._convert_if_needed(val)
         return np.ndarray.__eq__(self,val)
-    
+
     def min(self, *args,**kwargs):
         ret = TimeArray(np.ndarray.min(self, *args,**kwargs),
             time_unit=base_unit)
@@ -320,17 +320,17 @@ class TimeArray(np.ndarray, TimeInterface):
             time_unit=base_unit)
         ret.convert_unit(self.time_unit)
         return ret
-    
+
     def prod(self, *args, **kwargs):
         e_s = "Product computation changes TimeArray units"
         raise NotImplementedError(e_s)
-        
-    
+
+
     def var(self, *args, **kwargs):
         e_s = "Variance computation changes TimeArray units"
         raise NotImplementedError(e_s)
 
-        
+
     def std(self, *args, **kwargs):
         """Returns the standard deviation of this TimeArray (with time units)
 
@@ -1000,9 +1000,9 @@ class TimeSeriesBase(object):
 
     def __div__(self, other):
         out = self.copy()
-        out.data = out.data.__div__(other)
+        out.data = out.data.__truediv__(other)
         return out
-    
+
     __truediv__ =  __div__ # for py3k
 
     def __iadd__(self, other):
@@ -1077,7 +1077,7 @@ class TimeSeries(TimeSeriesBase):
         t0 : float
           If you provide a sampling rate, you can optionally also provide a
           starting time.
-        time 
+        time
           Instead of sampling rate, you can explicitly provide an object of
           class UniformTime. Note that you can still also provide a different
           sampling_rate/sampling_interval/duration to take the place of the
