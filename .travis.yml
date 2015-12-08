@@ -1,31 +1,27 @@
 # vim ft=yaml
-# travis-ci.org definition for nipy build
-#
-# We pretend to be erlang because we need can't use the python support in
-# travis-ci; it uses virtualenvs, they do not have numpy, scipy, matplotlib,
-# and it is impractical to build them
-language: erlang
+# Multiple lines can be made a single "virtual line" because of the way that
+# Travis munges each line before executing it to print out the exit status.
+# It's okay for it to be on multiple physical lines, so long as you remember:
+# - There can't be any leading "-"s - All newlines will be removed, so use
+# ";"s
+sudo: false  # To use travis container infrastructure
+language: python
+cache:
+  directories:
+    - $HOME/.cache/pip
 env:
-    - PYTHON=python PYSUF=''
-    - PYTHON=python3 PYSUF='3'
+    global:
+        - DEPENDS="cython numpy scipy matplotlib nibabel networkx nose"
+python:
+    - 2.6
+    - 3.2
+    - 3.3
+    - 3.4
+    - 3.5
+before_install:
+    - pip install nibabel networkx $DEPENDS  # Latest pypi
 install:
-    - sudo add-apt-repository -y ppa:takluyver/python3
-    - sudo add-apt-repository -y ppa:chris-lea/cython
-    - sudo apt-get update
-    - sudo apt-get install $PYTHON-dev $PYTHON-numpy $PYTHON-scipy $PYTHON-matplotlib $PYTHON-setuptools $PYTHON-nose
-    - sudo easy_install$PYSUF nibabel networkx # Latest pypi
-    ## Cython easy_install breaks with error about refnanny.c; maybe something
-    ## to do with having a previous cython version;
-    ## http://mail.python.org/pipermail//cython-devel/2012-April/002344.html
-    ## (for now, we are using chris-lea's PPA instead of installing manually)
-    #- curl -O http://www.cython.org/release/Cython-0.18.zip
-    #- unzip Cython-0.18.zip
-    #- cd Cython-0.18
-    #- sudo python$PYSUF setup.py install
-    #- cd ..
-    # NITIME:
-    - $PYTHON setup.py build
-    - sudo $PYTHON setup.py install
+    - python setup.py install
 script:
     # Change into an innocuous directory and find tests from installation
     - mkdir for_test
