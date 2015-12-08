@@ -19,7 +19,7 @@ python:
     - 3.4
     - 3.5
 before_install:
-    - pip install nibabel networkx $DEPENDS  # Latest pypi
+    - pip install $DEPENDS  # Latest pypi
 install:
     - python setup.py install
 script:
