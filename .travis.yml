@@ -19,6 +19,6 @@ before_install:
 install:
     - python setup.py install
 script:
-    - nosetests -v --with-coverage --cover-package=shablona
+    - nosetests -v --with-coverage --cover-package=nitime
 after_success:
     - coveralls
