@@ -18,7 +18,7 @@ environment:
       MINICONDA: C:\Miniconda3
 
     - PYTHON: "C:\\Python35"
-      PYTHON_VERSION: "3.5.0"
+      PYTHON_VERSION: "3.5.1"
       PYTHON_ARCH: "32"
       MINICONDA: C:\Miniconda35
 
