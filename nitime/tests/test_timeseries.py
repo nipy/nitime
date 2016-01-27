@@ -891,16 +891,18 @@ def test_index_int64():
     assert b[0] == b[np.int32(0)]
     assert repr(b[0]) == repr(b[np.int32(0)])
 
+
 def test_timearray_math_functions():
     "Calling TimeArray.min() .max(), mean() should return TimeArrays"
-    a = np.arange(2,11)
-    for f in ['min','max','mean', 'ptp', 'sum']:
+    a = np.arange(2, 11)
+    for f in ['min', 'max', 'mean', 'ptp', 'sum']:
         for tu in ['s', 'ms', 'ps', 'D']:
             b = ts.TimeArray(a, time_unit=tu)
-            assert getattr(b, f)().__class__ == ts.TimeArray
-            assert getattr(b, f)().time_unit== b.time_unit
+            npt.assert_(getattr(b, f)().__class__ == ts.TimeArray)
+            npt.assert_(getattr(b, f)().time_unit == b.time_unit)
             # comparison with unitless should convert to the TimeArray's units
-            assert getattr(b, f)() == getattr(a,f)()
+            npt.assert_(getattr(b, f)() == getattr(a, f)())
+
 
 def test_timearray_var_prod():
     """
