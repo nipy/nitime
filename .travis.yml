@@ -1,33 +1,24 @@
-# vim ft=yaml
-# travis-ci.org definition for nipy build
-#
-# We pretend to be erlang because we need can't use the python support in
-# travis-ci; it uses virtualenvs, they do not have numpy, scipy, matplotlib,
-# and it is impractical to build them
-language: erlang
+sudo: false
+language: python
 env:
-    - PYTHON=python PYSUF=''
-    - PYTHON=python3 PYSUF='3'
+    - CONDA="python=2.7"
+    - CONDA="python=3.3"
+    - CONDA="python=3.4"
+    - CONDA="python=3.5"
+before_install:
+    - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+    - bash miniconda.sh -b -p $HOME/miniconda
+    - export PATH="$HOME/miniconda/bin:$PATH"
+    - hash -r
+    - conda config --set always_yes yes
+    - conda update conda
+    - conda info -a
+    - conda install numpy scipy matplotlib nose coverage networkx
+    - pip install nibabel
+    - travis_retry pip install coveralls
 install:
-    - sudo add-apt-repository -y ppa:takluyver/python3
-    - sudo add-apt-repository -y ppa:chris-lea/cython
-    - sudo apt-get update
-    - sudo apt-get install $PYTHON-dev $PYTHON-numpy $PYTHON-scipy $PYTHON-matplotlib $PYTHON-setuptools $PYTHON-nose
-    - sudo easy_install$PYSUF nibabel networkx # Latest pypi
-    ## Cython easy_install breaks with error about refnanny.c; maybe something
-    ## to do with having a previous cython version;
-    ## http://mail.python.org/pipermail//cython-devel/2012-April/002344.html
-    ## (for now, we are using chris-lea's PPA instead of installing manually)
-    #- curl -O http://www.cython.org/release/Cython-0.18.zip
-    #- unzip Cython-0.18.zip
-    #- cd Cython-0.18
-    #- sudo python$PYSUF setup.py install
-    #- cd ..
-    # NITIME:
-    - $PYTHON setup.py build
-    - sudo $PYTHON setup.py install
+    - python setup.py install
 script:
-    # Change into an innocuous directory and find tests from installation
-    - mkdir for_test
-    - cd for_test
-    - nosetests$PYSUF --with-doctest `$PYTHON -c "import os; import nitime; print(os.path.dirname(nitime.__file__))"`
+    - nosetests -v --with-coverage --cover-package=nitime
+after_success:
+    - coveralls
