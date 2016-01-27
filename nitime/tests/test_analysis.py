@@ -70,7 +70,7 @@ def test_CorrelationAnalyzer():
     C = nta.CorrelationAnalyzer(T)
 
     # Test the symmetry: correlation(x,y)==correlation(y,x)
-    npt.assert_equal(C.corrcoef[0, 1], C.corrcoef[1, 0])
+    npt.assert_almost_equal(C.corrcoef[0, 1], C.corrcoef[1, 0])
     # Test the self-sameness: correlation(x,x)==1
     npt.assert_equal(C.corrcoef[0, 0], 1)
     npt.assert_equal(C.corrcoef[1, 1], 1)
