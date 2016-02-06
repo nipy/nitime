@@ -1,24 +1,53 @@
-sudo: false
 language: python
+
+# sudo false implies containerized builds, so we can use cacheing
+sudo: false
+
+deploy:
+  provider: pypi
+  user: arokem
+  password:
+    secure: U8Bfe8mXUSp5HYzGsyJfLuVzu+uEt6hid6AQb+HafJMHhhmoiX4cL8IH1xYaT/ZDXR02IO5bpQpjLLvKizDCXrfEgM/YTWhi1lldVh8O6cdP0gBeNfYNQz0qmbWhJFGzN+ad4VXBXrCVIPtF88mmowzRr6P0vLHW8GudSPInJKl6ofUwJDkOOFL6tqAiSLTIlwQQtvKTMqxCAQ3U+kliznpbbjFJSCjf29IQ/tUqzflbKmVdpr5nXCwVONNnydnY8fFK9Vrhl2UchFKjE5KbfoYxFs9udhlgxZMoKSDmTcvhhjwZ7HN8WPABxvY+IvrDi+CUjFDKBKZhSan0fQBfc8aMN0YVE2/TtEJXwsA9g4c3/BkcoF532mc7e2dzExQwOh/xS/iLPhn0qtf+VQn7po7iXwSMbpPIqEOYbgpaWXzgo0Pf5O5Q0pKzuXpcN4femZ1hEtTZ9f13LHuyjLPN9GAZjQmdUGbIkPFY/bbu6ssbkcgKZTABODln68LOnLDQGqpog5bYQ9Myr5mLhF3duLjnoZIcuReyQ7Ed8Z7bcNeiu7t4PAWbgm2DJ3VrUkzq24iUvGedwh3Eqr4eQnedrk2Bn3+rqVv00FjX9elmR7S3TJ4l4jPkfg8R48tDan6wGqhu3s2S97MSmgi+/gWDAEpTBHaHc5DuZ4TcJXTb3To=
+  on:
+    tags: true
+    repo: nipy/nitime
+
+python:
+  - 2.7
+  - 3.3
+  - 3.4
+  - 3.5
+
 env:
-    - CONDA="python=2.7"
-    - CONDA="python=3.3"
-    - CONDA="python=3.4"
-    - CONDA="python=3.5"
+  - CONDA_DEPS="pip nose coverage numpy scipy matplotlib networkx" PIP_DEPS="coveralls nibabel"
+
 before_install:
-    - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
-    - bash miniconda.sh -b -p $HOME/miniconda
-    - export PATH="$HOME/miniconda/bin:$PATH"
-    - hash -r
-    - conda config --set always_yes yes
-    - conda update conda
-    - conda info -a
-    - conda install numpy scipy matplotlib nose coverage networkx
-    - pip install nibabel
-    - travis_retry pip install coveralls
+- export MINICONDA=$HOME/miniconda
+- export PATH="$MINICONDA/bin:$PATH"
+- hash -r
+# Install conda only if necessary
+- command -v conda >/dev/null || { wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+   bash miniconda.sh -b -f -p $MINICONDA; }
+- conda config --set always_yes yes
+- conda update conda
+- conda info -a
+- conda install python=$TRAVIS_PYTHON_VERSION $CONDA_DEPS
+- travis_retry pip install $PIP_DEPS
+
 install:
-    - python setup.py install
+- python setup.py install --record installed_files.txt
+
 script:
-    - nosetests -v --with-coverage --cover-package=nitime
+- nosetests -v --with-coverage --cover-package=nitime
+
 after_success:
-    - coveralls
+- coveralls
+
+before_cache:
+# clean unused packages & installed files from conda cache
+- conda clean -tp
+- xargs rm <installed_files.txt
+
+cache:
+  directories:
+    - $HOME/miniconda
