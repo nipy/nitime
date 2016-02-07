@@ -325,8 +325,8 @@ class FilterAnalyzer(desc.ResetMixin):
                 out_data[i] = signal.filtfilt(b, a, data[i])
                 #Make sure to preserve the DC:
                 dc = np.mean(data[i])
-                out_data[i] -= np.mean(out_data[i])
-                out_data[i] += dc
+                out_data[i] = out_data[i] - np.mean(out_data[i])
+                out_data[i] = out_data[i] + dc
         else:
             out_data = signal.filtfilt(b, a, data)
             #Make sure to preserve the DC:
