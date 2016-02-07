@@ -70,10 +70,10 @@ def test_CorrelationAnalyzer():
     C = nta.CorrelationAnalyzer(T)
 
     # Test the symmetry: correlation(x,y)==correlation(y,x)
-    npt.assert_equal(C.corrcoef[0, 1], C.corrcoef[1, 0])
+    npt.assert_almost_equal(C.corrcoef[0, 1], C.corrcoef[1, 0])
     # Test the self-sameness: correlation(x,x)==1
-    npt.assert_equal(C.corrcoef[0, 0], 1)
-    npt.assert_equal(C.corrcoef[1, 1], 1)
+    npt.assert_almost_equal(C.corrcoef[0, 0], 1)
+    npt.assert_almost_equal(C.corrcoef[1, 1], 1)
 
     # Test the cross-correlation:
     # First the symmetry:
@@ -85,8 +85,7 @@ def test_CorrelationAnalyzer():
                             C.corrcoef[0, 1])
 
     # And the auto-correlation should be equal to 1 at 0 time-lag:
-    npt.assert_equal(C.xcorr_norm.data[0, 0, C.xcorr_norm.time == 0], 1)
-
+    npt.assert_almost_equal(C.xcorr_norm.data[0, 0, C.xcorr_norm.time == 0], 1)
     # Does it depend on having an even number of time-points?
     # make another time-series with an odd number of items:
     t = np.arange(1023)
@@ -117,7 +116,7 @@ def test_EventRelatedAnalyzer():
 
     T_signal = ts.TimeSeries(signal, sampling_rate=1)
     T_events = ts.TimeSeries(events, sampling_rate=1)
-    for correct_baseline in [True,False]:
+    for correct_baseline in [True, False]:
         ETA = nta.EventRelatedAnalyzer(T_signal, T_events, l / (cycles * 2),
                                        correct_baseline=correct_baseline).eta
         # This should hold

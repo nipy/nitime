@@ -116,12 +116,12 @@ def test_get_spectra():
     f_periodogram = tsa.get_spectra(x, method={'this_method': 'periodogram_csd'})
     f_multi_taper = tsa.get_spectra(x, method={'this_method': 'multi_taper_csd'})
 
-    npt.assert_equal(f_welch[0].shape, (NFFT / 2 + 1,))
-    npt.assert_equal(f_periodogram[0].shape, (N / 2 + 1,))
-    npt.assert_equal(f_multi_taper[0].shape, (N / 2 + 1,))
+    npt.assert_equal(f_welch[0].shape, (NFFT // 2 + 1,))
+    npt.assert_equal(f_periodogram[0].shape, (N // 2 + 1,))
+    npt.assert_equal(f_multi_taper[0].shape, (N // 2 + 1,))
 
     #Test for multi-channel data
-    x = np.reshape(x, (2, x.shape[-1] / 2))
+    x = np.reshape(x, (2, x.shape[-1] // 2))
     N = x.shape[-1]
 
     #Make sure you get back the expected shape for different spectra:

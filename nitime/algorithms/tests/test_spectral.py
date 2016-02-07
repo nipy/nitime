@@ -189,7 +189,7 @@ def test_dpss_properties():
         )
     # test positive initial slope of odd functions
     # (this tests the sign of a linear slope)
-    pk = np.argmax(np.abs(d[1::2, :N/2]), axis=1)
+    pk = np.argmax(np.abs(d[1::2, :N//2]), axis=1)
     t = True
     for p, f in zip(pk, d[1::2]):
         t = t and np.sum( np.arange(1,p+1) * f[:p] ) >= 0

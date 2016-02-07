@@ -70,7 +70,6 @@ def test_coherency():
         if method is not None and method['this_method'] != "multi_taper_csd":
             f_theoretical = utils.get_freqs(method['Fs'], method['NFFT'])
             npt.assert_array_almost_equal(f, f_theoretical)
-            npt.assert_array_almost_equal(f, f_theoretical)
 
 
 def test_coherence():

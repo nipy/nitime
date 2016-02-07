@@ -23,7 +23,7 @@ from nitime.index_utils import tril_indices, triu_indices
 # Set global variables for the default NFFT to be used in spectral analysis and
 # the overlap:
 default_nfft = 64
-default_n_overlap = int(np.ceil(default_nfft / 2.0))
+default_n_overlap = int(np.ceil(default_nfft // 2))
 
 def get_spectra(time_series, method=None):
     r"""
@@ -104,14 +104,14 @@ def get_spectra(time_series, method=None):
         Fs = method.get('Fs', 2 * np.pi)
         detrend = method.get('detrend', mlab.detrend_none)
         window = method.get('window', mlab.window_hanning)
-        n_overlap = method.get('n_overlap', int(np.ceil(NFFT / 2.0)))
+        n_overlap = method.get('n_overlap', int(np.ceil(NFFT / 2)))
 
         # The length of the spectrum depends on how many sides are taken, which
         # depends on whether or not this is a complex object:
         if np.iscomplexobj(time_series):
             fxy_len = NFFT
         else:
-            fxy_len = NFFT / 2.0 + 1
+            fxy_len = NFFT // 2 + 1
 
         # If there is only 1 channel in the time-series:
         if len(time_series.shape) == 1 or time_series.shape[0] == 1:
@@ -119,8 +119,7 @@ def get_spectra(time_series, method=None):
                                NFFT, Fs, detrend, window, n_overlap,
                                scale_by_freq=True)
 
-            fxy = temp.squeeze()  # the output of mlab.csd has a weird
-                                  # shape
+            fxy = temp.squeeze()  # the output of mlab.csd has a weird shape
         else:
             fxy = np.zeros((time_series.shape[0],
                             time_series.shape[0],
@@ -244,12 +243,12 @@ def periodogram(s, Fs=2 * np.pi, Sk=None, N=None,
 
     if sides == 'onesided':
         # putative Nyquist freq
-        Fn = N / 2 + 1
+        Fn = N // 2 + 1
         # last duplicate freq
-        Fl = (N + 1) / 2
+        Fl = (N + 1) // 2
         pshape[-1] = Fn
         P = np.zeros(pshape, 'd')
-        freqs = np.linspace(0, Fs / 2, Fn)
+        freqs = np.linspace(0, Fs // 2, Fn)
         P[..., 0] = (Sk[..., 0] * Sk[..., 0].conj()).real
         P[..., 1:Fl] = 2 * (Sk[..., 1:Fl] * Sk[..., 1:Fl].conj()).real
         if Fn > Fl:
@@ -307,7 +306,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
 
     """
     s_shape = s.shape
-    s.shape = (np.prod(s_shape[:-1]), s_shape[-1])
+    s.shape = (-1, s_shape[-1])
     # defining an Sk_loc is a little opaque, but it avoids having to
     # reset the shape of any user-given Sk later on
     if Sk is not None:
@@ -333,9 +332,9 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
 
     if sides == 'onesided':
         # putative Nyquist freq
-        Fn = N / 2 + 1
+        Fn = N // 2 + 1
         # last duplicate freq
-        Fl = (N + 1) / 2
+        Fl = (N + 1) // 2
         csd_pairs = np.zeros((M, M, Fn), 'D')
         freqs = np.linspace(0, Fs / 2, Fn)
         for i in range(M):
@@ -478,7 +477,7 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
             dpss[2 * i] *= -1
     # rather than test the sign of one point, test the sign of the
     # linear slope up to the first (largest) peak
-    pk = np.argmax( np.abs(dpss[1::2, :N/2]), axis=1 )
+    pk = np.argmax(np.abs(dpss[1::2, :N//2]), axis=1)
     for i, p in enumerate(pk):
         if np.sum(dpss[2 * i + 1, :p]) < 0:
             dpss[2 * i + 1] *= -1
@@ -617,7 +616,7 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
 
     if sides == 'onesided':
         # where the nyq freq should be
-        Fn = N / 2 + 1
+        Fn = N // 2 + 1
         truncated_slice = [slice(None)] * len(tx.shape)
         truncated_slice[-1] = slice(0, Fn)
         tsl = tuple(truncated_slice)
@@ -636,7 +635,7 @@ def mtm_cross_spectrum(tx, ty, weights, sides='twosided'):
 
     if sides == 'onesided':
         # dbl power at duplicated freqs
-        Fl = (N + 1) / 2
+        Fl = (N + 1) // 2
         sub_slice = [slice(None)] * len(sf.shape)
         sub_slice[-1] = slice(1, Fl)
         sf[tuple(sub_slice)] *= 2
@@ -747,7 +746,7 @@ def multi_taper_psd(
     # collapse spectra's shape back down to 3 dimensions
     spectra.shape = (M, K, NFFT)
 
-    last_freq = NFFT / 2 + 1 if sides == 'onesided' else NFFT
+    last_freq = NFFT // 2 + 1 if sides == 'onesided' else NFFT
 
     # degrees of freedom at each timeseries, at each freq
     nu = np.empty((M, last_freq))
@@ -781,7 +780,7 @@ def multi_taper_psd(
         spectra, spectra, weights, sides=sides
         )
     sdf_est /= Fs
-    
+
     if sides == 'onesided':
         freqs = np.linspace(0, Fs / 2, NFFT / 2 + 1)
     else:
@@ -888,7 +887,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
     spectra.shape = (M, K, NFFT)
 
     # compute the cross-spectral density functions
-    last_freq = NFFT / 2 + 1 if sides == 'onesided' else NFFT
+    last_freq = NFFT // 2 + 1 if sides == 'onesided' else NFFT
 
     if adaptive:
         w = np.empty((M, K, last_freq))
@@ -920,7 +919,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
     diag_idc = (np.arange(M), np.arange(M))
     csdfs[diag_idc] /= 2
     csdfs /= Fs
-    
+
     if sides == 'onesided':
         freqs = np.linspace(0, Fs / 2, NFFT / 2 + 1)
     else:

@@ -288,7 +288,7 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
                 self.bandwidth = self.NW * (2 * Fs) / N
 
         self.alpha = alpha
-        self._L = self.input.data.shape[-1] / 2 + 1
+        self._L = self.input.data.shape[-1] // 2 + 1
         self._adaptive = adaptive
 
     @desc.setattr_on_read

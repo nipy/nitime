@@ -18,7 +18,7 @@ def _random_poles(half_poles=3):
     stable_pole_idx = np.where(poles_rp ** 2 + poles_ip ** 2 < .75 ** 2)[0]
     # keep 3 of these, and supplement with complex conjugate
     stable_poles = poles_rp[stable_pole_idx[:half_poles]] + \
-                   1j * poles_ip[stable_pole_idx[:half_poles]]
+        1j * poles_ip[stable_pole_idx[:half_poles]]
     stable_poles = np.r_[stable_poles, stable_poles.conj()]
     # we have the roots, now find the polynomial
     ak = np.poly(stable_poles)
@@ -27,7 +27,7 @@ def _random_poles(half_poles=3):
 
 def test_AR_est_consistency():
     order = 10  # some even number
-    ak = _random_poles(order / 2)
+    ak = _random_poles(order // 2)
     x, v, _ = utils.ar_generator(N=512, coefs=-ak[1:], drop_transients=100)
     ak_yw, ssq_yw = tsa.AR_est_YW(x, order)
     ak_ld, ssq_ld = tsa.AR_est_LD(x, order)

@@ -67,8 +67,8 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             if len(events.shape) == 1 and len(s) > 1:
                 e_data = e_data + np.zeros((s[0], 1))
 
-            zeros_before = np.zeros((s[:-1] + (abs(offset),)))
-            zeros_after = np.zeros((s[:-1] + (abs(len_et),)))
+            zeros_before = np.zeros((s[:-1] + (int(offset),)))
+            zeros_after = np.zeros((s[:-1] + (int(len_et),)))
             time_series_data = np.hstack([zeros_before,
                                           time_series.data,
                                           zeros_after])

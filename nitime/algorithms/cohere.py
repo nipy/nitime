@@ -882,7 +882,7 @@ def correlation_spectrum(x1, x2, Fs=2 * np.pi, norm=False):
                                      # strictly positive?
 
     f = utils.get_freqs(Fs, n)
-    return f, ccn[0:(n / 2 + 1)]
+    return f, ccn[0:(n // 2 + 1)]
 
 
 #------------------------------------------------------------------------
