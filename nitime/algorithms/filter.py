@@ -33,7 +33,7 @@ def boxcar_filter(time_series, lb=0, ub=0.5, n_iterations=2):
     n = time_series.shape[-1]
 
     len_boxcar_ub = np.ceil(1 / (2.0 * ub))
-    boxcar_ub = np.empty(len_boxcar_ub)
+    boxcar_ub = np.empty(int(len_boxcar_ub))
     boxcar_ub.fill(1.0 / len_boxcar_ub)
     boxcar_ones_ub = np.ones_like(boxcar_ub)
 
@@ -41,7 +41,7 @@ def boxcar_filter(time_series, lb=0, ub=0.5, n_iterations=2):
         lb = None
     else:
         len_boxcar_lb = np.ceil(1 / (2.0 * lb))
-        boxcar_lb = np.empty(len_boxcar_lb)
+        boxcar_lb = np.empty(int(len_boxcar_lb))
         boxcar_lb.fill(1.0 / len_boxcar_lb)
         boxcar_ones_lb = np.ones_like(boxcar_lb)
 
@@ -51,24 +51,26 @@ def boxcar_filter(time_series, lb=0, ub=0.5, n_iterations=2):
         time_series = np.array([time_series])
     for i in range(time_series.shape[0]):
         if ub:
-            #Start by applying a low-pass to the signal.  Pad the signal on
-            #each side with the initial and terminal signal value:
+            # Start by applying a low-pass to the signal.  Pad the signal on
+            # each side with the initial and terminal signal value:
             pad_s = np.hstack((boxcar_ones_ub *
                                time_series[i, 0], time_series[i]))
             pad_s = np.hstack((pad_s, boxcar_ones_ub * time_series[i, -1]))
 
-            #Filter operation is a convolution with the box-car(iterate,
-            #n_iterations times over this operation):
+            # Filter operation is a convolution with the box-car(iterate,
+            # n_iterations times over this operation):
             for iteration in range(n_iterations):
                 conv_s = np.convolve(pad_s, boxcar_ub)
 
-            #Extract the low pass signal by excising the central
-            #len(time_series) points:
-            time_series[i] = conv_s[conv_s.shape[-1] / 2 - np.floor(n / 2.):
-                                    conv_s.shape[-1] / 2 + np.ceil(n / 2.)]
+            # Extract the low pass signal by excising the central
+            # len(time_series) points:
+            time_series[i] = conv_s[conv_s.shape[-1] // 2 -
+                                    int(np.floor(n / 2.)):
+                                    conv_s.shape[-1] // 2 +
+                                    int(np.ceil(n / 2.))]
 
-        #Now, if there is a high-pass, do the same, but in the end subtract out
-        #the low-passed signal:
+        # Now, if there is a high-pass, do the same, but in the end subtract
+        # out the low-passed signal:
         if lb:
             pad_s = np.hstack((boxcar_ones_lb *
                                time_series[i, 0], time_series[i]))
@@ -81,8 +83,8 @@ def boxcar_filter(time_series, lb=0, ub=0.5, n_iterations=2):
 
             #Extract the low pass signal by excising the central
             #len(time_series) points:
-            s_lp = conv_s[conv_s.shape[-1] / 2 - np.floor(n / 2.):
-                          conv_s.shape[-1] / 2 + np.ceil(n / 2.)]
+            s_lp = conv_s[conv_s.shape[-1] // 2 - int(np.floor(n / 2.)):
+                          conv_s.shape[-1] // 2 + int(np.ceil(n / 2.))]
 
             #Extract the high pass signal simply by subtracting the high pass
             #signal from the original signal:

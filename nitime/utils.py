@@ -1930,7 +1930,7 @@ def fir_design_matrix(events, len_hrf):
     fir_matrix = np.zeros((events.shape[0], len_hrf * event_types.shape[0]))
 
     for t in event_types:
-        idx_h_a = np.where(event_types == t)[0] * len_hrf
+        idx_h_a = list(np.where(event_types == t)[0] * len_hrf)
         idx_h_b = idx_h_a + len_hrf
         idx_v = np.where(events == t)[0]
         for idx_v_a in idx_v:
@@ -1939,39 +1939,6 @@ def fir_design_matrix(events, len_hrf):
                                                             np.sign(t))
 
     return fir_matrix
-
-
-#We carry around a copy of the hilbert transform analytic signal from newer
-#versions of scipy, in case someone is using an older version of scipy with a
-#borked hilbert:
-def hilbert_from_new_scipy(x, N=None, axis=-1):
-    """This is a verbatim copy of scipy.signal.hilbert from scipy version
-    0.8dev, which we carry around in order to use in case the version of scipy
-    installed is old enough to have a broken implementation of hilbert """
-
-    x = np.asarray(x)
-    if N is None:
-        N = x.shape[axis]
-    if N <= 0:
-        raise ValueError("N must be positive.")
-    if np.iscomplexobj(x):
-        print("Warning: imaginary part of x ignored.")
-        x = np.real(x)
-    Xf = fftpack.fft(x, N, axis=axis)
-    h = np.zeros(N)
-    if N % 2 == 0:
-        h[0] = h[N / 2] = 1
-        h[1:N / 2] = 2
-    else:
-        h[0] = 1
-        h[1:(N + 1) / 2] = 2
-
-    if len(x.shape) > 1:
-        ind = [np.newaxis] * x.ndim
-        ind[axis] = slice(None)
-        h = h[ind]
-    x = fftpack.ifft(Xf * h, axis=axis)
-    return x
 
 
 #---------- MAR utilities ----------------------------------------

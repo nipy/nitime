@@ -92,9 +92,9 @@ class SpectralAnalyzer(BaseAnalyzer):
             psd_len = NFFT
             dt = complex
         else:
-            psd_len = NFFT / 2.0 + 1
+            psd_len = NFFT // 2 + 1
             dt = float
-        
+
         #If multi-channel data:
         if len(self.input.data.shape) > 1:
             psd_shape = (self.input.shape[:-1] + (psd_len,))
@@ -185,7 +185,7 @@ class SpectralAnalyzer(BaseAnalyzer):
         else:
             f = tsu.get_freqs(sampling_rate, data.shape[-1])
             spectrum_fourier = fft(data)[..., :f.shape[0]]
-            
+
         return f, spectrum_fourier
 
     @desc.setattr_on_read
@@ -197,15 +197,15 @@ class SpectralAnalyzer(BaseAnalyzer):
 
         """
         if np.iscomplexobj(self.input.data):
-            psd_len = self.input.shape[-1] 
+            psd_len = self.input.shape[-1]
             dt = complex
         else:
-            psd_len = self.input.shape[-1] / 2 + 1
+            psd_len = self.input.shape[-1] // 2 + 1
             dt = float
 
         #Initialize the output
         spectrum_multi_taper = np.empty((self.input.shape[:-1] + (psd_len,)),
-                                        dtype=dt)
+                                         dtype=dt)
 
         #If multi-channel data:
         if len(self.input.data.shape) > 1:
@@ -384,7 +384,7 @@ class FilterAnalyzer(desc.ResetMixin):
         if lb_frac > 0:
             #Includes a spectral inversion:
             b = -1 * signal.firwin(n_taps, lb_frac, window=self._win)
-            b[n_taps / 2] = b[n_taps / 2] + 1
+            b[n_taps // 2] = b[n_taps // 2] + 1
             sig = self.filtfilt(b, a, sig)
 
         return sig
@@ -510,12 +510,7 @@ class HilbertAnalyzer(BaseAnalyzer):
         """The natural output for this analyzer is the analytic signal """
         data = self.input.data
         sampling_rate = self.input.sampling_rate
-        #If you have scipy with the fixed scipy.signal.hilbert (r6205 and
-        #later)
-        if scipy.__version__ >= '0.9':
-            hilbert = signal.hilbert
-        else:
-            hilbert = tsu.hilbert_from_new_scipy
+        hilbert = signal.hilbert
 
         return ts.TimeSeries(data=hilbert(data),
                              sampling_rate=sampling_rate)
