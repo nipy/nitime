@@ -122,7 +122,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         days = int(sys.argv[1])
     else:
-        days = 730
+        days = 604
 
     # turn off to play interactively without redownloading, use %run -i
     if 1:
