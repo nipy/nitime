@@ -98,8 +98,8 @@ def freq_domain_xcorr(tseries, events, t_before, t_after, Fs=1):
     xcorr = np.real(fftshift(ifft(fft(tseries) *
                                   fft(np.fliplr([events])))))
 
-    return xcorr[0][np.ceil(len(xcorr[0]) // 2) - t_before * Fs:
-                np.ceil(len(xcorr[0]) // 2) + t_after // 2 * Fs] / np.sum(events)
+    return xcorr[0][int(np.ceil(len(xcorr[0]) // 2) - t_before * Fs):
+                    int(np.ceil(len(xcorr[0]) // 2) + t_after // 2 * Fs)] / np.sum(events)
 
 
 def freq_domain_xcorr_zscored(tseries, events, t_before, t_after, Fs=1):

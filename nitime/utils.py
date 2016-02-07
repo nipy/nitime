@@ -1930,13 +1930,13 @@ def fir_design_matrix(events, len_hrf):
     fir_matrix = np.zeros((events.shape[0], len_hrf * event_types.shape[0]))
 
     for t in event_types:
-        idx_h_a = list(np.where(event_types == t)[0] * len_hrf)
+        idx_h_a = (np.array(np.where(event_types == t)[0]) * len_hrf)[0]
         idx_h_b = idx_h_a + len_hrf
         idx_v = np.where(events == t)[0]
         for idx_v_a in idx_v:
             idx_v_b = idx_v_a + len_hrf
             fir_matrix[idx_v_a:idx_v_b, idx_h_a:idx_h_b] += (np.eye(len_hrf) *
-                                                            np.sign(t))
+                                                             np.sign(t))
 
     return fir_matrix
 
