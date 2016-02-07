@@ -104,7 +104,7 @@ def get_spectra(time_series, method=None):
         Fs = method.get('Fs', 2 * np.pi)
         detrend = method.get('detrend', mlab.detrend_none)
         window = method.get('window', mlab.window_hanning)
-        n_overlap = method.get('n_overlap', int(np.ceil(NFFT // 2)))
+        n_overlap = method.get('n_overlap', int(np.ceil(NFFT / 2)))
 
         # The length of the spectrum depends on how many sides are taken, which
         # depends on whether or not this is a complex object:
@@ -336,7 +336,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
         # last duplicate freq
         Fl = (N + 1) // 2
         csd_pairs = np.zeros((M, M, Fn), 'D')
-        freqs = np.linspace(0, Fs // 2, Fn)
+        freqs = np.linspace(0, Fs / 2, Fn)
         for i in range(M):
             for j in range(i + 1):
                 csd_pairs[i, j, 0] = Sk_loc[i, 0] * Sk_loc[j, 0].conj()
