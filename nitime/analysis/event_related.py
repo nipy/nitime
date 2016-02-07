@@ -54,7 +54,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         #Make sure that the offset and the len_et values can be used, by
         #padding with zeros before and after:
 
-        if  isinstance(events, ts.TimeSeries):
+        if isinstance(events, ts.TimeSeries):
             #Set a flag to indicate the input is a time-series object:
             self._is_ts = True
             s = time_series.data.shape
@@ -195,17 +195,19 @@ class EventRelatedAnalyzer(desc.ResetMixin):
             u = np.unique(self.events[i])
             event_types = u[np.unique(self.events[i]) != 0]
             h[i] = np.empty((event_types.shape[0],
-                             self.len_et / 2),
+                             self.len_et // 2),
                             dtype=complex)
             for e_idx in range(event_types.shape[0]):
                 this_e = (self.events[i] == event_types[e_idx]) * 1.0
                 if self._zscore:
-                    this_h = tsa.freq_domain_xcorr_zscored(data,
+                    this_h = tsa.freq_domain_xcorr_zscored(
+                                                data,
                                                 this_e,
                                                 -self.offset + 1,
                                                 self.len_et - self.offset - 2)
                 else:
-                    this_h = tsa.freq_domain_xcorr(data,
+                    this_h = tsa.freq_domain_xcorr(
+                                                data,
                                                 this_e,
                                                 -self.offset + 1,
                                                 self.len_et - self.offset - 2)
