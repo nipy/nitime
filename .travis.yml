@@ -4,7 +4,7 @@ deploy:
   provider: pypi
   user: arokem
   password:
-    secure: AcCbZHWGp1aX5VBik35fpJTdnrWkmipH/PdaE+g7uwxq0//HQoIrL/k7Cs1u9rMn4C7xQlPJsz76kpepmuvM3dPFEiTZTfdL7ZT421gb4hQq/yMP/8XyuRrY8AqoRzOQ77JEYSFxTyVOgmrsEWnIim8gdUlYcn0qlwgWdijQjY4=
+    secure: sr2oQY1fOGNQRslNyNLq8B6bVGrvkwIxf23mcYY7F87DPLVvJ799VE1yxKwOJQeVmcFXDwWnxo3pzLvhSYNS3yDHjt9ymJ0+togNx4TUKPPcOHzlTNr+CfTkcx684aypykJjfAgGxUQs5cF2BVutEvKGbCla8OuO+N42Kc8350w=
   on:
     tags: true
     repo: nipy/nitime
