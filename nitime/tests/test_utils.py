@@ -14,13 +14,13 @@ def test_zscore():
     z = utils.zscore(x)
     npt.assert_equal(x.shape, z.shape)
 
-    #Default axis is -1
+    # Default axis is -1
     npt.assert_equal(utils.zscore(x), np.array([[-1., -1., 1., 1.],
-                                                      [-1., -1., 1., 1.]]))
+                                                [-1., -1., 1., 1.]]))
 
-    #Test other axis:
+    # Test other axis:
     npt.assert_equal(utils.zscore(x, 0), np.array([[-1., -1., -1., -1.],
-                                                        [1., 1., 1., 1.]]))
+                                                   [1., 1., 1., 1.]]))
 
 
 def test_percent_change():
@@ -103,7 +103,7 @@ def ref_crosscov(x, y, all_lags=True):
     sxy = np.correlate(x, y, mode='full') / lx
     if all_lags:
         return sxy
-    c_idx = pad_len / 2
+    c_idx = pad_len // 2
     return sxy[c_idx:]
 
 
@@ -219,7 +219,7 @@ def test_zero_pad():
     """
     # Freely assume that time is the last dimension:
     ts1 = np.empty((64, 64, 35, 32))
-    NFFT = 64 
+    NFFT = 64
     zp1 = utils.zero_pad(ts1, NFFT)
     npt.assert_equal(zp1.shape[-1], NFFT)
 
@@ -227,7 +227,7 @@ def test_zero_pad():
     ts2 = np.empty(64)
     zp2 = utils.zero_pad(ts2, NFFT)
     npt.assert_equal(zp2.shape[-1], NFFT)
-    
+
 
 def test_detect_lines():
     """
@@ -305,4 +305,3 @@ def test_detect_lines_2dmode():
       (lines[1][1] == lines[2][1]).all()
 
     nt.assert_true(consistent1 and consistent2, 'Inconsistent results')
-

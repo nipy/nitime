@@ -634,7 +634,7 @@ def detect_lines(s, tapers, p=None, **taper_kws):
     # spectra is (n_arr, K, nfft)
     spectra = tapered_spectra(s, tapers, **taper_kws)
     nfft = spectra.shape[-1]
-    spectra = spectra[...,:nfft/2 + 1]
+    spectra = spectra[..., :nfft//2 + 1]
 
     # Set up some data for the following calculations --
     #   get the DC component of the taper spectra

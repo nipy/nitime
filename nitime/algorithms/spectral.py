@@ -23,7 +23,7 @@ from nitime.index_utils import tril_indices, triu_indices
 # Set global variables for the default NFFT to be used in spectral analysis and
 # the overlap:
 default_nfft = 64
-default_n_overlap = int(np.ceil(default_nfft / 2.0))
+default_n_overlap = int(np.ceil(default_nfft // 2))
 
 def get_spectra(time_series, method=None):
     r"""
@@ -244,12 +244,12 @@ def periodogram(s, Fs=2 * np.pi, Sk=None, N=None,
 
     if sides == 'onesided':
         # putative Nyquist freq
-        Fn = N / 2 + 1
+        Fn = N // 2 + 1
         # last duplicate freq
-        Fl = (N + 1) / 2
+        Fl = (N + 1) // 2
         pshape[-1] = Fn
         P = np.zeros(pshape, 'd')
-        freqs = np.linspace(0, Fs / 2, Fn)
+        freqs = np.linspace(0, Fs // 2, Fn)
         P[..., 0] = (Sk[..., 0] * Sk[..., 0].conj()).real
         P[..., 1:Fl] = 2 * (Sk[..., 1:Fl] * Sk[..., 1:Fl].conj()).real
         if Fn > Fl:
@@ -478,7 +478,7 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
             dpss[2 * i] *= -1
     # rather than test the sign of one point, test the sign of the
     # linear slope up to the first (largest) peak
-    pk = np.argmax( np.abs(dpss[1::2, :N/2]), axis=1 )
+    pk = np.argmax(np.abs(dpss[1::2, :N//2]), axis=1)
     for i, p in enumerate(pk):
         if np.sum(dpss[2 * i + 1, :p]) < 0:
             dpss[2 * i + 1] *= -1
@@ -781,7 +781,7 @@ def multi_taper_psd(
         spectra, spectra, weights, sides=sides
         )
     sdf_est /= Fs
-    
+
     if sides == 'onesided':
         freqs = np.linspace(0, Fs / 2, NFFT / 2 + 1)
     else:
@@ -920,7 +920,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
     diag_idc = (np.arange(M), np.arange(M))
     csdfs[diag_idc] /= 2
     csdfs /= Fs
-    
+
     if sides == 'onesided':
         freqs = np.linspace(0, Fs / 2, NFFT / 2 + 1)
     else:
