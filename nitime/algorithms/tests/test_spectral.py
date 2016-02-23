@@ -157,7 +157,7 @@ def test_periodogram_csd():
 
 
 def test_dpss_windows():
-    """ Test a funky corner case of DPSS_windows """
+    """ Test a couple of funky corner cases of DPSS_windows """
 
     N = 1024
     NW = 0  # Setting NW to 0 triggers the weird corner case in which some of
@@ -168,6 +168,11 @@ def test_dpss_windows():
     d, w = tsa.dpss_windows(1024, 0, 7)
     for this_d in d[0::2]:
         npt.assert_equal(this_d.sum(axis=-1) < 0, False)
+
+    # Make sure we interpolate to the proper number of points
+    d, w = tsa.dpss_windows(245411, 4, 8, 1000)
+    npt.assert_equal(d.shape[-1], 245411)
+
 
 def test_dpss_properties():
     """ Test conventions of Slepian eigenvectors """

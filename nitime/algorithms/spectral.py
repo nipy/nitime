@@ -419,8 +419,7 @@ def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
         for this_d in d:
             x = np.arange(this_d.shape[-1])
             I = interpolate.interp1d(x, this_d, kind=interp_kind)
-            d_temp = I(np.arange(0, this_d.shape[-1] - 1,
-                                 float(this_d.shape[-1] - 1) / N))
+            d_temp = I(np.linspace(0, this_d.shape[-1] - 1, N, endpoint=False))
 
             # Rescale:
             d_temp = d_temp / np.sqrt(np.sum(d_temp ** 2))
