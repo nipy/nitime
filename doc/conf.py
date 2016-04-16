@@ -57,16 +57,14 @@ sys.path.append(os.path.abspath('sphinxext'))
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest',
-              #'sphinx.ext.intersphinx',
+              'sphinx.ext.intersphinx',
               'sphinx.ext.todo',
               'sphinx.ext.pngmath',
               'numpydoc',
               'sphinx.ext.inheritance_diagram',
               'ipython_console_highlighting',
               'only_directives',
-              'math_dollar',  # Support for $x$ math
-              # For now, we use our own patched plot directive, we'll revert
-              # back to the official one once our changes are upstream.
+              'math_dollar',
               'matplotlib.sphinxext.plot_directive',
               'github'
               ]
