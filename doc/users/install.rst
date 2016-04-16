@@ -56,7 +56,7 @@ source version-control system, you can download it directly here_
 
 .. _here: gh-archive_
 
-You can also install nitime using anaconda_, by issuing the following commands::
+You can also install nitime using conda_, by issuing the following commands::
 
     conda config --add channels conda-forge
     conda install nitime

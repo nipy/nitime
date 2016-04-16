@@ -61,6 +61,7 @@
 .. _easy-install: http://packages.python.org/distribute/easy_install.html
 .. _pip: https://pip.pypa.io/en/stable/
 .. _anaconda: https://anaconda.org/
+.. _conda: http://conda.pydata.org/
 
 .. Other python projects
 .. _numpy: http://www.scipy.org/NumPy
