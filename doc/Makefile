@@ -23,8 +23,7 @@ help:
 	      		"items (ChangeLog)"
 	@echo "  linkcheck check all external links for integrity"
 	@echo "  doctest   run all doctests embedded in the documentation"
-	@echo "  sf_fer_perez copy html files to sourceforge (fer_perez only)"
-	@echo "  sf_arokem copy html files to sourceforge (arokem only)"
+	@echo "  upload 	Upload the docs to github pages website"
 
 clean:
 	-rm -rf _build/* *~ api/generated

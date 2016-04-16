@@ -118,7 +118,7 @@ the spectrum (the other half is equal):
 
 """
 
-L = n_samples / 2 + 1
+L = n_samples // 2 + 1
 sides = 'onesided'
 
 """
@@ -129,7 +129,7 @@ We estimate adaptive weighting of the tapers, based on the data (see
 """
 
 w = np.empty((nseq, K, L))
-for i in xrange(nseq):
+for i in range(nseq):
     w[i], _ = utils.adaptive_weights(tspectra[i], eigs, sides=sides)
 
 
@@ -151,8 +151,8 @@ Looping over the ROIs:
 
 """
 
-for i in xrange(nseq):
-    for j in xrange(i):
+for i in range(nseq):
+    for j in range(i):
 
         """
 

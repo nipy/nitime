@@ -132,7 +132,7 @@ za = np.empty((N, 3, L))
 zb = np.empty((N, 3, L))
 ea = np.empty((N, 3, L))
 eb = np.empty((N, 3, L))
-for i in xrange(N):
+for i in range(N):
     za[i], ea[i] = utils.generate_mar(a, cov, L)
     zb[i], eb[i] = utils.generate_mar(b, cov, L)
 
@@ -146,7 +146,7 @@ of auto-covariance at lags k=0,1,2
 Raxx = np.empty((N, 3, 3, 3))
 Rbxx = np.empty((N, 3, 3, 3))
 
-for i in xrange(N):
+for i in range(N):
     Raxx[i] = utils.autocov_vector(za[i], nlags=3)
     Rbxx[i] = utils.autocov_vector(zb[i], nlags=3)
 

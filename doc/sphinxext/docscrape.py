@@ -6,7 +6,10 @@ import inspect
 import textwrap
 import re
 import pydoc
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 from warnings import warn
 
 class Reader(object):
@@ -112,8 +115,8 @@ class NumpyDocString(object):
     def __getitem__(self,key):
         return self._parsed_data[key]
 
-    def __setitem__(self,key,val):
-        if not self._parsed_data.has_key(key):
+    def __setitem__(self, key,val):
+        if not key in self._parsed_data:
             warn("Unknown section %s" % key)
         else:
             self._parsed_data[key] = val
@@ -183,7 +186,7 @@ class NumpyDocString(object):
 
         return params
 
-    
+
     _name_rgx = re.compile(r"^\s*(:(?P<role>\w+):`(?P<name>[a-zA-Z0-9_.-]+)`|"
                            r" (?P<name2>[a-zA-Z0-9_.-]+))\s*", re.X)
     def _parse_see_also(self, content):
@@ -216,7 +219,7 @@ class NumpyDocString(object):
 
         current_func = None
         rest = []
-        
+
         for line in content:
             if not line.strip(): continue
 
@@ -258,7 +261,7 @@ class NumpyDocString(object):
             if len(line) > 2:
                 out[line[1]] = strip_each_in(line[2].split(','))
         return out
-    
+
     def _parse_summary(self):
         """Grab signature (if given) and summary"""
         if self._is_at_section():
@@ -275,7 +278,7 @@ class NumpyDocString(object):
 
         if not self._is_at_section():
             self['Extended Summary'] = self._read_to_next_section()
-    
+
     def _parse(self):
         self._doc.reset()
         self._parse_summary()
@@ -413,13 +416,13 @@ class FunctionDoc(NumpyDocString):
             doc = inspect.getdoc(func) or ''
         try:
             NumpyDocString.__init__(self, doc)
-        except ValueError, e:
-            print '*'*78
-            print "ERROR: '%s' while parsing `%s`" % (e, self._f)
-            print '*'*78
-            #print "Docstring follows:"
-            #print doclines
-            #print '='*78
+        except ValueError as e:
+            print('*'*78)
+            print("ERROR: '%s' while parsing `%s`" % (e, self._f))
+            print('*'*78)
+            #print("Docstring follows:")
+            #print(doclines)
+            #print('='*78)
 
         if not self['Signature']:
             func, func_name = self.get_func()
@@ -429,7 +432,7 @@ class FunctionDoc(NumpyDocString):
                 argspec = inspect.formatargspec(*argspec)
                 argspec = argspec.replace('*','\*')
                 signature = '%s%s' % (func_name, argspec)
-            except TypeError, e:
+            except TypeError as e:
                 signature = '%s()' % func_name
             self['Signature'] = signature
 
@@ -440,7 +443,7 @@ class FunctionDoc(NumpyDocString):
         else:
             func = self._f
         return func, func_name
-            
+
     def __str__(self):
         out = ''
 
@@ -451,8 +454,8 @@ class FunctionDoc(NumpyDocString):
                  'meth': 'method'}
 
         if self._role:
-            if not roles.has_key(self._role):
-                print "Warning: invalid role %s" % self._role
+            if not self._role in roles:
+                print("Warning: invalid role %s" % self._role)
             out += '.. %s:: %s\n    \n\n' % (roles.get(self._role,''),
                                              func_name)
 
@@ -488,10 +491,8 @@ class ClassDoc(NumpyDocString):
         out += "\n\n"
 
         #for m in self.methods:
-        #    print "Parsing `%s`" % m
+        #    print("Parsing `%s`" % m)
         #    out += str(self._func_doc(getattr(self._cls,m), 'meth')) + '\n\n'
         #    out += '.. index::\n   single: %s; %s\n\n' % (self._name, m)
 
         return out
-
-
