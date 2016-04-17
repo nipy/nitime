@@ -149,7 +149,7 @@ n_process = am.shape[-1]
 z = np.empty((N, n_process, L))
 nz = np.empty((N, n_process, L))
 
-for i in xrange(N):
+for i in range(N):
     z[i], nz[i] = utils.generate_mar(am, cov, L)
 
 """
@@ -187,7 +187,7 @@ order to choose an appropriate order, given the data.
 
 Rxx = np.empty((N, n_process, n_process, n_lags))
 
-for i in xrange(N):
+for i in range(N):
     Rxx[i] = utils.autocov_vector(z[i], nlags=n_lags)
 
 Rxx = Rxx.mean(axis=0)
@@ -250,7 +250,7 @@ empirical signals:
 c_x = np.empty((L, w.shape[0]))
 c_y = np.empty((L, w.shape[0]))
 
-for i in xrange(N):
+for i in range(N):
     frex, c_x[i], nu = alg.multi_taper_psd(z[i][0])
     frex, c_y[i], nu = alg.multi_taper_psd(z[i][1])
 
@@ -320,7 +320,7 @@ ax03.plot(w, f_id, label='Interdependence')
 
 coh = np.empty((N, 33))
 
-for i in xrange(N):
+for i in range(N):
     frex, this_coh = alg.coherence(z[i])
     coh[i] = this_coh[0, 1]
 

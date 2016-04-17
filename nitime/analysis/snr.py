@@ -104,7 +104,7 @@ class SNRAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def mt_noise_psd(self):
         p = np.empty((self.noise.data.shape[0],
-                     self.noise.data.shape[-1] / 2 + 1))
+                     self.noise.data.shape[-1] // 2 + 1))
 
         for i in range(p.shape[0]):
             _, p[i], _ = tsa.multi_taper_psd(self.noise.data[i],

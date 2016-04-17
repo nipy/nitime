@@ -81,7 +81,7 @@ for idx, noise in enumerate([1, 10, 50, 100]):
 
     """
 
-    for trial in  xrange(n_trials):
+    for trial in  range(n_trials):
         sample[-1][trial] += np.random.randn(sample[-1][trial].shape[0]) * noise
 
     """

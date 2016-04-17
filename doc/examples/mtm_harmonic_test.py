@@ -114,11 +114,11 @@ pp.figure()
 pp.subplot(211)
 pp.plot(harmonics.T, 'c', linewidth=3)
 pp.plot(h_est.T, 'r--', linewidth=2)
-pp.title('%d lines detected'%h_est.shape[0])
+pp.title('%d lines detected' % h_est.shape[0])
 pp.xlim(*(np.array([0.2, 0.3])*N).astype('i'))
 pp.subplot(212)
 err = harmonic - np.sum(h_est, axis=0)
-pp.plot( err**2 )
+pp.plot(err**2)
 pp.title('Error signal')
 pp.show()
 
@@ -138,7 +138,7 @@ phs_err = np.linalg.norm(phs_est - phs)**2
 amp_err = np.linalg.norm(amps - 2*np.abs(b))**2 / np.linalg.norm(amps)**2
 freq_err = np.linalg.norm(lines - f)**2
 
-print 'freqs:', lines, '\testimated:', f, '\terr: %1.3e'%freq_err
-print 'amp:', amps, '\testimated:', 2*np.abs(b), '\terr: %1.3e'%amp_err
-print 'phase:', phs, '\testimated:', phs_est, '\terr: %1.3e'%phs_err
-print 'MS error over noise: %1.3e'%(np.mean(err**2)/nz_sig**2,)
+print('freqs:', lines, '\testimated:', f, '\terr: %1.3e' % freq_err)
+print('amp:', amps, '\testimated:', 2*np.abs(b), '\terr: %1.3e' % amp_err)
+print('phase:', phs, '\testimated:', phs_est, '\terr: %1.3e' % phs_err)
+print('MS error over noise: %1.3e' % (np.mean(err**2)/nz_sig**2,))

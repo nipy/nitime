@@ -3,9 +3,7 @@
 
 This also creates the index.rst file appropriately, makes figures, etc.
 """
-#-----------------------------------------------------------------------------
 # Library imports
-#-----------------------------------------------------------------------------
 
 # Stdlib imports
 import os
@@ -17,17 +15,16 @@ from glob import glob
 
 # We must configure the mpl backend before making any further mpl imports
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
 from matplotlib._pylab_helpers import Gcf
 
 # Local tools
 from toollib import *
 
-#-----------------------------------------------------------------------------
-# Globals
-#-----------------------------------------------------------------------------
+# Set MPL backend:
+matplotlib.use('Agg')
+
+# Globals:
 
 examples_header = """
 
@@ -41,20 +38,22 @@ Examples
 
 .. toctree::
    :maxdepth: 2
-   
-   
+
+
 """
-#-----------------------------------------------------------------------------
-# Function defintions
-#-----------------------------------------------------------------------------
+# Function defintions::
 
 # These global variables let show() be called by the scripts in the usual
 # manner, but when generating examples, we override it to write the figures to
 # files with a known name (derived from the script name) plus a counter
 figure_basename = None
 
-# We must change the show command to save instead 
+# We must change the show command to save instead
 def show():
+    """
+    This over-rides matplotlibs `show` function to save instead of rendering to
+    the screen.
+    """
     allfm = Gcf.get_all_fig_managers()
     for fcount, fm in enumerate(allfm):
         fm.canvas.figure.savefig('%s_%02i.png' %
@@ -63,9 +62,7 @@ def show():
 _mpl_show = plt.show
 plt.show = show
 
-#-----------------------------------------------------------------------------
-# Main script
-#-----------------------------------------------------------------------------
+# Main script::
 
 # Work in examples directory
 cd('examples')
@@ -79,9 +76,9 @@ sh('../../tools/ex2rst --project Nitime --outdir . .')
 index = open('index.rst', 'w')
 index.write(examples_header)
 for name in [os.path.splitext(f)[0] for f in glob('*.rst')]:
-    #Don't add the index in there to avoid sphinx errors and don't add the
-    #note_about examples again (because it was added at the top):
-    if name not in(['index','note_about_examples']):
+    #  Don't add the index in there to avoid sphinx errors and don't add the
+    #  note_about examples again (because it was added at the top):
+    if name not in(['index', 'note_about_examples']):
         index.write('   %s\n' % name)
 index.close()
 # Execute each python script in the directory.
@@ -92,7 +89,9 @@ else:
         os.mkdir('fig')
 
     for script in glob('*.py'):
+        print(script)
         figure_basename = pjoin('fig', os.path.splitext(script)[0])
-        execfile(script)
+
+        with open(script) as f:
+            exec(f.read())
         plt.close('all')
-    

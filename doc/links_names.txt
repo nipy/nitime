@@ -2,7 +2,7 @@
    and name substitutions.  It may be included in many files,
    therefore it should only contain link targets and name
    substitutions.  Try grepping for "^\.\. _" to find plausible
-   candidates for this list.  
+   candidates for this list.
 
 .. NOTE: reST targets are
    __not_case_sensitive__, so only one target definition is needed for
@@ -13,8 +13,8 @@
 .. _`Brain Imaging Center`: http://bic.berkeley.edu/
 .. _`Nibabel`: http://nipy.org/nibabel
 
-.. _gh-download: http://github.com/nipy/nitime/downloads
-.. _gh-archive: http://github.com/nipy/nitime/archives/master
+.. _gh-download: https://github.com/nipy/nitime/releases
+.. _gh-archive: https://github.com/nipy/nitime/archive/master.zip
 .. _nitime-pypi: http://pypi.python.org/pypi/nitime
 
 .. Documentation tools
@@ -59,6 +59,9 @@
 .. _nose: http://somethingaboutorange.com/mrl/projects/nose
 .. _`python coverage tester`: http://nedbatchelder.com/code/modules/coverage.html
 .. _easy-install: http://packages.python.org/distribute/easy_install.html
+.. _pip: https://pip.pypa.io/en/stable/
+.. _anaconda: https://anaconda.org/
+.. _conda: http://conda.pydata.org/
 
 .. Other python projects
 .. _numpy: http://www.scipy.org/NumPy
@@ -72,6 +75,7 @@
 .. _mayavi: http://mayavi.sourceforge.net/
 .. _sympy: http://code.google.com/p/sympy/
 .. _networkx: http://networkx.lanl.gov/
+.. _cython: http://cython.org
 
 .. Python imaging projects
 .. _PyMVPA: http://www.pymvpa.org
