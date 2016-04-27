@@ -269,6 +269,17 @@ def test_FilterAnalyzer():
     npt.assert_equal(f_both.filtered_boxcar.shape, T2.shape)
     npt.assert_equal(f_both.filtered_fourier.shape, T2.shape)
 
+    # Check that t0 is propagated to the filtered time-series
+    t0 = np.pi
+    T3 = ts.TimeSeries(np.vstack([fast, slow]), sampling_rate=np.pi, t0=t0)
+    f_both = nta.FilterAnalyzer(T3, ub=1.0, lb=0.1)
+    # These are rather basic tests:
+    npt.assert_equal(f_both.fir.t0, ts.TimeArray(t0, time_unit=T3.time_unit))
+    npt.assert_equal(f_both.iir.t0, ts.TimeArray(t0, time_unit=T3.time_unit))
+    npt.assert_equal(f_both.filtered_boxcar.t0, ts.TimeArray(t0,
+                                                    time_unit=T3.time_unit))
+    npt.assert_equal(f_both.filtered_fourier.t0, ts.TimeArray(t0,
+                                                     time_unit=T3.time_unit))
 
 def test_NormalizationAnalyzer():
     """Testing the NormalizationAnalyzer """
