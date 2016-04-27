@@ -546,6 +546,20 @@ def test_TimeSeries():
     npt.assert_equal(tseries1.data, tseries2.data)
     npt.assert_equal(tseries1.time, tseries2.time)
 
+    tseries_nd1 = ts.TimeSeries(np.random.randn(3, 100), sampling_rate=1)
+    tseries_nd2 = ts.TimeSeries(np.random.randn(3, 100), sampling_rate=1)
+    npt.assert_equal((tseries_nd1 + tseries_nd2).data,
+                     tseries_nd1.data + tseries_nd2.data)
+
+    npt.assert_equal((tseries_nd1 - tseries_nd2).data,
+                     tseries_nd1.data - tseries_nd2.data)
+
+    npt.assert_equal((tseries_nd1 * tseries_nd2).data,
+                     tseries_nd1.data * tseries_nd2.data)
+
+    npt.assert_equal((tseries_nd1 / tseries_nd2).data,
+                     tseries_nd1.data / tseries_nd2.data)
+
 
 def test_TimeSeries_repr():
     """
@@ -705,12 +719,10 @@ def test_Events():
 
         # Note that the length of indices and labels has to be identical:
         nt.assert_raises(ValueError, ts.Events, t, time_unit=unit,
-                                                       labels=['trial',
-                                                               'other'],
-                                                       indices=[i0])# Only
-                                                                    # one of
-                                                                    # the
-                                                                    # indices!
+                         labels=['trial', 'other'], indices=[i0])    # Only
+                                                                     # one of
+                                                                     # the
+                                                                     # indices!
 
         # make sure the time is retained
         npt.assert_equal(ev1.time, t)
