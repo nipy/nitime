@@ -981,40 +981,40 @@ class TimeSeriesBase(object):
     # add some methods that implement arithmetic on the timeseries data
     def __add__(self, other):
         out = self.copy()
-        out.data = out.data.__add__(np.array(other).T)
+        out.data = out.data.__add__(np.asanyarray(other).T)
         return out
 
     def __sub__(self, other):
         out = self.copy()
-        out.data = out.data.__sub__(np.array(other).T)
+        out.data = out.data.__sub__(np.asanyarray(other).T)
         return out
 
     def __mul__(self, other):
         out = self.copy()
-        out.data = out.data.__mul__(np.array(other).T)
+        out.data = out.data.__mul__(np.asanyarray(other).T)
         return out
 
     def __div__(self, other):
         out = self.copy()
-        out.data = out.data.__truediv__(np.array(other).T)
+        out.data = out.data.__truediv__(np.asanyarray(other).T)
         return out
 
     __truediv__ = __div__  # for py3k
 
     def __iadd__(self, other):
-        self.data.__iadd__(np.array(other).T)
+        self.data.__iadd__(np.asanyarray(other).T)
         return self
 
     def __isub__(self, other):
-        self.data.__isub__(np.array(other).T)
+        self.data.__isub__(np.asanyarray(other).T)
         return self
 
     def __imul__(self, other):
-        self.data.__imul__(np.array(other).T)
+        self.data.__imul__(np.asanyarray(other).T)
         return self
 
     def __idiv__(self, other):
-        self.data.__itruediv__(np.array(other).T)
+        self.data.__itruediv__(np.asanyarray(other).T)
         return self
 
     __itruediv__ = __idiv__  # for py3k
