@@ -1,4 +1,3 @@
-
 import numpy as np
 from nitime.lazy import scipy
 from nitime.lazy import scipy_signal as signal
@@ -277,11 +276,12 @@ class FilterAnalyzer(desc.ResetMixin):
 
         #Initialize all the local variables you will need for all the different
         #filtering methods:
-        self.data = time_series.data
-        self.sampling_rate = time_series.sampling_rate
+        self._ts = time_series
+        self.data = self._ts.data
+        self.sampling_rate = self._ts.sampling_rate
         self.ub = ub
         self.lb = lb
-        self.time_unit = time_series.time_unit
+        self.time_unit = self._ts.time_unit
         self._boxcar_iterations = boxcar_iterations
         self._gstop = gstop
         self._gpass = gpass
@@ -313,30 +313,35 @@ class FilterAnalyzer(desc.ResetMixin):
         if in_ts is not None:
             data = in_ts.data
             Fs = in_ts.sampling_rate
+            t0 = in_ts.t0
+            time_unit = in_ts.time_unit
         else:
-            data = self.data
-            Fs = self.sampling_rate
+            data = self._ts.data
+            Fs = self._ts.sampling_rate
+            t0 = self._ts.t0
+            time_unit = self._ts.time_unit
 
-        #filtfilt only operates channel-by-channel, so we need to loop over the
-        #channels, if the data is multi-channel data:
+        # filtfilt only operates channel-by-channel, so we need to loop over
+        # the channels, if the data is multi-channel data:
         if len(data.shape) > 1:
             out_data = np.empty(data.shape, dtype=data.dtype)
             for i in range(data.shape[0]):
                 out_data[i] = signal.filtfilt(b, a, data[i])
-                #Make sure to preserve the DC:
+                # Make sure to preserve the DC:
                 dc = np.mean(data[i])
                 out_data[i] = out_data[i] - np.mean(out_data[i])
                 out_data[i] = out_data[i] + dc
         else:
             out_data = signal.filtfilt(b, a, data)
-            #Make sure to preserve the DC:
+            # Make sure to preserve the DC:
             dc = np.mean(data)
             out_data -= np.mean(out_data)
             out_data += dc
 
         return ts.TimeSeries(out_data,
                              sampling_rate=Fs,
-                             time_unit=self.time_unit)
+                             time_unit=time_unit,
+                             t0=t0)
 
     @desc.setattr_on_read
     def fir(self):
@@ -364,8 +369,8 @@ class FilterAnalyzer(desc.ResetMixin):
 
         n_taps = self._filt_order + 1
 
-        #This means the filter order you chose was too large (needs to be
-        #shorter than a 1/3 of your time-series )
+        # This means the filter order you chose was too large (needs to be
+        # shorter than a 1/3 of your time-series )
         if n_taps > self.data.shape[-1] * 3:
             e_s = "The filter order chosen is too large for this time-series"
             raise ValueError(e_s)
@@ -373,14 +378,16 @@ class FilterAnalyzer(desc.ResetMixin):
         # a is always 1:
         a = [1]
 
-        sig = ts.TimeSeries(data=self.data, sampling_rate=self.sampling_rate)
+        sig = ts.TimeSeries(data=self._ts.data,
+                            sampling_rate=self._ts.sampling_rate,
+                            t0=self._ts.t0)
 
-        #Lowpass:
+        # Lowpass:
         if ub_frac < 1:
             b = signal.firwin(n_taps, ub_frac, window=self._win)
             sig = self.filtfilt(b, a, sig)
 
-        #High-pass
+        # High-pass
         if lb_frac > 0:
             #Includes a spectral inversion:
             b = -1 * signal.firwin(n_taps, lb_frac, window=self._win)
@@ -461,7 +468,8 @@ class FilterAnalyzer(desc.ResetMixin):
 
         return ts.TimeSeries(data=data_out,
                              sampling_rate=self.sampling_rate,
-                             time_unit=self.time_unit)
+                             time_unit=self.time_unit,
+                             t0=self._ts.t0)
 
     @desc.setattr_on_read
     def filtered_boxcar(self):
@@ -486,8 +494,9 @@ class FilterAnalyzer(desc.ResetMixin):
                                      n_iterations=self._boxcar_iterations)
 
         return ts.TimeSeries(data=data_out,
-                                 sampling_rate=self.sampling_rate,
-                                 time_unit=self.time_unit)
+                             sampling_rate=self.sampling_rate,
+                             time_unit=self.time_unit,
+                             t0=self._ts.t0)
 
 
 class HilbertAnalyzer(BaseAnalyzer):
