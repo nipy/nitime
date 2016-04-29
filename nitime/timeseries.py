@@ -255,69 +255,69 @@ class TimeArray(np.ndarray, TimeInterface):
             val *= self._conversion_factor
         return val
 
-    def __add__(self,val):
+    def __add__(self, val):
         val = self._convert_if_needed(val)
-        return np.ndarray.__add__(self,val)
+        return np.ndarray.__add__(self, val)
 
-    def __sub__(self,val):
+    def __sub__(self, val):
         val = self._convert_if_needed(val)
-        return np.ndarray.__sub__(self,val)
+        return np.ndarray.__sub__(self, val)
 
-    def __radd__(self,val):
+    def __radd__(self, val):
         val = self._convert_if_needed(val)
-        return np.ndarray.__radd__(self,val)
+        return np.ndarray.__radd__(self, val)
 
-    def __rsub__(self,val):
+    def __rsub__(self, val):
         val = self._convert_if_needed(val)
-        return np.ndarray.__rsub__(self,val)
+        return np.ndarray.__rsub__(self, val)
 
-    def __lt__(self,val):
+    def __lt__(self, val):
         val = self._convert_if_needed(val)
-        return np.ndarray.__lt__(self,val)
+        return np.ndarray.__lt__(self, val)
 
-    def __gt__(self,val):
+    def __gt__(self, val):
         val = self._convert_if_needed(val)
-        return np.ndarray.__gt__(self,val)
+        return np.ndarray.__gt__(self, val)
 
-    def __le__(self,val):
+    def __le__(self, val):
         val = self._convert_if_needed(val)
-        return np.ndarray.__le__(self,val)
+        return np.ndarray.__le__(self, val)
 
-    def __ge__(self,val):
+    def __ge__(self, val):
         val = self._convert_if_needed(val)
         return np.ndarray.__ge__(self,val)
 
-    def __eq__(self,val):
+    def __eq__(self, val):
         val = self._convert_if_needed(val)
         return np.ndarray.__eq__(self,val)
 
-    def min(self, *args,**kwargs):
-        ret = TimeArray(np.ndarray.min(self, *args,**kwargs),
+    def min(self, *args, **kwargs):
+        ret = TimeArray(np.ndarray.min(self, *args, **kwargs),
             time_unit=base_unit)
         ret.convert_unit(self.time_unit)
         return ret
 
     def max(self, *args,**kwargs):
-        ret = TimeArray(np.ndarray.max(self, *args,**kwargs),
+        ret = TimeArray(np.ndarray.max(self, *args, **kwargs),
             time_unit=base_unit)
         ret.convert_unit(self.time_unit)
         return ret
 
-    def mean(self, *args,**kwargs):
-        ret = TimeArray(np.ndarray.mean(self, *args,**kwargs),
+    def mean(self, *args, **kwargs):
+        ret = TimeArray(np.ndarray.mean(self, *args, **kwargs),
             time_unit=base_unit)
         ret.convert_unit(self.time_unit)
         return ret
 
-    def ptp(self, *args,**kwargs):
-        ret = TimeArray(np.ndarray.ptp(self, *args,**kwargs),
-            time_unit=base_unit)
+    def ptp(self, *args, **kwargs):
+        ret = TimeArray(np.ndarray.ptp(self, *args, **kwargs),
+                        time_unit=base_unit)
         ret.convert_unit(self.time_unit)
         return ret
 
     def sum(self, *args,**kwargs):
-        ret = TimeArray(np.ndarray.sum(self, *args,**kwargs),
-            time_unit=base_unit)
+        ret = TimeArray(np.ndarray.sum(self, *args, **kwargs),
+                        time_unit=base_unit)
         ret.convert_unit(self.time_unit)
         return ret
 
@@ -325,22 +325,18 @@ class TimeArray(np.ndarray, TimeInterface):
         e_s = "Product computation changes TimeArray units"
         raise NotImplementedError(e_s)
 
-
     def var(self, *args, **kwargs):
         e_s = "Variance computation changes TimeArray units"
         raise NotImplementedError(e_s)
 
-
     def std(self, *args, **kwargs):
         """Returns the standard deviation of this TimeArray (with time units)
-
         for detailed information, see numpy.std()
         """
-        ret = TimeArray(np.ndarray.std(self, *args,**kwargs),
-            time_unit=base_unit)
+        ret = TimeArray(np.ndarray.std(self, *args, **kwargs),
+                        time_unit=base_unit)
         ret.convert_unit(self.time_unit)
         return ret
-
 
     def index_at(self, t, tol=None, mode='closest'):
         """ Returns the integer indices that corresponds to the time t
@@ -985,43 +981,43 @@ class TimeSeriesBase(object):
     # add some methods that implement arithmetic on the timeseries data
     def __add__(self, other):
         out = self.copy()
-        out.data = out.data.__add__(other)
+        out.data = out.data.__add__(np.asanyarray(other).T)
         return out
 
     def __sub__(self, other):
         out = self.copy()
-        out.data = out.data.__sub__(other)
+        out.data = out.data.__sub__(np.asanyarray(other).T)
         return out
 
     def __mul__(self, other):
         out = self.copy()
-        out.data = out.data.__mul__(other)
+        out.data = out.data.__mul__(np.asanyarray(other).T)
         return out
 
     def __div__(self, other):
         out = self.copy()
-        out.data = out.data.__truediv__(other)
+        out.data = out.data.__truediv__(np.asanyarray(other).T)
         return out
 
-    __truediv__ =  __div__ # for py3k
+    __truediv__ = __div__  # for py3k
 
     def __iadd__(self, other):
-        self.data.__iadd__(other)
+        self.data.__iadd__(np.asanyarray(other).T)
         return self
 
     def __isub__(self, other):
-        self.data.__isub__(other)
+        self.data.__isub__(np.asanyarray(other).T)
         return self
 
     def __imul__(self, other):
-        self.data.__imul__(other)
+        self.data.__imul__(np.asanyarray(other).T)
         return self
 
     def __idiv__(self, other):
-        self.data.__itruediv__(other)
+        self.data.__itruediv__(np.asanyarray(other).T)
         return self
 
-    __itruediv__ =  __idiv__ # for py3k
+    __itruediv__ = __idiv__  # for py3k
 
 class TimeSeries(TimeSeriesBase):
     """Represent data collected at uniform intervals.
