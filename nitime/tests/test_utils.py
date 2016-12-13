@@ -77,7 +77,7 @@ def test_tridi_inverse_iteration():
             ab[1], sup_diag, w[j], x0=np.sin((j+1)*t)
             )
         b = A*e
-        nt.assert_true(
+        npt.assert_(
                np.linalg.norm(np.abs(b) - np.abs(w[j]*e)) < 1e-8,
                'Inverse iteration eigenvector solution is inconsistent with '\
                'given eigenvalue'
@@ -117,7 +117,7 @@ def test_crosscov():
         sxy_ref = ref_crosscov(ar_seq1, ar_seq2, all_lags=all_lags)
         err = sxy_ref - sxy
         mse = np.dot(err, err) / N
-        nt.assert_true(mse < 1e-12, \
+        npt.assert_(mse < 1e-12, \
                'Large mean square error w.r.t. reference cross covariance')
 
 
@@ -125,10 +125,10 @@ def test_autocorr():
     N = 128
     ar_seq, _, _ = utils.ar_generator(N=N)
     rxx = utils.autocorr(ar_seq)
-    nt.assert_true(rxx[0] == rxx.max(), \
+    npt.assert_(rxx[0] == rxx.max(), \
           'Zero lag autocorrelation is not maximum autocorrelation')
     rxx = utils.autocorr(ar_seq, all_lags=True)
-    nt.assert_true(rxx[127] == rxx.max(), \
+    npt.assert_(rxx[127] == rxx.max(), \
           'Zero lag autocorrelation is not maximum autocorrelation')
 
 def test_information_criteria():
@@ -197,9 +197,7 @@ def test_information_criteria():
 
     # We do not test this for AIC/AICc, because these sometimes do not minimize
     # (see Ding and Bressler)
-    # nt.assert_equal(np.argmin(AIC), 2)
-    # nt.assert_equal(np.argmin(AICc), 2)
-    nt.assert_equal(np.argmin(BIC), 2)
+    npt.assert_equal(np.argmin(BIC), 2)
 
 
 def test_multi_intersect():
@@ -258,7 +256,7 @@ def test_detect_lines():
     f, b = utils.detect_lines(sig, (NW, 2*NW), low_bias=True, NFFT=2**fft_pow)
     h_est = 2*(b[:,None]*np.exp(2j*np.pi*tx*f[:,None])).real
 
-    nt.assert_true(
+    npt.assert_(
         len(f) == 3, 'The wrong number of harmonic components were detected'
         )
 
@@ -273,12 +271,12 @@ def test_detect_lines():
     # FFT bin detections should be exact
     npt.assert_equal(lines, f)
     # amplitude estimation should be pretty good
-    nt.assert_true(amp_err < 1e-4, 'Harmonic amplitude was poorly estimated')
+    npt.assert_(amp_err < 1e-4, 'Harmonic amplitude was poorly estimated')
     # phase estimation should be decent
-    nt.assert_true(phs_err < 1e-3, 'Harmonic phase was poorly estimated')
+    npt.assert_(phs_err < 1e-3, 'Harmonic phase was poorly estimated')
     # the error relative to the noise power should be below 1
     rel_mse = np.mean(err**2)/nz_sig**2
-    nt.assert_true(
+    npt.assert_(
         rel_mse < 1,
         'The error in detected harmonic components is too high relative to '\
         'the noise level: %1.2e'%rel_mse
@@ -297,11 +295,11 @@ def test_detect_lines_2dmode():
 
     lines = utils.detect_lines(sig2d, (4, 8), low_bias=True, NFFT=2**12)
 
-    nt.assert_true(len(lines)==3, 'Detect lines failed multi-sequence mode')
+    npt.assert_(len(lines)==3, 'Detect lines failed multi-sequence mode')
 
     consistent1 = (lines[0][0] == lines[1][0]).all() and \
       (lines[1][0] == lines[2][0]).all()
     consistent2 = (lines[0][1] == lines[1][1]).all() and \
       (lines[1][1] == lines[2][1]).all()
 
-    nt.assert_true(consistent1 and consistent2, 'Inconsistent results')
+    npt.assert_(consistent1 and consistent2, 'Inconsistent results')

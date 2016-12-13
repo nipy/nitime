@@ -6,6 +6,7 @@ Smoke testing of the viz module.
 
 import numpy as np
 import numpy.testing as npt
+import pytest
 
 from nitime.timeseries import TimeSeries
 from nitime.analysis import CorrelationAnalyzer
@@ -40,6 +41,6 @@ def test_plot_xcorr():
                        line_labels=['a', 'b'])
 
 
-@npt.dec.skipif(no_networkx, no_networkx_msg)
+@pytest.mark.skipif(no_networkx, no_networkx_msg)
 def test_drawgraph_channels():
     fig04 = drawgraph_channels(C.corrcoef, roi_names)

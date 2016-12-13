@@ -10,20 +10,19 @@ import numpy as np
 import numpy.testing as npt
 from scipy.signal import signaltools
 
-try:
-    import matplotlib
-    import matplotlib.mlab as mlab
-    has_mpl = True
-    # Matplotlib older than 0.99 will have some issues with the normalization
-    # of t:
-    if float(matplotlib.__version__[:3]) < 0.99:
-        w_s = "You have a relatively old version of Matplotlib. "
-        w_s += " Estimation of the PSD DC component might not be as expected."
-        w_s +=" Consider updating Matplotlib: http://matplotlib.sourceforge.net/"
-        warnings.warn(w_s, Warning)
-        old_mpl = True
-    else:
-        old_mpl = False
+import matplotlib
+import matplotlib.mlab as mlab
+has_mpl = True
+# Matplotlib older than 0.99 will have some issues with the normalization
+# of t:
+if float(matplotlib.__version__[:3]) < 0.99:
+    w_s = "You have a relatively old version of Matplotlib. "
+    w_s += " Estimation of the PSD DC component might not be as expected."
+    w_s +=" Consider updating Matplotlib: http://matplotlib.sourceforge.net/"
+    warnings.warn(w_s, Warning)
+    old_mpl = True
+else:
+    old_mpl = False
 
 from scipy import fftpack
 
