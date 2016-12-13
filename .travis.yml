@@ -13,8 +13,8 @@ python:
 - 3.4
 - 3.5
 env:
-- CONDA_DEPS="pip nose coverage numpy scipy matplotlib networkx" PIP_DEPS="coveralls
-  nibabel"
+- CONDA_DEPS="pip pytest pytest-cov coverage numpy cython scipy matplotlib networkx" PIP_DEPS="coveralls python-coveralls nibabel"
+
 before_install:
 - export MINICONDA=$HOME/miniconda
 - export PATH="$MINICONDA/bin:$PATH"
@@ -29,12 +29,6 @@ before_install:
 install:
 - python setup.py install --record installed_files.txt
 script:
-- nosetests -v --with-coverage --cover-package=nitime
+  - py.test --pyargs nitime --cov-report term-missing --cov=nitime
 after_success:
 - coveralls
-before_cache:
-- conda clean -tp
-- xargs rm <installed_files.txt
-cache:
-  directories:
-  - $HOME/miniconda
