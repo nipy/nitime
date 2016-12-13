@@ -3,7 +3,6 @@
 Tests of functions under algorithms.coherence
 
 """
-import nose
 import os
 import warnings
 
@@ -25,9 +24,6 @@ try:
         old_mpl = True
     else:
         old_mpl = False
-
-except ImportError:
-    raise nose.SkipTest()
 
 from scipy import fftpack
 

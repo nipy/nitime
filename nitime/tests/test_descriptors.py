@@ -4,7 +4,7 @@
 # Imports
 #-----------------------------------------------------------------------------
 
-import nose.tools as nt
+import numpy.testing as nt
 
 from nitime import descriptors as desc
 
@@ -32,11 +32,11 @@ class A(desc.ResetMixin):
 
 def test():
     a = A(10)
-    nt.assert_false('y' in a.__dict__)
-    nt.assert_equals(a.y, 5)
-    nt.assert_true('y' in a.__dict__)
+    nt.assert_('y' not in a.__dict__)
+    nt.assert_(a.y == 5)
+    nt.assert_('y' in a.__dict__)
     a.x = 20
-    nt.assert_equals(a.y, 5)
+    nt.assert_(a.y == 5)
     # Call reset and no error should be raised even though z was never accessed
     a.reset()
-    nt.assert_equals(a.y, 10)
+    nt.assert_(a.y == 10)
