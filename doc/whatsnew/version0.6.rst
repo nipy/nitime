@@ -31,8 +31,8 @@ Detailed stats from the github repository
 -----------------------------------------
 
 GitHub stats for the last  604 days.
-We closed a total of 15 issues, 6 pull requests and 9 regular 
-issues; this is the full list (generated with the script 
+We closed a total of 15 issues, 6 pull requests and 9 regular
+issues; this is the full list (generated with the script
 `tools/github_stats.py`):
 
 Pull Requests (6):
@@ -40,7 +40,7 @@ Pull Requests (6):
 * :ghissue:`139`: Testing fixes
 * :ghissue:`138`: TST: Update Travis config, add appveyor config.
 * :ghissue:`134`: test_viz: import networkx instead of nx
-* :ghissue:`135`: BF: Newer numpy can't deal with the type coercion that comes with inp…
+* :ghissue:`135`: BF: Newer numpy can't deal with the type coercion that comes with inplace division
 * :ghissue:`130`: RF: Modernize this call to Matplotlib to address DeprecationWarning
 * :ghissue:`128`: BF(PY2.6): use sys.version_info as unnamed tuple
 

@@ -13,11 +13,12 @@ What's new in Nitime
 =====================
 
 This section documents the changes that have been made in various versions of
-Nitime: 
+Nitime:
 
 .. toctree::
    :maxdepth: 1
 
+   version0.7
    version0.6
    version0.5
    version0.4
