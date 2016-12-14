@@ -172,7 +172,10 @@ def test_TimeArray_new():
             npt.assert_equal(time2, time2f)
             npt.assert_equal(time2, time3)
             time3[0] += 100
-            assertion(time2[0], time3[0])
+            if flag:
+                npt.assert_(time2[0] != time3[0])
+            else:
+                npt.assert_(time2[0] == time3[0])
             npt.assert_equal(time2[1:], time3[1:])
             npt.assert_equal(time4, time5)
 
