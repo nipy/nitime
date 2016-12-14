@@ -4,6 +4,7 @@ import numpy as np
 import numpy.testing as npt
 import matplotlib
 import matplotlib.mlab as mlab
+import pytest
 
 import nitime.timeseries as ts
 import nitime.analysis as nta
