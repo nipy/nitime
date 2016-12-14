@@ -29,5 +29,3 @@ from . import analysis
 from . import six
 
 from .timeseries import *
-
-from nitime.testlib import test
