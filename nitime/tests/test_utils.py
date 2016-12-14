@@ -1,6 +1,5 @@
 import numpy as np
 import numpy.testing as npt
-import nose.tools as nt
 
 from nitime import utils
 import nitime.algorithms as alg

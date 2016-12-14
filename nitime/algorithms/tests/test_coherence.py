@@ -201,7 +201,6 @@ def test_correlation_spectrum():
 
 
 # XXX FIXME: http://github.com/nipy/nitime/issues/issue/1
-
 @pytest.mark.skipif(True)
 def test_coherence_linear_dependence():
     """

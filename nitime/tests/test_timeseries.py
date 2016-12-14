@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.testing as npt
 import nitime.timeseries as ts
-import nose.tools as nt
+import pytest
 
 
 
@@ -40,7 +40,8 @@ def test_TimeArray():
     time1 = ts.TimeArray(10 ** 6)
     npt.assert_equal(time1.__repr__(), '1000000.0 s')
     #TimeArray can't be more than 1-d:
-    nt.assert_raises(ValueError, ts.TimeArray, np.zeros((2, 2)))
+    with pytest.raises(ValueError) as e_info:
+        ts.TimeArray(np.zeros((2, 2)))
 
     dt = ts.TimeArray(0.001, time_unit='s')
     tt = ts.TimeArray([dt])
@@ -123,7 +124,7 @@ def test_TimeArray_init_list():
         tl = [t]
         ta = ts.TimeArray(t, time_unit='s')
         tla = ts.TimeArray(tl, time_unit='s')
-        nt.assert_equal(ta, tla)
+        npt.assert_(ta, tla)
 
 
 def test_TimeArray_repr():
@@ -156,8 +157,7 @@ def test_TimeArray_copyflag():
 
 def test_TimeArray_new():
     for unit in ['ns', 'ms', 's', None]:
-        for flag, assertion in [(True, nt.assert_not_equal),
-                (False, nt.assert_equal)]:
+        for flag in [True, False]:
             #list -doesn't make sense to set copy=True
             time2 = ts.TimeArray(list(range(5)), time_unit=unit, copy=True)
             #numpy array (float) - doesn't make sense to set copy=True
@@ -184,7 +184,7 @@ def test_TimeArray_bool():
     bool_arr = np.ones(time1.shape, dtype=bool)
     npt.assert_equal(time1, time2)
     npt.assert_equal(bool_arr, time1 == time2)
-    nt.assert_not_equal(type(time1 == time2), ts.TimeArray)
+    npt.assert_(type(time1 == time2) is not ts.TimeArray)
 
 
 def test_TimeArray_convert_unit():
@@ -698,7 +698,8 @@ def test_basic_slicing():
 def test_Events():
 
     # time has to be one-dimensional
-    nt.assert_raises(ValueError, ts.Events, np.zeros((2, 2)))
+    with pytest.raises(ValueError) as e_info:
+        ts.Events(np.zeros((2, 2)))
 
     t = ts.TimeArray([1, 2, 3], time_unit='ms')
     x = [1, 2, 3]
@@ -718,11 +719,12 @@ def test_Events():
                         indices=[i0, i1])
 
         # Note that the length of indices and labels has to be identical:
-        nt.assert_raises(ValueError, ts.Events, t, time_unit=unit,
-                         labels=['trial', 'other'], indices=[i0])    # Only
-                                                                     # one of
-                                                                     # the
-                                                                     # indices!
+        with pytest.raises(ValueError) as e_info:
+            ts.Events(t, time_unit=unit,
+                      labels=['trial', 'other'], indices=[i0])    # Only
+                                                                   # one of
+                                                                   # the
+                                                                   # indices!
 
         # make sure the time is retained
         npt.assert_equal(ev1.time, t)
@@ -872,7 +874,8 @@ def test_UniformTime_preserves_uniformity():
     utime = ts.UniformTime(t0=0, length=10, sampling_rate=1)
 
     def assign_to_one_element_of(t): t[0]=42
-    nt.assert_raises(ValueError, assign_to_one_element_of,utime)
+    with pytest.raises(ValueError) as e_info:
+        assign_to_one_element_of(utime)
 
     # same as utime, but starting 10s later
     utime10 = ts.UniformTime(t0=10, length=10, sampling_rate=1)
@@ -892,7 +895,8 @@ def test_UniformTime_preserves_uniformity():
 
     nonuniform = np.concatenate((list(range(2)),list(range(3)), list(range(5))))
     def iadd_nonuniform(t): t+=nonuniform
-    nt.assert_raises(ValueError, iadd_nonuniform, utime)
+    with pytest.raises(ValueError) as e_info:
+        iadd_nonuniform(utime)
 
 def test_index_int64():
     "indexing with int64 should still return a valid TimeArray"
