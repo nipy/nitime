@@ -1,14 +1,17 @@
 import sys
 import os
-import nitime.lazyimports as l
 import numpy.testing as npt
 import numpy.testing.decorators as dec
+
+import pytest
+
+import nitime.lazyimports as l
 
 # The next test requires nitime.lazyimports.disable_lazy_imports to have been
 # set to false, otherwise the lazy import machinery is disabled and all imports
 # happen at l.LazyImport calls which become equivalent to regular import
 # statements
-@dec.skipif(l.disable_lazy_imports)
+@pytest.mark.skipif(l.disable_lazy_imports)
 def test_lazy():
     mlab = l.LazyImport('matplotlib.mlab')
     # repr for mlab should be <module 'matplotlib.mlab' will be lazily loaded>
@@ -22,7 +25,7 @@ def test_lazy():
 # A known limitation of our lazy loading implementation is that, when it it is
 # enabled, reloading the module raises an ImportError, and it also does not
 # actually perform a reload, as demonstrated by this test.
-@dec.skipif(l.disable_lazy_imports)
+@pytest.mark.skipif(l.disable_lazy_imports)
 def test_lazy_noreload():
     "Reloading of lazy modules causes ImportError"
     mod = l.LazyImport('sys')

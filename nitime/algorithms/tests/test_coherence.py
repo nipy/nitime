@@ -9,6 +9,7 @@ import warnings
 import numpy as np
 import numpy.testing as npt
 from scipy.signal import signaltools
+import pytest
 
 import matplotlib
 import matplotlib.mlab as mlab
@@ -200,7 +201,8 @@ def test_correlation_spectrum():
 
 
 # XXX FIXME: http://github.com/nipy/nitime/issues/issue/1
-@npt.dec.skipif(True)
+
+@pytest.mark.skipif(True)
 def test_coherence_linear_dependence():
     """
     Tests that the coherence between two linearly dependent time-series
@@ -264,7 +266,7 @@ def test_coherence_matlab():
 
     npt.assert_almost_equal(cxy_mlab[0][1], cxy_matlab, decimal=5)
 
-@npt.dec.skipif(old_mpl)
+@pytest.mark.skipif(old_mpl)
 def test_cached_coherence():
     """Testing the cached coherence functions """
     NFFT = 64  # This is the default behavior
