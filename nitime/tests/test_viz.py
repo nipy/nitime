@@ -41,6 +41,6 @@ def test_plot_xcorr():
                        line_labels=['a', 'b'])
 
 
-@pytest.mark.skipif(no_networkx, no_networkx_msg)
+@pytest.mark.skipif(no_networkx, reason=no_networkx_msg)
 def test_drawgraph_channels():
     fig04 = drawgraph_channels(C.corrcoef, roi_names)

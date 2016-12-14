@@ -77,7 +77,7 @@ def test_CoherenceAnalyzer():
             npt.assert_equal(len(C.coherence_partial.shape), 4)
 
 
-@pytest.mark.skipif(old_mpl)
+@pytest.mark.skipif(old_mpl, reason="Old MPL")
 def test_SparseCoherenceAnalyzer():
     Fs = np.pi
     t = np.arange(256)
@@ -133,7 +133,7 @@ def test_MTCoherenceAnalyzer():
                                                        NFFT))
 
 
-@pytest.mark.skipif(old_python)
+@pytest.mark.skipif(old_python, reason="Old Python")
 def test_warn_short_tseries():
     """
 

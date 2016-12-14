@@ -23,7 +23,7 @@ except ImportError as e:
 
 data_path = os.path.join(nitime.__path__[0],'data')
 
-@pytest.mark.skipif(no_nibabel, no_nibabel_msg)
+@pytest.mark.skipif(no_nibabel, reason=no_nibabel_msg)
 def test_time_series_from_file():
 
     """Testing reading of data from nifti files, using nibabel"""
