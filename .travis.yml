@@ -28,6 +28,6 @@ before_install:
 install:
 - python setup.py install
 script:
-  - py.test --pyargs nitime --cov-report term-missing --cov=nitime
+  - py.test --pyargs nitime
 after_success:
 - coveralls
