@@ -10,7 +10,6 @@ deploy:
     repo: nipy/nitime
 python:
 - 2.7
-- 3.4
 - 3.5
 env:
 - CONDA_DEPS="pip pytest pytest-cov coverage numpy cython scipy matplotlib networkx" PIP_DEPS="coveralls python-coveralls nibabel"
@@ -27,7 +26,7 @@ before_install:
 - conda install python=$TRAVIS_PYTHON_VERSION $CONDA_DEPS
 - travis_retry pip install $PIP_DEPS
 install:
-- python setup.py install --record installed_files.txt
+- python setup.py install
 script:
   - py.test --pyargs nitime --cov-report term-missing --cov=nitime
 after_success:
