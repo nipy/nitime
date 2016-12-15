@@ -7,6 +7,8 @@ Summary of changes
 
 This is a maintenance release.
 
+Testing in this version no longer depends on nose_.
+
 
 Contributors to this release
 ----------------------------
