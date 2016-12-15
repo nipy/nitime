@@ -8,6 +8,7 @@ import scipy
 from scipy import fftpack
 import numpy.testing as npt
 import numpy.testing.decorators as dec
+import pytest
 
 import nitime.algorithms as tsa
 import nitime.utils as utils
