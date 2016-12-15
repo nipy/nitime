@@ -4,13 +4,14 @@ import numpy as np
 import numpy.testing as npt
 import matplotlib
 import matplotlib.mlab as mlab
+import pytest
 
 import nitime.timeseries as ts
 import nitime.analysis as nta
 
 import platform
 
-# Some tests might require python version 2.5 or above: 
+# Some tests might require python version 2.5 or above:
 if float(platform.python_version()[:3]) < 2.5:
     old_python = True
 else:
@@ -19,7 +20,7 @@ else:
 # Matplotlib older than 0.99 will have some issues with the normalization of t
 
 if float(matplotlib.__version__[:3]) < 0.99:
-    w_s = "You have a relatively old version of Matplotlib. " 
+    w_s = "You have a relatively old version of Matplotlib. "
     w_s += " Estimation of the PSD DC component might not be as expected"
     w_s += " Consider updating Matplotlib: http://matplotlib.sourceforge.net/"
     warnings.warn(w_s, Warning)
@@ -76,7 +77,7 @@ def test_CoherenceAnalyzer():
             npt.assert_equal(len(C.coherence_partial.shape), 4)
 
 
-@npt.dec.skipif(old_mpl)
+@pytest.mark.skipif(old_mpl, reason="Old MPL")
 def test_SparseCoherenceAnalyzer():
     Fs = np.pi
     t = np.arange(256)
@@ -110,8 +111,8 @@ def test_SparseCoherenceAnalyzer():
     npt.assert_almost_equal(C2.delay[0, 1], C1.delay[0, 1])
     # Make sure that you would get an error if you provided a method other than
     # 'welch':
-    npt.assert_raises(ValueError, nta.SparseCoherenceAnalyzer, T,
-                                                method=dict(this_method='foo'))
+    with pytest.raises(ValueError) as e_info:
+        nta.SparseCoherenceAnalyzer(T, method=dict(this_method='foo'))
 
 
 def test_MTCoherenceAnalyzer():
@@ -132,7 +133,7 @@ def test_MTCoherenceAnalyzer():
                                                        NFFT))
 
 
-@npt.dec.skipif(old_python)
+@pytest.mark.skipif(old_python, reason="Old Python")
 def test_warn_short_tseries():
     """
 
@@ -186,8 +187,8 @@ def test_SeedCoherenceAnalyzer():
             npt.assert_almost_equal(C1.delay[0, 1], C2.delay[1])
 
         else:
-            npt.assert_raises(ValueError, nta.SeedCoherenceAnalyzer, T_seed1,
-                              T_target, this_method)
+            with pytest.raises(ValueError) as e_info:
+                nta.SeedCoherenceAnalyzer(T_seed1, T_target, this_method)
 
 
 def test_SeedCoherenceAnalyzer_same_Fs():
@@ -206,5 +207,5 @@ def test_SeedCoherenceAnalyzer_same_Fs():
 
     T2 = ts.TimeSeries(np.random.rand(t.shape[-1]),
                        sampling_rate=Fs2)
-
-    npt.assert_raises(ValueError, nta.SeedCoherenceAnalyzer, T1, T2)
+    with pytest.raises(ValueError) as e_info:
+        nta.SeedCoherenceAnalyzer(T1, T2)

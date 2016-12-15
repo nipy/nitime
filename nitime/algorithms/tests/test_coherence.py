@@ -3,31 +3,27 @@
 Tests of functions under algorithms.coherence
 
 """
-import nose
 import os
 import warnings
 
 import numpy as np
 import numpy.testing as npt
 from scipy.signal import signaltools
+import pytest
 
-try:
-    import matplotlib
-    import matplotlib.mlab as mlab
-    has_mpl = True
-    # Matplotlib older than 0.99 will have some issues with the normalization
-    # of t:
-    if float(matplotlib.__version__[:3]) < 0.99:
-        w_s = "You have a relatively old version of Matplotlib. "
-        w_s += " Estimation of the PSD DC component might not be as expected."
-        w_s +=" Consider updating Matplotlib: http://matplotlib.sourceforge.net/"
-        warnings.warn(w_s, Warning)
-        old_mpl = True
-    else:
-        old_mpl = False
-
-except ImportError:
-    raise nose.SkipTest()
+import matplotlib
+import matplotlib.mlab as mlab
+has_mpl = True
+# Matplotlib older than 0.99 will have some issues with the normalization
+# of t:
+if float(matplotlib.__version__[:3]) < 0.99:
+    w_s = "You have a relatively old version of Matplotlib. "
+    w_s += " Estimation of the PSD DC component might not be as expected."
+    w_s +=" Consider updating Matplotlib: http://matplotlib.sourceforge.net/"
+    warnings.warn(w_s, Warning)
+    old_mpl = True
+else:
+    old_mpl = False
 
 from scipy import fftpack
 
@@ -205,7 +201,7 @@ def test_correlation_spectrum():
 
 
 # XXX FIXME: http://github.com/nipy/nitime/issues/issue/1
-@npt.dec.skipif(True)
+@pytest.mark.skipif(True, reason="http://github.com/nipy/nitime/issues/issue/1")
 def test_coherence_linear_dependence():
     """
     Tests that the coherence between two linearly dependent time-series
@@ -269,7 +265,7 @@ def test_coherence_matlab():
 
     npt.assert_almost_equal(cxy_mlab[0][1], cxy_matlab, decimal=5)
 
-@npt.dec.skipif(old_mpl)
+@pytest.mark.skipif(old_mpl, reason="MPL version before 0.99")
 def test_cached_coherence():
     """Testing the cached coherence functions """
     NFFT = 64  # This is the default behavior
@@ -299,7 +295,8 @@ def test_cached_coherence():
 
     # Only welch PSD works and an error is thrown otherwise. This tests that
     # the error is thrown:
-    npt.assert_raises(ValueError, tsa.cache_fft, ts, ij, method=methods[2])
+    with pytest.raises(ValueError) as e_info:
+        tsa.cache_fft(ts, ij, method=methods[2])
 
     # Take the method in which the window is defined on input:
     freqs, cache1 = tsa.cache_fft(ts, ij, method=methods[3])

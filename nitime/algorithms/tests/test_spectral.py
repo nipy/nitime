@@ -8,7 +8,7 @@ import scipy
 from scipy import fftpack
 import numpy.testing as npt
 import numpy.testing.decorators as dec
-import nose.tools as nt
+import pytest
 
 import nitime.algorithms as tsa
 import nitime.utils as utils
@@ -99,8 +99,8 @@ def test_get_spectra_unknown_method():
 
     """
     tseries = np.array([[1, 2, 3], [4, 5, 6]])
-    npt.assert_raises(ValueError,
-                    tsa.get_spectra, tseries, method=dict(this_method='foo'))
+    with pytest.raises(ValueError) as e_info:
+        tsa.get_spectra(tseries, method=dict(this_method='foo'))
 
 
 def test_periodogram():
@@ -181,14 +181,14 @@ def test_dpss_properties():
     NW = 200
     d, lam = tsa.dpss_windows(N, NW, 2*NW-2)
     # 2NW-2 lamdas should be all > 0.9
-    nt.assert_true(
+    npt.assert_(
         (lam > 0.9).all(), 'Eigenvectors show poor spectral concentration'
         )
     # test orthonomality
     err = np.linalg.norm(d.dot(d.T) - np.eye(2*NW-2), ord='fro')
-    nt.assert_true(err**2 < 1e-16, 'Eigenvectors not numerically orthonormal')
+    npt.assert_(err**2 < 1e-16, 'Eigenvectors not numerically orthonormal')
     # test positivity of even functions
-    nt.assert_true(
+    npt.assert_(
         (d[::2].sum(axis=1) > 0).all(),
         'Even Slepian sequences should have positive DC'
         )
@@ -198,7 +198,7 @@ def test_dpss_properties():
     t = True
     for p, f in zip(pk, d[1::2]):
         t = t and np.sum( np.arange(1,p+1) * f[:p] ) >= 0
-    nt.assert_true(t, 'Odd Slepians should begin positive-going')
+    npt.assert_(t, 'Odd Slepians should begin positive-going')
 
 def test_get_spectra_bi():
     """
@@ -247,29 +247,29 @@ def test_mtm_lin_combo():
         mtm_cross = tsa.mtm_cross_spectrum(
             spec1, spec2, (weights[0], weights[1]), sides=sides
             )
-        nt.assert_true(mtm_cross.dtype in np.sctypes['complex'],
+        npt.assert_(mtm_cross.dtype in np.sctypes['complex'],
                'Wrong dtype for crossspectrum')
-        nt.assert_true(len(mtm_cross) == 51,
+        npt.assert_(len(mtm_cross) == 51,
                'Wrong length for halfband spectrum')
         sides = 'twosided'
         mtm_cross = tsa.mtm_cross_spectrum(
             spec1, spec2, (weights[0], weights[1]), sides=sides
             )
-        nt.assert_true(len(mtm_cross) == 100,
+        npt.assert_(len(mtm_cross) == 100,
                'Wrong length for fullband spectrum')
         sides = 'onesided'
         mtm_auto = tsa.mtm_cross_spectrum(
             spec1, spec1, weights[0], sides=sides
             )
-        nt.assert_true(mtm_auto.dtype in np.sctypes['float'],
+        npt.assert_(mtm_auto.dtype in np.sctypes['float'],
                'Wrong dtype for autospectrum')
-        nt.assert_true(len(mtm_auto) == 51,
+        npt.assert_(len(mtm_auto) == 51,
                'Wrong length for halfband spectrum')
         sides = 'twosided'
         mtm_auto = tsa.mtm_cross_spectrum(
             spec1, spec2, weights[0], sides=sides
             )
-        nt.assert_true(len(mtm_auto) == 100,
+        npt.assert_(len(mtm_auto) == 100,
                'Wrong length for fullband spectrum')
 
 
@@ -316,10 +316,8 @@ def test_mtm_cross_spectrum():
     npt.assert_array_almost_equal(psd_ratio, 1, decimal=1)
 
     # Test raising of error in case the inputs don't make sense:
-    npt.assert_raises(ValueError,
-                      tsa.mtm_cross_spectrum,
-                      tspectra, np.r_[tspectra, tspectra],
-                      (w, w))
+    with pytest.raises(ValueError) as e_info:
+        tsa.mtm_cross_spectrum(tspectra, np.r_[tspectra, tspectra], (w, w))
 
 
 @dec.slow
@@ -441,19 +439,19 @@ def test_periodogram_spectral_normalization():
     p1 = np.sum(Xp1) * 2 * np.pi / 2**10
     p2 = np.sum(Xp2) * 100 / 2**10
     p3 = np.sum(Xp3) * 2 * np.pi / 2**12
-    nt.assert_true( np.abs(p1 - p2) < 1e-14,
+    npt.assert_( np.abs(p1 - p2) < 1e-14,
                     'Inconsistent frequency normalization in periodogram (1)' )
-    nt.assert_true( np.abs(p3 - p2) < 1e-8,
+    npt.assert_( np.abs(p3 - p2) < 1e-8,
                     'Inconsistent frequency normalization in periodogram (2)' )
 
     td_var = np.var(x)
     # assure that the estimators are at least in the same
     # order of magnitude as the time-domain variance
-    nt.assert_true( np.abs(np.log10(p1/td_var)) < 1,
+    npt.assert_( np.abs(np.log10(p1/td_var)) < 1,
                     'Incorrect frequency normalization in periodogram' )
 
     # check the freq vector while we're here
-    nt.assert_true( f2.max() == 50, 'Periodogram returns wrong frequency bins' )
+    npt.assert_( f2.max() == 50, 'Periodogram returns wrong frequency bins' )
 
 def test_multitaper_spectral_normalization():
     """
@@ -469,16 +467,16 @@ def test_multitaper_spectral_normalization():
     p1 = np.sum(Xp1) * 2 * np.pi / 2**10
     p2 = np.sum(Xp2) * 100 / 2**10
     p3 = np.sum(Xp3) * 2 * np.pi / 2**12
-    nt.assert_true( np.abs(p1 - p2) < 1e-14,
+    npt.assert_( np.abs(p1 - p2) < 1e-14,
                     'Inconsistent frequency normalization in MTM PSD (1)' )
-    nt.assert_true( np.abs(p3 - p2) < 1e-8,
+    npt.assert_( np.abs(p3 - p2) < 1e-8,
                     'Inconsistent frequency normalization in MTM PSD (2)' )
 
     td_var = np.var(x)
     # assure that the estimators are at least in the same
     # order of magnitude as the time-domain variance
-    nt.assert_true( np.abs(np.log10(p1/td_var)) < 1,
+    npt.assert_( np.abs(np.log10(p1/td_var)) < 1,
                     'Incorrect frequency normalization in MTM PSD' )
 
     # check the freq vector while we're here
-    nt.assert_true( f2.max() == 50, 'MTM PSD returns wrong frequency bins' )
+    npt.assert_( f2.max() == 50, 'MTM PSD returns wrong frequency bins' )

@@ -152,4 +152,6 @@ def setup(app):
     app.add_role('ghuser', ghuser_role)
     app.add_role('ghcommit', ghcommit_role)
     app.add_config_value('github_project_url', None, 'env')
-    return
+
+    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
+    return metadata

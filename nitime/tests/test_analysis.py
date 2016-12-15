@@ -1,5 +1,6 @@
 import numpy as np
 import numpy.testing as npt
+import pytest
 import nitime.timeseries as ts
 import nitime.analysis as nta
 
@@ -175,12 +176,13 @@ def test_EventRelatedAnalyzer():
 
     # Test that providing the analyzer with an array, instead of an Events or a
     # TimeSeries object throws an error:
-    npt.assert_raises(ValueError, nta.EventRelatedAnalyzer, ts2, events, 10)
+    with pytest.raises(ValueError) as e_info:
+        nta.EventRelatedAnalyzer(ts2, events, 10)
 
     # This is not yet implemented, so this should simply throw an error, for
     # now:
-    npt.assert_raises(NotImplementedError,
-                      nta.EventRelatedAnalyzer.FIR_estimate, EA)
+    with pytest.raises(NotImplementedError) as e_info:
+        nta.EventRelatedAnalyzer.FIR_estimate(EA)
 
 def test_HilbertAnalyzer():
     """Testing the HilbertAnalyzer (analytic signal)"""

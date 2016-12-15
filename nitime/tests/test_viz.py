@@ -6,6 +6,7 @@ Smoke testing of the viz module.
 
 import numpy as np
 import numpy.testing as npt
+import pytest
 
 from nitime.timeseries import TimeSeries
 from nitime.analysis import CorrelationAnalyzer
@@ -19,6 +20,9 @@ except ImportError as e:
     no_networkx = True
     no_networkx_msg = e.args[0]
 
+import os
+is_ci = "CI" in os.environ
+
 roi_names = ['a','b','c','d','e','f','g','h','i','j']
 data = np.random.rand(10,1024)
 
@@ -28,9 +32,11 @@ T.metadata['roi'] = roi_names
 #Initialize the correlation analyzer
 C = CorrelationAnalyzer(T)
 
+@pytest.mark.skipif(is_ci, reason="Running on a CI server")
 def test_drawmatrix_channels():
     fig01 = drawmatrix_channels(C.corrcoef, roi_names, size=[10., 10.], color_anchor=0)
 
+@pytest.mark.skipif(is_ci, reason="Running on a CI server")
 def test_plot_xcorr():
     xc = C.xcorr_norm
 
@@ -40,6 +46,7 @@ def test_plot_xcorr():
                        line_labels=['a', 'b'])
 
 
-@npt.dec.skipif(no_networkx, no_networkx_msg)
+@pytest.mark.skipif(is_ci, reason="Running on a CI server")
+@pytest.mark.skipif(no_networkx, reason=no_networkx_msg)
 def test_drawgraph_channels():
     fig04 = drawgraph_channels(C.corrcoef, roi_names)
