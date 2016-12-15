@@ -63,3 +63,5 @@ Issues (10):
 * :ghissue:`142`: 'Fixing build dependency on numpy'
 * :ghissue:`140`: 'FIX: Fix interpolation of dpss_windows'
 * :ghissue:`139`: 'Testing fixes'
+
+.. include:: ../links_names.txt
