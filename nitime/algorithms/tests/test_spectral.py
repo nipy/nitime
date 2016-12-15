@@ -98,8 +98,8 @@ def test_get_spectra_unknown_method():
 
     """
     tseries = np.array([[1, 2, 3], [4, 5, 6]])
-    npt.assert_raises(ValueError,
-                    tsa.get_spectra, tseries, method=dict(this_method='foo'))
+    with pytest.raises(ValueError) as e_info:
+        tsa.get_spectra(tseries, method=dict(this_method='foo'))
 
 
 def test_periodogram():
@@ -315,10 +315,8 @@ def test_mtm_cross_spectrum():
     npt.assert_array_almost_equal(psd_ratio, 1, decimal=1)
 
     # Test raising of error in case the inputs don't make sense:
-    npt.assert_raises(ValueError,
-                      tsa.mtm_cross_spectrum,
-                      tspectra, np.r_[tspectra, tspectra],
-                      (w, w))
+    with pytest.raises(ValueError) as e_info:
+        tsa.mtm_cross_spectrum(tspectra, np.r_[tspectra, tspectra], (w, w))
 
 
 @dec.slow

@@ -295,7 +295,8 @@ def test_cached_coherence():
 
     # Only welch PSD works and an error is thrown otherwise. This tests that
     # the error is thrown:
-    npt.assert_raises(ValueError, tsa.cache_fft, ts, ij, method=methods[2])
+    with pytest.raises(ValueError) as e_info:
+        tsa.cache_fft(ts, ij, method=methods[2])
 
     # Take the method in which the window is defined on input:
     freqs, cache1 = tsa.cache_fft(ts, ij, method=methods[3])

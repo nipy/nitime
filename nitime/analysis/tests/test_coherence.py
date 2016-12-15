@@ -111,8 +111,8 @@ def test_SparseCoherenceAnalyzer():
     npt.assert_almost_equal(C2.delay[0, 1], C1.delay[0, 1])
     # Make sure that you would get an error if you provided a method other than
     # 'welch':
-    npt.assert_raises(ValueError, nta.SparseCoherenceAnalyzer, T,
-                                                method=dict(this_method='foo'))
+    with pytest.raises(ValueError) as e_info:
+        nta.SparseCoherenceAnalyzer(T, method=dict(this_method='foo'))
 
 
 def test_MTCoherenceAnalyzer():
@@ -187,8 +187,8 @@ def test_SeedCoherenceAnalyzer():
             npt.assert_almost_equal(C1.delay[0, 1], C2.delay[1])
 
         else:
-            npt.assert_raises(ValueError, nta.SeedCoherenceAnalyzer, T_seed1,
-                              T_target, this_method)
+            with pytest.raises(ValueError) as e_info:
+                nta.SeedCoherenceAnalyzer(T_seed1, T_target, this_method)
 
 
 def test_SeedCoherenceAnalyzer_same_Fs():
@@ -207,5 +207,5 @@ def test_SeedCoherenceAnalyzer_same_Fs():
 
     T2 = ts.TimeSeries(np.random.rand(t.shape[-1]),
                        sampling_rate=Fs2)
-
-    npt.assert_raises(ValueError, nta.SeedCoherenceAnalyzer, T1, T2)
+    with pytest.raises(ValueError) as e_info:
+        nta.SeedCoherenceAnalyzer(T1, T2)

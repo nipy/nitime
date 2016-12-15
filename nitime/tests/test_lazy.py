@@ -34,10 +34,9 @@ def test_lazy_noreload():
     # do not use named tuple feature for Python 2.6 compatibility
     major, minor = sys.version_info[:2]
     if major == 2:
-        npt.assert_raises(ImportError, reload, mod)
+        with pytest.raises(ImportError) as e_info:
+            reload(mod)
     elif major == 3:
         import imp
-        if minor == 2:
-            npt.assert_raises(ImportError, imp.reload, mod)
-        elif minor == 3:
-            npt.assert_raises(TypeError, imp.reload, mod)
+        with pytest.raises(ImportError) as e_info:
+            imp.reload(mod)
