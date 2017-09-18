@@ -44,12 +44,16 @@ external events.
 
 :func:
 
+8. Entropy
+
+:func:`entropy`, :func:`conditional_entropy`, func`mutual_information`,
+:func:`entropy_cc`, :func:`transfer_entropy`
+
 The algorithms in this library are the functional form of the algorithms, which
 accept as inputs numpy array and produce numpy array outputs. Therfore, they
 can be used on any type of data which can be represented in numpy arrays. See
 also :mod:`nitime.analysis` for simplified analysis interfaces, using the
 data containers implemented in :mod:`nitime.timeseries`
-
 
 """
 from nitime.algorithms.spectral import *
@@ -59,3 +63,4 @@ from nitime.algorithms.event_related import *
 from nitime.algorithms.autoregressive import *
 from nitime.algorithms.filter import *
 from nitime.algorithms.correlation import *
+from nitime.algorithms.entropy import *
