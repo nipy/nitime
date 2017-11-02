@@ -220,8 +220,8 @@ def test_coherence_linear_dependence():
 
     """
     t = np.linspace(0, 16 * np.pi, 2 ** 14)
-    x = np.sin(t) + np.sin(2 * t) + np.sin(3 * t) + \
-                                            0.1 * np.random.rand(t.shape[-1])
+    x = (np.sin(t) + np.sin(2 * t) + np.sin(3 * t) +
+         0.1 * np.random.rand(t.shape[-1]))
     N = x.shape[-1]
 
     alpha = 10
@@ -229,8 +229,8 @@ def test_coherence_linear_dependence():
     noise = 0.1 * np.random.randn(t.shape[-1])
     y = alpha * np.roll(x, m) + noise
 
-    f_noise = fftpack.fft(noise)[0:N / 2]
-    f_x = fftpack.fft(x)[0:N / 2]
+    f_noise = fftpack.fft(noise)[0:N // 2]
+    f_x = fftpack.fft(x)[0:N // 2]
 
     c_t = (1 / (1 + (f_noise / (f_x * (alpha ** 2)))))
 
@@ -257,7 +257,7 @@ def test_coherence_matlab():
     method['this_method'] = 'welch'
     method['NFFT'] = 64
     method['Fs'] = 1.0
-    method['noverlap'] = method['NFFT'] / 2
+    method['noverlap'] = method['NFFT'] // 2
 
     ttt = np.vstack([ts0, ts1])
     f, cxy_mlab = tsa.coherence(ttt, csd_method=method)
