@@ -3,7 +3,7 @@
 .. _mar3:
 
 =====================================================
- Mulitvariate auto-regressive modeling - 3 variables
+ Multivariate auto-regressive modeling - 3 variables
 =====================================================
 
 This example is an extension of the example presented here: :ref:`mar`. Here,
@@ -33,7 +33,7 @@ np.random.seed(1981)
 
 """
 
-simulate two multivariate autoregressive systems.
+Simulate two multivariate autoregressive systems.
 
 The first is defined by the following equations:
 

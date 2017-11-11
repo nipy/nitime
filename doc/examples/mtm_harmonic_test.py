@@ -29,9 +29,11 @@ import nitime.utils as nt_ut
 import matplotlib.pyplot as pp
 
 """
+
 We will set up a test signal with 3 harmonic components within
 Gaussian noise. The line components must be sufficiently resolved
-given the multi-taper bandwidth of 2NW.
+given the multitaper bandwidth of 2NW.
+
 """
 
 N = 10000
@@ -43,16 +45,20 @@ while np.any( np.diff(lines) < 2*NW ):
 lines = lines.astype('d')
 
 """
+
 The harmonic test should find *exact* frequencies if they were to fall
 on the FFT grid. (Try commenting the following to see.) In the
 scenario of real sampled data, increasing the number of FFT points can
 help to locate the line components.
+
 """
 
 lines += np.random.randn(3) # displace from grid locations
 
 """
+
 Now proceed to specify the frequencies, phases, and amplitudes.
+
 """
 
 lines /= 2.0**(fft_pow-2) # ensure they are well separated
@@ -61,11 +67,13 @@ phs = np.random.rand(3) * 2 * np.pi
 amps = np.sqrt(2)/2 + np.abs( np.random.randn(3) )
 
 """
+
 Set the RMS noise power here. Strategies to detect harmonics in low
 SNR include improving the reliability of the spectral estimate
 (increasing NW) and/or increasing the number of FFT points. Note that
 the former option will limit the ability to resolve lines at nearby
 frequencies.
+
 """
 
 nz_sig = 1
@@ -77,7 +85,9 @@ nz = np.random.randn(N) * nz_sig
 sig = harmonic + nz
 
 """
+
 Take a look at our mock signal.
+
 """
 
 pp.figure()
@@ -100,11 +110,13 @@ pp.gcf().tight_layout()
 """
 
 """
+
 Here we'll use the :func:`utils.detect_lines` function with the given
 Slepian properties (NW), and we'll ensure that we limit spectral bias
 by choosing Slepians with concentration factors greater than 0.9. The
 arrays returned include the detected line frequencies (f) and their
 complex coefficients (b). The frequencies are normalized from :math:`(0,\frac{1}{2})`
+
 """
 
 f, b = nt_ut.detect_lines(sig, (NW, 2*NW), low_bias=True, NFFT=2**fft_pow)

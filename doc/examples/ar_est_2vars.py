@@ -4,7 +4,7 @@
 .. _mar:
 
 =====================================
-Mulitvariate auto-regressive modeling
+Multivariate auto-regressive modeling
 =====================================
 
 Multivariate auto-regressive modeling uses a simple
@@ -133,7 +133,6 @@ Sw_true = alg.spectral_matrix_xy(Hw, cov)
 
 Next, we will generate 500 example sets of 100 points of these processes, to analyze:
 
-
 """
 
 #Number of realizations of the process
@@ -242,7 +241,7 @@ Syy_true = Sw_true[1, 1].real
 
 """
 
-The other is an estimate based on a multi-taper spectral estimate from the
+The other is an estimate based on a multitaper spectral estimate from the
 empirical signals:
 
 """
@@ -273,9 +272,9 @@ ax01.legend()
 
 .. image:: fig/ar_est_2vars_01.png
 
-Next, we plot the granger causalities. There are three GCs. One for each
+Next, we plot the Granger causalities. There are three GCs. One for each
 direction of causality between the two processes (X => Y and Y => X). In
-addition, there is the instanteaneous causality between the processes:
+addition, there is the instantaneous causality between the processes:
 
 """
 
@@ -341,7 +340,6 @@ plt.show()
 
 """
 
-
 .. [Ding2006] M. Ding, Y. Chen and S.L. Bressler (2006) Granger causality:
    basic theory and application to neuroscience. In Handbook of Time Series
    Analysis, ed. B. Schelter, M. Winterhalder, and J. Timmer, Wiley-VCH
@@ -350,6 +348,5 @@ plt.show()
 .. [Morf1978] M. Morf, A. Vieira and T. Kailath (1978) Covariance
    Characterization by Partial Autocorrelation Matrices. The Annals of Statistics,
    6: 643-648
-
 
 """
