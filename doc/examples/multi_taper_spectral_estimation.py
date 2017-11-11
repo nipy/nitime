@@ -2,9 +2,9 @@
 
 .. _multi-taper-psd:
 
-===============================
-Multi-taper spectral estimation
-===============================
+==============================
+Multitaper spectral estimation
+==============================
 
 The distribution of power in a signal, as a function of frequency, known as the
 power spectrum (or PSD, for power spectral density) can be estimated using
@@ -32,7 +32,7 @@ stationarity of the signal. In this method, a sliding window is applied to
 different parts of the signal and the windowed spectrum is averaged from these
 different samples. This is sometimes referred to as Welch's periodogram
 [Welch1967]_ and it is the default method used in
-:func:`algorithms.get_spectra` (with the hanning window as the window function
+:func:`algorithms.get_spectra` (with the Hanning window as the window function
 used and no overlap between the windows).  However, it may lead to the
 following problem:
 
@@ -50,9 +50,7 @@ following problem:
   in the frequency domain with the spectrum of the boxcar window. The spectral
   leakage induced by this operation is demonstrated in the following example.
 
-
-We start by importing the modules/functions we will need in this example
-
+We start by importing the modules/functions we will need in this example:
 
 """
 
@@ -67,7 +65,9 @@ from nitime.viz import winspect
 from nitime.viz import plot_spectral_estimate
 
 """
+
 For demonstration, we will use a window of 128 points:
+
 """
 
 npts = 128
@@ -95,6 +95,7 @@ windows. Other windows have been designed in order to optimize the amount of
 spectral leakage and limit it to certain parts of the spectrum. The following
 example demonstrates the spectral leakage for several different windows
 (including the boxcar):
+
 """
 
 fig02 = plt.figure()
@@ -214,11 +215,9 @@ fig03 = plot_spectral_estimate(freqs, psd, (d_psd,), elabels=("Periodogram",))
 
 .. image:: fig/multi_taper_spectral_estimation_03.png
 
-
 Next, we use Welch's periodogram, by applying :func:`tsa.get_spectra`. Note
 that we explicitely provide the function with a 'method' dict, which specifies
 the method used in order to calculate the PSD, but the default method is 'welch'.
-
 
 """
 
@@ -235,8 +234,7 @@ fig04 = plot_spectral_estimate(freqs, psd, (welch_psd,), elabels=("Welch",))
 
 .. image:: fig/multi_taper_spectral_estimation_04.png
 
-
-Next, we use the multi-taper estimation method. We estimate the spectrum:
+Next, we use the multitaper estimation method. We estimate the spectrum:
 
 """
 
@@ -260,7 +258,6 @@ Kmax = nu[0] / 2
 We calculate a Chi-squared model 95% confidence interval 2*Kmax degrees of
 freedom (see [Percival1993]_ eq 258)
 
-
 """
 
 p975 = dist.chi2.ppf(.975, 2 * Kmax)
@@ -272,12 +269,11 @@ l2 = ln2db * np.log(2 * Kmax / p025)
 hyp_limits = (psd_mt + l1, psd_mt + l2)
 
 fig05 = plot_spectral_estimate(freqs, psd, (psd_mt,), hyp_limits,
-              elabels=(r"MT with $\chi^{2}$ 95% interval",))
+                               elabels=(r"MT with $\chi^{2}$ 95% interval",))
 
 """
 
 .. image:: fig/multi_taper_spectral_estimation_05.png
-
 
 An iterative method ([Thomson2007]_) can be used in order to adaptively set the
 weighting of the different tapers, according to the actual spectral
@@ -301,7 +297,6 @@ hyp_limits = (adaptive_psd_mt + l1, adaptive_psd_mt + l2)
 
 fig06 = plot_spectral_estimate(freqs, psd, (adaptive_psd_mt,), hyp_limits,
                        elabels=('MT with adaptive weighting and 95% interval',))
-
 
 """
 
@@ -328,7 +323,7 @@ measurement (one tapered spectrum) out.
 | **pseudovalues**
 | :math:`\hat{\theta}_i = n\hat{\theta} - (n-1)\hat{\theta}_{-i}`
 
-The jackknifed esimator is computed as:
+The jackknifed estimator is computed as:
 
 :math:`\tilde{\theta} = \dfrac{1}{n}\sum_i \hat{\theta}_i = n\hat{\theta} - \dfrac{n-1}{n}\sum_i \hat{\theta}_{-i}`
 
@@ -351,7 +346,6 @@ fig07 = plot_spectral_estimate(freqs, psd, (psd_mt,),
                                jk_limits,
                                elabels=('MT with JK 95% interval',))
 
-
 """
 
 .. image:: fig/multi_taper_spectral_estimation_07.png
@@ -364,7 +358,6 @@ jack-knifing procedure.
 
 """
 
-
 _, _, adaptive_jk_var = tsa.multi_taper_psd(
     ar_seq, adaptive=True, jackknife=True
     )
@@ -375,9 +368,8 @@ jk_p = (dist.t.ppf(.975, Kmax - 1) * np.sqrt(adaptive_jk_var)) * ln2db
 adaptive_jk_limits = (adaptive_psd_mt - jk_p, adaptive_psd_mt + jk_p)
 
 fig08 = plot_spectral_estimate(freqs, psd, (adaptive_psd_mt,),
-              adaptive_jk_limits,
-              elabels=('adaptive-MT with JK 95% interval',))
-
+                               adaptive_jk_limits,
+                               elabels=('adaptive-MT with JK 95% interval',))
 
 """
 

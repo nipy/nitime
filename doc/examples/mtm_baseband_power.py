@@ -12,7 +12,7 @@ interest in neuroimaging when finding the lowpass power envelope and the
 instantaneous phase. The traditional technique uses the Hilbert
 transform to find the analytic signal. However, this approach suffers
 problems of bias and reliability, much like the periodogram suffers in
-PSD estimation. Once again, a multi-taper approach can provide an
+PSD estimation. Once again, a multitaper approach can provide an
 estimate with lower variance.
 
 The following demonstrates the use of spectra of multiple windows to
@@ -27,8 +27,10 @@ import nitime.utils as nt_ut
 import matplotlib.pyplot as pp
 
 """
+
 We'll set up a test signal with a red spectrum (integrated Gaussian
 noise).
+
 """
 
 N = 10000
@@ -37,20 +39,26 @@ NW = 40
 W = float(NW)/N
 
 """
+
 Create a nearly lowpass band-limited signal.
+
 """
 
 s = np.cumsum( np.random.randn(N) )
 
 """
+
 Strictly enforce the band-limited property in this signal.
+
 """
 
 (b, a) = signal.butter(3, W, btype='lowpass')
 slp = signal.lfilter(b, a, s)
 
 """
+
 Modulate both signals away from baseband.
+
 """
 
 s_mod = s * np.cos(2*np.pi*np.arange(N) * float(200) / N)
@@ -58,7 +66,9 @@ slp_mod = slp * np.cos(2*np.pi*np.arange(N) * float(200) / N)
 fm = int( np.round(float(200) * nfft / N) )
 
 """
+
 Create Slepians with the desired bandpass resolution (2W).
+
 """
 
 (dpss, eigs) = nt_alg.dpss_windows(N, NW, 2*NW)
@@ -72,6 +82,7 @@ Test 1
 
 We'll compare multitaper baseband power estimation with regular
 Hilbert transform method under actual narrowband conditions.
+
 """
 
 # MT method
@@ -140,12 +151,13 @@ pp.gcf().tight_layout()
 
 Here we see that since the underlying signal is not truly narrowband,
 the broadband bias is corrupting the Hilbert transform estimation of
-the complex demodulate. However the multi-taper estimate clearly
+the complex demodulate. However the multitaper estimate clearly
 remains lowpass.
 
 """
 
 """
+
 Another property of computing the complex demodulate from the spectra
 of multiple windows is that all bandpasses can be computed. In the
 above examples, we were only taking a slice from the modulation
@@ -154,6 +166,7 @@ bandpasses at various frequencies. Note here, though, that our
 bandwidth is set by the Slepian sequences we used for analysis. The
 following plot shows a family of complex demodulates at frequencies
 near the modulation frequency.
+
 """
 
 ### Show a family of baseband demodulations from the multitaper method

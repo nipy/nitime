@@ -4,7 +4,7 @@
 Fitting an MAR model: analyzer interface
 ========================================
 
-In this example, we will use the Analyzer interface to fit a multi-variate
+In this example, we will use the Analyzer interface to fit a multivariate
 auto-regressive model with two time-series influencing each other.
 
 We start by importing 3rd party modules:
@@ -56,7 +56,7 @@ cov = np.array([[x_var, xy_cov],
 
 """
 
-Number of realizations of the process
+Number of realizations of the process:
 
 """
 
@@ -98,9 +98,9 @@ order = int(np.round(np.mean(est_order)))
 
 """
 
-Once we have estimated the order, we  go ahead and fit each realization of the
+Once we have estimated the order, we go ahead and fit each realization of the
 MAR model, constraining the model order accordingly (by setting the order
-key-word argument) to be always equal to the model order estimated above.
+keyword argument) to be always equal to the model order estimated above.
 
 """
 
@@ -117,7 +117,8 @@ for i in range(N):
 """
 
 We generate a time-series from the recovered coefficients, using the same
-randomization seed as the first mar. These should look pretty similar to each other:
+randomization seed as the first mar. These should look pretty similar to each
+other:
 
 """
 
