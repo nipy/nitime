@@ -22,7 +22,7 @@ REQUIRES = []
 with open('requirements.txt') as f:
     ll = f.readline()[:-1]
     while ll:
-        REQUIRES.append(l)
+        REQUIRES.append(ll)
         ll = f.readline()[:-1]
 
 PACKAGES = find_packages()
