@@ -8,6 +8,7 @@ deploy:
   on:
     tags: true
     repo: nipy/nitime
+
 python:
 - 2.7
 - 3.6
