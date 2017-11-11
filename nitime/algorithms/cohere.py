@@ -67,8 +67,8 @@ def coherency(time_series, csd_method=None):
 
     f, fxy = get_spectra(time_series, csd_method)
 
-    #A container for the coherencys, with the size and shape of the expected
-    #output:
+    # A container for the coherencys, with the size and shape of the expected
+    # output:
     c = np.zeros((time_series.shape[0],
                   time_series.shape[0],
                   f.shape[0]), dtype=complex)  # Make sure it's complex
@@ -108,7 +108,6 @@ def coherency_spec(fxy, fxx, fyy):
     --------
     :func:`coherency`
     """
-
     return fxy / np.sqrt(fxx * fyy)
 
 
@@ -275,7 +274,6 @@ def coherency_regularized(time_series, epsilon, alpha, csd_method=None):
 
 
 def _coherency_reqularized(fxy, fxx, fyy, epsilon, alpha):
-
     r"""
     A regularized version of the calculation of coherency, which is more
     robust to numerical noise than the standard calculation
@@ -303,9 +301,8 @@ def _coherency_reqularized(fxy, fxx, fyy, epsilon, alpha):
         The coherence values
 
     """
-
     return (((alpha * fxy + epsilon)) /
-         np.sqrt(((alpha ** 2) * (fxx + epsilon) * (fyy + epsilon))))
+            np.sqrt(((alpha ** 2) * (fxx + epsilon) * (fyy + epsilon))))
 
 
 def coherence_regularized(time_series, epsilon, alpha, csd_method=None):
@@ -341,9 +338,6 @@ def coherence_regularized(time_series, epsilon, alpha, csd_method=None):
        This is a symmetric matrix with the coherencys of the signals. The
        coherency of signal i and signal j is in f[i][j].
 
-    Returns
-    -------
-    frequencies, coherence
 
     Notes
     -----
@@ -360,8 +354,8 @@ def coherence_regularized(time_series, epsilon, alpha, csd_method=None):
 
     f, fxy = get_spectra(time_series, csd_method)
 
-    #A container for the coherences, with the size and shape of the expected
-    #output:
+    # A container for the coherences, with the size and shape of the expected
+    # output:
     c = np.zeros((time_series.shape[0],
                   time_series.shape[0],
                   f.shape[0]), complex)
@@ -378,7 +372,6 @@ def coherence_regularized(time_series, epsilon, alpha, csd_method=None):
 
 
 def _coherence_reqularized(fxy, fxx, fyy, epsilon, alpha):
-
     r"""A regularized version of the calculation of coherence, which is more
     robust to numerical noise than the standard calculation.
 
@@ -406,7 +399,7 @@ def _coherence_reqularized(fxy, fxx, fyy, epsilon, alpha):
 
     """
     return (((alpha * np.abs(fxy) + epsilon) ** 2) /
-         ((alpha ** 2) * (fxx + epsilon) * (fyy + epsilon)))
+            ((alpha ** 2) * (fxx + epsilon) * (fyy + epsilon)))
 
 
 def coherency_bavg(time_series, lb=0, ub=None, csd_method=None):
@@ -509,7 +502,6 @@ def _coherency_bavg(fxy, fxx, fyy):
         temporal dynamics of functional networks using phase spectrum of fMRI
         data. Neuroimage, 28: 227-37.
     """
-
     # Average the phases and the magnitudes separately and then recombine:
 
     p = np.angle(fxy)
@@ -519,7 +511,7 @@ def _coherency_bavg(fxy, fxx, fyy):
     m_bavg = np.mean(m)
 
     # Recombine according to z = r(cos(phi)+sin(phi)i):
-    return  m_bavg * (np.cos(p_bavg) + np.sin(p_bavg) * 1j)
+    return m_bavg * (np.cos(p_bavg) + np.sin(p_bavg) * 1j)
 
 
 def coherence_bavg(time_series, lb=0, ub=None, csd_method=None):
@@ -546,7 +538,6 @@ def coherence_bavg(time_series, lb=0, ub=None, csd_method=None):
        This is an upper-diagonal array, where c[i][j] is the band-averaged
        coherency between time_series[i] and time_series[j]
     """
-
     if csd_method is None:
         csd_method = {'this_method': 'welch'}  # The default
 
@@ -575,7 +566,8 @@ def coherence_bavg(time_series, lb=0, ub=None, csd_method=None):
 def _coherence_bavg(fxy, fxx, fyy):
     r"""
     Compute the band-averaged coherency between the spectra of two time series.
-    input to this function is in the frequency domain
+
+    Input to this function is in the frequency domain
 
     Parameters
     ----------
@@ -649,7 +641,6 @@ def coherence_partial(time_series, r, csd_method=None):
     functional connectivity using coherence and partial coherence analyses of
     fMRI data Neuroimage, 21: 647-58.
     """
-
     if csd_method is None:
         csd_method = {'this_method': 'welch'}  # The default
 
@@ -664,8 +655,12 @@ def coherence_partial(time_series, r, csd_method=None):
         for j in range(i, time_series.shape[0]):
             f, fxx, frr, frx = get_spectra_bi(time_series[i], r, csd_method)
             f, fyy, frr, fry = get_spectra_bi(time_series[j], r, csd_method)
-            c[i, j] = coherence_partial_spec(fxy[i][j], fxy[i][i],
-                                                  fxy[j][j], frx, fry, frr)
+            c[i, j] = coherence_partial_spec(fxy[i][j],
+                                             fxy[i][i],
+                                             fxy[j][j],
+                                             frx,
+                                             fry,
+                                             frr)
 
     idx = tril_indices(time_series.shape[0], -1)
     c[idx[0], idx[1], ...] = c[idx[1], idx[0], ...].conj()  # Make it symmetric
@@ -702,7 +697,7 @@ def coherence_partial_spec(fxy, fxx, fyy, fxr, fry, frr):
     Rxy = coh(fxy, fxx, fyy)
 
     return (((np.abs(Rxy - Rxr * Rry)) ** 2) /
-           ((1 - ((np.abs(Rxr)) ** 2)) * (1 - ((np.abs(Rry)) ** 2))))
+            ((1 - ((np.abs(Rxr)) ** 2)) * (1 - ((np.abs(Rry)) ** 2))))
 
 
 def coherency_phase_spectrum(time_series, csd_method=None):
@@ -799,8 +794,9 @@ def coherency_phase_delay(time_series, lb=0, ub=None, csd_method=None):
         for j in range(i, time_series.shape[0]):
             p[i][j] = _coherency_phase_delay(f[lb_idx:ub_idx],
                                              fxy[i][j][lb_idx:ub_idx])
-            p[j][i] = _coherency_phase_delay(f[lb_idx:ub_idx],
-                                    fxy[i][j][lb_idx:ub_idx].conjugate())
+            p[j][i] = _coherency_phase_delay(
+                                f[lb_idx:ub_idx],
+                                fxy[i][j][lb_idx:ub_idx].conjugate())
 
     return f[lb_idx:ub_idx], p
 
@@ -826,7 +822,6 @@ def _coherency_phase_delay(f, fxy):
         the phase delay (in sec) for each frequency band.
 
     """
-
     return np.angle(fxy) / (2 * np.pi * f)
 
 
@@ -861,9 +856,7 @@ def correlation_spectrum(x1, x2, Fs=2 * np.pi, norm=False):
     J Wendt, P A Turski, C H Moritz, M A Quigley, M E Meyerand (2000). Mapping
     functionally related regions of brain with functional connectivity MR
     imaging. AJNR American journal of neuroradiology 21:1636-44
-
     """
-
     x1 = x1 - np.mean(x1)
     x2 = x2 - np.mean(x2)
     x1_f = fftpack.fft(x1)
@@ -876,18 +869,18 @@ def correlation_spectrum(x1, x2, Fs=2 * np.pi, norm=False):
            (D * n))
 
     if norm:
-        ccn = ccn / np.sum(ccn) * 2  # Only half of the sum is sent back
-                                     # because of the freq domain symmetry.
-                                     # XXX Does normalization make this
-                                     # strictly positive?
+        # Only half of the sum is sent back because of the freq domain
+        # symmetry.
+        ccn = ccn / np.sum(ccn) * 2
+        # XXX Does normalization make this strictly positive?
 
     f = utils.get_freqs(Fs, n)
     return f, ccn[0:(n // 2 + 1)]
 
 
-#------------------------------------------------------------------------
-#Coherency calculated using cached spectra
-#------------------------------------------------------------------------
+# -----------------------------------------------------------------------
+# Coherency calculated using cached spectra
+# -----------------------------------------------------------------------
 """The idea behind this set of functions is to keep a cache of the windowed fft
 calculations of each time-series in a massive collection of time-series, so
 that this calculation doesn't have to be repeated each time a cross-spectrum is
@@ -898,8 +891,8 @@ created by coherence"""
 
 
 def cache_fft(time_series, ij, lb=0, ub=None,
-                  method=None, prefer_speed_over_memory=False,
-                  scale_by_freq=True):
+              method=None, prefer_speed_over_memory=False,
+              scale_by_freq=True):
     """compute and cache the windowed FFTs of the time_series, in such a way
     that computing the psd and csd of any combination of them can be done
     quickly.
@@ -957,7 +950,7 @@ def cache_fft(time_series, ij, lb=0, ub=None,
         raise ValueError(e_s)
     time_series = utils.zero_pad(time_series, NFFT)
 
-    #The shape of the zero-padded version:
+    # The shape of the zero-padded version:
     n_channels, n_time_points = time_series.shape
 
     # get all the unique channels in time_series that we are interested in by
@@ -973,30 +966,30 @@ def cache_fft(time_series, ij, lb=0, ub=None,
     else:
         n_freqs = NFFT // 2 + 1
 
-    #Which frequencies
+    # Which frequencies
     freqs = utils.get_freqs(Fs, NFFT)
 
-    #If there are bounds, limit the calculation to within that band,
-    #potentially include the DC component:
+    # If there are bounds, limit the calculation to within that band,
+    # potentially include the DC component:
     lb_idx, ub_idx = utils.get_bounds(freqs, lb, ub)
 
     n_freqs = ub_idx - lb_idx
-    #Make the window:
+    # Make the window:
     if mlab.cbook.iterable(window):
         assert(len(window) == NFFT)
         window_vals = window
     else:
         window_vals = window(np.ones(NFFT, time_series.dtype))
 
-    #Each fft needs to be normalized by the square of the norm of the window
-    #and, for consistency with newer versions of mlab.csd (which, in turn, are
-    #consistent with Matlab), normalize also by the sampling rate:
+    # Each fft needs to be normalized by the square of the norm of the window
+    # and, for consistency with newer versions of mlab.csd (which, in turn, are
+    # consistent with Matlab), normalize also by the sampling rate:
 
     if scale_by_freq:
-        #This is the normalization factor for one-sided estimation, taking into
-        #account the sampling rate. This makes the PSD a density function, with
-        #units of dB/Hz, so that integrating over frequencies gives you the RMS
-        #(XXX this should be in the tests!).
+        # This is the normalization factor for one-sided estimation, taking
+        # into account the sampling rate. This makes the PSD a density
+        # function, with units of dB/Hz, so that integrating over
+        # frequencies gives you the RMS. (XXX this should be in the tests!).
         norm_val = (np.abs(window_vals) ** 2).sum() * (Fs / 2)
 
     else:
@@ -1012,16 +1005,14 @@ def cache_fft(time_series, ij, lb=0, ub=None,
     FFT_conj_slices = {}
 
     for i_channel in all_channels:
-        #dbg:
-        #print i_channel
         Slices = np.zeros((n_slices, n_freqs), dtype=np.complex)
         for iSlice in range(n_slices):
             thisSlice = time_series[i_channel,
                                     i_times[iSlice]:i_times[iSlice] + NFFT]
 
-            #Windowing:
+            # Windowing:
             thisSlice = window_vals * thisSlice  # No detrending
-            #Derive the fft for that slice:
+            # Derive the fft for that slice:
             Slices[iSlice, :] = (fftpack.fft(thisSlice)[lb_idx:ub_idx])
 
         FFT_slices[i_channel] = Slices
@@ -1068,15 +1059,13 @@ def cache_to_psd(cache, ij):
         all_channels.add(j)
 
     for i in all_channels:
-        #dbg:
-        #print i
-        #If we made the conjugate slices:
+        # If we made the conjugate slices:
         if FFT_conj_slices:
             Pxx[i] = FFT_slices[i] * FFT_conj_slices[i]
         else:
             Pxx[i] = FFT_slices[i] * np.conjugate(FFT_slices[i])
 
-        #If there is more than one window
+        # If there is more than one window
         if FFT_slices[i].shape[0] > 1:
             Pxx[i] = np.mean(Pxx[i], 0)
 
@@ -1123,7 +1112,7 @@ def cache_to_phase(cache, ij):
 
     for i in all_channels:
         Phase[i] = np.angle(FFT_slices[i])
-        #If there is more than one window, average over all the windows:
+        # If there is more than one window, average over all the windows:
         if FFT_slices[i].shape[0] > 1:
             Phase[i] = np.mean(Phase[i], 0)
 
@@ -1171,10 +1160,10 @@ def cache_to_relative_phase(cache, ij):
 
     channels_i = max(1, max(ij_array[:, 0]) + 1)
     channels_j = max(1, max(ij_array[:, 1]) + 1)
-    #Pre-allocate for speed:
+    # Pre-allocate for speed:
     Phi_xy = np.zeros((channels_i, channels_j, freqs), dtype=np.complex)
 
-    #These checks take time, so do them up front, not in every iteration:
+    # These checks take time, so do them up front, not in every iteration:
     if list(FFT_slices.items())[0][1].shape[0] > 1:
         if FFT_conj_slices:
             for i, j in ij:
