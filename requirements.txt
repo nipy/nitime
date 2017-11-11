@@ -1,0 +1,6 @@
+numpy
+cython
+scipy
+matplotlib
+networkx
+nibabel

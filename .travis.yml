@@ -8,26 +8,25 @@ deploy:
   on:
     tags: true
     repo: nipy/nitime
+
 python:
 - 2.7
-- 3.5
-env:
-- CONDA_DEPS="pip pytest pytest-cov coverage numpy cython scipy matplotlib networkx" PIP_DEPS="coveralls python-coveralls nibabel"
+- 3.6
 
-before_install:
-- export MINICONDA=$HOME/miniconda
-- export PATH="$MINICONDA/bin:$PATH"
-- hash -r
-- command -v conda >/dev/null || { wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-  -O miniconda.sh; bash miniconda.sh -b -f -p $MINICONDA; }
-- conda config --set always_yes yes
-- conda update conda
-- conda info -a
-- conda install python=$TRAVIS_PYTHON_VERSION $CONDA_DEPS
-- travis_retry pip install $PIP_DEPS
+env:
+- PIP_DEPS="pip pytest pytest-cov coverage coveralls python-coveralls "
+
+
+python:
+- '2.7'
+- '3.6'
+
 install:
-- python setup.py install
+- travis_retry pip install $PIP_DEPS
+- travis_retry pip install -e .
+
 script:
   - py.test --pyargs nitime --cov-report term-missing --cov=nitime --verbose
+
 after_success:
 - coveralls

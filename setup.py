@@ -17,6 +17,14 @@ ver_file = os.path.join('nitime', 'version.py')
 with open(ver_file) as f:
     exec(f.read())
 
+REQUIRES = []
+
+with open('requirements.txt') as f:
+    ll = f.readline()[:-1]
+    while ll:
+        REQUIRES.append(ll)
+        ll = f.readline()[:-1]
+
 PACKAGES = find_packages()
 
 
