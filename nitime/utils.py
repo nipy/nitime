@@ -109,20 +109,6 @@ def ar_generator(N=512, sigma=1., coefs=None, drop_transients=0, v=None):
     Parameters
     ----------
 
-    N : int
-      sequence length
-    sigma : float
-      power of the white noise driving process
-    coefs : sequence
-      AR coefficients for k = 1, 2, ..., P
-    drop_transients : int
-      number of initial IIR filter transient terms to drop
-    v : ndarray
-      custom noise process
-
-    Parameters
-    ----------
-
     N : float
        The number of points in the AR process generated. Default: 512
     sigma : float
