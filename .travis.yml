@@ -23,7 +23,6 @@ python:
 
 install:
 - travis_retry pip install $PIP_DEPS
-- travis_retry pip install -r requirements.txt
 - travis_retry pip install -e .
 
 script:
