@@ -94,15 +94,17 @@ T.metadata['roi'] = roi_names
 
 First, we examine the correlations between the time-series extracted from
 different parts of the brain. The following script extracts the data (using the
-draw_matrix function, displaying the correlation matrix with the ROIs labeled.
+drawmatrix_channels function, displaying the correlation matrix with the ROIs
+labeled.
 
 """
 
-#Initialize the correlation analyzer
+# Initialize the correlation analyzer
 C = CorrelationAnalyzer(T)
 
-#Display the correlation matrix
-fig01 = drawmatrix_channels(C.corrcoef, roi_names, size=[10., 10.], color_anchor=0)
+# Display the correlation matrix
+fig01 = drawmatrix_channels(C.corrcoef, roi_names, size=[10., 10.],
+                            color_anchor=0)
 
 """
 
@@ -227,8 +229,8 @@ bands of interest and pass that to the visualization function:
 
 """
 
-
-coh = np.mean(C.coherence[:, :, freq_idx], -1)  # Averaging on the last dimension
+# Averaging on the last dimension:
+coh = np.mean(C.coherence[:, :, freq_idx], -1)
 fig03 = drawmatrix_channels(coh, roi_names, size=[10., 10.], color_anchor=0)
 
 """
