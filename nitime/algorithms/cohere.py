@@ -17,7 +17,7 @@ from nitime.lazy import matplotlib_mlab as mlab
 from .spectral import get_spectra, get_spectra_bi
 import nitime.utils as utils
 
-# To suppport older versions of numpy that don't have tril_indices:
+# To support older versions of numpy that don't have tril_indices:
 from nitime.index_utils import tril_indices
 
 
@@ -995,7 +995,7 @@ def cache_fft(time_series, ij, lb=0, ub=None,
     else:
         norm_val = (np.abs(window_vals) ** 2).sum() / 2
 
-    # cache the FFT of every windowed, detrended NFFT length segement
+    # cache the FFT of every windowed, detrended NFFT length segment
     # of every channel.  If prefer_speed_over_memory, cache the conjugate
     # as well
 

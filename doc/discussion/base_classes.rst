@@ -23,7 +23,7 @@ representation of financial time-series, which can be compared against each
 other, using the common reference and for which the concept of the work-week
 applies. 
 
-However, because most often the absolute calender time of the occurence of
+However, because most often the absolute calendar time of the occurrence of
 events in an experiment is of no importance, we can disregard it. Rather, the
 comparison of the time progression of data in different experiments conducted
 in different calendar times (different days, different times in the same day)
@@ -71,9 +71,9 @@ the essential differences between them.
 -------------------
 
 This class has the least restrictions on it: it will be a 1d array, which
-contains time-points that are not neccesarily ordered. It can also contain
+contains time-points that are not necessarily ordered. It can also contain
 several copies of the same time-point. This class will be used in order to
-represent sparsely occuring events, measured at some unspecified sampling rate
+represent sparsely occurring events, measured at some unspecified sampling rate
 and possibly collected from several different channels, where the data is
 sampled in order of channel and not in order of time. As in the case of the
 :class:`np.ndarray`, slicing into this kind of representation should allow a

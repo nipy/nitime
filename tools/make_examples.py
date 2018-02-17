@@ -41,7 +41,7 @@ Examples
 
 
 """
-# Function defintions::
+# Function definitions::
 
 # These global variables let show() be called by the scripts in the usual
 # manner, but when generating examples, we override it to write the figures to

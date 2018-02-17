@@ -9,7 +9,7 @@ time-series. For example, a typical case, is when two time-series are recorded
 simultaneously. One is recorded from measurement of some continuous
 physilogical variable, such as fMRI BOLD (and is represented by a an object of
 type :ref:`UniformTimeSeries`). The other is a series of discrete events
-occuring concurrently (and can be represented by a :ref:`EventSeries` or by a
+occurring concurrently (and can be represented by a :ref:`EventSeries` or by a
 :ref:`NonUniformTimeSeries`). For example, button presses by the subject, or
 trials of different kinds. If we want to analyze the progression of the
 physiological time-series, locked to particular kinds of events in the

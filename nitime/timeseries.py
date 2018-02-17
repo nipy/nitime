@@ -1151,8 +1151,8 @@ class TimeSeries(TimeSeriesBase):
                 duration = time.duration
                 length = time.shape[-1]
                 #If changing the duration requires a change to the
-                #sampling_rate, make sure that this was explicitely required by
-                #the user - if the user did not explicitely set the
+                #sampling_rate, make sure that this was explicitly required by
+                #the user - if the user did not explicitly set the
                 #sampling_rate, or it is inconsistent, throw an error:
                 data_len = np.array(data).shape[-1]
 
@@ -1490,7 +1490,7 @@ class Events(TimeInterface):
         Parameters
         ----------
         time : array or TimeArray
-            The times at which events occured
+            The times at which events occurred
 
         labels : array, optional
 

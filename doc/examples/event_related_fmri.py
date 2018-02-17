@@ -7,7 +7,7 @@ Event-related fMRI
 ==================
 
 Extracting the average time-series from one signal, time-locked to the
-occurence of some type of event in another signal is a very typical operation
+occurrence of some type of event in another signal is a very typical operation
 in the analysis of time-series from neuroscience experiments. Therefore, we
 have an additional example of this kind of analysis in :ref:`grasshopper`
 
@@ -72,8 +72,8 @@ Note that this example uses the EventRelated analyzer (also used in the
 :ref:`grasshopper` example), but here, instead of providing an :class:`Events`
 object as input, another :class:`TimeSeries` object is provided, containing an
 equivalent time-series with the same dimensions as the time-series on which the
-analysis is done, with '0' wherever no event of interest occured and an integer
-wherever an even of interest occured (sequential different integers for the
+analysis is done, with '0' wherever no event of interest occurred and an integer
+wherever an even of interest occurred (sequential different integers for the
 different kinds of events).
 
 """

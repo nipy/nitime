@@ -101,7 +101,7 @@ representation of financial time-series, which can be compared against each
 other, using the common reference and for which the concept of the work-week
 applies. 
 
-However, because most often the absolute calender time of the occurence of
+However, because most often the absolute calendar time of the occurrence of
 events in an experiment is of no importance, we can disregard it. Rather, the
 comparison of the time progression of data in different experiments conducted
 in different calendar times (different days, different times in the same day)
@@ -142,7 +142,7 @@ For the time being, there are two types of Time classes: :ref:`TimeArray` and :r
 :class:`TimeArray`
 -------------------
 
-This class has less restrictions on it: it is made of an 1-d array, which contains time-points that are not neccesarily ordered. It can also contain several copies of the same time-point. This class can be used in order to represent sparsely occuring events, measured at some unspecified sampling rate and possibly collected from several different channels, where the data is sampled in order of channel and not in order of time. As in the case of the :class:`np.ndarray`. This representation of time carries, in addition to the array itself an attribute :attr:`time_unit`, which is the unit in which we would like to present the time-points (recall that the underlying representation is always in the base-unit).
+This class has less restrictions on it: it is made of an 1-d array, which contains time-points that are not necessarily ordered. It can also contain several copies of the same time-point. This class can be used in order to represent sparsely occurring events, measured at some unspecified sampling rate and possibly collected from several different channels, where the data is sampled in order of channel and not in order of time. As in the case of the :class:`np.ndarray`. This representation of time carries, in addition to the array itself an attribute :attr:`time_unit`, which is the unit in which we would like to present the time-points (recall that the underlying representation is always in the base-unit).
 
 .. _UniformTime:
 
@@ -229,10 +229,10 @@ contains several attributes:
 ---------------
 
 This is an object which represents a collection of events. For example, this
-can represent discrete button presses occuring during an experiment. This
+can represent discrete button presses occurring during an experiment. This
 object contains a :ref:`TimeArray` as its representation of time. This means
 that the events recorded in the :attr:`data` array can be organized
-according to any organizing principle you would want, not neccesarily according
+according to any organizing principle you would want, not necessarily according
 to their organization or order in time. For example, if events are read from
 different devices, the order of the events in the data array can be arbitrarily
 chosen to be the order of the devices from which data is read.

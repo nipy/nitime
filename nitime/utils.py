@@ -269,7 +269,7 @@ def expected_jk_variance(K):
     asymptotic expansion of the trigamma function derived in
     [Thompson_1994]
 
-    Paramters
+    Parameters
     ---------
 
     K : int
@@ -1016,7 +1016,7 @@ def get_freqs(Fs, n):
 
 def circle_to_hz(omega, Fsamp):
     """For a frequency grid spaced on the unit circle of an imaginary plane,
-    return the corresponding freqency grid in Hz.
+    return the corresponding frequency grid in Hz.
     """
     return Fsamp * omega / (2 * np.pi)
 
@@ -1893,9 +1893,9 @@ def fir_design_matrix(events, len_hrf):
     ----------
 
     events : 1-d int array
-       Integers denoting different kinds of events, occuring at the time
+       Integers denoting different kinds of events, occurring at the time
        corresponding to the bin represented by each slot in the array. In
-       time-bins in which no event occured, a 0 should be entered. If negative
+       time-bins in which no event occurred, a 0 should be entered. If negative
        event values are entered, they will be used as "negative" events, as in
        events that should be contrasted with the postitive events (typically -1
        and 1 can be used for a simple contrast of two conditions)

@@ -8,7 +8,7 @@ from nitime import descriptors as desc
 from nitime import utils as tsu
 from nitime import algorithms as tsa
 
-# To suppport older versions of numpy that don't have tril_indices:
+# To support older versions of numpy that don't have tril_indices:
 from nitime.index_utils import tril_indices, triu_indices
 
 from .base import BaseAnalyzer
@@ -119,7 +119,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
     def spectrum(self):
         """
         The spectra of each of the channels and cross-spectra between
-        different channles  in the input TimeSeries object
+        different channels  in the input TimeSeries object
         """
         f, spectrum = tsa.get_spectra(self.input.data, method=self.method)
         return spectrum

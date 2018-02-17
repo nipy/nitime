@@ -844,7 +844,7 @@ def mkgraph(cmat, threshold=0.0, threshold2=None):
     The values in the original matrix cmat can be thresholded out.  If only one
     threshold is given, all values below that are omitted when creating edges.
     If two thresholds are given, then values in the th2-th1 range are
-    ommitted.  This allows for the easy creation of weighted graphs with
+    omitted.  This allows for the easy creation of weighted graphs with
     positive and negative values where a range of weights around 0 is omitted.
 
     Parameters

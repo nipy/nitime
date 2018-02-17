@@ -29,7 +29,7 @@ def fir(timeseries, design):
 
           where A is a (number of TRs) x (length of HRF) matrix with a unity
           matrix placed with its top left corner placed in each TR in which
-          event of type A occured in the design. B is the equivalent for
+          event of type A occurred in the design. B is the equivalent for
           events of type B, etc.
 
     Returns

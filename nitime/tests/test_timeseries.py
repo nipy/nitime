@@ -491,7 +491,7 @@ def test_TimeSeries():
     t1 = ts.UniformTime(length=8, sampling_rate=2)
     #duration is the same, but we're downsampling to 1Hz
     tseries1 = ts.TimeSeries(data=[1, 2, 3, 4], time=t1, sampling_rate=1)
-    #If you didn't explicitely provide the rate you want to downsample to, that
+    #If you didn't explicitly provide the rate you want to downsample to, that
     #is an error:
     with pytest.raises(ValueError) as e_info:
         ts.TimeSeries(dict(data=[1, 2, 3, 4], time=t1))
@@ -534,7 +534,7 @@ def test_TimeSeries():
     with pytest.raises(ValueError) as e_info:
         ts.TimeSeries(dict(data=data, time=t))
 
-    # test basic arithmetics wiht TimeSeries
+    # test basic arithmetics with TimeSeries
     tseries1 = ts.TimeSeries([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], sampling_rate=1)
     tseries2 = tseries1 + 1
     npt.assert_equal(tseries1.data + 1, tseries2.data)
