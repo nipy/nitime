@@ -148,7 +148,7 @@ def AR_est_LD(x, order, rxx=None):
     else:
         rxx_m = utils.autocorr(x)[:order + 1]
     w = np.zeros((order + 1, ), rxx_m.dtype)
-    # intialize the recursion with the R[0]w[1]=r[1] solution (p=1)
+    # initialize the recursion with the R[0]w[1]=r[1] solution (p=1)
     b = rxx_m[0].real
     w_k = rxx_m[1] / b
     w[1] = w_k

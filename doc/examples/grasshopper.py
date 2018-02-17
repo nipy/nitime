@@ -8,7 +8,7 @@
 =====================================
 
 Extracting the average time-series from one signal, time-locked to the
-occurence of some type of event in another signal is a very typical operation in
+occurrence of some type of event in another signal is a very typical operation in
 the analysis of time-series from neuroscience experiments. Therefore, we have
 an additional example of this kind of analysis in :ref:`et-fmri`
 

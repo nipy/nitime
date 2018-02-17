@@ -25,12 +25,12 @@ class EventRelatedAnalyzer(desc.ResetMixin):
            A time-series with data on which the event-related analysis proceeds
 
         events_time_series : a TimeSeries object or an Events object
-            The events which occured in tandem with the time-series in the
+            The events which occurred in tandem with the time-series in the
             EventRelatedAnalyzer. This object's data has to have the same
             dimensions as the data in the EventRelatedAnalyzer object. In each
             sample in the time-series, there is an integer, which denotes the
-            kind of event which occured at that time. In time-bins in which no
-            event occured, a 0 should be entered. The data in this time series
+            kind of event which occurred at that time. In time-bins in which no
+            event occurred, a 0 should be entered. The data in this time series
             object needs to have the same dimensionality as the data in the
             data time-series
 
@@ -46,7 +46,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         point in the event-triggered average (where possible)
 
         offset : the offset of the beginning of the event-related time-series,
-        relative to the event occurence
+        relative to the event occurrence
         """
         #XXX Change so that the offset and length of the eta can be given in
         #units of time
@@ -226,20 +226,20 @@ class EventRelatedAnalyzer(desc.ResetMixin):
 
     @desc.setattr_on_read
     def et_data(self):
-        """The event-triggered data (all occurences).
+        """The event-triggered data (all occurrences).
 
         This gets the time-series corresponding to the inidividual event
-        occurences. Returns a list of lists of time-series. The first dimension
+        occurrences. Returns a list of lists of time-series. The first dimension
         is the different channels in the original time-series data and the
         second dimension is each type of event in the event time series
 
         The time-series itself has the first diemnsion of the data being the
-        specific occurence, with time 0 locked to the that occurence
+        specific occurrence, with time 0 locked to the that occurrence
         of the event and the last dimension is time.e
 
         This complicated structure is so that it can deal with situations where
         each channel has different events and different events have different #
-        of occurences
+        of occurrences
         """
         #Make a list for the output
         h = [0] * self._len_h

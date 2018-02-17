@@ -52,7 +52,7 @@ for which $t_i$ is the maximal one, which still fulfills: $t_i<t$.
 
 Questions
 ~~~~~~~~~
-The follwing questions apply to all three cases: 
+The following questions apply to all three cases: 
 
 * what happens when the t is smaller than the smallest entry in the array
   return None?

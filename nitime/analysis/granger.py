@@ -11,7 +11,7 @@ from nitime import descriptors as desc
 
 from .base import BaseAnalyzer
 
-# To suppport older versions of numpy that don't have tril_indices:
+# To support older versions of numpy that don't have tril_indices:
 from nitime.index_utils import tril_indices_from
 
 def fit_model(x1, x2, order=None, max_order=10,

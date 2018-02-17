@@ -50,7 +50,7 @@ external events.
 :func:`entropy_cc`, :func:`transfer_entropy`
 
 The algorithms in this library are the functional form of the algorithms, which
-accept as inputs numpy array and produce numpy array outputs. Therfore, they
+accept as inputs numpy array and produce numpy array outputs. Therefore, they
 can be used on any type of data which can be represented in numpy arrays. See
 also :mod:`nitime.analysis` for simplified analysis interfaces, using the
 data containers implemented in :mod:`nitime.timeseries`

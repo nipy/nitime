@@ -216,7 +216,7 @@ fig03 = plot_spectral_estimate(freqs, psd, (d_psd,), elabels=("Periodogram",))
 .. image:: fig/multi_taper_spectral_estimation_03.png
 
 Next, we use Welch's periodogram, by applying :func:`tsa.get_spectra`. Note
-that we explicitely provide the function with a 'method' dict, which specifies
+that we explicitly provide the function with a 'method' dict, which specifies
 the method used in order to calculate the PSD, but the default method is 'welch'.
 
 """
