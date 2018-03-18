@@ -2117,10 +2117,10 @@ def akaike_information_criterion(ecov, p, m, Ntotal, corrected=False):
     AIC = (2 * (np.log(linalg.det(ecov))) +
            ((2 * (p ** 2) * m) / (Ntotal)))
 
-    if corrected is None:
-        return AIC
-    else:
+    if corrected:
         return AIC + (2 * m * (m + 1)) / (Ntotal - m - 1)
+    else:
+        return AIC
 
 
 def bayesian_information_criterion(ecov, p, m, Ntotal):
