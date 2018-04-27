@@ -29,7 +29,7 @@ the error term $\epsilon_t$):
 
 .. math::
 
-   x_t = \sum_{i=1}^{n}a_i x_{t-i} + b_i y_{t-i} + \epsilon_t
+   x_t = \sum_{i=1}^{n}(a_i x_{t-i} + b_i y_{t-i}) + \epsilon_t
 
 
 In our implementation of the algorithms used for this analysis, we follow
