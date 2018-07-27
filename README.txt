@@ -48,5 +48,5 @@ for usage, and a DISCLAIMER OF ALL WARRANTIES.
 
 All trademarks referenced herein are property of their respective holders.
 
-Copyright (c) 2006-2011, NIPY Developers
+Copyright (c) 2006-2018, NIPY Developers
 All rights reserved.
