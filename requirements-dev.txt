@@ -1,0 +1,5 @@
+sphinx
+pytest
+pytest-cov
+nibabel
+networkx
