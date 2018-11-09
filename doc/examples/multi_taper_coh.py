@@ -28,7 +28,6 @@ import os
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.mlab import csv2rec
 import scipy.stats.distributions as dist
 from scipy import fftpack
 
@@ -52,7 +51,9 @@ We read in the data into a recarray from a csv file:
 
 data_path = os.path.join(nitime.__path__[0], 'data')
 
-data_rec = csv2rec(os.path.join(data_path, 'fmri_timeseries.csv'))
+fname = os.path.join(data_path, 'fmri_timeseries.csv')
+
+data_rec = np.genfromtxt(fname, dtype=float, delimiter=',', names=True)
 
 
 """

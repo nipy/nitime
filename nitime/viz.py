@@ -838,6 +838,198 @@ def lab2node(labels, labels_dict):
     return [labels_dict[ll] for ll in labels]
 
 
+### Patched version for networx draw_networkx_edges, sent to Aric.
+def draw_networkx_edges(G, pos,
+                        edgelist=None,
+                        width=1.0,
+                        edge_color='k',
+                        style='solid',
+                        alpha=None,
+                        edge_cmap=None,
+                        edge_vmin=None,
+                        edge_vmax=None,
+                        ax=None,
+                        arrows=True,
+                        **kwds):
+    """Draw the edges of the graph G
+
+    This draws only the edges of the graph G.
+
+    pos is a dictionary keyed by vertex with a two-tuple
+    of x-y positions as the value.
+    See networkx.layout for functions that compute node positions.
+
+    edgelist is an optional list of the edges in G to be drawn.
+    If provided, only the edges in edgelist will be drawn.
+
+    edgecolor can be a list of matplotlib color letters such as 'k' or
+    'b' that lists the color of each edge; the list must be ordered in
+    the same way as the edge list. Alternatively, this list can contain
+    numbers and those number are mapped to a color scale using the color
+    map edge_cmap.  Finally, it can also be a list of (r,g,b) or (r,g,b,a)
+    tuples, in which case these will be used directly to color the edges.  If
+    the latter mode is used, you should not provide a value for alpha, as it
+    would be applied globally to all lines.
+
+    For directed graphs, 'arrows' (actually just thicker stubs) are drawn
+    at the head end.  Arrows can be turned off with keyword arrows=False.
+
+    See draw_networkx for the list of other optional parameters.
+
+    """
+    try:
+        import matplotlib.pylab as pylab
+        import matplotlib.cbook as cb
+        from matplotlib.colors import colorConverter, Colormap
+        from matplotlib.collections import LineCollection
+    except ImportError:
+        raise ImportError("Matplotlib required for draw()")
+    except RuntimeError:
+        pass  # unable to open display
+
+    if ax is None:
+        ax = pylab.gca()
+
+    if edgelist is None:
+        edgelist = G.edges()
+
+    if not edgelist or len(edgelist) == 0:  # no edges!
+        return None
+
+    # set edge positions
+    edge_pos = np.asarray([(pos[e[0]], pos[e[1]]) for e in edgelist])
+
+    if not cb.iterable(width):
+        lw = (width,)
+    else:
+        lw = width
+
+    if not isinstance(edge_color, str) \
+           and cb.iterable(edge_color) \
+           and len(edge_color) == len(edge_pos):
+        if np.alltrue([isinstance(c, str)
+                         for c in edge_color]):
+            # (should check ALL elements)
+            # list of color letters such as ['k','r','k',...]
+            edge_colors = tuple([colorConverter.to_rgba(c, alpha)
+                                 for c in edge_color])
+        elif np.alltrue([not isinstance(c, str)
+                           for c in edge_color]):
+            # If color specs are given as (rgb) or (rgba) tuples, we're OK
+            if np.alltrue([cb.iterable(c) and len(c) in (3, 4)
+                             for c in edge_color]):
+                edge_colors = tuple(edge_color)
+                alpha = None
+            else:
+                # numbers (which are going to be mapped with a colormap)
+                edge_colors = None
+        else:
+            e_s = 'edge_color must consist of either color names or numbers'
+            raise ValueError(e_s)
+    else:
+        if len(edge_color) == 1:
+            edge_colors = (colorConverter.to_rgba(edge_color, alpha),)
+        else:
+            e_s = 'edge_color must be a single color or list of exactly'
+            e_s += 'm colors where m is the number or edges'
+            raise ValueError(e_s)
+    edge_collection = LineCollection(edge_pos,
+                                     colors=edge_colors,
+                                     linewidths=lw,
+                                     antialiaseds=(1,),
+                                     linestyle=style,
+                                     transOffset=ax.transData,
+                                     )
+
+    # Note: there was a bug in mpl regarding the handling of alpha values for
+    # each line in a LineCollection.  It was fixed in matplotlib in r7184 and
+    # r7189 (June 6 2009).  We should then not set the alpha value globally,
+    # since the user can instead provide per-edge alphas now.  Only set it
+    # globally if provided as a scalar.
+    if cb.is_numlike(alpha):
+        edge_collection.set_alpha(alpha)
+
+    # need 0.87.7 or greater for edge colormaps
+    if edge_colors is None:
+        if edge_cmap is not None:
+            assert(isinstance(edge_cmap, Colormap))
+        edge_collection.set_array(np.asarray(edge_color))
+        edge_collection.set_cmap(edge_cmap)
+        if edge_vmin is not None or edge_vmax is not None:
+            edge_collection.set_clim(edge_vmin, edge_vmax)
+        else:
+            edge_collection.autoscale()
+        pylab.sci(edge_collection)
+
+#    else:
+#        sys.stderr.write(\
+#            """matplotlib version >= 0.87.7 required for colormapped edges.
+#        (version %s detected)."""%matplotlib.__version__)
+#        raise UserWarning(\
+#            """matplotlib version >= 0.87.7 required for colormapped edges.
+#        (version %s detected)."""%matplotlib.__version__)
+
+    arrow_collection = None
+
+    if G.is_directed() and arrows:
+
+        # a directed graph hack
+        # draw thick line segments at head end of edge
+        # waiting for someone else to implement arrows that will work
+        arrow_colors = (colorConverter.to_rgba('k', alpha),)
+        a_pos = []
+        p = 1.0 - 0.25  # make head segment 25 percent of edge length
+        for src, dst in edge_pos:
+            x1, y1 = src
+            x2, y2 = dst
+            dx = x2 - x1  # x offset
+            dy = y2 - y1  # y offset
+            d = np.sqrt(float(dx ** 2 + dy ** 2))  # length of edge
+            if d == 0:  # source and target at same position
+                continue
+            if dx == 0:  # vertical edge
+                xa = x2
+                ya = dy * p + y1
+            if dy == 0:  # horizontal edge
+                ya = y2
+                xa = dx * p + x1
+            else:
+                theta = np.arctan2(dy, dx)
+                xa = p * d * np.cos(theta) + x1
+                ya = p * d * np.sin(theta) + y1
+
+            a_pos.append(((xa, ya), (x2, y2)))
+
+        arrow_collection = LineCollection(a_pos,
+                                colors=arrow_colors,
+                                linewidths=[4 * ww for ww in lw],
+                                antialiaseds=(1,),
+                                transOffset=ax.transData,
+                                )
+
+    # update view
+    minx = np.amin(np.ravel(edge_pos[:, :, 0]))
+    maxx = np.amax(np.ravel(edge_pos[:, :, 0]))
+    miny = np.amin(np.ravel(edge_pos[:, :, 1]))
+    maxy = np.amax(np.ravel(edge_pos[:, :, 1]))
+
+    w = maxx - minx
+    h = maxy - miny
+    padx, pady = 0.05 * w, 0.05 * h
+    corners = (minx - padx, miny - pady), (maxx + padx, maxy + pady)
+    ax.update_datalim(corners)
+    ax.autoscale_view()
+
+    edge_collection.set_zorder(1)  # edges go behind nodes
+    ax.add_collection(edge_collection)
+    if arrow_collection:
+        arrow_collection.set_zorder(1)  # edges go behind nodes
+        ax.add_collection(arrow_collection)
+
+    return ax
+
+
+>>>>>>> Updating older APIs.
 def mkgraph(cmat, threshold=0.0, threshold2=None):
     """Make a weighted graph object out of an adjacency matrix.
 

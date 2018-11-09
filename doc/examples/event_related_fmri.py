@@ -27,7 +27,7 @@ use in the analysis:
 
 import os
 
-from matplotlib.mlab import csv2rec
+import numpy as np
 import matplotlib.pyplot as plt
 
 import nitime
@@ -40,14 +40,15 @@ len_et = 15  # This is given in number of samples, not time!
 
 """
 
-Next, we load the data into a recarray from the csv file, using csv2rec
+Next, we load the data into an array from the csv file, using ``np.loadtxt``
 
 """
 
 data_path = os.path.join(nitime.__path__[0], 'data')
 
-data = csv2rec(os.path.join(data_path, 'event_related_fmri.csv'))
+fname = os.path.join(data_path, 'event_related_fmri.csv')
 
+data = np.genfromtxt(fname, dtype=float, delimiter=',', names=True)
 
 """
 
@@ -56,7 +57,7 @@ We initialize TimeSeries objects with the data and the TR:
 One TimeSeries is initialized for the BOLD data:
 """
 
-t1 = ts.TimeSeries(data.bold, sampling_interval=TR)
+t1 = ts.TimeSeries(data['bold'], sampling_interval=TR)
 
 """
 
@@ -64,7 +65,7 @@ And another one for the events (the different stimuli):
 
 """
 
-t2 = ts.TimeSeries(data.events, sampling_interval=TR)
+t2 = ts.TimeSeries(data['events'], sampling_interval=TR)
 
 """
 

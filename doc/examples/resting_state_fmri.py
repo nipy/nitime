@@ -57,6 +57,9 @@ data_path = os.path.join(nitime.__path__[0], 'data')
 
 data_rec = csv2rec(os.path.join(data_path, 'fmri_timeseries.csv'))
 
+data_rec = np.genfromtxt(os.path.join(data_path, 'fmri_timeseries.csv'),
+                         names=True, delimiter=',')
+
 """
 
 This data structure contains in its dtype a field 'names', which contains the
@@ -133,15 +136,15 @@ series:
 
 xc = C.xcorr_norm
 
-idx_lcau = np.where(roi_names == 'lcau')[0]
-idx_rcau = np.where(roi_names == 'rcau')[0]
-idx_lput = np.where(roi_names == 'lput')[0]
-idx_rput = np.where(roi_names == 'rput')[0]
+idx_lcau = np.where(roi_names == 'LCau')[0]
+idx_rcau = np.where(roi_names == 'RCau')[0]
+idx_lput = np.where(roi_names == 'LPut')[0]
+idx_rput = np.where(roi_names == 'RPut')[0]
 
 fig02 = plot_xcorr(xc,
                    ((idx_lcau, idx_rcau),
                     (idx_lcau, idx_lput)),
-                   line_labels=['rcau', 'lput'])
+                   line_labels=['RCau', 'LPut'])
 
 """
 

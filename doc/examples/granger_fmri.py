@@ -50,7 +50,6 @@ import os
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.mlab import csv2rec
 
 import nitime
 import nitime.analysis as nta
@@ -77,7 +76,9 @@ We read in the resting state fMRI data into a recarray from a csv file:
 
 data_path = os.path.join(nitime.__path__[0], 'data')
 
-data_rec = csv2rec(os.path.join(data_path, 'fmri_timeseries.csv'))
+fname = os.path.join(data_path, 'fmri_timeseries.csv')
+
+data_rec = np.genfromtxt(fname, dtype=float, delimiter=',', names=True)
 
 roi_names = np.array(data_rec.dtype.names)
 nseq = len(roi_names)
