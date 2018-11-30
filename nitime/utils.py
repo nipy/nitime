@@ -582,7 +582,7 @@ def detect_lines(s, tapers, p=None, **taper_kws):
         a locally white spectrum, there is a threshold such that
         there is a (1-p)% chance of a line amplitude being larger
         than that threshold. Only detect lines with amplitude greater
-        than this threshold. The default is 1/N, to control for false
+        than this threshold. The default is 1/NFFT, to control for false
         positives.
 
     taper_kws
