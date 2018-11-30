@@ -28,7 +28,6 @@ import os
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.mlab import csv2rec
 
 
 """
@@ -60,7 +59,8 @@ TR = 1.89
 
 data_path = os.path.join(nitime.__path__[0], 'data')
 
-data_rec = csv2rec(os.path.join(data_path, 'fmri_timeseries.csv'))
+data = np.loadtxt(os.path.join(data_path, 'fmri_timeseries.csv'),
+                  skiprows=1, delimiter=',')
 
 # Extract ROI information from the csv file headers:
 roi_names = np.array(data_rec.dtype.names)
