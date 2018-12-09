@@ -48,6 +48,7 @@ scipy_interpolate = LazyImport('scipy.interpolate')
 scipy_linalg = LazyImport('scipy.linalg')
 scipy_signal = LazyImport('scipy.signal')
 scipy_signal_signaltools = LazyImport('scipy.signal.signaltools')
+scipy_stats_distributions = LazyImport('scipy.stats.distributions')
 scipy_stats = LazyImport('scipy.stats')
 scipy_stats_distributions = LazyImport('scipy.stats.distributions')
 
