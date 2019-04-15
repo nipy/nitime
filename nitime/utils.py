@@ -4,10 +4,14 @@
 from __future__ import print_function
 import warnings
 import numpy as np
+import scipy.ndimage as ndimage
+
 from nitime.lazy import scipy_linalg as linalg
 from nitime.lazy import scipy_signal as sig
 from nitime.lazy import scipy_fftpack as fftpack
 from nitime.lazy import scipy_signal_signaltools as signaltools
+from nitime.lazy import scipy_stats_distributions as dists
+from nitime.lazy import scipy_interpolate as interpolate
 
 
 #-----------------------------------------------------------------------------
@@ -561,6 +565,205 @@ def adaptive_weights(yk, eigvals, sides='onesided', max_iter=150):
     nu = 2 * (weights ** 2).sum(axis=-2)
     return weights, nu
 
+
+def dpss_windows(N, NW, Kmax, interp_from=None, interp_kind='linear'):
+    """
+    Returns the Discrete Prolate Spheroidal Sequences of orders [0,Kmax-1]
+    for a given frequency-spacing multiple NW and sequence length N.
+
+    Parameters
+    ----------
+    N : int
+        sequence length
+    NW : float, unitless
+        standardized half bandwidth corresponding to 2NW = BW/f0 = BW*N*dt
+        but with dt taken as 1
+    Kmax : int
+        number of DPSS windows to return is Kmax (orders 0 through Kmax-1)
+    interp_from : int (optional)
+        The dpss can be calculated using interpolation from a set of dpss
+        with the same NW and Kmax, but shorter N. This is the length of this
+        shorter set of dpss windows.
+    interp_kind : str (optional)
+        This input variable is passed to scipy.interpolate.interp1d and
+        specifies the kind of interpolation as a string ('linear', 'nearest',
+        'zero', 'slinear', 'quadratic, 'cubic') or as an integer specifying the
+        order of the spline interpolator to use.
+
+
+    Returns
+    -------
+    v, e : tuple,
+        v is an array of DPSS windows shaped (Kmax, N)
+        e are the eigenvalues
+
+    Notes
+    -----
+    Tridiagonal form of DPSS calculation from:
+
+    Slepian, D. Prolate spheroidal wave functions, Fourier analysis, and
+    uncertainty V: The discrete case. Bell System Technical Journal,
+    Volume 57 (1978), 1371430
+    """
+    Kmax = int(Kmax)
+    W = float(NW) / N
+    nidx = np.arange(N, dtype='d')
+
+    # In this case, we create the dpss windows of the smaller size
+    # (interp_from) and then interpolate to the larger size (N)
+    if interp_from is not None:
+        if interp_from > N:
+            e_s = 'In dpss_windows, interp_from is: %s ' % interp_from
+            e_s += 'and N is: %s. ' % N
+            e_s += 'Please enter interp_from smaller than N.'
+            raise ValueError(e_s)
+        dpss = []
+        d, e = dpss_windows(interp_from, NW, Kmax)
+        for this_d in d:
+            x = np.arange(this_d.shape[-1])
+            I = interpolate.interp1d(x, this_d, kind=interp_kind)
+            d_temp = I(np.linspace(0, this_d.shape[-1] - 1, N, endpoint=False))
+
+            # Rescale:
+            d_temp = d_temp / np.sqrt(np.sum(d_temp ** 2))
+
+            dpss.append(d_temp)
+
+        dpss = np.array(dpss)
+
+    else:
+        # here we want to set up an optimization problem to find a sequence
+        # whose energy is maximally concentrated within band [-W,W].
+        # Thus, the measure lambda(T,W) is the ratio between the energy within
+        # that band, and the total energy. This leads to the eigen-system
+        # (A - (l1)I)v = 0, where the eigenvector corresponding to the largest
+        # eigenvalue is the sequence with maximally concentrated energy. The
+        # collection of eigenvectors of this system are called Slepian
+        # sequences, or discrete prolate spheroidal sequences (DPSS). Only the
+        # first K, K = 2NW/dt orders of DPSS will exhibit good spectral
+        # concentration
+        # [see http://en.wikipedia.org/wiki/Spectral_concentration_problem]
+
+        # Here I set up an alternative symmetric tri-diagonal eigenvalue
+        # problem such that
+        # (B - (l2)I)v = 0, and v are our DPSS (but eigenvalues l2 != l1)
+        # the main diagonal = ([N-1-2*t]/2)**2 cos(2PIW), t=[0,1,2,...,N-1]
+        # and the first off-diagonal = t(N-t)/2, t=[1,2,...,N-1]
+        # [see Percival and Walden, 1993]
+        diagonal = ((N - 1 - 2 * nidx) / 2.) ** 2 * np.cos(2 * np.pi * W)
+        off_diag = np.zeros_like(nidx)
+        off_diag[:-1] = nidx[1:] * (N - nidx[1:]) / 2.
+        # put the diagonals in LAPACK "packed" storage
+        ab = np.zeros((2, N), 'd')
+        ab[1] = diagonal
+        ab[0, 1:] = off_diag[:-1]
+        # only calculate the highest Kmax eigenvalues
+        w = linalg.eigvals_banded(ab, select='i',
+                                  select_range=(N - Kmax, N - 1))
+        w = w[::-1]
+
+        # find the corresponding eigenvectors via inverse iteration
+        t = np.linspace(0, np.pi, N)
+        dpss = np.zeros((Kmax, N), 'd')
+        for k in range(Kmax):
+            dpss[k] = tridi_inverse_iteration(
+                diagonal, off_diag, w[k], x0=np.sin((k + 1) * t)
+                )
+
+    # By convention (Percival and Walden, 1993 pg 379)
+    # * symmetric tapers (k=0,2,4,...) should have a positive average.
+    # * antisymmetric tapers should begin with a positive lobe
+    fix_symmetric = (dpss[0::2].sum(axis=1) < 0)
+    for i, f in enumerate(fix_symmetric):
+        if f:
+            dpss[2 * i] *= -1
+    # rather than test the sign of one point, test the sign of the
+    # linear slope up to the first (largest) peak
+    pk = np.argmax(np.abs(dpss[1::2, :N//2]), axis=1)
+    for i, p in enumerate(pk):
+        if np.sum(dpss[2 * i + 1, :p]) < 0:
+            dpss[2 * i + 1] *= -1
+
+    # Now find the eigenvalues of the original spectral concentration problem
+    # Use the autocorr sequence technique from Percival and Walden, 1993 pg 390
+    dpss_rxx = autocorr(dpss) * N
+    r = 4 * W * np.sinc(2 * W * nidx)
+    r[0] = 2 * W
+    eigvals = np.dot(dpss_rxx, r)
+
+    return dpss, eigvals
+
+
+def tapered_spectra(s, tapers, NFFT=None, low_bias=True):
+    """
+    Compute the tapered spectra of the rows of s.
+
+    Parameters
+    ----------
+
+    s : ndarray, (n_arr, n_pts)
+        An array whose rows are timeseries.
+
+    tapers : ndarray or container
+        Either the precomputed DPSS tapers, or the pair of parameters
+        (NW, K) needed to compute K tapers of length n_pts.
+
+    NFFT : int
+        Number of FFT bins to compute
+
+    low_bias : Boolean
+        If compute DPSS, automatically select tapers corresponding to
+        > 90% energy concentration.
+
+    Returns
+    -------
+
+    t_spectra : ndarray, shaped (n_arr, K, NFFT)
+      The FFT of the tapered sequences in s. First dimension is squeezed
+      out if n_arr is 1.
+    eigvals : ndarray
+      The eigenvalues are also returned if DPSS are calculated here.
+
+    """
+    N = s.shape[-1]
+    # XXX: don't allow NFFT < N -- not every implementation is so restrictive!
+    if NFFT is None or NFFT < N:
+        NFFT = N
+    rest_of_dims = s.shape[:-1]
+    M = int(np.product(rest_of_dims))
+
+    s = s.reshape(int(np.product(rest_of_dims)), N)
+    # de-mean this sucker
+    s = remove_bias(s, axis=-1)
+
+    if not isinstance(tapers, np.ndarray):
+        # then tapers is (NW, K)
+        args = (N,) + tuple(tapers)
+        dpss, eigvals = dpss_windows(*args)
+        if low_bias:
+            keepers = (eigvals > 0.9)
+            dpss = dpss[keepers]
+            eigvals = eigvals[keepers]
+        tapers = dpss
+    else:
+        eigvals = None
+    K = tapers.shape[0]
+    sig_sl = [slice(None)] * len(s.shape)
+    sig_sl.insert(len(s.shape) - 1, np.newaxis)
+
+    # tapered.shape is (M, Kmax, N)
+    tapered = s[tuple(sig_sl)] * tapers
+
+    # compute the y_{i,k}(f) -- full FFT takes ~1.5x longer, but unpacking
+    # results of real-valued FFT eats up memory
+    t_spectra = fftpack.fft(tapered, n=NFFT, axis=-1)
+    t_spectra.shape = rest_of_dims + (K, NFFT)
+    if eigvals is None:
+        return t_spectra
+    return t_spectra, eigvals
+
+
+
 def detect_lines(s, tapers, p=None, **taper_kws):
     """
     Detect the presence of line spectra in s using the F-test
@@ -582,7 +785,7 @@ def detect_lines(s, tapers, p=None, **taper_kws):
         a locally white spectrum, there is a threshold such that
         there is a (1-p)% chance of a line amplitude being larger
         than that threshold. Only detect lines with amplitude greater
-        than this threshold. The default is 1/N, to control for false
+        than this threshold. The default is 1/NFFT, to control for false
         positives.
 
     taper_kws
@@ -602,9 +805,6 @@ def detect_lines(s, tapers, p=None, **taper_kws):
         sn = sn.sum(axis=0)
 
     """
-    from nitime.algorithms import tapered_spectra, dpss_windows
-    import scipy.stats.distributions as dists
-    import scipy.ndimage as ndimage
     N = s.shape[-1]
     # Some boiler-plate --
     # 1) set up tapers
@@ -787,7 +987,7 @@ def remove_bias(x, axis):
 
 
 def crosscov(x, y, axis=-1, all_lags=False, debias=True, normalize=True):
-    """Returns the crosscovariance sequence between two ndarrays.
+    r"""Returns the crosscovariance sequence between two ndarrays.
     This is performed by calling fftconvolve on x, y[::-1]
 
     Parameters
@@ -823,8 +1023,8 @@ def crosscov(x, y, axis=-1, all_lags=False, debias=True, normalize=True):
 
     Also note that this routine is the workhorse for all auto/cross/cov/corr
     functions.
-
     """
+
     if x.shape[axis] != y.shape[axis]:
         raise ValueError(
             'crosscov() only works on same-length sequences for now'
@@ -845,7 +1045,7 @@ def crosscov(x, y, axis=-1, all_lags=False, debias=True, normalize=True):
 
 
 def crosscorr(x, y, **kwargs):
-    """
+    r"""
     Returns the crosscorrelation sequence between two ndarrays.
     This is performed by calling fftconvolve on x, y[::-1]
 
@@ -885,7 +1085,7 @@ def crosscorr(x, y, **kwargs):
 
 
 def autocov(x, **kwargs):
-    """Returns the autocovariance of signal s at all lags.
+    r"""Returns the autocovariance of signal s at all lags.
 
     Parameters
     ----------
@@ -924,7 +1124,7 @@ def autocov(x, **kwargs):
 
 
 def autocorr(x, **kwargs):
-    """Returns the autocorrelation of signal s at all lags.
+    r"""Returns the autocorrelation of signal s at all lags.
 
     Parameters
     ----------
@@ -957,9 +1157,7 @@ def autocorr(x, **kwargs):
 def fftconvolve(in1, in2, mode="full", axis=None):
     """ Convolve two N-dimensional arrays using FFT. See convolve.
 
-    This is a fix of scipy.signal.fftconvolve, adding an axis argument and
-    importing locally the stuff only needed for this function
-
+    This is a fix of scipy.signal.fftconvolve, adding an axis argument.
     """
     s1 = np.array(in1.shape)
     s2 = np.array(in2.shape)
@@ -1933,7 +2131,7 @@ def fir_design_matrix(events, len_hrf):
 # models (used in computing Granger causality):
 
 def crosscov_vector(x, y, nlags=None):
-    """
+    r"""
     This method computes the following function
 
     .. math::
@@ -1986,7 +2184,7 @@ def crosscov_vector(x, y, nlags=None):
 
 
 def autocov_vector(x, nlags=None):
-    """
+    r"""
     This method computes the following function
 
     .. math::
@@ -2124,7 +2322,7 @@ def akaike_information_criterion(ecov, p, m, Ntotal, corrected=False):
 
 
 def bayesian_information_criterion(ecov, p, m, Ntotal):
-    """The Bayesian Information Criterion, also known as the Schwarz criterion
+    r"""The Bayesian Information Criterion, also known as the Schwarz criterion
      is a measure of goodness of fit of a statistical model, based on the
      number of model parameters and the likelihood of the model
 
