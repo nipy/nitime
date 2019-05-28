@@ -10,19 +10,10 @@ deploy:
     repo: nipy/nitime
 
 python:
-- 2.7
 - 3.6
 
-env:
-- PIP_DEPS="pip pytest pytest-cov coverage coveralls python-coveralls "
-
-
-python:
-- '2.7'
-- '3.6'
-
 install:
-- travis_retry pip install $PIP_DEPS
+- travis_retry pip install -r requirements-dev.txt
 - travis_retry pip install -e .
 
 script:
