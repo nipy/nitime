@@ -1,6 +1,6 @@
 numpy
 cython
-scipy
+scipy>=1.0.0
 matplotlib
 networkx
 nibabel
