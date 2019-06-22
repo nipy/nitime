@@ -55,9 +55,9 @@ def fir(timeseries, design):
     and Unbiased Approach. Human Brain Mapping, 11:249-260
 
     """
-    X = np.matrix(design)
-    y = np.matrix(timeseries)
-    h = np.array(linalg.pinv(X.T * X) * X.T * y.T)
+    X = np.array(design)
+    y = np.array(timeseries)
+    h = np.array(linalg.pinv(X.T @ X) @ X.T @ y.T)
     return h
 
 

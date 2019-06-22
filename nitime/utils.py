@@ -493,7 +493,7 @@ def adaptive_weights(yk, eigvals, sides='onesided', max_iter=150):
         """)
         # we'll hope this is a correct length for L
         N = yk.shape[-1]
-        L = N / 2 + 1 if sides == 'onesided' else N
+        L = N // 2 + 1 if sides == 'onesided' else N
         return (np.multiply.outer(np.sqrt(eigvals), np.ones(L)), 2 * K)
     rt_eig = np.sqrt(eigvals)
 
@@ -1161,8 +1161,8 @@ def fftconvolve(in1, in2, mode="full", axis=None):
     """
     s1 = np.array(in1.shape)
     s2 = np.array(in2.shape)
-    complex_result = (np.issubdtype(in1.dtype, np.complex) or
-                      np.issubdtype(in2.dtype, np.complex))
+    complex_result = (np.issubdtype(in1.dtype, np.complex128) or
+                      np.issubdtype(in2.dtype, np.complex128))
 
     if axis is None:
         size = s1 + s2 - 1
@@ -1206,10 +1206,10 @@ def fftconvolve(in1, in2, mode="full", axis=None):
 # 'get' utils
 #-----------------------------------------------------------------------------
 def get_freqs(Fs, n):
-    """Returns the center frequencies of the frequency decomposotion of a time
+    """Returns the center frequencies of the frequency decomposition of a time
     series of length n, sampled at Fs Hz"""
 
-    return np.linspace(0, float(Fs) / 2, float(n) / 2 + 1)
+    return np.linspace(0, Fs / 2, int(n / 2 + 1))
 
 
 def circle_to_hz(omega, Fsamp):
@@ -2037,8 +2037,8 @@ def zscore(time_series, axis=-1):
     st = time_series.std(axis=axis)
     sl = [slice(None)] * len(time_series.shape)
     sl[axis] = np.newaxis
-    zt = time_series - et[sl]
-    zt /= st[sl]
+    zt = time_series - et[tuple(sl)]
+    zt /= st[tuple(sl)]
     return zt
 
 

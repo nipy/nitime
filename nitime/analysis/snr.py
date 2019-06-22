@@ -90,7 +90,7 @@ class SNRAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def mt_frequencies(self):
         return np.linspace(0, self.input.sampling_rate / 2,
-                           self.input.data.shape[-1] / 2 + 1)
+                           self.input.data.shape[-1] // 2 + 1)
 
     @desc.setattr_on_read
     def mt_signal_psd(self):

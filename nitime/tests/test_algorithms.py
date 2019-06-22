@@ -2,7 +2,6 @@ import os
 
 import numpy as np
 import numpy.testing as npt
-import numpy.testing.decorators as dec
 
 from scipy.signal import signaltools
 from scipy import fftpack
@@ -161,7 +160,7 @@ def test_psd_matlab():
 
     npt.assert_almost_equal(fxx_mlab, fxx_matlab, decimal=5)
 
-@dec.slow
+
 def test_long_dpss_win():
     """ Test that very long dpss windows can be generated (using interpolation)"""
 

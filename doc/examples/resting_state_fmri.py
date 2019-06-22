@@ -31,7 +31,6 @@ import os
 #Import from other libraries:
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.mlab import csv2rec
 
 import nitime
 #Import the time-series objects:
@@ -49,13 +48,11 @@ f_ub = 0.15
 
 """
 
-We use csv2rec to read the data in from file to a recarray:
+We use Numpy to read the data in from file to a recarray:
 
 """
 
 data_path = os.path.join(nitime.__path__[0], 'data')
-
-data_rec = csv2rec(os.path.join(data_path, 'fmri_timeseries.csv'))
 
 data_rec = np.genfromtxt(os.path.join(data_path, 'fmri_timeseries.csv'),
                          names=True, delimiter=',')

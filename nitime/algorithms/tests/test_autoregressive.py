@@ -1,6 +1,5 @@
 import numpy as np
 import numpy.testing as npt
-import numpy.testing.decorators as dec
 
 import nitime.algorithms as tsa
 import nitime.utils as utils
@@ -87,7 +86,6 @@ def test_AR_LD():
     npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
 
 
-@dec.slow
 def test_MAR_est_LWR():
     """
 

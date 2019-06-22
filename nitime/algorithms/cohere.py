@@ -975,7 +975,7 @@ def cache_fft(time_series, ij, lb=0, ub=None,
 
     n_freqs = ub_idx - lb_idx
     # Make the window:
-    if mlab.cbook.iterable(window):
+    if np.iterable(window):
         assert(len(window) == NFFT)
         window_vals = window
     else:
