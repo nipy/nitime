@@ -1,0 +1,4 @@
+<map id="inheritance5724dc274c" name="inheritance5724dc274c">
+<area shape="rect" id="node1" href="#nitime.analysis.event_related.EventRelatedAnalyzer" target="_top" title="Analyzer object for reverse&#45;correlation/event&#45;related analysis." alt="" coords="249,5,538,29"/>
+<area shape="rect" id="node2" href="nitime.descriptors.html#nitime.descriptors.ResetMixin" target="_top" title="A Mixin class to add a .reset() method to users of OneTimeProperty." alt="" coords="5,5,201,29"/>
+</map>

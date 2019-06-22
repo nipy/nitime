@@ -1,0 +1,210 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="six" href="nitime.six.html" />
+    <link rel="prev" title="lazy" href="nitime.lazy.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.six.html" title="six"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.lazy.html" title="lazy"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">lazyimports</a><ul>
+<li><a class="reference internal" href="#module-lazyimports">Module: <code class="docutils literal notranslate"><span class="pre">lazyimports</span></code></a></li>
+<li><a class="reference internal" href="#lazyimport"><code class="docutils literal notranslate"><span class="pre">LazyImport</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.lazy.html"
+                        title="previous chapter">lazy</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.six.html"
+                        title="next chapter">six</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="lazyimports">
+<h1>lazyimports<a class="headerlink" href="#lazyimports" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-lazyimports">
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">lazyimports</span></code><a class="headerlink" href="#module-lazyimports" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">nitime.lazyimports</span></code>:</p>
+<div class="graphviz"><img src="../../_images/inheritance-fef2c5c56cac4658e760f2b9548c2fe085180bee.png" alt="Inheritance diagram of nitime.lazyimports" usemap="#inheritance80b40aff8d" class="inheritance graphviz" /></div>
+<map id="inheritance80b40aff8d" name="inheritance80b40aff8d">
+<area shape="rect" id="node1" href="#nitime.lazyimports.LazyImport" target="_top" title="WARNING: To get Sphinx documentation to build we disable" alt="" coords="5,5,203,29"/>
+</map><span class="target" id="module-nitime.lazyimports"></span><p>This module provides lazy import functionality to improve the import
+performance of nitime. For example, some parts of nitime leverage and import
+matplotlib, which is quite a big package, yet most of the nitime code does not
+depend on matplotlib. By lazily-loading a module, we defer the overhead of
+importing it until the first time it is actually used, thereby speeding up
+nitime imports.</p>
+<p>A generic <a class="reference internal" href="#nitime.lazyimports.LazyImport" title="nitime.lazyimports.LazyImport"><code class="xref py py-class docutils literal notranslate"><span class="pre">LazyImport</span></code></a> class is implemented which takes the module name
+as a parameter, and acts as a proxy for that module, importing it only when
+the module is used, but effectively acting as the module in every other way
+(including inside IPython with respect to introspection and tab completion)
+with the <em>exception</em> of reload() - reloading a <a class="reference internal" href="#nitime.lazyimports.LazyImport" title="nitime.lazyimports.LazyImport"><code class="xref py py-class docutils literal notranslate"><span class="pre">LazyImport</span></code></a> raises an
+<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ImportError" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImportError</span></code></a>.</p>
+<p>Commonly used nitime lazy imports are also defined in <a class="reference internal" href="nitime.lazy.html#module-nitime.lazy" title="nitime.lazy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nitime.lazy</span></code></a>, so
+they can be reused throughout nitime.</p>
+</div>
+<div class="section" id="lazyimport">
+<h2><a class="reference internal" href="#nitime.lazyimports.LazyImport" title="nitime.lazyimports.LazyImport"><code class="xref py py-class docutils literal notranslate"><span class="pre">LazyImport</span></code></a><a class="headerlink" href="#lazyimport" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nitime.lazyimports.LazyImport">
+<em class="property">class </em><code class="descclassname">nitime.lazyimports.</code><code class="descname">LazyImport</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.lazyimports.LazyImport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<blockquote>
+<div>WARNING: To get Sphinx documentation to build we disable
+LazyImports, which makes Sphinx incorrectly report this
+class as having a base class of object. In reality,
+<a class="reference internal" href="#nitime.lazyimports.LazyImport" title="nitime.lazyimports.LazyImport"><code class="xref py py-class docutils literal notranslate"><span class="pre">LazyImport</span></code></a>’s base class is
+<a class="reference external" href="https://docs.python.org/3/library/types.html#types.ModuleType" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">types.ModuleType</span></code></a>.</div></blockquote>
+<p>This class takes the module name as a parameter, and acts as a proxy for
+that module, importing it only when the module is used, but effectively
+acting as the module in every other way (including inside IPython with
+respect to introspection and tab completion) with the <em>exception</em> of
+reload()- reloading a <a class="reference internal" href="#nitime.lazyimports.LazyImport" title="nitime.lazyimports.LazyImport"><code class="xref py py-class docutils literal notranslate"><span class="pre">LazyImport</span></code></a> raises an <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ImportError" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImportError</span></code></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mlab</span> <span class="o">=</span> <span class="n">LazyImport</span><span class="p">(</span><span class="s1">&#39;matplotlib.mlab&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>No import happens on the above line, until we do something like call an
+<code class="docutils literal notranslate"><span class="pre">mlab</span></code> method or try to do tab completion or introspection on <code class="docutils literal notranslate"><span class="pre">mlab</span></code>
+in IPython.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mlab</span>
+<span class="go">&lt;module &#39;matplotlib.mlab&#39; will be lazily loaded&gt;</span>
+</pre></div>
+</div>
+<p>Now the <a class="reference internal" href="#nitime.lazyimports.LazyImport" title="nitime.lazyimports.LazyImport"><code class="xref py py-class docutils literal notranslate"><span class="pre">LazyImport</span></code></a> will do an actual import, and call the dist
+function of the imported module.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mlab</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="mi">1969</span><span class="p">,</span><span class="mi">2011</span><span class="p">)</span>
+<span class="go">42.0</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="nitime.lazyimports.LazyImport.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.lazyimports.LazyImport.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.six.html" title="six"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.lazy.html" title="lazy"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

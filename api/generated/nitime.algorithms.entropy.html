@@ -1,0 +1,234 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="algorithms.event_related" href="nitime.algorithms.event_related.html" />
+    <link rel="prev" title="algorithms.correlation" href="nitime.algorithms.correlation.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.event_related.html" title="algorithms.event_related"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.correlation.html" title="algorithms.correlation"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">algorithms.entropy</a><ul>
+<li><a class="reference internal" href="#module-nitime.algorithms.entropy">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.entropy</span></code></a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.algorithms.correlation.html"
+                        title="previous chapter">algorithms.correlation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.algorithms.event_related.html"
+                        title="next chapter">algorithms.event_related</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="algorithms-entropy">
+<h1>algorithms.entropy<a class="headerlink" href="#algorithms-entropy" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-nitime.algorithms.entropy">
+<span id="module-algorithms-entropy"></span><h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">algorithms.entropy</span></code><a class="headerlink" href="#module-nitime.algorithms.entropy" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nitime.algorithms.entropy.conditional_entropy">
+<code class="descclassname">nitime.algorithms.entropy.</code><code class="descname">conditional_entropy</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.entropy.conditional_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The conditional entropy H(X|Y) = H(Y,X) - H(Y). X conditioned on Y</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.entropy.entropy">
+<code class="descclassname">nitime.algorithms.entropy.</code><code class="descname">entropy</code><span class="sig-paren">(</span><em>*X</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.entropy.entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the entropy of a variable, or joint entropy of several variables.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>X</strong> : array, or list of arrays</p>
+<blockquote class="last">
+<div><p>Variable or variables to compute entropy/joint entropy on</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This function can be used to calculate the entropy of a single variable
+(provided as a single input) or to calculate the joint entropy between two
+variables (provided as a series of inputs)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.entropy.entropy_cc">
+<code class="descclassname">nitime.algorithms.entropy.</code><code class="descname">entropy_cc</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.entropy.entropy_cc" title="Permalink to this definition">¶</a></dt>
+<dd><p>The entropy correlation coefficient:</p>
+<p>p(H) = sqrt(MI(X, Y) / 0.5 * (H(X) + H(Y)))</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.entropy.mutual_information">
+<code class="descclassname">nitime.algorithms.entropy.</code><code class="descname">mutual_information</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.entropy.mutual_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mutual information between two variables</p>
+<p>MI(X, Y) = H(X) + H(Y) - H(X | Y)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x, y</strong> : array</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>array</strong> : mutual information between x and y</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.entropy.transfer_entropy">
+<code class="descclassname">nitime.algorithms.entropy.</code><code class="descname">transfer_entropy</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>lag=1</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.entropy.transfer_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transfer entropy for two given signals.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : array</p>
+<blockquote>
+<div><blockquote>
+<div><p>source</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>y <span class="classifier-delimiter">:</span> <span class="classifier">array</span></dt>
+<dd><p class="first last">target</p>
+</dd>
+</dl>
+<p>lag : int</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>array</strong> : Transfer entropy from x to y</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.event_related.html" title="algorithms.event_related"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.correlation.html" title="algorithms.correlation"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

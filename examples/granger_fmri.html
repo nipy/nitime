@@ -1,0 +1,325 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Fitting an MAR model: analyzer interface" href="ar_model_fit.html" />
+    <link rel="prev" title="Multivariate auto-regressive modeling - 3 variables" href="ar_est_3vars.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ar_model_fit.html" title="Fitting an MAR model: analyzer interface"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ar_est_3vars.html" title="Multivariate auto-regressive modeling - 3 variables"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Granger ‘causality’ of fMRI data</a><ul>
+<li><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ar_est_3vars.html"
+                        title="previous chapter">Multivariate auto-regressive modeling - 3 variables</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ar_model_fit.html"
+                        title="next chapter">Fitting an MAR model: analyzer interface</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="example-granger-fmri"></span><div class="section" id="granger-causality-of-fmri-data">
+<h1>Granger ‘causality’ of fMRI data<a class="headerlink" href="#granger-causality-of-fmri-data" title="Permalink to this headline">¶</a></h1>
+<p>Granger ‘causality’ analysis provides an asymmetric measure of the coupling
+between two time-series. When discussing this analysis method, we will put the
+word ‘causality’ in single quotes, as we believe that use of this word outside
+of quotes should be reserved for particular circumstances, often not fulfilled
+in the analysis of simultaneously recorder neuroscientific time-series (see
+<a class="reference internal" href="#pearl2009" id="id1">[Pearl2009]</a> for an extensive discussion of this distinction).</p>
+<p>The central idea behind this analysis is that time-series can be described in
+terms of a time-delayed auto-regressive model of the form:</p>
+<div class="math notranslate nohighlight">
+\[x_t = \sum_{i=1}^{n}a_i x_{t-i} + \epsilon_t\]</div>
+<p>Here, the past behaviour of a single time-series is used in order to predict
+the current value of the time-series. In Granger ‘causality’ analysis, we test
+whether the addition of a prediction of the time-series from another
+time-series through a multivariate auto-regressive model may improve our
+prediction of the present behavior of the time-series (reducing the value of
+the error term <span class="math notranslate nohighlight">\(\epsilon_t\)</span>):</p>
+<div class="math notranslate nohighlight">
+\[x_t = \sum_{i=1}^{n}(a_i x_{t-i} + b_i y_{t-i}) + \epsilon_t\]</div>
+<p>In our implementation of the algorithms used for this analysis, we follow
+closely the description put forth by Ding et al. (<a class="reference internal" href="#ding2006" id="id2">[Ding2006]</a>). Also, see
+<a class="reference internal" href="ar_est_2vars.html#mar"><span class="std std-ref">Multivariate auto-regressive modeling</span></a> and <a class="reference internal" href="ar_est_1var.html#ar"><span class="std std-ref">Fitting an AR model: algorithm module interface</span></a> for examples even more closely modeled on the
+examples mentioned in their paper.</p>
+<p>Here, we will demonstrate the use of Granger ‘causality’ analysis with fMRI
+data. The data is provided as part of the distribution and is taken from a
+‘resting state’ scan. The data was motion corrected and averaged from several
+ROIs.</p>
+<p>We start by importing the needed modules:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">nitime</span>
+<span class="kn">import</span> <span class="nn">nitime.analysis</span> <span class="k">as</span> <span class="nn">nta</span>
+<span class="kn">import</span> <span class="nn">nitime.timeseries</span> <span class="k">as</span> <span class="nn">ts</span>
+<span class="kn">import</span> <span class="nn">nitime.utils</span> <span class="k">as</span> <span class="nn">tsu</span>
+<span class="kn">from</span> <span class="nn">nitime.viz</span> <span class="k">import</span> <span class="n">drawmatrix_channels</span>
+</pre></div>
+</div>
+<p>We then define a few parameters of the data: the TR and the bounds on the
+frequency band of interest.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TR</span> <span class="o">=</span> <span class="mf">1.89</span>
+<span class="n">f_ub</span> <span class="o">=</span> <span class="mf">0.15</span>
+<span class="n">f_lb</span> <span class="o">=</span> <span class="mf">0.02</span>
+</pre></div>
+</div>
+<p>We read in the resting state fMRI data into a recarray from a csv file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nitime</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+
+<span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s1">&#39;fmri_timeseries.csv&#39;</span><span class="p">)</span>
+
+<span class="n">data_rec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">roi_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data_rec</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+<span class="n">nseq</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">roi_names</span><span class="p">)</span>
+<span class="n">n_samples</span> <span class="o">=</span> <span class="n">data_rec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nseq</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">n_idx</span><span class="p">,</span> <span class="n">roi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">roi_names</span><span class="p">):</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">n_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_rec</span><span class="p">[</span><span class="n">roi</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We normalize the data in each of the ROIs to be in units of % change and
+initialize the TimeSeries object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pdata</span> <span class="o">=</span> <span class="n">tsu</span><span class="o">.</span><span class="n">percent_change</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">time_series</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">(</span><span class="n">pdata</span><span class="p">,</span> <span class="n">sampling_interval</span><span class="o">=</span><span class="n">TR</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We initialize the GrangerAnalyzer object, while specifying the order of the
+autoregressive model to be 1 (predict the current behavior of the time-series
+based on one time-point back).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">G</span> <span class="o">=</span> <span class="n">nta</span><span class="o">.</span><span class="n">GrangerAnalyzer</span><span class="p">(</span><span class="n">time_series</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For comparison, we also initialize a CoherenceAnalyzer and a
+CorrelationAnalyzer, with the same TimeSeries object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C1</span> <span class="o">=</span> <span class="n">nta</span><span class="o">.</span><span class="n">CoherenceAnalyzer</span><span class="p">(</span><span class="n">time_series</span><span class="p">)</span>
+<span class="n">C2</span> <span class="o">=</span> <span class="n">nta</span><span class="o">.</span><span class="n">CorrelationAnalyzer</span><span class="p">(</span><span class="n">time_series</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We are only interested in the physiologically relevant frequency band
+(approximately 0.02 to 0.15 Hz).</p>
+<p>The spectral resolution is different in these two different analyzers. In the
+CoherenceAnalyzer, the spectral resolution depends on the size of the window
+used for calculating the spectral density and cross-spectrum, whereas in the
+GrangerAnalyzer it is derived, as determined by the user, from the MAR model
+used.</p>
+<p>For this reason, the indices used to access the relevant part of the spectrum
+will be different in the different analyzers.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">freq_idx_G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">G</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">&gt;</span> <span class="n">f_lb</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">&lt;</span> <span class="n">f_ub</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">freq_idx_C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">C1</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">&gt;</span> <span class="n">f_lb</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">C1</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">&lt;</span> <span class="n">f_ub</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We plot the ‘causality’ from x to y (<span class="math notranslate nohighlight">\(F_{x \rightarrow y}\)</span>) and from y to x
+(<span class="math notranslate nohighlight">\(F_{y \rightarrow x}\)</span> for the first two ROIs and compare to the coherence
+between these two time-series:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">coh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">C1</span><span class="o">.</span><span class="n">coherence</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">freq_idx_C</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Averaging on the last dimension</span>
+<span class="n">g1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">causality_xy</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">freq_idx_G</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">fig01</span> <span class="o">=</span> <span class="n">drawmatrix_channels</span><span class="p">(</span><span class="n">coh</span><span class="p">,</span> <span class="n">roi_names</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">],</span> <span class="n">color_anchor</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/granger_fmri_01.png"><img alt="../_images/granger_fmri_01.png" src="../_images/granger_fmri_01.png" style="width: 500px;" /></a>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig02</span> <span class="o">=</span> <span class="n">drawmatrix_channels</span><span class="p">(</span><span class="n">C2</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">,</span> <span class="n">roi_names</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">],</span> <span class="n">color_anchor</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/granger_fmri_02.png"><img alt="../_images/granger_fmri_02.png" src="../_images/granger_fmri_02.png" style="width: 500px;" /></a>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig03</span> <span class="o">=</span> <span class="n">drawmatrix_channels</span><span class="p">(</span><span class="n">g1</span><span class="p">,</span> <span class="n">roi_names</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">],</span> <span class="n">color_anchor</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/granger_fmri_03.png"><img alt="../_images/granger_fmri_03.png" src="../_images/granger_fmri_03.png" style="width: 500px;" /></a>
+<p>Differences in the HRF between different ROIs are a potential source of
+misattribution of the direction and magnitude of dependence between time-series
+in fMRI data (for a particularly extreme example of that see
+<a class="reference internal" href="#david2008" id="id3">[David2008]</a>). Therefore, as suggested by Roebroeck et al. <a class="reference internal" href="#roebroeck2005" id="id4">[Roebroeck2005]</a> and
+<a class="reference internal" href="#kayser2009" id="id5">[Kayser2009]</a> we turn to examine the difference between <span class="math notranslate nohighlight">\(F_{x\rightarrow y}\)</span> and
+<span class="math notranslate nohighlight">\(F_{y\rightarrow x}\)</span>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">g2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">causality_xy</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">freq_idx_G</span><span class="p">]</span> <span class="o">-</span> <span class="n">G</span><span class="o">.</span><span class="n">causality_yx</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">freq_idx_G</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">fig04</span> <span class="o">=</span> <span class="n">drawmatrix_channels</span><span class="p">(</span><span class="n">g2</span><span class="p">,</span> <span class="n">roi_names</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">],</span> <span class="n">color_anchor</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/granger_fmri_04.png"><img alt="../_images/granger_fmri_04.png" src="../_images/granger_fmri_04.png" style="width: 500px;" /></a>
+<p>If these values are found to be significantly different than 0, this
+constitutes evidence for a correlation with a time-lag between the
+regions. This is a necessary (though not necessarily sufficient…) condition
+for establishing functional connectivity between the regions.</p>
+<p>Finally, we call plt.show(), to show the plots created:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils citation" frame="void" id="pearl2009" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Pearl2009]</a></td><td>J. Pearl (2009). Causal inference in statistics: An
+overview. Statistics surveys 3: 96-146.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="ding2006" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[Ding2006]</a></td><td>M. Ding, Y. Chen, S.L. Bressler (2006) Granger causality:
+basic theory and application to neuroscience. In Handbook of Time Series
+Analysis, ed. B. Schelter, M. Winterhalder, and J. Timmer, Wiley-VCH
+Verlage, 2006: 451-474</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="roebroeck2005" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[Roebroeck2005]</a></td><td>A. Roebroeck, E., Formisano R. Goebel (2005). Mapping
+directed influence over the brain using Granger causality and
+fMRI. NeuroImage 25: 230-242.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="kayser2009" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[Kayser2009]</a></td><td>A. Kayser, F. Sun, M. D’Esposito (2009). A comparison of
+Granger causality and coherency in fMRI-based analysis of the motor
+system. NeuroImage 30: 3475-94</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="david2008" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[David2008]</a></td><td>O. David, I. Guillemain, S. Saillet, S. Reyt, C. Deransart,
+C. Segebarth, A. Depaulis (2008). Identifying neural drivers with functional
+MRI: An electrophysiological validation. PLoS Biol 6:e315</td></tr>
+</tbody>
+</table>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" download="" href="../_downloads/ddd0ac7fc8c4030e2472efbc2d48b7be/granger_fmri.py"><code class="xref download docutils literal notranslate"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the Nitime source distribution under the
+<code class="file docutils literal notranslate"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ar_model_fit.html" title="Fitting an MAR model: analyzer interface"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ar_est_3vars.html" title="Multivariate auto-regressive modeling - 3 variables"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

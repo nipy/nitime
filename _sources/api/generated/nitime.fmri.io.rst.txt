@@ -1,0 +1,20 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+fmri.io
+=======
+
+Module: :mod:`fmri.io`
+----------------------
+.. automodule:: nitime.fmri.io
+
+.. currentmodule:: nitime.fmri.io
+
+Functions
+---------
+
+
+.. autofunction:: nitime.fmri.io.nifti_from_time_series
+
+
+.. autofunction:: nitime.fmri.io.time_series_from_file
+

@@ -1,0 +1,68 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+algorithms.cohere
+=================
+
+Module: :mod:`algorithms.cohere`
+--------------------------------
+.. automodule:: nitime.algorithms.cohere
+
+.. currentmodule:: nitime.algorithms.cohere
+
+Functions
+---------
+
+
+.. autofunction:: nitime.algorithms.cohere.cache_fft
+
+
+.. autofunction:: nitime.algorithms.cohere.cache_to_coherency
+
+
+.. autofunction:: nitime.algorithms.cohere.cache_to_phase
+
+
+.. autofunction:: nitime.algorithms.cohere.cache_to_psd
+
+
+.. autofunction:: nitime.algorithms.cohere.cache_to_relative_phase
+
+
+.. autofunction:: nitime.algorithms.cohere.coherence
+
+
+.. autofunction:: nitime.algorithms.cohere.coherence_bavg
+
+
+.. autofunction:: nitime.algorithms.cohere.coherence_partial
+
+
+.. autofunction:: nitime.algorithms.cohere.coherence_partial_spec
+
+
+.. autofunction:: nitime.algorithms.cohere.coherence_regularized
+
+
+.. autofunction:: nitime.algorithms.cohere.coherence_spec
+
+
+.. autofunction:: nitime.algorithms.cohere.coherency
+
+
+.. autofunction:: nitime.algorithms.cohere.coherency_bavg
+
+
+.. autofunction:: nitime.algorithms.cohere.coherency_phase_delay
+
+
+.. autofunction:: nitime.algorithms.cohere.coherency_phase_spectrum
+
+
+.. autofunction:: nitime.algorithms.cohere.coherency_regularized
+
+
+.. autofunction:: nitime.algorithms.cohere.coherency_spec
+
+
+.. autofunction:: nitime.algorithms.cohere.correlation_spectrum
+

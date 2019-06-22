@@ -1,0 +1,279 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="analysis.spectral" href="nitime.analysis.spectral.html" />
+    <link rel="prev" title="analysis.normalization" href="nitime.analysis.normalization.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.spectral.html" title="analysis.spectral"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.normalization.html" title="analysis.normalization"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">analysis.snr</a><ul>
+<li><a class="reference internal" href="#module-analysis-snr">Module: <code class="docutils literal notranslate"><span class="pre">analysis.snr</span></code></a></li>
+<li><a class="reference internal" href="#snranalyzer"><code class="docutils literal notranslate"><span class="pre">SNRAnalyzer</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.analysis.normalization.html"
+                        title="previous chapter">analysis.normalization</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.analysis.spectral.html"
+                        title="next chapter">analysis.spectral</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="analysis-snr">
+<h1>analysis.snr<a class="headerlink" href="#analysis-snr" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-analysis-snr">
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">analysis.snr</span></code><a class="headerlink" href="#module-analysis-snr" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">nitime.analysis.snr</span></code>:</p>
+<div class="graphviz"><img src="../../_images/inheritance-57ac4e976f5d4d00f1bc55ba64044a76c56262a4.png" alt="Inheritance diagram of nitime.analysis.snr" usemap="#inheritance281e936c8d" class="inheritance graphviz" /></div>
+<map id="inheritance281e936c8d" name="inheritance281e936c8d">
+<area shape="rect" id="node1" href="nitime.analysis.base.html#nitime.analysis.base.BaseAnalyzer" target="_top" title="Analyzer that implements the default data flow." alt="" coords="249,5,437,29"/>
+<area shape="rect" id="node3" href="#nitime.analysis.snr.SNRAnalyzer" target="_top" title="Calculate SNR for a response to repetitions of the same stimulus, according" alt="" coords="485,5,660,29"/>
+<area shape="rect" id="node2" href="nitime.descriptors.html#nitime.descriptors.ResetMixin" target="_top" title="A Mixin class to add a .reset() method to users of OneTimeProperty." alt="" coords="5,5,201,29"/>
+</map><span class="target" id="module-nitime.analysis.snr"></span></div>
+<div class="section" id="snranalyzer">
+<h2><a class="reference internal" href="#nitime.analysis.snr.SNRAnalyzer" title="nitime.analysis.snr.SNRAnalyzer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SNRAnalyzer</span></code></a><a class="headerlink" href="#snranalyzer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nitime.analysis.snr.SNRAnalyzer">
+<em class="property">class </em><code class="descclassname">nitime.analysis.snr.</code><code class="descname">SNRAnalyzer</code><span class="sig-paren">(</span><em>input=None</em>, <em>bandwidth=None</em>, <em>adaptive=False</em>, <em>low_bias=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.snr.SNRAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="nitime.analysis.base.html#nitime.analysis.base.BaseAnalyzer" title="nitime.analysis.base.BaseAnalyzer"><code class="xref py py-class docutils literal notranslate"><span class="pre">nitime.analysis.base.BaseAnalyzer</span></code></a></p>
+<p>Calculate SNR for a response to repetitions of the same stimulus, according
+to (Borst, 1999) (Figure 2) and (Hsu, 2004).</p>
+<p>Hsu A, Borst A and Theunissen, FE (2004) Quantifying variability in neural
+responses ans its application for the validation of model
+predictions. Network: Comput Neural Syst 15:91-109</p>
+<p>Borst A and Theunissen FE (1999) Information theory and neural coding. Nat
+Neurosci 2:947-957</p>
+<dl class="method">
+<dt id="nitime.analysis.snr.SNRAnalyzer.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>input=None</em>, <em>bandwidth=None</em>, <em>adaptive=False</em>, <em>low_bias=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.snr.SNRAnalyzer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializer for the multi_taper_SNR object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>input: TimeSeries object</strong> :</p>
+<p><strong>bandwidth: float,</strong> :</p>
+<blockquote>
+<div><p>The bandwidth of the windowing function will determine the number
+tapers to use. This parameters represents trade-off between
+frequency resolution (lower main lobe bandwidth for the taper) and
+variance reduction (higher bandwidth and number of averaged
+estimates). Per default will be set to 4 times the fundamental
+frequency, such that NW=4</p>
+</div></blockquote>
+<p><strong>adaptive: bool, default to False</strong> :</p>
+<blockquote>
+<div><p>Whether to set the weights for the tapered spectra according to the
+adaptive algorithm (Thompson, 2007).</p>
+</div></blockquote>
+<p><strong>low_bias</strong> : bool, default to False</p>
+<blockquote class="last">
+<div><p>Rather than use 2NW tapers, only use the tapers that have better
+than 90% spectral concentration within the bandwidth (still using a
+maximum of 2NW tapers)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Thompson, DJ (2007) Jackknifing multitaper spectrum estimates. IEEE
+Signal Processing Magazing. 24: 20-30</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.snr.SNRAnalyzer.correlation">
+<code class="descname">correlation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.snr.SNRAnalyzer.correlation" title="Permalink to this definition">¶</a></dt>
+<dd><p>The correlation between all combinations of trials</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>(r,e)</strong> : tuple</p>
+<blockquote class="last">
+<div><p>r is the mean correlation and e is the mean error of the correlation
+(with df = n_trials - 1)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.snr.SNRAnalyzer.mt_coherence">
+<code class="descname">mt_coherence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.snr.SNRAnalyzer.mt_coherence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.snr.SNRAnalyzer.mt_frequencies">
+<code class="descname">mt_frequencies</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.snr.SNRAnalyzer.mt_frequencies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.snr.SNRAnalyzer.mt_information">
+<code class="descname">mt_information</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.snr.SNRAnalyzer.mt_information" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.snr.SNRAnalyzer.mt_noise_psd">
+<code class="descname">mt_noise_psd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.snr.SNRAnalyzer.mt_noise_psd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.snr.SNRAnalyzer.mt_signal_psd">
+<code class="descname">mt_signal_psd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.snr.SNRAnalyzer.mt_signal_psd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.snr.SNRAnalyzer.mt_snr">
+<code class="descname">mt_snr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.snr.SNRAnalyzer.mt_snr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.analysis.snr.signal_noise">
+<code class="descclassname">nitime.analysis.snr.</code><code class="descname">signal_noise</code><span class="sig-paren">(</span><em>response</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.snr.signal_noise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signal and noise as defined in Borst and Theunissen 1999, Figure 2</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>response: nitime TimeSeries object</strong> :</p>
+<blockquote class="last">
+<div><p>The data here are individual responses of a single unit to the same
+stimulus, with repetitions being the first dimension and time as the
+last dimension</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.spectral.html" title="analysis.spectral"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.normalization.html" title="analysis.normalization"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

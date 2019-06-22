@@ -1,0 +1,284 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="analysis.normalization" href="nitime.analysis.normalization.html" />
+    <link rel="prev" title="analysis.event_related" href="nitime.analysis.event_related.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.normalization.html" title="analysis.normalization"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.event_related.html" title="analysis.event_related"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">analysis.granger</a><ul>
+<li><a class="reference internal" href="#module-analysis-granger">Module: <code class="docutils literal notranslate"><span class="pre">analysis.granger</span></code></a></li>
+<li><a class="reference internal" href="#grangeranalyzer"><code class="docutils literal notranslate"><span class="pre">GrangerAnalyzer</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.analysis.event_related.html"
+                        title="previous chapter">analysis.event_related</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.analysis.normalization.html"
+                        title="next chapter">analysis.normalization</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="analysis-granger">
+<h1>analysis.granger<a class="headerlink" href="#analysis-granger" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-analysis-granger">
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">analysis.granger</span></code><a class="headerlink" href="#module-analysis-granger" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">nitime.analysis.granger</span></code>:</p>
+<div class="graphviz"><img src="../../_images/inheritance-ba85da3e83a1faab44e541ddbc746c553f2eab52.png" alt="Inheritance diagram of nitime.analysis.granger" usemap="#inheritance85aca00e2e" class="inheritance graphviz" /></div>
+<map id="inheritance85aca00e2e" name="inheritance85aca00e2e">
+<area shape="rect" id="node1" href="nitime.analysis.base.html#nitime.analysis.base.BaseAnalyzer" target="_top" title="Analyzer that implements the default data flow." alt="" coords="249,5,437,29"/>
+<area shape="rect" id="node3" href="#nitime.analysis.granger.GrangerAnalyzer" target="_top" title="Analyzer for computing all&#45;to&#45;all Granger &#39;causality&#39;" alt="" coords="485,5,708,29"/>
+<area shape="rect" id="node2" href="nitime.descriptors.html#nitime.descriptors.ResetMixin" target="_top" title="A Mixin class to add a .reset() method to users of OneTimeProperty." alt="" coords="5,5,201,29"/>
+</map><span class="target" id="module-nitime.analysis.granger"></span><p>Analyzers for the calculation of Granger ‘causality’</p>
+</div>
+<div class="section" id="grangeranalyzer">
+<h2><a class="reference internal" href="#nitime.analysis.granger.GrangerAnalyzer" title="nitime.analysis.granger.GrangerAnalyzer"><code class="xref py py-class docutils literal notranslate"><span class="pre">GrangerAnalyzer</span></code></a><a class="headerlink" href="#grangeranalyzer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="nitime.analysis.granger.GrangerAnalyzer">
+<em class="property">class </em><code class="descclassname">nitime.analysis.granger.</code><code class="descname">GrangerAnalyzer</code><span class="sig-paren">(</span><em>input=None</em>, <em>ij=None</em>, <em>order=None</em>, <em>max_order=10</em>, <em>criterion=&lt;function bayesian_information_criterion&gt;</em>, <em>n_freqs=1024</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.granger.GrangerAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="nitime.analysis.base.html#nitime.analysis.base.BaseAnalyzer" title="nitime.analysis.base.BaseAnalyzer"><code class="xref py py-class docutils literal notranslate"><span class="pre">nitime.analysis.base.BaseAnalyzer</span></code></a></p>
+<p>Analyzer for computing all-to-all Granger ‘causality’</p>
+<dl class="method">
+<dt id="nitime.analysis.granger.GrangerAnalyzer.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>input=None</em>, <em>ij=None</em>, <em>order=None</em>, <em>max_order=10</em>, <em>criterion=&lt;function bayesian_information_criterion&gt;</em>, <em>n_freqs=1024</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.granger.GrangerAnalyzer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializer for the GrangerAnalyzer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>input: nitime TimeSeries object</strong> :</p>
+<p><strong>ij: List of tuples of the form: [(0, 1), (0, 2)], etc.</strong> :</p>
+<blockquote>
+<div><p>These are the indices of pairs of time-series for which the
+analysis will be done. Defaults to all vs. all.</p>
+</div></blockquote>
+<p><strong>order: int (optional)</strong> :</p>
+<blockquote>
+<div><p>The order of the process. If this is not known, it will be
+estimated from the data, using the information criterion</p>
+</div></blockquote>
+<p><strong>max_order: if the order is estimated, this is the maximal order to</strong> :</p>
+<blockquote>
+<div><p>estimate for.</p>
+</div></blockquote>
+<p><strong>n_freqs: int (optional)</strong> :</p>
+<blockquote>
+<div><p>The size of the sampling grid in the frequency domain.
+Defaults to 1024</p>
+</div></blockquote>
+<p><strong>criterion:</strong> :</p>
+<blockquote class="last">
+<div><p>XXX</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.granger.GrangerAnalyzer.autocov">
+<code class="descname">autocov</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.granger.GrangerAnalyzer.autocov" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.granger.GrangerAnalyzer.causality_xy">
+<code class="descname">causality_xy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.granger.GrangerAnalyzer.causality_xy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.granger.GrangerAnalyzer.causality_yx">
+<code class="descname">causality_yx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.granger.GrangerAnalyzer.causality_yx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.granger.GrangerAnalyzer.error_cov">
+<code class="descname">error_cov</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.granger.GrangerAnalyzer.error_cov" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.granger.GrangerAnalyzer.frequencies">
+<code class="descname">frequencies</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.granger.GrangerAnalyzer.frequencies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.granger.GrangerAnalyzer.model_coef">
+<code class="descname">model_coef</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.granger.GrangerAnalyzer.model_coef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.granger.GrangerAnalyzer.order">
+<code class="descname">order</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.granger.GrangerAnalyzer.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.granger.GrangerAnalyzer.simultaneous_causality">
+<code class="descname">simultaneous_causality</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.granger.GrangerAnalyzer.simultaneous_causality" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.granger.GrangerAnalyzer.spectral_matrix">
+<code class="descname">spectral_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.granger.GrangerAnalyzer.spectral_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.analysis.granger.fit_model">
+<code class="descclassname">nitime.analysis.granger.</code><code class="descname">fit_model</code><span class="sig-paren">(</span><em>x1</em>, <em>x2</em>, <em>order=None</em>, <em>max_order=10</em>, <em>criterion=&lt;function bayesian_information_criterion&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.granger.fit_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the auto-regressive model used in calculation of Granger ‘causality’.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x1,x2: float arrays (n)</strong> :</p>
+<blockquote>
+<div><p>x1,x2 bivariate combination.</p>
+</div></blockquote>
+<p><strong>order: int (optional)</strong> :</p>
+<blockquote>
+<div><p>If known, the order of the autoregressive process</p>
+</div></blockquote>
+<p><strong>max_order: int (optional)</strong> :</p>
+<blockquote>
+<div><p>If the order is not known, this will be the maximal order to fit.</p>
+</div></blockquote>
+<p><strong>criterion: callable</strong> :</p>
+<blockquote class="last">
+<div><dl class="docutils">
+<dt>A function which defines an information criterion, used to determine the</dt>
+<dd><p class="first last">order of the model.</p>
+</dd>
+</dl>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.normalization.html" title="analysis.normalization"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.event_related.html" title="analysis.event_related"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,246 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="index_utils" href="nitime.index_utils.html" />
+    <link rel="prev" title="fmri.hrf" href="nitime.fmri.hrf.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.index_utils.html" title="index_utils"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.fmri.hrf.html" title="fmri.hrf"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">fmri.io</a><ul>
+<li><a class="reference internal" href="#module-nitime.fmri.io">Module: <code class="docutils literal notranslate"><span class="pre">fmri.io</span></code></a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.fmri.hrf.html"
+                        title="previous chapter">fmri.hrf</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.index_utils.html"
+                        title="next chapter">index_utils</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="fmri-io">
+<h1>fmri.io<a class="headerlink" href="#fmri-io" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-nitime.fmri.io">
+<span id="module-fmri-io"></span><h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">fmri.io</span></code><a class="headerlink" href="#module-nitime.fmri.io" title="Permalink to this headline">¶</a></h2>
+<p>Input and output for fmri data files</p>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nitime.fmri.io.nifti_from_time_series">
+<code class="descclassname">nitime.fmri.io.</code><code class="descname">nifti_from_time_series</code><span class="sig-paren">(</span><em>volume</em>, <em>coords</em>, <em>time_series</em>, <em>nifti_path</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.fmri.io.nifti_from_time_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a Nifti file out of a time_series object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>volume: list (3-d, or 4-d)</strong> :</p>
+<blockquote>
+<div><p>The total size of the nifti image to be created</p>
+</div></blockquote>
+<p><strong>coords: 3*n_coords array</strong> :</p>
+<blockquote>
+<div><p>The coords into which the time_series will be inserted. These need to
+be given in the order in which the time_series is organized</p>
+</div></blockquote>
+<p><strong>time_series: a time-series object</strong> :</p>
+<blockquote>
+<div><p>The time-series to be inserted into the file</p>
+</div></blockquote>
+<p class="last"><strong>nifti_path: the full path to the file name which will be created</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.fmri.io.time_series_from_file">
+<code class="descclassname">nitime.fmri.io.</code><code class="descname">time_series_from_file</code><span class="sig-paren">(</span><em>nifti_files</em>, <em>coords=None</em>, <em>TR=None</em>, <em>normalize=None</em>, <em>average=False</em>, <em>filter=None</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.fmri.io.time_series_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Make a time series from a Analyze file, provided coordinates into the</dt>
+<dd>file</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>nifti_files: a string or a list/tuple of strings.</strong> :</p>
+<blockquote>
+<div><p>The full path(s) to the file(s) from which the time-series is (are)
+extracted</p>
+</div></blockquote>
+<p><strong>coords: ndarray or list/tuple of ndarray, optional.</strong> :</p>
+<blockquote>
+<div><p>x,y,z (inplane,inplane,slice) coordinates of the ROI(s) from which the
+time-series is (are) derived. If coordinates are provided, the
+resulting time-series object will have 2 dimentsions. The first is the
+coordinate dimension, in order of the provided coordinates and the
+second is time. If set to None, all the coords in the volume will be
+used and the coordinate system will be preserved - the output will be 4
+dimensional, with time as the last dimension.</p>
+</div></blockquote>
+<p><strong>TR: float or TimeArray, optional</strong> :</p>
+<blockquote>
+<div><p>The TR of the fmri measurement. The units are seconds, if provided as a float
+argument. Otherwise, in the units of the TimeArray object
+provided. Default: 1 second.</p>
+</div></blockquote>
+<p><strong>normalize: bool, optional</strong> :</p>
+<blockquote>
+<div><p>Whether to normalize the activity in each voxel, defaults to
+None, in which case the original fMRI signal is used. Other options
+are: ‘percent’: the activity in each voxel is converted to percent
+change, relative to this scan. ‘zscore’: the activity is converted to a
+zscore relative to the mean and std in this voxel in this scan.</p>
+</div></blockquote>
+<p><strong>average: bool, optional whether to average the time-series across the</strong> :</p>
+<blockquote>
+<div><p>voxels in the ROI (assumed to be the first dimension). In which
+case, TS.data will be 1-d</p>
+</div></blockquote>
+<p><strong>filter: dict, optional</strong> :</p>
+<blockquote>
+<div><p>If provided with a dict of the form:</p>
+<p>{‘lb’:float or 0, ‘ub’:float or None, ‘method’:’fourier’,’boxcar’ ‘fir’
+or ‘iir’ }</p>
+<p>each voxel’s data will be filtered into the frequency range [lb,ub] with
+nitime.analysis.FilterAnalyzer, using the method chosen here (defaults
+to ‘fir’)</p>
+</div></blockquote>
+<p><strong>verbose: Whether to report on ROI and file being read.</strong> :</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>time-series object</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.index_utils.html" title="index_utils"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.fmri.hrf.html" title="fmri.hrf"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

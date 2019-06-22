@@ -1,0 +1,286 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Coherency analysis of fMRI data" href="resting_state_fmri.html" />
+    <link rel="prev" title="Seed correlation/coherence with fMRI data" href="seed_analysis.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="resting_state_fmri.html" title="Coherency analysis of fMRI data"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="seed_analysis.html" title="Seed correlation/coherence with fMRI data"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Multitaper method for baseband demodulation</a><ul>
+<li><a class="reference internal" href="#test-1">Test 1</a></li>
+<li><a class="reference internal" href="#test-2">Test 2</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="seed_analysis.html"
+                        title="previous chapter">Seed correlation/coherence with fMRI data</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="resting_state_fmri.html"
+                        title="next chapter">Coherency analysis of fMRI data</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="multitaper-method-for-baseband-demodulation">
+<span id="multi-taper-baseband-power"></span><span id="example-mtm-baseband-power"></span><h1>Multitaper method for baseband demodulation<a class="headerlink" href="#multitaper-method-for-baseband-demodulation" title="Permalink to this headline">¶</a></h1>
+<p>Another application of the Slepian functions is to estimate the
+complex demodulate of a narrowband signal. This signal is normally of
+interest in neuroimaging when finding the lowpass power envelope and the
+instantaneous phase. The traditional technique uses the Hilbert
+transform to find the analytic signal. However, this approach suffers
+problems of bias and reliability, much like the periodogram suffers in
+PSD estimation. Once again, a multitaper approach can provide an
+estimate with lower variance.</p>
+<p>The following demonstrates the use of spectra of multiple windows to
+compute a power envelope of a signal in a desired band.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="k">as</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">nitime.algorithms</span> <span class="k">as</span> <span class="nn">nt_alg</span>
+<span class="kn">import</span> <span class="nn">nitime.utils</span> <span class="k">as</span> <span class="nn">nt_ut</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">pp</span>
+</pre></div>
+</div>
+<p>We’ll set up a test signal with a red spectrum (integrated Gaussian
+noise).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">nfft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">N</span><span class="p">)))</span> <span class="p">)</span>
+<span class="n">NW</span> <span class="o">=</span> <span class="mi">40</span>
+<span class="n">W</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">NW</span><span class="p">)</span><span class="o">/</span><span class="n">N</span>
+</pre></div>
+</div>
+<p>Create a nearly lowpass band-limited signal.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Strictly enforce the band-limited property in this signal.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">butter</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">btype</span><span class="o">=</span><span class="s1">&#39;lowpass&#39;</span><span class="p">)</span>
+<span class="n">slp</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Modulate both signals away from baseband.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">s_mod</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span><span class="p">)</span>
+<span class="n">slp_mod</span> <span class="o">=</span> <span class="n">slp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span><span class="p">)</span>
+<span class="n">fm</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span> <span class="o">*</span> <span class="n">nfft</span> <span class="o">/</span> <span class="n">N</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Create Slepians with the desired bandpass resolution (2W).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">dpss</span><span class="p">,</span> <span class="n">eigs</span><span class="p">)</span> <span class="o">=</span> <span class="n">nt_alg</span><span class="o">.</span><span class="n">dpss_windows</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">NW</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">NW</span><span class="p">)</span>
+<span class="n">keep</span> <span class="o">=</span> <span class="n">eigs</span> <span class="o">&gt;</span> <span class="mf">0.9</span>
+<span class="n">dpss</span> <span class="o">=</span> <span class="n">dpss</span><span class="p">[</span><span class="n">keep</span><span class="p">];</span> <span class="n">eigs</span> <span class="o">=</span> <span class="n">eigs</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="section" id="test-1">
+<h2>Test 1<a class="headerlink" href="#test-1" title="Permalink to this headline">¶</a></h2>
+<p>We’ll compare multitaper baseband power estimation with regular
+Hilbert transform method under actual narrowband conditions.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># MT method</span>
+<span class="n">xk</span> <span class="o">=</span> <span class="n">nt_alg</span><span class="o">.</span><span class="n">tapered_spectra</span><span class="p">(</span><span class="n">slp_mod</span><span class="p">,</span> <span class="n">dpss</span><span class="p">,</span> <span class="n">NFFT</span><span class="o">=</span><span class="n">nfft</span><span class="p">)</span>
+<span class="n">mtm_bband</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">xk</span><span class="p">[:,</span><span class="n">fm</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eigs</span><span class="p">))[:,</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">dpss</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span> <span class="p">)</span>
+
+<span class="c1"># Hilbert transform method</span>
+<span class="n">hb_bband</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">hilbert</span><span class="p">(</span><span class="n">slp_mod</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">nfft</span><span class="p">)[:</span><span class="n">N</span><span class="p">]</span>
+
+<span class="n">pp</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">slp_mod</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mtm_bband</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Multitaper Baseband Power&#39;</span><span class="p">)</span>
+
+<span class="n">pp</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">slp_mod</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">hb_bband</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Hilbert Baseband Power&#39;</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/mtm_baseband_power_01.png"><img alt="../_images/mtm_baseband_power_01.png" src="../_images/mtm_baseband_power_01.png" style="width: 500px;" /></a>
+<p>We see in the narrowband signal case that there’s not much difference
+between taking the Hilbert transform and calculating the multitaper
+complex demodulate.</p>
+</div>
+<div class="section" id="test-2">
+<h2>Test 2<a class="headerlink" href="#test-2" title="Permalink to this headline">¶</a></h2>
+<p>Now we’ll compare multitaper baseband power estimation with regular
+Hilbert transform method under more realistic non-narrowband
+conditions.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># MT method</span>
+<span class="n">xk</span> <span class="o">=</span> <span class="n">nt_alg</span><span class="o">.</span><span class="n">tapered_spectra</span><span class="p">(</span><span class="n">s_mod</span><span class="p">,</span> <span class="n">dpss</span><span class="p">,</span> <span class="n">NFFT</span><span class="o">=</span><span class="n">nfft</span><span class="p">)</span>
+<span class="n">w</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">nt_ut</span><span class="o">.</span><span class="n">adaptive_weights</span><span class="p">(</span><span class="n">xk</span><span class="p">,</span> <span class="n">eigs</span><span class="p">,</span> <span class="n">sides</span><span class="o">=</span><span class="s1">&#39;onesided&#39;</span><span class="p">)</span>
+<span class="n">mtm_bband</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">xk</span><span class="p">[:,</span><span class="n">fm</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eigs</span><span class="p">))[:,</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">dpss</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span> <span class="p">)</span>
+
+<span class="c1"># Hilbert transform method</span>
+<span class="n">hb_bband</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">hilbert</span><span class="p">(</span><span class="n">s_mod</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">nfft</span><span class="p">)[:</span><span class="n">N</span><span class="p">]</span>
+
+<span class="n">pp</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">s_mod</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mtm_bband</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Multitaper Baseband Power&#39;</span><span class="p">)</span>
+
+<span class="n">pp</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">s_mod</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">hb_bband</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Hilbert Baseband Power&#39;</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/mtm_baseband_power_02.png"><img alt="../_images/mtm_baseband_power_02.png" src="../_images/mtm_baseband_power_02.png" style="width: 500px;" /></a>
+<p>Here we see that since the underlying signal is not truly narrowband,
+the broadband bias is corrupting the Hilbert transform estimation of
+the complex demodulate. However the multitaper estimate clearly
+remains lowpass.</p>
+<p>Another property of computing the complex demodulate from the spectra
+of multiple windows is that all bandpasses can be computed. In the
+above examples, we were only taking a slice from the modulation
+frequency that we set up. In practice, we might be interested in
+bandpasses at various frequencies. Note here, though, that our
+bandwidth is set by the Slepian sequences we used for analysis. The
+following plot shows a family of complex demodulates at frequencies
+near the modulation frequency.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">### Show a family of baseband demodulations from the multitaper method</span>
+<span class="c1">#eigen_coefs = 2 * (xk[:,(fm-100):(fm+100):10] * np.sqrt(eigs)[:,None])</span>
+<span class="n">eigen_coefs</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">xk</span><span class="p">[:,(</span><span class="n">fm</span><span class="o">-</span><span class="mi">100</span><span class="p">):(</span><span class="n">fm</span><span class="o">+</span><span class="mi">100</span><span class="p">):</span><span class="mi">10</span><span class="p">]</span> <span class="o">*</span> \
+                   <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">w</span><span class="p">[:,(</span><span class="n">fm</span><span class="o">-</span><span class="mi">100</span><span class="p">):(</span><span class="n">fm</span><span class="o">+</span><span class="mi">100</span><span class="p">):</span><span class="mi">10</span><span class="p">]))</span>
+<span class="n">mtm_fbband</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">eigen_coefs</span><span class="p">[:,:,</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">dpss</span><span class="p">[:,</span><span class="kc">None</span><span class="p">,:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span> <span class="p">)</span>
+
+<span class="n">pp</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">s_mod</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mtm_fbband</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mtm_bband</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Multitaper Baseband Power: Demodulation Freqs in (fm-100, fm+100)&#39;</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/mtm_baseband_power_03.png"><img alt="../_images/mtm_baseband_power_03.png" src="../_images/mtm_baseband_power_03.png" style="width: 500px;" /></a>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pp</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" download="" href="../_downloads/82bce23728b9895918705e9aad6ccfee/mtm_baseband_power.py"><code class="xref download docutils literal notranslate"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the Nitime source distribution under the
+<code class="file docutils literal notranslate"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="resting_state_fmri.html" title="Coherency analysis of fMRI data"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="seed_analysis.html" title="Seed correlation/coherence with fMRI data"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

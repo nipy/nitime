@@ -1,0 +1,740 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="lazy" href="nitime.lazy.html" />
+    <link rel="prev" title="fmri.io" href="nitime.fmri.io.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.lazy.html" title="lazy"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.fmri.io.html" title="fmri.io"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">index_utils</a><ul>
+<li><a class="reference internal" href="#module-nitime.index_utils">Module: <code class="docutils literal notranslate"><span class="pre">index_utils</span></code></a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.fmri.io.html"
+                        title="previous chapter">fmri.io</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.lazy.html"
+                        title="next chapter">lazy</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="index-utils">
+<h1>index_utils<a class="headerlink" href="#index-utils" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-nitime.index_utils">
+<span id="module-index-utils"></span><h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">index_utils</span></code><a class="headerlink" href="#module-nitime.index_utils" title="Permalink to this headline">¶</a></h2>
+<p>Utilities for indexing into 2-d arrays, brought in from numpy 1.4, to
+support use of older versions of numpy</p>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nitime.index_utils.histogram2d">
+<code class="descclassname">nitime.index_utils.</code><code class="descname">histogram2d</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>bins=10</em>, <em>range=None</em>, <em>normed=False</em>, <em>weights=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.index_utils.histogram2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the bi-dimensional histogram of two data samples.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : array_like, shape(N,)</p>
+<blockquote>
+<div><p>A sequence of values to be histogrammed along the first dimension.</p>
+</div></blockquote>
+<p><strong>y</strong> : array_like, shape(M,)</p>
+<blockquote>
+<div><p>A sequence of values to be histogrammed along the second dimension.</p>
+</div></blockquote>
+<p><strong>bins</strong> : int or [int, int] or array_like or [array, array], optional</p>
+<blockquote>
+<div><p>The bin specification:</p>
+<blockquote>
+<div><ul class="simple">
+<li>If int, the number of bins for the two dimensions (nx=ny=bins).</li>
+<li>If [int, int], the number of bins in each dimension (nx, ny = bins).</li>
+<li>If array_like, the bin edges for the two dimensions (x_edges=y_edges=bins).</li>
+<li>If [array, array], the bin edges in each dimension (x_edges, y_edges = bins).</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p><strong>range</strong> : array_like, shape(2,2), optional</p>
+<blockquote>
+<div><p>The leftmost and rightmost edges of the bins along each dimension
+(if not specified explicitly in the <cite>bins</cite> parameters):
+<code class="docutils literal notranslate"><span class="pre">[[xmin,</span> <span class="pre">xmax],</span> <span class="pre">[ymin,</span> <span class="pre">ymax]]</span></code>. All values outside of this range
+will be considered outliers and not tallied in the histogram.</p>
+</div></blockquote>
+<p><strong>normed</strong> : bool, optional</p>
+<blockquote>
+<div><p>If False, returns the number of samples in each bin. If True, returns
+the bin density, i.e. the bin count divided by the bin area.</p>
+</div></blockquote>
+<p><strong>weights</strong> : array_like, shape(N,), optional</p>
+<blockquote>
+<div><p>An array of values <code class="docutils literal notranslate"><span class="pre">w_i</span></code> weighing each sample <code class="docutils literal notranslate"><span class="pre">(x_i,</span> <span class="pre">y_i)</span></code>. Weights
+are normalized to 1 if <cite>normed</cite> is True. If <cite>normed</cite> is False, the
+values of the returned histogram are equal to the sum of the weights
+belonging to the samples falling into each bin.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>H</strong> : ndarray, shape(nx, ny)</p>
+<blockquote>
+<div><p>The bi-dimensional histogram of samples <cite>x</cite> and <cite>y</cite>. Values in <cite>x</cite>
+are histogrammed along the first dimension and values in <cite>y</cite> are
+histogrammed along the second dimension.</p>
+</div></blockquote>
+<p><strong>xedges</strong> : ndarray, shape(nx,)</p>
+<blockquote>
+<div><p>The bin edges along the first dimension.</p>
+</div></blockquote>
+<p><strong>yedges</strong> : ndarray, shape(ny,)</p>
+<blockquote class="last">
+<div><p>The bin edges along the second dimension.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">histogram</span></code></dt>
+<dd>1D histogram</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">histogramdd</span></code></dt>
+<dd>Multidimensional histogram</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>When <cite>normed</cite> is True, then the returned histogram is the sample density,
+defined such that:</p>
+<div class="math notranslate nohighlight">
+\[\sum_{i=0}^{nx-1} \sum_{j=0}^{ny-1} H_{i,j} \Delta x_i \Delta y_j = 1\]</div>
+<p>where <cite>H</cite> is the histogram array and <span class="math notranslate nohighlight">\(\Delta x_i \Delta y_i\)</span>
+the area of bin <cite>{i,j}</cite>.</p>
+<p>Please note that the histogram does not follow the Cartesian convention
+where <cite>x</cite> values are on the abcissa and <cite>y</cite> values on the ordinate axis.
+Rather, <cite>x</cite> is histogrammed along the first dimension of the array
+(vertical), and <cite>y</cite> along the second dimension of the array (horizontal).
+This ensures compatibility with <cite>histogramdd</cite>.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span><span class="p">,</span> <span class="n">xedges</span><span class="p">,</span> <span class="n">yedges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">xedges</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">yedges</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">((5, 8), (6,), (9,))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.index_utils.mask_indices">
+<code class="descclassname">nitime.index_utils.</code><code class="descname">mask_indices</code><span class="sig-paren">(</span><em>n</em>, <em>mask_func</em>, <em>k=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.index_utils.mask_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the indices to access (n, n) arrays, given a masking function.</p>
+<p>Assume <cite>mask_func</cite> is a function that, for a square array a of size
+<code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">n)</span></code> with a possible offset argument <cite>k</cite>, when called as
+<code class="docutils literal notranslate"><span class="pre">mask_func(a,</span> <span class="pre">k)</span></code> returns a new array with zeros in certain locations
+(functions like <cite>triu</cite> or <cite>tril</cite> do precisely this). Then this function
+returns the indices where the non-zero values would be located.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>The returned indices will be valid to access arrays of shape (n, n).</p>
+</div></blockquote>
+<p><strong>mask_func</strong> : callable</p>
+<blockquote>
+<div><p>A function whose call signature is similar to that of <cite>triu</cite>, <cite>tril</cite>.
+That is, <code class="docutils literal notranslate"><span class="pre">mask_func(x,</span> <span class="pre">k)</span></code> returns a boolean array, shaped like <cite>x</cite>.
+<cite>k</cite> is an optional argument to the function.</p>
+</div></blockquote>
+<p><strong>k</strong> : scalar</p>
+<blockquote>
+<div><p>An optional argument which is passed through to <cite>mask_func</cite>. Functions
+like <cite>triu</cite>, <cite>tril</cite> take a second argument that is interpreted as an
+offset.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>indices</strong> : tuple of arrays.</p>
+<blockquote class="last">
+<div><p>The <cite>n</cite> arrays of indices corresponding to the locations where
+<code class="docutils literal notranslate"><span class="pre">mask_func(np.ones((n,</span> <span class="pre">n)),</span> <span class="pre">k)</span></code> is True.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#nitime.index_utils.triu" title="nitime.index_utils.triu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">triu</span></code></a>, <a class="reference internal" href="#nitime.index_utils.tril" title="nitime.index_utils.tril"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tril</span></code></a>, <a class="reference internal" href="#nitime.index_utils.triu_indices" title="nitime.index_utils.triu_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">triu_indices</span></code></a>, <a class="reference internal" href="#nitime.index_utils.tril_indices" title="nitime.index_utils.tril_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tril_indices</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 1.4.0.</span></p>
+</div>
+<p class="rubric">Examples</p>
+<p>These are the indices that would allow you to access the upper triangular
+part of any 3x3 array:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">iu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mask_indices</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For example, if <cite>a</cite> is a 3x3 array:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">array([[0, 1, 2],</span>
+<span class="go">       [3, 4, 5],</span>
+<span class="go">       [6, 7, 8]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="n">iu</span><span class="p">]</span>
+<span class="go">array([0, 1, 2, 4, 5, 8])</span>
+</pre></div>
+</div>
+<p>An offset can be passed also to the masking function.  This gets us the
+indices starting on the first diagonal right of the main one:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">iu1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mask_indices</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>with which we now extract only three elements:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="n">iu1</span><span class="p">]</span>
+<span class="go">array([1, 2, 5])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.index_utils.tri">
+<code class="descclassname">nitime.index_utils.</code><code class="descname">tri</code><span class="sig-paren">(</span><em>N</em>, <em>M=None</em>, <em>k=0</em>, <em>dtype=&lt;class 'float'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.index_utils.tri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct an array filled with ones at and below the given diagonal.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>N</strong> : int</p>
+<blockquote>
+<div><p>Number of rows in the array.</p>
+</div></blockquote>
+<p><strong>M</strong> : int, optional</p>
+<blockquote>
+<div><p>Number of columns in the array.
+By default, <cite>M</cite> is taken equal to <cite>N</cite>.</p>
+</div></blockquote>
+<p><strong>k</strong> : int, optional</p>
+<blockquote>
+<div><p>The sub-diagonal below which the array is filled.
+<cite>k</cite> = 0 is the main diagonal, while <cite>k</cite> &lt; 0 is below it,
+and <cite>k</cite> &gt; 0 is above.  The default is 0.</p>
+</div></blockquote>
+<p><strong>dtype</strong> : dtype, optional</p>
+<blockquote>
+<div><p>Data type of the returned array.  The default is float.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>T</strong> : (N,M) ndarray</p>
+<blockquote class="last">
+<div><p>Array with a lower triangle filled with ones, in other words
+<code class="docutils literal notranslate"><span class="pre">T[i,j]</span> <span class="pre">==</span> <span class="pre">1</span></code> for <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">&lt;=</span> <span class="pre">j</span> <span class="pre">+</span> <span class="pre">k</span></code>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">tri</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="go">array([[1, 1, 1, 0, 0],</span>
+<span class="go">       [1, 1, 1, 1, 0],</span>
+<span class="go">       [1, 1, 1, 1, 1]])</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">tri</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([[ 0.,  0.,  0.,  0.,  0.],</span>
+<span class="go">       [ 1.,  0.,  0.,  0.,  0.],</span>
+<span class="go">       [ 1.,  1.,  0.,  0.,  0.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.index_utils.tril">
+<code class="descclassname">nitime.index_utils.</code><code class="descname">tril</code><span class="sig-paren">(</span><em>m</em>, <em>k=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.index_utils.tril" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lower triangle of an array.</p>
+<p>Return a copy of an array with elements above the <cite>k</cite>-th diagonal zeroed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>m</strong> : array_like, shape (M, N)</p>
+<blockquote>
+<div><p>Input array.</p>
+</div></blockquote>
+<p><strong>k</strong> : int</p>
+<blockquote>
+<div><p>Diagonal above which to zero elements.
+<cite>k = 0</cite> is the main diagonal, <cite>k &lt; 0</cite> is below it and <cite>k &gt; 0</cite> is above.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>L</strong> : ndarray, shape (M, N)</p>
+<blockquote class="last">
+<div><p>Lower triangle of <cite>m</cite>, of same shape and data-type as <cite>m</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#nitime.index_utils.triu" title="nitime.index_utils.triu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">triu</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">tril</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],[</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">],[</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">]],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([[ 0,  0,  0],</span>
+<span class="go">       [ 4,  0,  0],</span>
+<span class="go">       [ 7,  8,  0],</span>
+<span class="go">       [10, 11, 12]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.index_utils.tril_indices">
+<code class="descclassname">nitime.index_utils.</code><code class="descname">tril_indices</code><span class="sig-paren">(</span><em>n</em>, <em>k=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.index_utils.tril_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the indices for the lower-triangle of an (n, n) array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>Sets the size of the arrays for which the returned indices will be valid.</p>
+</div></blockquote>
+<p><strong>k</strong> : int, optional</p>
+<blockquote>
+<div><p>Diagonal offset (see <cite>tril</cite> for details).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>inds</strong> : tuple of arrays</p>
+<blockquote class="last">
+<div><p>The indices for the triangle. The returned tuple contains two arrays,
+each with the indices along one dimension of the array.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="docutils">
+<dt><a class="reference internal" href="#nitime.index_utils.triu_indices" title="nitime.index_utils.triu_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">triu_indices</span></code></a></dt>
+<dd>similar function, for upper-triangular.</dd>
+<dt><a class="reference internal" href="#nitime.index_utils.mask_indices" title="nitime.index_utils.mask_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask_indices</span></code></a></dt>
+<dd>generic function accepting an arbitrary mask function.</dd>
+</dl>
+<p class="last"><a class="reference internal" href="#nitime.index_utils.tril" title="nitime.index_utils.tril"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tril</span></code></a>, <a class="reference internal" href="#nitime.index_utils.triu" title="nitime.index_utils.triu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">triu</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 1.4.0.</span></p>
+</div>
+<p class="rubric">Examples</p>
+<p>Compute two different sets of indices to access 4x4 arrays, one for the
+lower triangular part starting at the main diagonal, and one starting two
+diagonals further right:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">il1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tril_indices</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">il2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tril_indices</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here is how they can be used with a sample array:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">array([[ 0,  1,  2,  3],</span>
+<span class="go">       [ 4,  5,  6,  7],</span>
+<span class="go">       [ 8,  9, 10, 11],</span>
+<span class="go">       [12, 13, 14, 15]])</span>
+</pre></div>
+</div>
+<p>Both for indexing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="n">il1</span><span class="p">]</span>
+<span class="go">array([ 0,  4,  5,  8,  9, 10, 12, 13, 14, 15])</span>
+</pre></div>
+</div>
+<p>And for assigning values:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="n">il1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">array([[-1,  1,  2,  3],</span>
+<span class="go">       [-1, -1,  6,  7],</span>
+<span class="go">       [-1, -1, -1, 11],</span>
+<span class="go">       [-1, -1, -1, -1]])</span>
+</pre></div>
+</div>
+<p>These cover almost the whole array (two diagonals right of the main one):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="n">il2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">array([[-10, -10, -10,   3],</span>
+<span class="go">       [-10, -10, -10, -10],</span>
+<span class="go">       [-10, -10, -10, -10],</span>
+<span class="go">       [-10, -10, -10, -10]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.index_utils.tril_indices_from">
+<code class="descclassname">nitime.index_utils.</code><code class="descname">tril_indices_from</code><span class="sig-paren">(</span><em>arr</em>, <em>k=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.index_utils.tril_indices_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the indices for the lower-triangle of an (n, n) array.</p>
+<p>See <cite>tril_indices</cite> for full details.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>Sets the size of the arrays for which the returned indices will be valid.</p>
+</div></blockquote>
+<p><strong>k</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>Diagonal offset (see <cite>tril</cite> for details).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#nitime.index_utils.tril_indices" title="nitime.index_utils.tril_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tril_indices</span></code></a>, <a class="reference internal" href="#nitime.index_utils.tril" title="nitime.index_utils.tril"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tril</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 1.4.0.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.index_utils.triu">
+<code class="descclassname">nitime.index_utils.</code><code class="descname">triu</code><span class="sig-paren">(</span><em>m</em>, <em>k=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.index_utils.triu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upper triangle of an array.</p>
+<p>Construct a copy of a matrix with elements below the k-th diagonal zeroed.</p>
+<p>Please refer to the documentation for <cite>tril</cite>.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#nitime.index_utils.tril" title="nitime.index_utils.tril"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tril</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],[</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">],[</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">]],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([[ 1,  2,  3],</span>
+<span class="go">       [ 4,  5,  6],</span>
+<span class="go">       [ 0,  8,  9],</span>
+<span class="go">       [ 0,  0, 12]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.index_utils.triu_indices">
+<code class="descclassname">nitime.index_utils.</code><code class="descname">triu_indices</code><span class="sig-paren">(</span><em>n</em>, <em>k=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.index_utils.triu_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the indices for the upper-triangle of an (n, n) array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>Sets the size of the arrays for which the returned indices will be valid.</p>
+</div></blockquote>
+<p><strong>k</strong> : int, optional</p>
+<blockquote>
+<div><p>Diagonal offset (see <cite>triu</cite> for details).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>inds</strong> : tuple of arrays</p>
+<blockquote class="last">
+<div><p>The indices for the triangle. The returned tuple contains two arrays,
+each with the indices along one dimension of the array.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="docutils">
+<dt><a class="reference internal" href="#nitime.index_utils.tril_indices" title="nitime.index_utils.tril_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tril_indices</span></code></a></dt>
+<dd>similar function, for lower-triangular.</dd>
+<dt><a class="reference internal" href="#nitime.index_utils.mask_indices" title="nitime.index_utils.mask_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask_indices</span></code></a></dt>
+<dd>generic function accepting an arbitrary mask function.</dd>
+</dl>
+<p class="last"><a class="reference internal" href="#nitime.index_utils.triu" title="nitime.index_utils.triu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">triu</span></code></a>, <a class="reference internal" href="#nitime.index_utils.tril" title="nitime.index_utils.tril"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tril</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 1.4.0.</span></p>
+</div>
+<p class="rubric">Examples</p>
+<p>Compute two different sets of indices to access 4x4 arrays, one for the
+upper triangular part starting at the main diagonal, and one starting two
+diagonals further right:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">iu1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iu2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here is how they can be used with a sample array:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">array([[ 0,  1,  2,  3],</span>
+<span class="go">       [ 4,  5,  6,  7],</span>
+<span class="go">       [ 8,  9, 10, 11],</span>
+<span class="go">       [12, 13, 14, 15]])</span>
+</pre></div>
+</div>
+<p>Both for indexing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="n">iu1</span><span class="p">]</span>
+<span class="go">array([ 0,  1,  2,  3,  5,  6,  7, 10, 11, 15])</span>
+</pre></div>
+</div>
+<p>And for assigning values:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="n">iu1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">array([[-1, -1, -1, -1],</span>
+<span class="go">       [ 4, -1, -1, -1],</span>
+<span class="go">       [ 8,  9, -1, -1],</span>
+<span class="go">       [12, 13, 14, -1]])</span>
+</pre></div>
+</div>
+<p>These cover only a small part of the whole array (two diagonals right
+of the main one):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="n">iu2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">array([[ -1,  -1, -10, -10],</span>
+<span class="go">       [  4,  -1,  -1, -10],</span>
+<span class="go">       [  8,   9,  -1,  -1],</span>
+<span class="go">       [ 12,  13,  14,  -1]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.index_utils.triu_indices_from">
+<code class="descclassname">nitime.index_utils.</code><code class="descname">triu_indices_from</code><span class="sig-paren">(</span><em>arr</em>, <em>k=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.index_utils.triu_indices_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the indices for the lower-triangle of an (n, n) array.</p>
+<p>See <cite>triu_indices</cite> for full details.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>Sets the size of the arrays for which the returned indices will be valid.</p>
+</div></blockquote>
+<p><strong>k</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>Diagonal offset (see <cite>triu</cite> for details).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#nitime.index_utils.triu_indices" title="nitime.index_utils.triu_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">triu_indices</span></code></a>, <a class="reference internal" href="#nitime.index_utils.triu" title="nitime.index_utils.triu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">triu</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 1.4.0.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.index_utils.vander">
+<code class="descclassname">nitime.index_utils.</code><code class="descname">vander</code><span class="sig-paren">(</span><em>x</em>, <em>N=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.index_utils.vander" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a Van der Monde matrix.</p>
+<p>The columns of the output matrix are decreasing powers of the input
+vector.  Specifically, the i-th output column is the input vector to
+the power of <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">-</span> <span class="pre">i</span> <span class="pre">-</span> <span class="pre">1</span></code>. Such a matrix with a geometric progression
+in each row is named Van Der Monde, or Vandermonde matrix, from
+Alexandre-Theophile Vandermonde.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : array_like</p>
+<blockquote>
+<div><p>1-D input array.</p>
+</div></blockquote>
+<p><strong>N</strong> : int, optional</p>
+<blockquote>
+<div><p>Order of (number of columns in) the output. If <cite>N</cite> is not specified,
+a square array is returned (<code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">=</span> <span class="pre">len(x)</span></code>).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>out</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Van der Monde matrix of order <cite>N</cite>.  The first column is <code class="docutils literal notranslate"><span class="pre">x^(N-1)</span></code>,
+the second <code class="docutils literal notranslate"><span class="pre">x^(N-2)</span></code> and so forth.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<table class="docutils footnote" frame="void" id="id1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td>Wikipedia, “Vandermonde matrix”,
+<a class="reference external" href="http://en.wikipedia.org/wiki/Vandermonde_matrix">http://en.wikipedia.org/wiki/Vandermonde_matrix</a></td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">vander</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="go">array([[ 1,  1,  1],</span>
+<span class="go">       [ 4,  2,  1],</span>
+<span class="go">       [ 9,  3,  1],</span>
+<span class="go">       [25,  5,  1]])</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">x</span><span class="o">**</span><span class="p">(</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span>
+<span class="go">array([[ 1,  1,  1],</span>
+<span class="go">       [ 4,  2,  1],</span>
+<span class="go">       [ 9,  3,  1],</span>
+<span class="go">       [25,  5,  1]])</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">vander</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="go">array([[  1,   1,   1,   1],</span>
+<span class="go">       [  8,   4,   2,   1],</span>
+<span class="go">       [ 27,   9,   3,   1],</span>
+<span class="go">       [125,  25,   5,   1]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.lazy.html" title="lazy"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.fmri.io.html" title="fmri.io"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

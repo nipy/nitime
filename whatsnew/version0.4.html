@@ -1,0 +1,259 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Release notes for nitime version 0.3" href="version0.3.html" />
+    <link rel="prev" title="Release notes for nitime version 0.5" href="version0.5.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="version0.3.html" title="Release notes for nitime version 0.3"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="version0.5.html" title="Release notes for nitime version 0.5"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">What’s new in Nitime</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Release notes for nitime version 0.4</a><ul>
+<li><a class="reference internal" href="#summary-of-changes">Summary of changes</a></li>
+<li><a class="reference internal" href="#contributors-to-this-release">Contributors to this release</a></li>
+<li><a class="reference internal" href="#detailed-stats-from-the-github-repository">Detailed stats from the github repository</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="version0.5.html"
+                        title="previous chapter">Release notes for nitime version 0.5</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="version0.3.html"
+                        title="next chapter">Release notes for nitime version 0.3</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="release-notes-for-nitime-version-0-4">
+<h1>Release notes for nitime version 0.4<a class="headerlink" href="#release-notes-for-nitime-version-0-4" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="summary-of-changes">
+<h2>Summary of changes<a class="headerlink" href="#summary-of-changes" title="Permalink to this headline">¶</a></h2>
+<p>Major changes introduced in version 0.4 of <code class="xref py py-mod docutils literal notranslate"><span class="pre">nitime</span></code>:</p>
+<ol class="arabic simple">
+<li><dl class="first docutils">
+<dt><a class="reference internal" href="../api/generated/nitime.lazy.html#module-nitime.lazy" title="nitime.lazy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">LazyImports</span></code></a>: Imports of modules</dt>
+<dd>are delayed until they are actually used. Work led by Paul Ivanov</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><a class="reference internal" href="../api/generated/nitime.timeseries.html#nitime.timeseries.TimeArray" title="nitime.timeseries.TimeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeArray</span></code></a> math: Mathematical</dt>
+<dd>operations such as multiplication/division, as well as min/max/mean/sum
+are now implemented for the TimeArray class. Work led by Paul Ivanov.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Replace numpy FFT with scipy FFT. This should improve performance. Work</dt>
+<dd>instigated and led by Alex Gramfort.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Scipy &gt; 0.10 compatibility: Changes to recent versions of scipy have caused</dt>
+<dd>import of some modules of nitime to break. This version should have fixed this
+issue.</dd>
+</dl>
+</li>
+</ol>
+</div>
+<div class="section" id="contributors-to-this-release">
+<h2>Contributors to this release<a class="headerlink" href="#contributors-to-this-release" title="Permalink to this headline">¶</a></h2>
+<p>The following people contributed to this release:</p>
+<ul class="simple">
+<li>Alexandre Gramfort</li>
+<li>Ariel Rokem</li>
+<li>endolith</li>
+<li>Paul Ivanov</li>
+<li>Sergey Karayev</li>
+<li>Yaroslav Halchenko</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This list was generated using:</p>
+<p>git log –pretty=format:”* %aN” PREV_RELEASE… | sort | uniq</p>
+<p class="last">Please let us know if you should appear on this list and do not, so that we
+can add your name in future release notes.</p>
+</div>
+</div>
+<div class="section" id="detailed-stats-from-the-github-repository">
+<h2>Detailed stats from the github repository<a class="headerlink" href="#detailed-stats-from-the-github-repository" title="Permalink to this headline">¶</a></h2>
+<p>GitHub stats for the last  311 days.
+We closed a total of 51 issues, 17 pull requests and 34 regular
+issues; this is the full list (generated with the script
+<cite>tools/github_stats.py</cite>):</p>
+<p>Pull Requests (17):</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/104/">#104</a>: nose_arg gives test finer granularity</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/103/">#103</a>: make the LazyImport jig pickleable</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/101/">#101</a>: fix some typos</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/99/">#99</a>: First of all, thanks a lot for the sweet correlation matrix visualization method! I noticed that the behavior of the color_anchor parameter is not what I expected. Let me know what you think</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/98/">#98</a>: RF: utils.multi_interesect no longer relies on deprecated intersect1d_nu</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/96/">#96</a>: BF: Import factorial from the scipy.misc namespace.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/94/">#94</a>: BF: Account for situations in which TimeSeries has more than two dimensions</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/92/">#92</a>: Time array math functions</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/91/">#91</a>: Timearray math</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/88/">#88</a>: Lazy imports</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/89/">#89</a>: Masked arrays</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/86/">#86</a>: ENH: Different versions of nose require different input to first-package-</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/83/">#83</a>: BF: Improvements and fixes to nosetesting.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/81/">#81</a>: ENH : s/numpy.fft/scipy.fftpack</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/77/">#77</a>: BF: Carry around a copy of some of the spectral analysis functions.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/79/">#79</a>: pep8 + pyflakes + misc readability</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/78/">#78</a>: Doctests</li>
+</ul>
+<p>Issues (34):</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/30/">#30</a>: Make default behavior for fmri.io.time_series_from_file</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/84/">#84</a>: Note on examples</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/93/">#93</a>: TimeArray .prod is borked (because of overflow?)</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/104/">#104</a>: nose_arg gives test finer granularity</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/103/">#103</a>: make the LazyImport jig pickleable</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/102/">#102</a>: sphinx docs won’t build (related to lazyimports?)</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/87/">#87</a>: Test failures on 10.4</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/100/">#100</a>: magnitude of fft showing negative values</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/101/">#101</a>: fix some typos</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/99/">#99</a>: First of all, thanks a lot for the sweet correlation matrix visualization method! I noticed that the behavior of the color_anchor parameter is not what I expected. Let me know what you think</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/97/">#97</a>: utils.py uses feature removed from numpy1.6</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/98/">#98</a>: RF: utils.multi_interesect no longer relies on deprecated intersect1d_nu</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/95/">#95</a>: ImportError: Cannot Import name Factorial</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/96/">#96</a>: BF: Import factorial from the scipy.misc namespace.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/94/">#94</a>: BF: Account for situations in which TimeSeries has more than two dimensions</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/92/">#92</a>: Time array math functions</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/91/">#91</a>: Timearray math</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/88/">#88</a>: Lazy imports</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/89/">#89</a>: Masked arrays</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/80/">#80</a>: Replace numpy fft with scipy fft</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/86/">#86</a>: ENH: Different versions of nose require different input to first-package-</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/85/">#85</a>: slicing time using epochs that start before or end after</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/83/">#83</a>: BF: Improvements and fixes to nosetesting.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/82/">#82</a>: nosetest w/o exit=False funks up in ipython</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/81/">#81</a>: ENH : s/numpy.fft/scipy.fftpack</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/32/">#32</a>: Add a “how to release” page in the docs</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/35/">#35</a>: index_at seems to fail with negative times</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/50/">#50</a>: Setting IIR filter lower bound to 0</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/44/">#44</a>: Warning when using coherence with welch method and NFFT longer than the time-series itself</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/68/">#68</a>: tril_indices not available in fairly recent numpy versions</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/77/">#77</a>: BF: Carry around a copy of some of the spectral analysis functions.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/55/">#55</a>: Warning in analysis.coherence might be a bug</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/79/">#79</a>: pep8 + pyflakes + misc readability</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/78/">#78</a>: Doctests</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="version0.3.html" title="Release notes for nitime version 0.3"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="version0.5.html" title="Release notes for nitime version 0.5"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >What’s new in Nitime</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

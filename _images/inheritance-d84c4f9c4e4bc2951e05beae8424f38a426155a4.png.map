@@ -1,0 +1,8 @@
+<map id="inheritanceda150332bb" name="inheritanceda150332bb">
+<area shape="rect" id="node1" href="nitime.analysis.base.html#nitime.analysis.base.BaseAnalyzer" target="_top" title="Analyzer that implements the default data flow." alt="" coords="297,47,461,67"/>
+<area shape="rect" id="node3" href="#nitime.analysis.coherence.CoherenceAnalyzer" target="_top" title="Analyzer object for coherence/coherency analysis" alt="" coords="521,5,745,26"/>
+<area shape="rect" id="node4" href="#nitime.analysis.coherence.MTCoherenceAnalyzer" target="_top" title="Analyzer for multi&#45;taper coherence analysis, including jack&#45;knife" alt="" coords="513,47,753,67"/>
+<area shape="rect" id="node6" href="#nitime.analysis.coherence.SparseCoherenceAnalyzer" target="_top" title="This analyzer is intended for analysis of large sets of data, in which" alt="" coords="503,88,763,109"/>
+<area shape="rect" id="node2" href="nitime.descriptors.html#nitime.descriptors.ResetMixin" target="_top" title="A Mixin class to add a .reset() method to users of OneTimeProperty." alt="" coords="45,47,215,67"/>
+<area shape="rect" id="node5" href="#nitime.analysis.coherence.SeedCoherenceAnalyzer" target="_top" title="This analyzer takes two time&#45;series. The first is designated as a" alt="" coords="5,5,255,26"/>
+</map>

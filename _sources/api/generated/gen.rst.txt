@@ -1,0 +1,30 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+.. toctree::
+
+   generated/nitime.algorithms.autoregressive
+   generated/nitime.algorithms.cohere
+   generated/nitime.algorithms.correlation
+   generated/nitime.algorithms.entropy
+   generated/nitime.algorithms.event_related
+   generated/nitime.algorithms.filter
+   generated/nitime.algorithms.spectral
+   generated/nitime.algorithms.wavelet
+   generated/nitime.analysis.base
+   generated/nitime.analysis.coherence
+   generated/nitime.analysis.correlation
+   generated/nitime.analysis.event_related
+   generated/nitime.analysis.granger
+   generated/nitime.analysis.normalization
+   generated/nitime.analysis.snr
+   generated/nitime.analysis.spectral
+   generated/nitime.descriptors
+   generated/nitime.fmri.hrf
+   generated/nitime.fmri.io
+   generated/nitime.index_utils
+   generated/nitime.lazy
+   generated/nitime.lazyimports
+   generated/nitime.six
+   generated/nitime.timeseries
+   generated/nitime.utils
+   generated/nitime.viz

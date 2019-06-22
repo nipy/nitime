@@ -1,0 +1,255 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Multivariate auto-regressive modeling - 3 variables" href="ar_est_3vars.html" />
+    <link rel="prev" title="Multitaper spectral estimation" href="multi_taper_spectral_estimation.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ar_est_3vars.html" title="Multivariate auto-regressive modeling - 3 variables"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="multi_taper_spectral_estimation.html" title="Multitaper spectral estimation"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="multi_taper_spectral_estimation.html"
+                        title="previous chapter">Multitaper spectral estimation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ar_est_3vars.html"
+                        title="next chapter">Multivariate auto-regressive modeling - 3 variables</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="multitaper-f-test-for-harmonic-components">
+<span id="multi-taper-harmonic-test"></span><span id="example-mtm-harmonic-test"></span><h1>Multitaper F-test for harmonic components<a class="headerlink" href="#multitaper-f-test-for-harmonic-components" title="Permalink to this headline">¶</a></h1>
+<p>The Slepian sequences of the multitaper spectral estimation method can
+also be used to perform a hypothesis test regarding the presence of a
+pure sinusoid at any analyzed frequency. The F-test is used to assess
+whether the power at a given frequency can be attributed to a single
+line component. In this case, the power would be given by the
+summed spectral convolutions of the Slepian frequency functions with
+the line power spectrum, which is a dirac delta. The complex Fourier
+coefficient of the putative sinusoid is estimated through a linear
+regression of the Slepian DC components, and the strength of the
+regression coefficient is tested against the residual spectral power
+for the F-test.</p>
+<p>The following demonstrates the use of the harmonic test.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">nitime.algorithms</span> <span class="k">as</span> <span class="nn">nt_alg</span>
+<span class="kn">import</span> <span class="nn">nitime.utils</span> <span class="k">as</span> <span class="nn">nt_ut</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">pp</span>
+</pre></div>
+</div>
+<p>We will set up a test signal with 3 harmonic components within
+Gaussian noise. The line components must be sufficiently resolved
+given the multitaper bandwidth of 2NW.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">fft_pow</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="p">)</span>
+<span class="n">NW</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">lines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">fft_pow</span><span class="o">-</span><span class="mi">6</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,)))</span>
+<span class="k">while</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">*</span><span class="n">NW</span> <span class="p">):</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">fft_pow</span><span class="o">-</span><span class="mi">6</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,)))</span>
+<span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The harmonic test should find <em>exact</em> frequencies if they were to fall
+on the FFT grid. (Try commenting the following to see.) In the
+scenario of real sampled data, increasing the number of FFT points can
+help to locate the line components.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lines</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># displace from grid locations</span>
+</pre></div>
+</div>
+<p>Now proceed to specify the frequencies, phases, and amplitudes.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lines</span> <span class="o">/=</span> <span class="mf">2.0</span><span class="o">**</span><span class="p">(</span><span class="n">fft_pow</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># ensure they are well separated</span>
+
+<span class="n">phs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+<span class="n">amps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>Set the RMS noise power here. Strategies to detect harmonics in low
+SNR include improving the reliability of the spectral estimate
+(increasing NW) and/or increasing the number of FFT points. Note that
+the former option will limit the ability to resolve lines at nearby
+frequencies.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nz_sig</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">tx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+<span class="n">harmonics</span> <span class="o">=</span> <span class="n">amps</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">tx</span><span class="o">*</span><span class="n">lines</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">phs</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span> <span class="p">)</span>
+<span class="n">harmonic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">harmonics</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">nz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">nz_sig</span>
+<span class="n">sig</span> <span class="o">=</span> <span class="n">harmonic</span> <span class="o">+</span> <span class="n">nz</span>
+</pre></div>
+</div>
+<p>Take a look at our mock signal.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pp</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">harmonics</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span><span class="o">*</span><span class="n">N</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">))</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Sinusoid components&#39;</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">harmonic</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="o">.</span><span class="mi">6</span><span class="p">,</span> <span class="o">.</span><span class="mi">6</span><span class="p">,</span> <span class="o">.</span><span class="mi">6</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+<span class="c1">#pp.xlim(2000, 3000)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span><span class="o">*</span><span class="n">N</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">))</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Signal in noise&#39;</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/mtm_harmonic_test_01.png"><img alt="../_images/mtm_harmonic_test_01.png" src="../_images/mtm_harmonic_test_01.png" style="width: 500px;" /></a>
+<p>Here we’ll use the <code class="xref py py-func docutils literal notranslate"><span class="pre">utils.detect_lines()</span></code> function with the given
+Slepian properties (NW), and we’ll ensure that we limit spectral bias
+by choosing Slepians with concentration factors greater than 0.9. The
+arrays returned include the detected line frequencies (f) and their
+complex coefficients (b). The frequencies are normalized from <span class="math notranslate nohighlight">\((0,\frac{1}{2})\)</span></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">nt_ut</span><span class="o">.</span><span class="n">detect_lines</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="p">(</span><span class="n">NW</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">NW</span><span class="p">),</span> <span class="n">low_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">NFFT</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="n">fft_pow</span><span class="p">)</span>
+<span class="n">h_est</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">b</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">tx</span><span class="o">*</span><span class="n">f</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]))</span><span class="o">.</span><span class="n">real</span>
+
+<span class="n">pp</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">harmonics</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">h_est</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="s1">&#39;r--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> lines detected&#39;</span> <span class="o">%</span> <span class="n">h_est</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span><span class="o">*</span><span class="n">N</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">))</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
+<span class="n">err</span> <span class="o">=</span> <span class="n">harmonic</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">h_est</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">err</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Error signal&#39;</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/mtm_harmonic_test_02.png"><img alt="../_images/mtm_harmonic_test_02.png" src="../_images/mtm_harmonic_test_02.png" style="width: 500px;" /></a>
+<p>We can see the quality (or not) of our estimated lines. A breakdown of
+the errors in the various estimated quantities follows in the demo.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">phs_est</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="n">phs_est</span><span class="p">[</span><span class="n">phs_est</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+<span class="n">phs_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">phs_est</span> <span class="o">-</span> <span class="n">phs</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+<span class="n">amp_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">amps</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">b</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">amps</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+<span class="n">freq_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">lines</span> <span class="o">-</span> <span class="n">f</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;freqs:&#39;</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">estimated:&#39;</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">err: </span><span class="si">%1.3e</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">freq_err</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;amp:&#39;</span><span class="p">,</span> <span class="n">amps</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">estimated:&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">err: </span><span class="si">%1.3e</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">amp_err</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;phase:&#39;</span><span class="p">,</span> <span class="n">phs</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">estimated:&#39;</span><span class="p">,</span> <span class="n">phs_est</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">err: </span><span class="si">%1.3e</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">phs_err</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;MS error over noise: </span><span class="si">%1.3e</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">err</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">nz_sig</span><span class="o">**</span><span class="mi">2</span><span class="p">,))</span>
+</pre></div>
+</div>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" download="" href="../_downloads/540fc9bd2fae41b88cbd7d60d9b5518e/mtm_harmonic_test.py"><code class="xref download docutils literal notranslate"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the Nitime source distribution under the
+<code class="file docutils literal notranslate"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ar_est_3vars.html" title="Multivariate auto-regressive modeling - 3 variables"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="multi_taper_spectral_estimation.html" title="Multitaper spectral estimation"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

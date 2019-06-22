@@ -1,0 +1,62 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+analysis.spectral
+=================
+
+Module: :mod:`analysis.spectral`
+--------------------------------
+Inheritance diagram for ``nitime.analysis.spectral``:
+
+.. inheritance-diagram:: nitime.analysis.spectral 
+   :parts: 3
+
+.. automodule:: nitime.analysis.spectral
+
+.. currentmodule:: nitime.analysis.spectral
+
+Classes
+-------
+
+:class:`FilterAnalyzer`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: FilterAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`HilbertAnalyzer`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: HilbertAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`MorletWaveletAnalyzer`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: MorletWaveletAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`SpectralAnalyzer`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: SpectralAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__

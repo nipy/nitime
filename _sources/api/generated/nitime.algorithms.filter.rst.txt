@@ -1,0 +1,13 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+algorithms.filter
+=================
+
+Module: :mod:`algorithms.filter`
+--------------------------------
+.. automodule:: nitime.algorithms.filter
+
+.. currentmodule:: nitime.algorithms.filter
+
+.. autofunction:: nitime.algorithms.filter.boxcar_filter
+

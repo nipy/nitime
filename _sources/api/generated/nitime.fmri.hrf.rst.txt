@@ -1,0 +1,20 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+fmri.hrf
+========
+
+Module: :mod:`fmri.hrf`
+-----------------------
+.. automodule:: nitime.fmri.hrf
+
+.. currentmodule:: nitime.fmri.hrf
+
+Functions
+---------
+
+
+.. autofunction:: nitime.fmri.hrf.gamma_hrf
+
+
+.. autofunction:: nitime.fmri.hrf.polonsky_hrf
+

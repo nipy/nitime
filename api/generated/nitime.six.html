@@ -1,0 +1,648 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="timeseries" href="nitime.timeseries.html" />
+    <link rel="prev" title="lazyimports" href="nitime.lazyimports.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.timeseries.html" title="timeseries"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.lazyimports.html" title="lazyimports"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">six</a><ul>
+<li><a class="reference internal" href="#module-six">Module: <code class="docutils literal notranslate"><span class="pre">six</span></code></a></li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#module-six-moves-urllib"><code class="docutils literal notranslate"><span class="pre">Module_six_moves_urllib</span></code></a></li>
+<li><a class="reference internal" href="#module-six-moves-urllib-error"><code class="docutils literal notranslate"><span class="pre">Module_six_moves_urllib_error</span></code></a></li>
+<li><a class="reference internal" href="#module-six-moves-urllib-parse"><code class="docutils literal notranslate"><span class="pre">Module_six_moves_urllib_parse</span></code></a></li>
+<li><a class="reference internal" href="#module-six-moves-urllib-request"><code class="docutils literal notranslate"><span class="pre">Module_six_moves_urllib_request</span></code></a></li>
+<li><a class="reference internal" href="#module-six-moves-urllib-response"><code class="docutils literal notranslate"><span class="pre">Module_six_moves_urllib_response</span></code></a></li>
+<li><a class="reference internal" href="#module-six-moves-urllib-robotparser"><code class="docutils literal notranslate"><span class="pre">Module_six_moves_urllib_robotparser</span></code></a></li>
+<li><a class="reference internal" href="#movedattribute"><code class="docutils literal notranslate"><span class="pre">MovedAttribute</span></code></a></li>
+<li><a class="reference internal" href="#movedmodule"><code class="docutils literal notranslate"><span class="pre">MovedModule</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.lazyimports.html"
+                        title="previous chapter">lazyimports</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.timeseries.html"
+                        title="next chapter">timeseries</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="six">
+<h1>six<a class="headerlink" href="#six" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-six">
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">six</span></code><a class="headerlink" href="#module-six" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">nitime.six</span></code>:</p>
+<div class="graphviz"><img src="../../_images/inheritance-76750d7a4bd02f80e30371408b3746bb0daa4a81.png" alt="Inheritance diagram of nitime.six" usemap="#inheritancea3d73cb358" class="inheritance graphviz" /></div>
+<map id="inheritancea3d73cb358" name="inheritancea3d73cb358">
+<area shape="rect" id="node2" href="#nitime.six.Module_six_moves_urllib" target="_top" title="Create a six.moves.urllib namespace that resembles the Python 3 namespace" alt="" coords="261,5,492,29"/>
+<area shape="rect" id="node3" href="#nitime.six.Module_six_moves_urllib_error" target="_top" title="Lazy loading of moved objects in six.moves.urllib_error" alt="" coords="244,53,509,77"/>
+<area shape="rect" id="node4" href="#nitime.six.Module_six_moves_urllib_parse" target="_top" title="Lazy loading of moved objects in six.moves.urllib_parse" alt="" coords="241,101,512,125"/>
+<area shape="rect" id="node5" href="#nitime.six.Module_six_moves_urllib_request" target="_top" title="Lazy loading of moved objects in six.moves.urllib_request" alt="" coords="235,149,518,173"/>
+<area shape="rect" id="node6" href="#nitime.six.Module_six_moves_urllib_response" target="_top" title="Lazy loading of moved objects in six.moves.urllib_response" alt="" coords="230,197,523,221"/>
+<area shape="rect" id="node7" href="#nitime.six.Module_six_moves_urllib_robotparser" target="_top" title="Lazy loading of moved objects in six.moves.urllib_robotparser" alt="" coords="224,245,530,269"/>
+<area shape="rect" id="node8" href="#nitime.six.MovedAttribute" target="_top" title="nitime.six.MovedAttribute" alt="" coords="5,77,176,101"/>
+<area shape="rect" id="node9" href="#nitime.six.MovedModule" target="_top" title="nitime.six.MovedModule" alt="" coords="8,29,173,53"/>
+</map><span class="target" id="module-nitime.six"></span><p>Utilities for writing code that runs on Python 2 and 3</p>
+</div>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-six-moves-urllib">
+<h3><a class="reference internal" href="#nitime.six.Module_six_moves_urllib" title="nitime.six.Module_six_moves_urllib"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module_six_moves_urllib</span></code></a><a class="headerlink" href="#module-six-moves-urllib" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.six.Module_six_moves_urllib">
+<em class="property">class </em><code class="descclassname">nitime.six.</code><code class="descname">Module_six_moves_urllib</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">module</span></code></p>
+<p>Create a six.moves.urllib namespace that resembles the Python 3 namespace</p>
+<dl class="method">
+<dt id="nitime.six.Module_six_moves_urllib.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.Module_six_moves_urllib.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib.error">
+<code class="descname">error</code><em class="property"> = &lt;module 'nitime.six.moves.urllib_error'&gt;</em><a class="headerlink" href="#nitime.six.Module_six_moves_urllib.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib.parse">
+<code class="descname">parse</code><em class="property"> = &lt;module 'nitime.six.moves.urllib_parse'&gt;</em><a class="headerlink" href="#nitime.six.Module_six_moves_urllib.parse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib.request">
+<code class="descname">request</code><em class="property"> = &lt;module 'nitime.six.moves.urllib_request'&gt;</em><a class="headerlink" href="#nitime.six.Module_six_moves_urllib.request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib.response">
+<code class="descname">response</code><em class="property"> = &lt;module 'nitime.six.moves.urllib_response'&gt;</em><a class="headerlink" href="#nitime.six.Module_six_moves_urllib.response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib.robotparser">
+<code class="descname">robotparser</code><em class="property"> = &lt;module 'nitime.six.moves.urllib_robotparser'&gt;</em><a class="headerlink" href="#nitime.six.Module_six_moves_urllib.robotparser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-six-moves-urllib-error">
+<h3><a class="reference internal" href="#nitime.six.Module_six_moves_urllib_error" title="nitime.six.Module_six_moves_urllib_error"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module_six_moves_urllib_error</span></code></a><a class="headerlink" href="#module-six-moves-urllib-error" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.six.Module_six_moves_urllib_error">
+<em class="property">class </em><code class="descclassname">nitime.six.</code><code class="descname">Module_six_moves_urllib_error</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">module</span></code></p>
+<p>Lazy loading of moved objects in six.moves.urllib_error</p>
+<dl class="method">
+<dt id="nitime.six.Module_six_moves_urllib_error.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_error.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_error.ContentTooShortError">
+<code class="descname">ContentTooShortError</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_error.ContentTooShortError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_error.HTTPError">
+<code class="descname">HTTPError</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_error.HTTPError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_error.URLError">
+<code class="descname">URLError</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_error.URLError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-six-moves-urllib-parse">
+<h3><a class="reference internal" href="#nitime.six.Module_six_moves_urllib_parse" title="nitime.six.Module_six_moves_urllib_parse"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module_six_moves_urllib_parse</span></code></a><a class="headerlink" href="#module-six-moves-urllib-parse" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.six.Module_six_moves_urllib_parse">
+<em class="property">class </em><code class="descclassname">nitime.six.</code><code class="descname">Module_six_moves_urllib_parse</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">module</span></code></p>
+<p>Lazy loading of moved objects in six.moves.urllib_parse</p>
+<dl class="method">
+<dt id="nitime.six.Module_six_moves_urllib_parse.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.ParseResult">
+<code class="descname">ParseResult</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.ParseResult" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.parse_qs">
+<code class="descname">parse_qs</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.parse_qs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.parse_qsl">
+<code class="descname">parse_qsl</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.parse_qsl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.quote">
+<code class="descname">quote</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.quote" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.quote_plus">
+<code class="descname">quote_plus</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.quote_plus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.unquote">
+<code class="descname">unquote</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.unquote" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.unquote_plus">
+<code class="descname">unquote_plus</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.unquote_plus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.urldefrag">
+<code class="descname">urldefrag</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.urldefrag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.urlencode">
+<code class="descname">urlencode</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.urlencode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.urljoin">
+<code class="descname">urljoin</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.urljoin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.urlparse">
+<code class="descname">urlparse</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.urlparse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.urlsplit">
+<code class="descname">urlsplit</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.urlsplit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.urlunparse">
+<code class="descname">urlunparse</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.urlunparse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_parse.urlunsplit">
+<code class="descname">urlunsplit</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_parse.urlunsplit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-six-moves-urllib-request">
+<h3><a class="reference internal" href="#nitime.six.Module_six_moves_urllib_request" title="nitime.six.Module_six_moves_urllib_request"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module_six_moves_urllib_request</span></code></a><a class="headerlink" href="#module-six-moves-urllib-request" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.six.Module_six_moves_urllib_request">
+<em class="property">class </em><code class="descclassname">nitime.six.</code><code class="descname">Module_six_moves_urllib_request</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">module</span></code></p>
+<p>Lazy loading of moved objects in six.moves.urllib_request</p>
+<dl class="method">
+<dt id="nitime.six.Module_six_moves_urllib_request.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.AbstractBasicAuthHandler">
+<code class="descname">AbstractBasicAuthHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.AbstractBasicAuthHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.AbstractDigestAuthHandler">
+<code class="descname">AbstractDigestAuthHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.AbstractDigestAuthHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.BaseHandler">
+<code class="descname">BaseHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.BaseHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.CacheFTPHandler">
+<code class="descname">CacheFTPHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.CacheFTPHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.FTPHandler">
+<code class="descname">FTPHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.FTPHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.FancyURLopener">
+<code class="descname">FancyURLopener</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.FancyURLopener" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.FileHandler">
+<code class="descname">FileHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.FileHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.HTTPBasicAuthHandler">
+<code class="descname">HTTPBasicAuthHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.HTTPBasicAuthHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.HTTPCookieProcessor">
+<code class="descname">HTTPCookieProcessor</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.HTTPCookieProcessor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.HTTPDefaultErrorHandler">
+<code class="descname">HTTPDefaultErrorHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.HTTPDefaultErrorHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.HTTPDigestAuthHandler">
+<code class="descname">HTTPDigestAuthHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.HTTPDigestAuthHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.HTTPErrorProcessor">
+<code class="descname">HTTPErrorProcessor</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.HTTPErrorProcessor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.HTTPHandler">
+<code class="descname">HTTPHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.HTTPHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.HTTPPasswordMgr">
+<code class="descname">HTTPPasswordMgr</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.HTTPPasswordMgr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.HTTPPasswordMgrWithDefaultRealm">
+<code class="descname">HTTPPasswordMgrWithDefaultRealm</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.HTTPPasswordMgrWithDefaultRealm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.HTTPRedirectHandler">
+<code class="descname">HTTPRedirectHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.HTTPRedirectHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.HTTPSHandler">
+<code class="descname">HTTPSHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.HTTPSHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.OpenerDirector">
+<code class="descname">OpenerDirector</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.OpenerDirector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.ProxyBasicAuthHandler">
+<code class="descname">ProxyBasicAuthHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.ProxyBasicAuthHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.ProxyDigestAuthHandler">
+<code class="descname">ProxyDigestAuthHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.ProxyDigestAuthHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.ProxyHandler">
+<code class="descname">ProxyHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.ProxyHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.Request">
+<code class="descname">Request</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.Request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.URLopener">
+<code class="descname">URLopener</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.URLopener" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.UnknownHandler">
+<code class="descname">UnknownHandler</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.UnknownHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.build_opener">
+<code class="descname">build_opener</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.build_opener" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.getproxies">
+<code class="descname">getproxies</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.getproxies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.install_opener">
+<code class="descname">install_opener</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.install_opener" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.pathname2url">
+<code class="descname">pathname2url</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.pathname2url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.url2pathname">
+<code class="descname">url2pathname</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.url2pathname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.urlcleanup">
+<code class="descname">urlcleanup</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.urlcleanup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.urlopen">
+<code class="descname">urlopen</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.urlopen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_request.urlretrieve">
+<code class="descname">urlretrieve</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_request.urlretrieve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-six-moves-urllib-response">
+<h3><a class="reference internal" href="#nitime.six.Module_six_moves_urllib_response" title="nitime.six.Module_six_moves_urllib_response"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module_six_moves_urllib_response</span></code></a><a class="headerlink" href="#module-six-moves-urllib-response" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.six.Module_six_moves_urllib_response">
+<em class="property">class </em><code class="descclassname">nitime.six.</code><code class="descname">Module_six_moves_urllib_response</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">module</span></code></p>
+<p>Lazy loading of moved objects in six.moves.urllib_response</p>
+<dl class="method">
+<dt id="nitime.six.Module_six_moves_urllib_response.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_response.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_response.addbase">
+<code class="descname">addbase</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_response.addbase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_response.addclosehook">
+<code class="descname">addclosehook</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_response.addclosehook" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_response.addinfo">
+<code class="descname">addinfo</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_response.addinfo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_response.addinfourl">
+<code class="descname">addinfourl</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_response.addinfourl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-six-moves-urllib-robotparser">
+<h3><a class="reference internal" href="#nitime.six.Module_six_moves_urllib_robotparser" title="nitime.six.Module_six_moves_urllib_robotparser"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module_six_moves_urllib_robotparser</span></code></a><a class="headerlink" href="#module-six-moves-urllib-robotparser" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.six.Module_six_moves_urllib_robotparser">
+<em class="property">class </em><code class="descclassname">nitime.six.</code><code class="descname">Module_six_moves_urllib_robotparser</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_robotparser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">module</span></code></p>
+<p>Lazy loading of moved objects in six.moves.urllib_robotparser</p>
+<dl class="method">
+<dt id="nitime.six.Module_six_moves_urllib_robotparser.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_robotparser.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.six.Module_six_moves_urllib_robotparser.RobotFileParser">
+<code class="descname">RobotFileParser</code><a class="headerlink" href="#nitime.six.Module_six_moves_urllib_robotparser.RobotFileParser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="movedattribute">
+<h3><a class="reference internal" href="#nitime.six.MovedAttribute" title="nitime.six.MovedAttribute"><code class="xref py py-class docutils literal notranslate"><span class="pre">MovedAttribute</span></code></a><a class="headerlink" href="#movedattribute" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.six.MovedAttribute">
+<em class="property">class </em><code class="descclassname">nitime.six.</code><code class="descname">MovedAttribute</code><span class="sig-paren">(</span><em>name</em>, <em>old_mod</em>, <em>new_mod</em>, <em>old_attr=None</em>, <em>new_attr=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.MovedAttribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nitime.six._LazyDescr</span></code></p>
+<dl class="method">
+<dt id="nitime.six.MovedAttribute.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em>, <em>old_mod</em>, <em>new_mod</em>, <em>old_attr=None</em>, <em>new_attr=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.MovedAttribute.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="movedmodule">
+<h3><a class="reference internal" href="#nitime.six.MovedModule" title="nitime.six.MovedModule"><code class="xref py py-class docutils literal notranslate"><span class="pre">MovedModule</span></code></a><a class="headerlink" href="#movedmodule" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.six.MovedModule">
+<em class="property">class </em><code class="descclassname">nitime.six.</code><code class="descname">MovedModule</code><span class="sig-paren">(</span><em>name</em>, <em>old</em>, <em>new=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.MovedModule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nitime.six._LazyDescr</span></code></p>
+<dl class="method">
+<dt id="nitime.six.MovedModule.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em>, <em>old</em>, <em>new=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.MovedModule.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nitime.six.add_metaclass">
+<code class="descclassname">nitime.six.</code><code class="descname">add_metaclass</code><span class="sig-paren">(</span><em>metaclass</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.add_metaclass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class decorator for creating a class with a metaclass.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.six.add_move">
+<code class="descclassname">nitime.six.</code><code class="descname">add_move</code><span class="sig-paren">(</span><em>move</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.add_move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an item to six.moves.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.six.iteritems">
+<code class="descclassname">nitime.six.</code><code class="descname">iteritems</code><span class="sig-paren">(</span><em>d</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.iteritems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator over the (key, value) pairs of a dictionary.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.six.iterkeys">
+<code class="descclassname">nitime.six.</code><code class="descname">iterkeys</code><span class="sig-paren">(</span><em>d</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.iterkeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator over the keys of a dictionary.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.six.iterlists">
+<code class="descclassname">nitime.six.</code><code class="descname">iterlists</code><span class="sig-paren">(</span><em>d</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.iterlists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator over the (key, [values]) pairs of a dictionary.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.six.itervalues">
+<code class="descclassname">nitime.six.</code><code class="descname">itervalues</code><span class="sig-paren">(</span><em>d</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.itervalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator over the values of a dictionary.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.six.remove_move">
+<code class="descclassname">nitime.six.</code><code class="descname">remove_move</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.remove_move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove item from six.moves.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.six.with_metaclass">
+<code class="descclassname">nitime.six.</code><code class="descname">with_metaclass</code><span class="sig-paren">(</span><em>meta</em>, <em>*bases</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.six.with_metaclass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a base class with a metaclass.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.timeseries.html" title="timeseries"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.lazyimports.html" title="lazyimports"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

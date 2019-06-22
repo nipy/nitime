@@ -1,0 +1,26 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+lazyimports
+===========
+
+Module: :mod:`lazyimports`
+--------------------------
+Inheritance diagram for ``nitime.lazyimports``:
+
+.. inheritance-diagram:: nitime.lazyimports 
+   :parts: 3
+
+.. automodule:: nitime.lazyimports
+
+.. currentmodule:: nitime.lazyimports
+
+:class:`LazyImport`
+-------------------
+
+
+.. autoclass:: LazyImport
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__

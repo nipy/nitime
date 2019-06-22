@@ -1,0 +1,209 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Working with nitime source code" href="../devel/index.html" />
+    <link rel="prev" title="A note about the discussion section" href="note_about_discussion.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../devel/index.html" title="Working with nitime source code"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="note_about_discussion.html" title="A note about the discussion section"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Discussion</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Jack-knifing a Multitaper SDF estimator</a><ul>
+<li><a class="reference internal" href="#general-jn-definitions">General JN definitions</a></li>
+<li><a class="reference internal" href="#general-multitaper-definition">General Multitaper definition</a></li>
+<li><a class="reference internal" href="#multitaper-pseudovalues">Multitaper Pseudovalues</a><ul>
+<li><a class="reference internal" href="#one-option">One Option</a></li>
+<li><a class="reference internal" href="#another-option">Another Option</a></li>
+<li><a class="reference internal" href="#consensus-in-literature">Consensus in Literature (??)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="note_about_discussion.html"
+                        title="previous chapter">A note about the discussion section</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../devel/index.html"
+                        title="next chapter">Working with <em>nitime</em> source code</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="jack-knifing-a-multitaper-sdf-estimator">
+<h1>Jack-knifing a Multitaper SDF estimator<a class="headerlink" href="#jack-knifing-a-multitaper-sdf-estimator" title="Permalink to this headline">¶</a></h1>
+<p>Assume there is a parameter <span class="math notranslate nohighlight">\(\theta\)</span> that parameterizes a distribution, and that the set of random variables <span class="math notranslate nohighlight">\(\lbrace Y_1, Y_2, ..., Y_n \rbrace\)</span> are i.i.d. according to that distribution.</p>
+<p>The basic jackknifed estimator <span class="math notranslate nohighlight">\(\tilde{\theta}\)</span> of some parameter <span class="math notranslate nohighlight">\(\theta\)</span> is found through forming <em>pseudovalues</em> <span class="math notranslate nohighlight">\(\hat{\theta}_i\)</span> based on the original set of samples. With <em>n</em> samples, there are <em>n</em> pseudovalues based on <em>n</em> “leave-one-out” sample sets.</p>
+<div class="section" id="general-jn-definitions">
+<h2>General JN definitions<a class="headerlink" href="#general-jn-definitions" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line"><strong>simple sample estimate</strong></div>
+<div class="line"><span class="math notranslate nohighlight">\(\hat{\theta} = \dfrac{1}{n}\sum_i Y_i\)</span></div>
+<div class="line"><strong>leave-one-out measurement</strong></div>
+<div class="line"><span class="math notranslate nohighlight">\(\hat{\theta}_{-i} = \dfrac{1}{n-1}\sum_{k \neq i}Y_k\)</span></div>
+<div class="line"><strong>pseudovalues</strong></div>
+<div class="line"><span class="math notranslate nohighlight">\(\hat{\theta}_i = n\hat{\theta} - (n-1)\hat{\theta}_{-i}\)</span></div>
+</div>
+<p>Now the jackknifed esimator is computed as</p>
+<p><span class="math notranslate nohighlight">\(\tilde{\theta} = \dfrac{1}{n}\sum_i \hat{\theta}_i = n\hat{\theta} - \dfrac{n-1}{n}\sum_i \hat{\theta}_{-i}\)</span></p>
+<p>This estimator is known (?) to be distributed about the true parameter theta approximately as a Student’s t distribution, with standard error defined as</p>
+<p><span class="math notranslate nohighlight">\(s^{2} = \dfrac{n-1}{n}\sum_i \left(\hat{\theta}_i - \tilde{\theta}\right)^{2}\)</span></p>
+</div>
+<div class="section" id="general-multitaper-definition">
+<h2>General Multitaper definition<a class="headerlink" href="#general-multitaper-definition" title="Permalink to this headline">¶</a></h2>
+<p>The general multitaper spectral density function (sdf) estimator, using <em>n</em> orthonormal tapers, combines the <em>n</em> <span class="math notranslate nohighlight">\(\lbrace \hat{S}_i^{mt} \rbrace\)</span> sdf estimators, and takes the form</p>
+<p><span class="math notranslate nohighlight">\(\hat{S}^{mt}(f) = \dfrac{\sum_{k} w_k(f)^2S^{mt}_k(f)}{\sum_{k} |w_k(f)|^2} = \dfrac{\sum_{k} w_k(f)^2S^{mt}_k(f)}{\lVert \vec{w}(f) \rVert^2}\)</span></p>
+<p>For instance, using discrete prolate spheroidal sequences (DPSS) windows, the <span class="math notranslate nohighlight">\(\rbrace w_i \lbrace\)</span> set, in their simplest form, are the eigenvalues of the spectral concentration system.</p>
+<p>A natural choice for a <em>leave-one-out</em> measurement is (leaving out the dependence on argument <em>f</em>)</p>
+<p><span class="math notranslate nohighlight">\(\ln\hat{S}_{-i}^{mt} = \ln\dfrac{\sum_{k \neq i} w_k^2S^{mt}_k}{\lVert \vec{w}_{-i} \rVert^2} = \ln\sum_{k \neq i} w_k^2S^{mt}_k - \ln\lVert \vec{w}_{-i} \rVert^2\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(\vec{w}_{-i}\)</span> is the vector of weights with the <em>ith</em> element set to zero. The natural log has been taken so that the estimate is distributed below and above <span class="math notranslate nohighlight">\(S(f)\)</span> more evenly.</p>
+</div>
+<div class="section" id="multitaper-pseudovalues">
+<h2>Multitaper Pseudovalues<a class="headerlink" href="#multitaper-pseudovalues" title="Permalink to this headline">¶</a></h2>
+<p>I’m not quite clear on the form of the pseudovalues for multitaper combinations.</p>
+<div class="section" id="one-option">
+<h3>One Option<a class="headerlink" href="#one-option" title="Permalink to this headline">¶</a></h3>
+<p>The simple option is to weight the different <em>leave-one-out</em> measurements equally, which leads to</p>
+<p><span class="math notranslate nohighlight">\(\ln\hat{S}_{i}^{mt} = n\ln\hat{S}^{mt} - (n-1)\ln\hat{S}_{-i}^{mt}\)</span></p>
+<p>And of course the estimate of <span class="math notranslate nohighlight">\(S(f)\)</span> is given by</p>
+<p><span class="math notranslate nohighlight">\(\ln\tilde{S}^{mt} (f) = \dfrac{1}{n}\sum_i \ln\hat{S}_i^{mt}(f)\)</span></p>
+</div>
+<div class="section" id="another-option">
+<h3>Another Option<a class="headerlink" href="#another-option" title="Permalink to this headline">¶</a></h3>
+<p>Another approach seems obvious which weights the <em>leave-one-out</em> measurements according to the length of <span class="math notranslate nohighlight">\(\vec{w}_{-i}\)</span>. It would look something like this</p>
+<div class="line-block">
+<div class="line">let</div>
+<div class="line"><span class="math notranslate nohighlight">\(g = {\lVert \vec{w} \rVert^2}\)</span></div>
+<div class="line"><span class="math notranslate nohighlight">\(g_i = {\lVert \vec{w}_{-i} \rVert^2}\)</span></div>
+</div>
+<p>Then the pseudovalues are</p>
+<p><span class="math notranslate nohighlight">\(\ln\hat{S}_i^{mt} = \left(\ln\hat{S}^{mt} + \ln g\right) - \left(\ln\hat{S}_{-i}^{mt} + \ln g_i\right)\)</span></p>
+<p>and the jackknifed estimator is</p>
+<p><span class="math notranslate nohighlight">\(\ln\tilde{S}^{mt} = \sum_i \ln\hat{S}_i^{mt} - \ln g\)</span></p>
+<p>and I would wager, the standard error is estimated as</p>
+<p><span class="math notranslate nohighlight">\(s^2 = \dfrac{1}{n}\sum_i \left(\ln\hat{S}_i^{mt} - \ln\tilde{S}^{mt}\right)^2\)</span></p>
+</div>
+<div class="section" id="consensus-in-literature">
+<h3>Consensus in Literature (??)<a class="headerlink" href="#consensus-in-literature" title="Permalink to this headline">¶</a></h3>
+<p>From what I can tell from a couple of sources from Thompson <a href="#id4"><span class="problematic" id="id1">[#f1]_</span></a>, <a href="#id5"><span class="problematic" id="id2">[#f2]_</span></a>, this is the approach for estimating the variance.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../devel/index.html" title="Working with nitime source code"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="note_about_discussion.html" title="A note about the discussion section"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Discussion</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

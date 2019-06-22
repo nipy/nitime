@@ -1,0 +1,408 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Discussion" href="../discussion/index.html" />
+    <link rel="prev" title="Multitaper method for baseband demodulation" href="mtm_baseband_power.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../discussion/index.html" title="Discussion"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mtm_baseband_power.html" title="Multitaper method for baseband demodulation"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mtm_baseband_power.html"
+                        title="previous chapter">Multitaper method for baseband demodulation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../discussion/index.html"
+                        title="next chapter">Discussion</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="coherency-analysis-of-fmri-data">
+<span id="resting-state"></span><span id="example-resting-state-fmri"></span><h1>Coherency analysis of fMRI data<a class="headerlink" href="#coherency-analysis-of-fmri-data" title="Permalink to this headline">¶</a></h1>
+<p>The fMRI data-set analyzed in the following examples was contributed by Beth
+Mormino. The data is taken from a single subject in a “resting-state” scan, in
+which subjects are fixating on a cross and maintaining alert wakefulness, but
+not performing any other behavioral task.</p>
+<p>The data was pre-processed and time-series of BOLD responses were extracted
+from different regions of interest (ROIs) in the brain. The data is organized
+in csv file, where each column corresponds to an ROI and each row corresponds
+to a sampling point.</p>
+<p>In the following, we will demonstrate some simple time-series analysis and
+visualization techniques which can be applied to this kind of data.</p>
+<p>We start by importing the necessary modules/functions, defining the
+sampling_interval of the data (TR, or repetition time) and the frequency band
+of interest:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1">#Import from other libraries:</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">nitime</span>
+<span class="c1">#Import the time-series objects:</span>
+<span class="kn">from</span> <span class="nn">nitime.timeseries</span> <span class="k">import</span> <span class="n">TimeSeries</span>
+<span class="c1">#Import the analysis objects:</span>
+<span class="kn">from</span> <span class="nn">nitime.analysis</span> <span class="k">import</span> <span class="n">CorrelationAnalyzer</span><span class="p">,</span> <span class="n">CoherenceAnalyzer</span>
+<span class="c1">#Import utility functions:</span>
+<span class="kn">from</span> <span class="nn">nitime.utils</span> <span class="k">import</span> <span class="n">percent_change</span>
+<span class="kn">from</span> <span class="nn">nitime.viz</span> <span class="k">import</span> <span class="n">drawmatrix_channels</span><span class="p">,</span> <span class="n">drawgraph_channels</span><span class="p">,</span> <span class="n">plot_xcorr</span>
+
+<span class="c1">#This information (the sampling interval) has to be known in advance:</span>
+<span class="n">TR</span> <span class="o">=</span> <span class="mf">1.89</span>
+<span class="n">f_lb</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="n">f_ub</span> <span class="o">=</span> <span class="mf">0.15</span>
+</pre></div>
+</div>
+<p>We use Numpy to read the data in from file to a recarray:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nitime</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+
+<span class="n">data_rec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s1">&#39;fmri_timeseries.csv&#39;</span><span class="p">),</span>
+                         <span class="n">names</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This data structure contains in its dtype a field ‘names’, which contains the
+first row in each column. In this case, that is the labels of the ROIs from
+which the data in each column was extracted. The data from the recarray is
+extracted into a ‘standard’ array and, for each ROI, it is normalized to
+percent signal change, using the utils.percent_change function.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#Extract information:</span>
+<span class="n">roi_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data_rec</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+<span class="n">n_samples</span> <span class="o">=</span> <span class="n">data_rec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="c1">#Make an empty container for the data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">roi_names</span><span class="p">),</span> <span class="n">n_samples</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">n_idx</span><span class="p">,</span> <span class="n">roi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">roi_names</span><span class="p">):</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">n_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_rec</span><span class="p">[</span><span class="n">roi</span><span class="p">]</span>
+
+<span class="c1">#Normalize the data:</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">percent_change</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We initialize a TimeSeries object from the normalized data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">T</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sampling_interval</span><span class="o">=</span><span class="n">TR</span><span class="p">)</span>
+<span class="n">T</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;roi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">roi_names</span>
+</pre></div>
+</div>
+<p>First, we examine the correlations between the time-series extracted from
+different parts of the brain. The following script extracts the data (using the
+drawmatrix_channels function, displaying the correlation matrix with the ROIs
+labeled.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize the correlation analyzer</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">CorrelationAnalyzer</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+
+<span class="c1"># Display the correlation matrix</span>
+<span class="n">fig01</span> <span class="o">=</span> <span class="n">drawmatrix_channels</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">,</span> <span class="n">roi_names</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">],</span>
+                            <span class="n">color_anchor</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/resting_state_fmri_01.png"><img alt="../_images/resting_state_fmri_01.png" src="../_images/resting_state_fmri_01.png" style="width: 500px;" /></a>
+<p>Notice that setting the color_anchor input to this function to 0 makes sure
+that the center of the color map (here a blue =&gt; white =&gt; red) is at 0. In this
+case, positive values will be displayed as red and negative values in blue.</p>
+<p>We notice that the left caudate nucleus (labeled ‘lcau’) has an interesting
+pattern of correlations. It has a high correlation with both the left putamen
+(‘lput’, which is located nearby) and also with the right caudate nucleus
+(‘lcau’), which is the homologous region in the other hemisphere. Are these two
+correlation values related to each other? The right caudate and left putamen
+seem to have a moderately low correlation value. One way to examine this
+question is by looking at the temporal structure of the cross-correlation
+functions. In order to do that, from the CorrelationAnalyzer object, we extract
+the normalized cross-correlation function. This results in another TimeSeries
+object, which contains the full time-series of the cross-correlation between
+any combination of time-series from the different channels in the time-series
+object. We can pass the resulting object, together with a list of indices to
+the viz.plot_xcorr function, which visualizes the chosen combinations of
+series:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xc</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">xcorr_norm</span>
+
+<span class="n">idx_lcau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">roi_names</span> <span class="o">==</span> <span class="s1">&#39;LCau&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">idx_rcau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">roi_names</span> <span class="o">==</span> <span class="s1">&#39;RCau&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">idx_lput</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">roi_names</span> <span class="o">==</span> <span class="s1">&#39;LPut&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">idx_rput</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">roi_names</span> <span class="o">==</span> <span class="s1">&#39;RPut&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">fig02</span> <span class="o">=</span> <span class="n">plot_xcorr</span><span class="p">(</span><span class="n">xc</span><span class="p">,</span>
+                   <span class="p">((</span><span class="n">idx_lcau</span><span class="p">,</span> <span class="n">idx_rcau</span><span class="p">),</span>
+                    <span class="p">(</span><span class="n">idx_lcau</span><span class="p">,</span> <span class="n">idx_lput</span><span class="p">)),</span>
+                   <span class="n">line_labels</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;RCau&#39;</span><span class="p">,</span> <span class="s1">&#39;LPut&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/resting_state_fmri_02.png"><img alt="../_images/resting_state_fmri_02.png" src="../_images/resting_state_fmri_02.png" style="width: 500px;" /></a>
+<p>Note that the correlation is normalized, so that the the value of the
+cross-correlation functions at the zero-lag point (time = 0 sec) is equal to
+the Pearson correlation between the two time-series.  We observe that there are
+correlations larger than the zero-lag correlation occurring at other
+time-points preceding and following the zero-lag. This could arise because of a
+more complex interplay of activity between two areas, which is not captured by
+the correlation and can also arise because of differences in the
+characteristics of the HRF in the two ROIs. One method of analysis which can
+mitigate these issues is analysis of coherency between time-series
+<a class="reference internal" href="#sun2005" id="id1">[Sun2005]</a>. This analysis computes an equivalent of the correlation in the
+frequency domain:</p>
+<div class="math notranslate nohighlight">
+\[R_{xy} (\lambda) = \frac{f_{xy}(\lambda)}
+{\sqrt{f_{xx} (\lambda) \cdot f_{yy}(\lambda)}}\]</div>
+<p>Because this is a complex number, this computation results in two
+quantities. First, the magnitude of this number, also referred to as
+“coherence”:</p>
+<div class="math notranslate nohighlight">
+\[Coh_{xy}(\lambda) = |{R_{xy}(\lambda)}|^2 =
+     \frac{|{f_{xy}(\lambda)}|^2}{f_{xx}(\lambda) \cdot f_{yy}(\lambda)}\]</div>
+<p>This is a measure of the pairwise coupling between the two time-series. It can
+vary between 0 and 1, with 0 being complete independence and 1 being complete
+coupling. A time-series would have a coherence of 1 with itself, but not only:
+since this measure is independent of the relative phase of the two time-series,
+the coherence between a time-series and any phase-shifted version of itself
+will also be equal to 1.</p>
+<p>However, the relative phase is another quantity which can be derived from this
+computation:</p>
+<div class="math notranslate nohighlight">
+\[\phi(\lambda) = arg [R_{xy} (\lambda)] = arg [f_{xy} (\lambda)]\]</div>
+<p>This value can be used in order to infer which area is leading and which area
+is lagging (according to the sign of the relative phase) and, can be used to
+compute the temporal delay between activity in one ROI and the other.</p>
+<p>First, let’s look at the pair-wise coherence between all our ROIs. This can be
+done by creating a CoherenceAnalyzer object.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span> <span class="o">=</span> <span class="n">CoherenceAnalyzer</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once this object is initialized with the TimeSeries object, the mid-frequency
+of the frequency bands represented in the spectral decomposition of the
+time-series can be accessed in the ‘frequencies’ attribute of the object. The
+spectral resolution of this representation is the same one used in the
+computation of the coherence.</p>
+<p>Since the fMRI BOLD data contains data in frequencies which are not
+physiologically relevant (presumably due to machine noise and fluctuations in
+physiological measures unrelated to neural activity), we focus our analysis on
+a band of frequencies between 0.02 and 0.15 Hz. This is easily achieved by
+determining the values of the indices in <code class="xref py py-attr docutils literal notranslate"><span class="pre">C.frequencies</span></code> and using those
+indices in accessing the data in <code class="xref py py-attr docutils literal notranslate"><span class="pre">C.coherence</span></code>. The coherence is then
+averaged across all these frequency bands.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">freq_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">C</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">&gt;</span> <span class="n">f_lb</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">&lt;</span> <span class="n">f_ub</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The C.coherence attribute is an ndarray of dimensions <span class="math notranslate nohighlight">\(n_{ROI}\)</span> by <span class="math notranslate nohighlight">\(n_{ROI}\)</span> by
+<span class="math notranslate nohighlight">\(n_{frequencies}\)</span>.</p>
+<p>We extract the coherence in that frequency band, average across the frequency
+bands of interest and pass that to the visualization function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Averaging on the last dimension:</span>
+<span class="n">coh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">coherence</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">freq_idx</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">fig03</span> <span class="o">=</span> <span class="n">drawmatrix_channels</span><span class="p">(</span><span class="n">coh</span><span class="p">,</span> <span class="n">roi_names</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">],</span> <span class="n">color_anchor</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/resting_state_fmri_03.png"><img alt="../_images/resting_state_fmri_03.png" src="../_images/resting_state_fmri_03.png" style="width: 500px;" /></a>
+<p>We can also focus in on the ROIs we were interested in. This requires a little
+bit more manipulation of the indices into the coherence matrix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">idx_lcau</span><span class="p">,</span> <span class="n">idx_rcau</span><span class="p">,</span> <span class="n">idx_lput</span><span class="p">,</span> <span class="n">idx_rput</span><span class="p">])</span>
+<span class="n">idx1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([[</span><span class="n">idx</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">*</span> <span class="mi">4</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)])</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+<span class="n">idx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+
+<span class="n">coh</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">coherence</span><span class="p">[</span><span class="n">idx1</span><span class="p">,</span> <span class="n">idx2</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Extract the coherence and average across the same frequency bands as before:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">coh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">coh</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">freq_idx</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Averaging on the last dimension</span>
+</pre></div>
+</div>
+<p>Finally, in this case, we visualize the adjacency matrix, by creating a network
+graph of these ROIs (this is done by using the function drawgraph_channels
+which relies on <a class="reference external" href="http://networkx.lanl.gov">networkx</a>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig04</span> <span class="o">=</span> <span class="n">drawgraph_channels</span><span class="p">(</span><span class="n">coh</span><span class="p">,</span> <span class="n">roi_names</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/resting_state_fmri_04.png"><img alt="../_images/resting_state_fmri_04.png" src="../_images/resting_state_fmri_04.png" style="width: 500px;" /></a>
+<p>This shows us that there is a stronger connectivity between the left putamen and
+the left caudate than between the homologous regions in the other
+hemisphere. In particular, in contrast to the relatively high correlation
+between the right caudate and the left caudate, there is a rather low coherence
+between the time-series in these two regions, in this frequency range.</p>
+<p>Note that the connectivity described by coherency (and other measures of
+functional connectivity) could arise because of neural connectivity between the
+two regions, but also due to a common blood supply, or common fluctuations in
+other physiological measures which affect the BOLD signal measured in both
+regions. In order to be able to differentiate these two options, we would have
+to conduct a comparison between two different behavioral states that affect the
+neural activity in the two regions, without affecting these common
+physiological factors, such as common blood supply (for an in-depth discussion
+of these issues, see <a class="reference internal" href="#silver2010" id="id2">[Silver2010]</a>). In this case, we will simply assume that
+the connectivity matrix presented represents the actual neural connectivity
+between these two brain regions.</p>
+<p>We notice that there is indeed a stronger coherence between left putamen and the
+left caudate than between the left caudate and the right caudate. Next, we
+might ask whether the moderate coherence between the left putamen and the right
+caudate can be accounted for by the coherence these two time-series share with
+the time-series derived from the left caudate. This kind of question can be
+answered using an analysis of partial coherency. For the time series <span class="math notranslate nohighlight">\(x\)</span> and
+<span class="math notranslate nohighlight">\(y\)</span>, the partial coherence, given a third time-series <span class="math notranslate nohighlight">\(r\)</span>, is defined as:</p>
+<div class="math notranslate nohighlight">
+\[Coh_{xy|r} = \frac{|{R_{xy}(\lambda) - R_{xr}(\lambda)
+R_{ry}(\lambda)}|^2}{(1-|{R_{xr}}|^2)(1-|{R_{ry}}|^2)}\]</div>
+<p>In this case, we extract the partial coherence between the three regions,
+excluding common effects of the left caudate. In order to do that, we generate
+the partial-coherence attribute of the <code class="xref py py-class docutils literal notranslate"><span class="pre">CoherenceAnalyzer</span></code> object, while
+indexing on the additional dimension which this object had (the coherence
+between time-series <span class="math notranslate nohighlight">\(x\)</span> and time-series <span class="math notranslate nohighlight">\(y\)</span>, <em>given</em> time series <span class="math notranslate nohighlight">\(r\)</span>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">idx3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="mi">16</span> <span class="o">*</span> <span class="p">[</span><span class="n">idx_lcau</span><span class="p">])</span>
+<span class="n">coh</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">coherence_partial</span><span class="p">[</span><span class="n">idx1</span><span class="p">,</span> <span class="n">idx2</span><span class="p">,</span> <span class="n">idx3</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">coh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">coh</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">freq_idx</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Again, we visualize the result, using both the <code class="xref py py-func docutils literal notranslate"><span class="pre">viz.drawgraph_channels()</span></code>
+and the <code class="xref py py-func docutils literal notranslate"><span class="pre">drawmatrix_channels()</span></code> functions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig05</span> <span class="o">=</span> <span class="n">drawgraph_channels</span><span class="p">(</span><span class="n">coh</span><span class="p">,</span> <span class="n">roi_names</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+<span class="n">fig06</span> <span class="o">=</span> <span class="n">drawmatrix_channels</span><span class="p">(</span><span class="n">coh</span><span class="p">,</span> <span class="n">roi_names</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">color_anchor</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/resting_state_fmri_05.png"><img alt="../_images/resting_state_fmri_05.png" src="../_images/resting_state_fmri_05.png" style="width: 500px;" /></a>
+<a class="reference external image-reference" href="../_images/resting_state_fmri_06.png"><img alt="../_images/resting_state_fmri_06.png" src="../_images/resting_state_fmri_06.png" style="width: 500px;" /></a>
+<p>As can be seen, the resulting partial coherence between left putamen and right
+caudate, given the activity in the left caudate is smaller than the coherence
+between these two areas, suggesting that part of this coherence can be
+explained by their common connection to the left caudate.</p>
+<p>XXX Add description of calculation of temporal delay here.</p>
+<p>We call plt.show() in order to display the figures:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<table class="docutils citation" frame="void" id="sun2005" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Sun2005]</a></td><td>F.T. Sun and L.M. Miller and M. D’Esposito(2005). Measuring
+temporal dynamics of functional networks using phase spectrum of
+fMRI data. Neuroimage, 28: 227-37.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="silver2010" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[Silver2010]</a></td><td>M.A Silver, AN Landau, TZ Lauritzen, W Prinzmetal, LC
+Robertson(2010) Isolating human brain functional connectivity associated
+with a specific cognitive process, in Human Vision and Electronic Imaging
+XV, edited by B.E. Rogowitz and T.N. Pappas, Proceedings of SPIE, Volume
+7527, pp. 75270B-1 to 75270B-9</td></tr>
+</tbody>
+</table>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" download="" href="../_downloads/ed4bfb551677159f35252cd5d76aabe6/resting_state_fmri.py"><code class="xref download docutils literal notranslate"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the Nitime source distribution under the
+<code class="file docutils literal notranslate"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../discussion/index.html" title="Discussion"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mtm_baseband_power.html" title="Multitaper method for baseband demodulation"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

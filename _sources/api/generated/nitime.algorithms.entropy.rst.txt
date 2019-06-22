@@ -1,0 +1,29 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+algorithms.entropy
+==================
+
+Module: :mod:`algorithms.entropy`
+---------------------------------
+.. automodule:: nitime.algorithms.entropy
+
+.. currentmodule:: nitime.algorithms.entropy
+
+Functions
+---------
+
+
+.. autofunction:: nitime.algorithms.entropy.conditional_entropy
+
+
+.. autofunction:: nitime.algorithms.entropy.entropy
+
+
+.. autofunction:: nitime.algorithms.entropy.entropy_cc
+
+
+.. autofunction:: nitime.algorithms.entropy.mutual_information
+
+
+.. autofunction:: nitime.algorithms.entropy.transfer_entropy
+

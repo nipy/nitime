@@ -1,0 +1,187 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="lazyimports" href="nitime.lazyimports.html" />
+    <link rel="prev" title="index_utils" href="nitime.index_utils.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.lazyimports.html" title="lazyimports"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.index_utils.html" title="index_utils"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">lazy</a><ul>
+<li><a class="reference internal" href="#module-nitime.lazy">Module: <code class="docutils literal notranslate"><span class="pre">lazy</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.index_utils.html"
+                        title="previous chapter">index_utils</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.lazyimports.html"
+                        title="next chapter">lazyimports</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="lazy">
+<h1>lazy<a class="headerlink" href="#lazy" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-nitime.lazy">
+<span id="module-lazy"></span><h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">lazy</span></code><a class="headerlink" href="#module-nitime.lazy" title="Permalink to this headline">¶</a></h2>
+<p>Commonly used nitime lazy imports are defined here, so they can be reused
+throughout nitime. For an explanation of why we use lazily-loaded modules, and
+how you can leverage this machinery in your code, see
+<a class="reference internal" href="nitime.lazyimports.html#module-nitime.lazyimports" title="nitime.lazyimports"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nitime.lazyimports</span></code></a>.</p>
+<p>Lazily-loaded package have almost the same name as the
+corresponding package’s import string, except for periods are replaced with
+underscores. For example, the way to lazily import <code class="docutils literal notranslate"><span class="pre">matplotlib.mlab</span></code> is via</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">nitime.lazy</span> <span class="k">import</span> <span class="n">matplotlib_mlab</span> <span class="k">as</span> <span class="n">mlab</span>
+</pre></div>
+</div>
+<p>At this time, all lazy-loaded packages are defined manually. I (pi) made
+several attempts to automate this process, such that any arbitrary package
+<code class="docutils literal notranslate"><span class="pre">foo.bar.baz</span></code> could be imported via <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">nitime.lazy</span> <span class="pre">import</span> <span class="pre">foo_bar_baz</span> <span class="pre">as</span>
+<span class="pre">baz</span></code> but had limited success.</p>
+<p>Currently defined lazy imported packages are (remember to replace the <code class="docutils literal notranslate"><span class="pre">.</span></code>
+with <code class="docutils literal notranslate"><span class="pre">_</span></code>)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">matplotlib</span><span class="o">.</span><span class="n">mlab</span>
+<span class="n">scipy</span>
+<span class="n">scipy</span><span class="o">.</span><span class="n">fftpack</span>
+<span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span>
+<span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span>
+<span class="n">scipy</span><span class="o">.</span><span class="n">signal</span>
+<span class="n">scipy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">signaltools</span>
+<span class="n">scipy</span><span class="o">.</span><span class="n">stats</span>
+<span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">distributions</span>
+</pre></div>
+</div>
+<p>If you want to lazily load another package in nitime, please add it to this
+file, and then <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">nitime.lazy</span> <span class="pre">import</span> <span class="pre">your_new_package</span></code>.</p>
+<p>If there’s a package that you would like to lazily load in your own code that
+is not listed here, use the <code class="xref py py-class docutils literal notranslate"><span class="pre">LazyImport</span></code> class, which is in
+<a class="reference internal" href="nitime.lazyimports.html#module-nitime.lazyimports" title="nitime.lazyimports"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nitime.lazyimports</span></code></a>.</p>
+<dl class="function">
+<dt id="nitime.lazy.enabled">
+<code class="descclassname">nitime.lazy.</code><code class="descname">enabled</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.lazy.enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if LazyImports are globally enabled</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.lazyimports.html" title="lazyimports"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.index_utils.html" title="index_utils"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,236 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="analysis.base" href="nitime.analysis.base.html" />
+    <link rel="prev" title="algorithms.spectral" href="nitime.algorithms.spectral.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.base.html" title="analysis.base"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.spectral.html" title="algorithms.spectral"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">algorithms.wavelet</a><ul>
+<li><a class="reference internal" href="#module-nitime.algorithms.wavelet">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.wavelet</span></code></a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.algorithms.spectral.html"
+                        title="previous chapter">algorithms.spectral</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.analysis.base.html"
+                        title="next chapter">analysis.base</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="algorithms-wavelet">
+<h1>algorithms.wavelet<a class="headerlink" href="#algorithms-wavelet" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-nitime.algorithms.wavelet">
+<span id="module-algorithms-wavelet"></span><h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">algorithms.wavelet</span></code><a class="headerlink" href="#module-nitime.algorithms.wavelet" title="Permalink to this headline">¶</a></h2>
+<p>Wavelets</p>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nitime.algorithms.wavelet.wfmorlet_fft">
+<code class="descclassname">nitime.algorithms.wavelet.</code><code class="descname">wfmorlet_fft</code><span class="sig-paren">(</span><em>f0</em>, <em>sd</em>, <em>sampling_rate</em>, <em>ns=5</em>, <em>nt=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.wavelet.wfmorlet_fft" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a complex morlet wavelet in the frequency domain</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>f0</strong> : center frequency</p>
+<blockquote class="last">
+<div><p>sd : standard deviation of center frequency
+sampling_rate : samplingrate
+ns : window length in number of standard deviations
+nt : window length in number of sample points</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.wavelet.wlogmorlet">
+<code class="descclassname">nitime.algorithms.wavelet.</code><code class="descname">wlogmorlet</code><span class="sig-paren">(</span><em>f0</em>, <em>sd</em>, <em>sampling_rate</em>, <em>ns=5</em>, <em>normed='area'</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.wavelet.wlogmorlet" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a complex log morlet wavelet in the time domain</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>f0</strong> : center frequency</p>
+<blockquote class="last">
+<div><p>sd : standard deviation of frequency
+sampling_rate : samplingrate
+ns : window length in number of standard deviations</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.wavelet.wlogmorlet_fft">
+<code class="descclassname">nitime.algorithms.wavelet.</code><code class="descname">wlogmorlet_fft</code><span class="sig-paren">(</span><em>f0</em>, <em>sd</em>, <em>sampling_rate</em>, <em>ns=5</em>, <em>nt=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.wavelet.wlogmorlet_fft" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a complex log morlet wavelet in the frequency domain</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>f0</strong> : center frequency</p>
+<blockquote class="last">
+<div><p>sd : standard deviation
+sampling_rate : samplingrate
+ns : window length in number of standard deviations
+nt : window length in number of sample points</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.wavelet.wmorlet">
+<code class="descclassname">nitime.algorithms.wavelet.</code><code class="descname">wmorlet</code><span class="sig-paren">(</span><em>f0</em>, <em>sd</em>, <em>sampling_rate</em>, <em>ns=5</em>, <em>normed='area'</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.wavelet.wmorlet" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a complex morlet wavelet in the time domain</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>f0</strong> : center frequency</p>
+<blockquote class="last">
+<div><p>sd : standard deviation of frequency
+sampling_rate : samplingrate
+ns : window length in number of standard deviations</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.base.html" title="analysis.base"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.spectral.html" title="algorithms.spectral"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

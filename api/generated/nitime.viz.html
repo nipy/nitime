@@ -1,0 +1,649 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="utils" href="nitime.utils.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.utils.html" title="utils"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">viz</a><ul>
+<li><a class="reference internal" href="#module-nitime.viz">Module: <code class="docutils literal notranslate"><span class="pre">viz</span></code></a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.utils.html"
+                        title="previous chapter">utils</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="viz">
+<h1>viz<a class="headerlink" href="#viz" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-nitime.viz">
+<span id="module-viz"></span><h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">viz</span></code><a class="headerlink" href="#module-nitime.viz" title="Permalink to this headline">¶</a></h2>
+<p>Tools for visualization of time-series data.</p>
+<p>Depends on matplotlib. Some functions depend also on networkx</p>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nitime.viz.draw_arrows">
+<code class="descclassname">nitime.viz.</code><code class="descname">draw_arrows</code><span class="sig-paren">(</span><em>G</em>, <em>pos</em>, <em>edgelist=None</em>, <em>ax=None</em>, <em>edge_color='k'</em>, <em>alpha=1.0</em>, <em>width=1</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.draw_arrows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw arrows on a set of edges</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.draw_graph">
+<code class="descclassname">nitime.viz.</code><code class="descname">draw_graph</code><span class="sig-paren">(</span><em>G</em>, <em>labels=None</em>, <em>node_colors=None</em>, <em>node_shapes=None</em>, <em>node_scale=1.0</em>, <em>edge_style='solid'</em>, <em>edge_cmap=None</em>, <em>colorbar=False</em>, <em>vrange=None</em>, <em>layout=None</em>, <em>title=None</em>, <em>font_family='sans-serif'</em>, <em>font_size=9</em>, <em>stretch_factor=1.0</em>, <em>edge_alpha=True</em>, <em>fig_size=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.draw_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a weighted graph with options to visualize link weights.</p>
+<p>The resulting diagram uses the rank of each node as its size, and the
+weight of each link (after discarding thresholded values, see below) as the
+link opacity.</p>
+<p>It maps edge weight to color as well as line opacity and thickness,
+allowing the color part to be hardcoded over a value range (to permit valid
+cross-figure comparisons for different graphs, so the same color
+corresponds to the same link weight even if each graph has a different
+range of weights).  The nodes sizes are proportional to their degree,
+computed as the sum of the weights of all their links.  The layout defaults
+to circular, but any nx layout function can be passed in, as well as a
+statically precomputed layout.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>G</strong> : weighted graph</p>
+<blockquote>
+<div><p>The values must be of the form (v1,v2), with all v2 in [0,1].  v1 are
+used for colors, v2 for thickness/opacity.</p>
+</div></blockquote>
+<p><strong>labels</strong> : list or dict, optional.</p>
+<blockquote>
+<div><p>An indexable object that maps nodes to strings.  If not given, the
+string form of each node is used as a label.  If False, no labels are
+drawn.</p>
+</div></blockquote>
+<p><strong>node_colors</strong> : list or dict, optional.</p>
+<blockquote>
+<div><p>An indexable object that maps nodes to valid matplotlib color specs.  See
+matplotlib’s plot() function for details.</p>
+</div></blockquote>
+<p><strong>node_shapes</strong> : list or dict, optional.</p>
+<blockquote>
+<div><p>An indexable object that maps nodes to valid matplotlib shape specs.  See
+matplotlib’s scatter() function for details.  If not given, circles are
+used.</p>
+</div></blockquote>
+<p><strong>node_scale</strong> : float, optional</p>
+<blockquote>
+<div><p>A scale factor to globally stretch or shrink all nodes symbols by.</p>
+</div></blockquote>
+<p><strong>edge_style</strong> : string, optional</p>
+<blockquote>
+<div><p>Line style for the edges, defaults to ‘solid’.</p>
+</div></blockquote>
+<p><strong>edge_cmap</strong> : matplotlib colormap, optional.</p>
+<blockquote>
+<div><p>A callable that returns valid color specs, like matplotlib colormaps.
+If not given, edges are colored black.</p>
+</div></blockquote>
+<p><strong>colorbar</strong> : bool</p>
+<blockquote>
+<div><p>If true, automatically add a colorbar showing the mapping of graph weight
+values to colors.</p>
+</div></blockquote>
+<p><strong>vrange</strong> : pair of floats</p>
+<blockquote>
+<div><p>If given, this indicates the total range of values that the weights can
+in principle occupy, and is used to set the lower/upper range of the
+colormap.  This allows you to set the range of multiple different figures
+to the same values, even if each individual graph has range variations,
+so that visual color comparisons across figures are valid.</p>
+</div></blockquote>
+<p><strong>layout</strong> : function or layout dict, optional</p>
+<blockquote>
+<div><p>A NetworkX-like layout function or the result of a precomputed layout for
+the given graph.  NetworkX produces layouts as dicts keyed by nodes and
+with (x,y) pairs of coordinates as values, any function that produces
+this kind of output is acceptable.  Defaults to nx.circular_layout.</p>
+</div></blockquote>
+<p><strong>title</strong> : string, optional.</p>
+<blockquote>
+<div><p>If given, title to put on the main plot.</p>
+</div></blockquote>
+<p><strong>font_family</strong> : string, optional.</p>
+<blockquote>
+<div><p>Font family used for the node labels and title.</p>
+</div></blockquote>
+<p><strong>font_size</strong> : int, optional.</p>
+<blockquote>
+<div><p>Font size used for the node labels and title.</p>
+</div></blockquote>
+<p><strong>stretch_factor</strong> : float, optional</p>
+<blockquote>
+<div><p>A global scaling factor to make the graph larger (or smaller if &lt;1).
+This can be used to separate the nodes if they start overlapping.</p>
+</div></blockquote>
+<p><strong>edge_alpha: bool, optional</strong> :</p>
+<blockquote>
+<div><p>Whether to weight the transparency of each edge by a factor equivalent to
+its relative weight</p>
+</div></blockquote>
+<p><strong>fig_size: list of height by width, the size of the figure (in</strong> :</p>
+<p><strong>inches). Defaults to [6,6]</strong> :</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> :</p>
+<blockquote class="last">
+<div><p>The matplotlib figure object with the plot.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.draw_matrix">
+<code class="descclassname">nitime.viz.</code><code class="descname">draw_matrix</code><span class="sig-paren">(</span><em>mat</em>, <em>th1=None</em>, <em>th2=None</em>, <em>clim=None</em>, <em>cmap=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.draw_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a matrix, optionally thresholding it.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.draw_networkx_nodes">
+<code class="descclassname">nitime.viz.</code><code class="descname">draw_networkx_nodes</code><span class="sig-paren">(</span><em>G</em>, <em>pos</em>, <em>nodelist=None</em>, <em>node_size=300</em>, <em>node_color='r'</em>, <em>node_shape='o'</em>, <em>alpha=1.0</em>, <em>cmap=None</em>, <em>vmin=None</em>, <em>vmax=None</em>, <em>ax=None</em>, <em>linewidths=None</em>, <em>label=None</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.draw_networkx_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw the nodes of the graph G.</p>
+<p>This draws only the nodes of the graph G.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>G</strong> : graph</p>
+<blockquote>
+<div><p>A networkx graph</p>
+</div></blockquote>
+<p><strong>pos</strong> : dictionary</p>
+<blockquote>
+<div><p>A dictionary with nodes as keys and positions as values.
+Positions should be sequences of length 2.</p>
+</div></blockquote>
+<p><strong>ax</strong> : Matplotlib Axes object, optional</p>
+<blockquote>
+<div><p>Draw the graph in the specified Matplotlib axes.</p>
+</div></blockquote>
+<p><strong>nodelist</strong> : list, optional</p>
+<blockquote>
+<div><p>Draw only specified nodes (default G.nodes())</p>
+</div></blockquote>
+<p><strong>node_size</strong> : scalar or array</p>
+<blockquote>
+<div><p>Size of nodes (default=300).  If an array is specified it must be the
+same length as nodelist.</p>
+</div></blockquote>
+<p><strong>node_color</strong> : color string, or array of floats</p>
+<blockquote>
+<div><p>Node color. Can be a single color format string (default=’r’),
+or a  sequence of colors with the same length as nodelist.
+If numeric values are specified they will be mapped to
+colors using the cmap and vmin,vmax parameters.  See
+matplotlib.scatter for more details.</p>
+</div></blockquote>
+<p><strong>node_shape</strong> :  string</p>
+<blockquote>
+<div><p>The shape of the node.  Specification is as matplotlib.scatter
+marker, one of ‘so^&gt;v&lt;dph8’ (default=’o’).</p>
+</div></blockquote>
+<p><strong>alpha</strong> : float</p>
+<blockquote>
+<div><p>The node transparency (default=1.0)</p>
+</div></blockquote>
+<p><strong>cmap</strong> : Matplotlib colormap</p>
+<blockquote>
+<div><p>Colormap for mapping intensities of nodes (default=None)</p>
+</div></blockquote>
+<p><strong>vmin,vmax</strong> : floats</p>
+<blockquote>
+<div><p>Minimum and maximum for node colormap scaling (default=None)</p>
+</div></blockquote>
+<p><strong>linewidths</strong> : [None | scalar | sequence]</p>
+<blockquote>
+<div><p>Line width of symbol border (default =1.0)</p>
+</div></blockquote>
+<p><strong>label</strong> : [None| string]</p>
+<blockquote>
+<div><p>Label for legend</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>matplotlib.collections.PathCollection</strong> :</p>
+<blockquote class="last">
+<div><p><cite>PathCollection</cite> of the nodes.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal notranslate"><span class="pre">draw</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">draw_networkx</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">draw_networkx_edges</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">draw_networkx_labels</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">draw_networkx_edge_labels</span></code></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">dodecahedral_graph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nodes</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">pos</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">spring_layout</span><span class="p">(</span><span class="n">G</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Also see the NetworkX drawing examples at
+<a class="reference external" href="http://networkx.github.io/documentation/latest/gallery.html">http://networkx.github.io/documentation/latest/gallery.html</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.drawgraph_channels">
+<code class="descclassname">nitime.viz.</code><code class="descname">drawgraph_channels</code><span class="sig-paren">(</span><em>in_m</em>, <em>channel_names=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;</em>, <em>node_shapes=None</em>, <em>node_colors=None</em>, <em>title=None</em>, <em>layout=None</em>, <em>threshold=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.drawgraph_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a graph based on the matrix specified in in_m. Wrapper to
+draw_graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>in_m: nxn array with values of relationships between two sets of channels</strong> :</p>
+<p><strong>or channels</strong> :</p>
+<p><strong>channel_names (optional): list of strings with the labels to be applied to</strong> :</p>
+<p><strong>the channels in the input. Defaults to ‘0’,‘1’,‘2’, etc.</strong> :</p>
+<p><strong>cmap (optional): a matplotlib colormap to be used for displaying the values</strong> :</p>
+<p><strong>of the connections on the graph</strong> :</p>
+<p><strong>node_shapes: defaults to circle</strong> :</p>
+<p><strong>node_colors: defaults to white,</strong> :</p>
+<p><strong>title: str</strong> :</p>
+<blockquote>
+<div><p>Sets a title for the figure.</p>
+</div></blockquote>
+<p><strong>layout, defaults to nx.circular_layout</strong> :</p>
+<p><strong>Returns</strong> :</p>
+<p><strong>——-</strong> :</p>
+<p class="last"><strong>fig: a figure object</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The layout of the graph is done using functions from networkx
+(<a class="reference external" href="http://networkx.lanl.gov">http://networkx.lanl.gov</a>), which is a dependency of this function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.drawmatrix_channels">
+<code class="descclassname">nitime.viz.</code><code class="descname">drawmatrix_channels</code><span class="sig-paren">(</span><em>in_m</em>, <em>channel_names=None</em>, <em>fig=None</em>, <em>x_tick_rot=0</em>, <em>size=None</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;</em>, <em>colorbar=True</em>, <em>color_anchor=None</em>, <em>title=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.drawmatrix_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a lower-triangle of the matrix of an nxn set of values. This is
+the typical format to show a symmetrical bivariate quantity (such as
+correlation or coherence between two different ROIs).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>in_m: nxn array with values of relationships between two sets of rois or</strong> :</p>
+<p><strong>channels</strong> :</p>
+<p><strong>channel_names (optional): list of strings with the labels to be applied to</strong> :</p>
+<p><strong>the channels in the input. Defaults to ‘0’,‘1’,‘2’, etc.</strong> :</p>
+<p><strong>fig (optional): a matplotlib figure</strong> :</p>
+<p><strong>cmap (optional): a matplotlib colormap to be used for displaying the values</strong> :</p>
+<p><strong>of the connections on the graph</strong> :</p>
+<p><strong>title (optional): string to title the figure (can be like ‘$alpha$’)</strong> :</p>
+<p><strong>color_anchor (optional): determine the mapping from values to colormap</strong> :</p>
+<blockquote>
+<div><p>if None, min and max of colormap correspond to min and max of in_m
+if 0, min and max of colormap correspond to max of abs(in_m)
+if (a,b), min and max of colormap correspond to (a,b)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fig: a figure object</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.lab2node">
+<code class="descclassname">nitime.viz.</code><code class="descname">lab2node</code><span class="sig-paren">(</span><em>labels</em>, <em>labels_dict</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.lab2node" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.matshow_tseries">
+<code class="descclassname">nitime.viz.</code><code class="descname">matshow_tseries</code><span class="sig-paren">(</span><em>time_series</em>, <em>fig=None</em>, <em>axis=0</em>, <em>xtick_n=5</em>, <em>time_unit=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.matshow_tseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an image of the time-series, ordered according to the first
+dimension of the time-series object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series: a nitime time-series object</strong> :</p>
+<p><strong>fig: a figure handle, opens a new figure if None</strong> :</p>
+<p><strong>axis: an axis number (if there are several in the figure to be opened),</strong> :</p>
+<blockquote>
+<div><p>defaults to 0.</p>
+</div></blockquote>
+<p class="last"><strong>xtick_n: int, optional, sets the number of ticks to be placed on the x axis</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.mkgraph">
+<code class="descclassname">nitime.viz.</code><code class="descname">mkgraph</code><span class="sig-paren">(</span><em>cmat</em>, <em>threshold=0.0</em>, <em>threshold2=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.mkgraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a weighted graph object out of an adjacency matrix.</p>
+<p>The values in the original matrix cmat can be thresholded out.  If only one
+threshold is given, all values below that are omitted when creating edges.
+If two thresholds are given, then values in the th2-th1 range are
+omitted.  This allows for the easy creation of weighted graphs with
+positive and negative values where a range of weights around 0 is omitted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cmat</strong> : 2-d square array</p>
+<blockquote>
+<div><p>Adjacency matrix.</p>
+</div></blockquote>
+<p><strong>threshold</strong> : float</p>
+<blockquote>
+<div><p>First threshold.</p>
+</div></blockquote>
+<p><strong>threshold2</strong> : float</p>
+<blockquote>
+<div><p>Second threshold.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>G</strong> : a NetworkX weighted graph object, to which a dictionary called</p>
+<p><strong>G.metadata is appended.  This dict contains the original adjacency matrix</strong> :</p>
+<p class="last"><strong>cmat, the two thresholds, and the weights</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.plot_corr_diff">
+<code class="descclassname">nitime.viz.</code><code class="descname">plot_corr_diff</code><span class="sig-paren">(</span><em>tseries1, tseries2, fig=None, ts_names=['1', '2']</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.plot_corr_diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the differences in <em>Fischer-transformed</em> snr correlations for two
+time-series</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tseries1, tseries2</strong> : nitime TimeSeries objects</p>
+<blockquote>
+<div><p>These are the time-series to compare, with each of them having the
+dims: (n_channels, n_reps, time), where n_channels1 = n_channels2</p>
+</div></blockquote>
+<p><strong>lb,ub: float</strong> :</p>
+<blockquote>
+<div><p>Lower and upper bounds on the frequency range over which to
+calculate the information rate (default to [0,Nyquist]).</p>
+</div></blockquote>
+<p><strong>fig: matplotlib figure object</strong> :</p>
+<blockquote>
+<div><p>If you want to do this on already existing figure. Otherwise, a new
+figure object will be generated.</p>
+</div></blockquote>
+<p><strong>ts_names: list of str</strong> :</p>
+<blockquote>
+<div><p>Labels for the two inputs, to be used in plotting (defaults to
+[‘1’,‘2’])</p>
+</div></blockquote>
+<p><strong>bandwidth, adaptive, low_bias: See :func:`SNRAnalyzer` for details</strong> :</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fig: a matplotlib figure object</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.plot_snr">
+<code class="descclassname">nitime.viz.</code><code class="descname">plot_snr</code><span class="sig-paren">(</span><em>tseries</em>, <em>lb=0</em>, <em>ub=None</em>, <em>fig=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.plot_snr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the coherence, snr and information of an SNRAnalyzer</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tseries: nitime TimeSeries object</strong> :</p>
+<blockquote>
+<div><p>Multi-trial data in response to one stimulus/protocol with the dims:
+(n_channels,n_repetitions,time)</p>
+</div></blockquote>
+<p><strong>lb,ub: float</strong> :</p>
+<blockquote>
+<div><p>Lower and upper bounds on the frequency range over which to
+calculate (default to [0,Nyquist]).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>A tuple containing:</strong> :</p>
+<p><strong>fig: a matplotlib figure object</strong> :</p>
+<blockquote class="last">
+<div><p>This figure displays:
+1. Coherence
+2. SNR
+3. Information</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.plot_snr_diff">
+<code class="descclassname">nitime.viz.</code><code class="descname">plot_snr_diff</code><span class="sig-paren">(</span><em>tseries1, tseries2, lb=0, ub=None, fig=None, ts_names=['1', '2'], bandwidth=None, adaptive=False, low_bias=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.plot_snr_diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show distributions of differences between two time-series in the
+amount of snr (freq band by freq band) and information. For example,
+for comparing two stimulus conditions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tseries1, tseries2</strong> : nitime TimeSeries objects</p>
+<blockquote>
+<div><p>These are the time-series to compare, with each of them having the
+dims: (n_channels, n_reps, time), where n_channels1 = n_channels2</p>
+</div></blockquote>
+<p><strong>lb,ub: float</strong> :</p>
+<blockquote>
+<div><p>Lower and upper bounds on the frequency range over which to
+calculate the information rate (default to [0,Nyquist]).</p>
+</div></blockquote>
+<p><strong>fig: matplotlib figure object</strong> :</p>
+<blockquote>
+<div><p>If you want to do this on already existing figure. Otherwise, a new
+figure object will be generated.</p>
+</div></blockquote>
+<p><strong>ts_names: list of str</strong> :</p>
+<blockquote>
+<div><p>Labels for the two inputs, to be used in plotting (defaults to
+[‘1’,‘2’])</p>
+</div></blockquote>
+<p><strong>bandwidth, adaptive, low_bias: See :func:`nta.SNRAnalyzer` for details</strong> :</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>A tuple containing:</strong> :</p>
+<p><strong>fig: a matplotlib figure object</strong> :</p>
+<blockquote>
+<div><p>This figure displays:
+1. The histogram of the information differences between the two
+time-series
+2. The frequency-dependent SNR for the two time-series</p>
+</div></blockquote>
+<p><strong>info1, info2: float arrays</strong> :</p>
+<blockquote>
+<div><p>The frequency-dependent information rates (in bits/sec)</p>
+</div></blockquote>
+<p><strong>s_n_r1, s_n_r2: float arrays</strong> :</p>
+<blockquote class="last">
+<div><p>The frequncy-dependent signal-to-noise ratios</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.plot_spectral_estimate">
+<code class="descclassname">nitime.viz.</code><code class="descname">plot_spectral_estimate</code><span class="sig-paren">(</span><em>f</em>, <em>sdf</em>, <em>sdf_ests</em>, <em>limits=None</em>, <em>elabels=()</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.plot_spectral_estimate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot an estimate of a spectral transform against the ground truth.</p>
+<p>Utility file used in building the documentation</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.plot_tseries">
+<code class="descclassname">nitime.viz.</code><code class="descname">plot_tseries</code><span class="sig-paren">(</span><em>time_series</em>, <em>fig=None</em>, <em>axis=0</em>, <em>xticks=None</em>, <em>xunits=None</em>, <em>yticks=None</em>, <em>yunits=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>yerror=None</em>, <em>error_alpha=0.1</em>, <em>time_unit=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.plot_tseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot a timeseries object</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.plot_xcorr">
+<code class="descclassname">nitime.viz.</code><code class="descname">plot_xcorr</code><span class="sig-paren">(</span><em>xc</em>, <em>ij</em>, <em>fig=None</em>, <em>line_labels=None</em>, <em>xticks=None</em>, <em>yticks=None</em>, <em>xlabel=None</em>, <em>ylabel=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.plot_xcorr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visualize the cross-correlation function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.rgb_to_dict">
+<code class="descclassname">nitime.viz.</code><code class="descname">rgb_to_dict</code><span class="sig-paren">(</span><em>value</em>, <em>cmap</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.rgb_to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.subcolormap">
+<code class="descclassname">nitime.viz.</code><code class="descname">subcolormap</code><span class="sig-paren">(</span><em>xmin</em>, <em>xmax</em>, <em>cmap</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.subcolormap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the part of cmap between xmin, xmax, scaled to 0,1.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.viz.winspect">
+<code class="descclassname">nitime.viz.</code><code class="descname">winspect</code><span class="sig-paren">(</span><em>win</em>, <em>f</em>, <em>name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.viz.winspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inspect a window by showing it and its spectrum</p>
+<p>Utility file used in building the documentation</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.utils.html" title="utils"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,324 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="algorithms.autoregressive" href="generated/nitime.algorithms.autoregressive.html" />
+    <link rel="prev" title="Releasing Nitime" href="../devel/how_to_release.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="generated/nitime.algorithms.autoregressive.html" title="algorithms.autoregressive"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../devel/how_to_release.html" title="Releasing Nitime"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" accesskey="U">Nitime Documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../devel/how_to_release.html"
+                        title="previous chapter">Releasing Nitime</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="generated/nitime.algorithms.autoregressive.html"
+                        title="next chapter">algorithms.autoregressive</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="api">
+<span id="api-index"></span><h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Release:</th><td class="field-body">0.9</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">June 22, 2019, 15:00 PDT</td>
+</tr>
+</tbody>
+</table>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.algorithms.autoregressive.html">algorithms.autoregressive</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.autoregressive.html#module-nitime.algorithms.autoregressive">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.autoregressive</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.autoregressive.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.algorithms.cohere.html">algorithms.cohere</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.cohere.html#module-nitime.algorithms.cohere">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.cohere</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.cohere.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.algorithms.correlation.html">algorithms.correlation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.correlation.html#module-nitime.algorithms.correlation">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.correlation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.algorithms.entropy.html">algorithms.entropy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.entropy.html#module-nitime.algorithms.entropy">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.entropy</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.entropy.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.algorithms.event_related.html">algorithms.event_related</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.event_related.html#module-nitime.algorithms.event_related">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.event_related</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.event_related.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.algorithms.filter.html">algorithms.filter</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.filter.html#module-nitime.algorithms.filter">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.filter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.algorithms.spectral.html">algorithms.spectral</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.spectral.html#module-nitime.algorithms.spectral">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.spectral</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.spectral.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.algorithms.wavelet.html">algorithms.wavelet</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.wavelet.html#module-nitime.algorithms.wavelet">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.wavelet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.algorithms.wavelet.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.analysis.base.html">analysis.base</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.base.html#module-analysis-base">Module: <code class="docutils literal notranslate"><span class="pre">analysis.base</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.base.html#baseanalyzer"><code class="docutils literal notranslate"><span class="pre">BaseAnalyzer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.analysis.coherence.html">analysis.coherence</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.coherence.html#module-analysis-coherence">Module: <code class="docutils literal notranslate"><span class="pre">analysis.coherence</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.coherence.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.analysis.coherence.html#coherenceanalyzer"><code class="docutils literal notranslate"><span class="pre">CoherenceAnalyzer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.analysis.coherence.html#mtcoherenceanalyzer"><code class="docutils literal notranslate"><span class="pre">MTCoherenceAnalyzer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.analysis.coherence.html#seedcoherenceanalyzer"><code class="docutils literal notranslate"><span class="pre">SeedCoherenceAnalyzer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.analysis.coherence.html#sparsecoherenceanalyzer"><code class="docutils literal notranslate"><span class="pre">SparseCoherenceAnalyzer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.analysis.correlation.html">analysis.correlation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.correlation.html#module-analysis-correlation">Module: <code class="docutils literal notranslate"><span class="pre">analysis.correlation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.correlation.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.analysis.correlation.html#correlationanalyzer"><code class="docutils literal notranslate"><span class="pre">CorrelationAnalyzer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.analysis.correlation.html#seedcorrelationanalyzer"><code class="docutils literal notranslate"><span class="pre">SeedCorrelationAnalyzer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.analysis.event_related.html">analysis.event_related</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.event_related.html#module-analysis-event-related">Module: <code class="docutils literal notranslate"><span class="pre">analysis.event_related</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.event_related.html#eventrelatedanalyzer"><code class="docutils literal notranslate"><span class="pre">EventRelatedAnalyzer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.analysis.granger.html">analysis.granger</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.granger.html#module-analysis-granger">Module: <code class="docutils literal notranslate"><span class="pre">analysis.granger</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.granger.html#grangeranalyzer"><code class="docutils literal notranslate"><span class="pre">GrangerAnalyzer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.analysis.normalization.html">analysis.normalization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.normalization.html#module-analysis-normalization">Module: <code class="docutils literal notranslate"><span class="pre">analysis.normalization</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.normalization.html#normalizationanalyzer"><code class="docutils literal notranslate"><span class="pre">NormalizationAnalyzer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.analysis.snr.html">analysis.snr</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.snr.html#module-analysis-snr">Module: <code class="docutils literal notranslate"><span class="pre">analysis.snr</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.snr.html#snranalyzer"><code class="docutils literal notranslate"><span class="pre">SNRAnalyzer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.analysis.spectral.html">analysis.spectral</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.spectral.html#module-analysis-spectral">Module: <code class="docutils literal notranslate"><span class="pre">analysis.spectral</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.analysis.spectral.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.analysis.spectral.html#filteranalyzer"><code class="docutils literal notranslate"><span class="pre">FilterAnalyzer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.analysis.spectral.html#hilbertanalyzer"><code class="docutils literal notranslate"><span class="pre">HilbertAnalyzer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.analysis.spectral.html#morletwaveletanalyzer"><code class="docutils literal notranslate"><span class="pre">MorletWaveletAnalyzer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.analysis.spectral.html#spectralanalyzer"><code class="docutils literal notranslate"><span class="pre">SpectralAnalyzer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.descriptors.html">descriptors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.descriptors.html#module-descriptors">Module: <code class="docutils literal notranslate"><span class="pre">descriptors</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.descriptors.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.descriptors.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.descriptors.html#onetimeproperty"><code class="docutils literal notranslate"><span class="pre">OneTimeProperty</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.descriptors.html#resetmixin"><code class="docutils literal notranslate"><span class="pre">ResetMixin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.descriptors.html#function">Function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.fmri.hrf.html">fmri.hrf</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.fmri.hrf.html#module-nitime.fmri.hrf">Module: <code class="docutils literal notranslate"><span class="pre">fmri.hrf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.fmri.hrf.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.fmri.io.html">fmri.io</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.fmri.io.html#module-nitime.fmri.io">Module: <code class="docutils literal notranslate"><span class="pre">fmri.io</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.fmri.io.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.index_utils.html">index_utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.index_utils.html#module-nitime.index_utils">Module: <code class="docutils literal notranslate"><span class="pre">index_utils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.index_utils.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.lazy.html">lazy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.lazy.html#module-nitime.lazy">Module: <code class="docutils literal notranslate"><span class="pre">lazy</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.lazyimports.html">lazyimports</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.lazyimports.html#module-lazyimports">Module: <code class="docutils literal notranslate"><span class="pre">lazyimports</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.lazyimports.html#lazyimport"><code class="docutils literal notranslate"><span class="pre">LazyImport</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.six.html">six</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.six.html#module-six">Module: <code class="docutils literal notranslate"><span class="pre">six</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.six.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.six.html#module-six-moves-urllib"><code class="docutils literal notranslate"><span class="pre">Module_six_moves_urllib</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.six.html#module-six-moves-urllib-error"><code class="docutils literal notranslate"><span class="pre">Module_six_moves_urllib_error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.six.html#module-six-moves-urllib-parse"><code class="docutils literal notranslate"><span class="pre">Module_six_moves_urllib_parse</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.six.html#module-six-moves-urllib-request"><code class="docutils literal notranslate"><span class="pre">Module_six_moves_urllib_request</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.six.html#module-six-moves-urllib-response"><code class="docutils literal notranslate"><span class="pre">Module_six_moves_urllib_response</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.six.html#module-six-moves-urllib-robotparser"><code class="docutils literal notranslate"><span class="pre">Module_six_moves_urllib_robotparser</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.six.html#movedattribute"><code class="docutils literal notranslate"><span class="pre">MovedAttribute</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.six.html#movedmodule"><code class="docutils literal notranslate"><span class="pre">MovedModule</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.six.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.timeseries.html">timeseries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.timeseries.html#module-timeseries">Module: <code class="docutils literal notranslate"><span class="pre">timeseries</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.timeseries.html#classes">Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.timeseries.html#epochs"><code class="docutils literal notranslate"><span class="pre">Epochs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.timeseries.html#events"><code class="docutils literal notranslate"><span class="pre">Events</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.timeseries.html#frequency"><code class="docutils literal notranslate"><span class="pre">Frequency</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.timeseries.html#timearray"><code class="docutils literal notranslate"><span class="pre">TimeArray</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.timeseries.html#timeinterface"><code class="docutils literal notranslate"><span class="pre">TimeInterface</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.timeseries.html#id1"><code class="docutils literal notranslate"><span class="pre">TimeSeries</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.timeseries.html#timeseriesbase"><code class="docutils literal notranslate"><span class="pre">TimeSeriesBase</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.timeseries.html#timeseriesinterface"><code class="docutils literal notranslate"><span class="pre">TimeSeriesInterface</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/nitime.timeseries.html#uniformtime"><code class="docutils literal notranslate"><span class="pre">UniformTime</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.timeseries.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.utils.html">utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.utils.html#module-nitime.utils">Module: <code class="docutils literal notranslate"><span class="pre">utils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.utils.html#functions">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="generated/nitime.viz.html">viz</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.viz.html#module-nitime.viz">Module: <code class="docutils literal notranslate"><span class="pre">viz</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/nitime.viz.html#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="generated/nitime.algorithms.autoregressive.html" title="algorithms.autoregressive"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../devel/how_to_release.html" title="Releasing Nitime"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

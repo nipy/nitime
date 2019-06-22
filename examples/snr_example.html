@@ -1,0 +1,264 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Multivariate auto-regressive modeling" href="ar_est_2vars.html" />
+    <link rel="prev" title="Fitting an MAR model: analyzer interface" href="ar_model_fit.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ar_est_2vars.html" title="Multivariate auto-regressive modeling"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ar_model_fit.html" title="Fitting an MAR model: analyzer interface"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ar_model_fit.html"
+                        title="previous chapter">Fitting an MAR model: analyzer interface</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ar_est_2vars.html"
+                        title="next chapter">Multivariate auto-regressive modeling</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="calculation-of-signal-to-noise-and-information">
+<span id="example-snr-example"></span><h1>Calculation of signal-to-noise and information<a class="headerlink" href="#calculation-of-signal-to-noise-and-information" title="Permalink to this headline">¶</a></h1>
+<p>This method is based on ideas described in <a class="reference internal" href="#borst1999" id="id1">[Borst1999]</a> (Figure 2) and
+<a class="reference internal" href="#hsu2004" id="id2">[Hsu2004]</a>. The calculation can be used, for example, in order to estimate the
+channel capacity of a neuron responding to a repeated stimulus.</p>
+<p>The estimate of the information is based on the formula</p>
+<div class="math notranslate nohighlight">
+\[I(S,R) = \int_{0}^{Nyquist}log_2(1+SNR(\omega))d\omega\]</div>
+<p>Where <span class="math notranslate nohighlight">\(SNR(\omega)\)</span> is the ratio of the signal power and the noise power at the
+frequency band centered on <span class="math notranslate nohighlight">\(\omega\)</span>.This equation holde true for a Gaussian
+channel and is an upper bound for all other cases.</p>
+<p>The signal power is estimated as the power of the mean response to repeated
+presentations of the same signal and the noise power is calculated as the
+average of the power in the deviation from this average in each trial.</p>
+<p>We import the necessary modules:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">nitime.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+<span class="kn">import</span> <span class="nn">nitime.timeseries</span> <span class="k">as</span> <span class="nn">ts</span>
+<span class="kn">import</span> <span class="nn">nitime.viz</span> <span class="k">as</span> <span class="nn">viz</span>
+</pre></div>
+</div>
+<p>For this example, we generate an auto-regressive sequence to be the signal:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ar_seq</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">ar_generator</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">drop_transients</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">ar_seq</span> <span class="o">-=</span> <span class="n">ar_seq</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The signal will be repeated several times, adding noise to the signal in each
+repetition:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n_trials</span> <span class="o">=</span> <span class="mi">12</span>
+
+<span class="n">fig_snr</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">fig_tseries</span> <span class="o">=</span> <span class="p">[]</span>
+</pre></div>
+</div>
+<p>We add different levels of noise to the ar_seq variable, in order to
+demonstrate the effects of adding noise on signal-to-noise ratio, as well as
+the calculated information.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">noise</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">]):</span>
+</pre></div>
+</div>
+<p>Make n_trials repetitions of the signal:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n_trials</span><span class="p">,</span> <span class="n">ar_seq</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> <span class="o">+</span> <span class="n">ar_seq</span><span class="p">)</span>
+<span class="n">n_points</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Add noise:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span>  <span class="nb">range</span><span class="p">(</span><span class="n">n_trials</span><span class="p">):</span>
+    <span class="n">sample</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">trial</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">trial</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">noise</span>
+</pre></div>
+</div>
+<p>This is the estimate of the signal:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sample_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We plot a comparison of the actual signal (blue) and this estimate(blue). The
+thinner lines n other colors, represent the individual trials:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig_tseries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">())</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig_tseries</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ar_seq</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sample_mean</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We present this at different levels of noise. With low noise, the estimate
+of the signal and also the response of the system at different repetitions
+is very similar to the original signal.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tseries</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+<span class="n">fig_snr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">viz</span><span class="o">.</span><span class="n">plot_snr</span><span class="p">(</span><span class="n">tseries</span><span class="p">))</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/snr_example_01.png"><img alt="../_images/snr_example_01.png" src="../_images/snr_example_01.png" style="width: 500px;" /></a>
+<p>A special visualization function <code class="xref py py-func docutils literal notranslate"><span class="pre">viz.plot_snr()</span></code> is used in order to
+display the signal power (blue) and the noise power (green), both in the
+left subplot. In addition, the SNR (blue) and the cumulative information
+(as a function of frequency bands, starting from low frequencies, in red)
+are displayed in the right subplot.</p>
+<a class="reference external image-reference" href="../_images/snr_example_02.png"><img alt="../_images/snr_example_02.png" src="../_images/snr_example_02.png" style="width: 500px;" /></a>
+<p>With more added noise, the estimate of the signal deviates further from the
+signal.</p>
+<a class="reference external image-reference" href="../_images/snr_example_03.png"><img alt="../_images/snr_example_03.png" src="../_images/snr_example_03.png" style="width: 500px;" /></a>
+<p>The signal power remains rather similar, but the noise power increases
+(across all bands). As a consequence, the signal-to-noise ratio decreases and the
+accumulated information decreases.</p>
+<a class="reference external image-reference" href="../_images/snr_example_04.png"><img alt="../_images/snr_example_04.png" src="../_images/snr_example_04.png" style="width: 500px;" /></a>
+<p>This becomes even more apparent with more noise:</p>
+<a class="reference external image-reference" href="../_images/snr_example_05.png"><img alt="../_images/snr_example_05.png" src="../_images/snr_example_05.png" style="width: 500px;" /></a>
+<a class="reference external image-reference" href="../_images/snr_example_06.png"><img alt="../_images/snr_example_06.png" src="../_images/snr_example_06.png" style="width: 500px;" /></a>
+<p>Until, with the largest amplitued of noise, the signal power is almost completely
+overwhelmed with noise:</p>
+<a class="reference external image-reference" href="../_images/snr_example_07.png"><img alt="../_images/snr_example_07.png" src="../_images/snr_example_07.png" style="width: 500px;" /></a>
+<a class="reference external image-reference" href="../_images/snr_example_08.png"><img alt="../_images/snr_example_08.png" src="../_images/snr_example_08.png" style="width: 500px;" /></a>
+<p>Finally, we use <code class="xref py py-func docutils literal notranslate"><span class="pre">plot_snr_diff()</span></code> in order to compare information
+transmission (on the left) and the signal-to-noise ratio (on the right) between
+the two last noise levels:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ts1</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+<span class="n">ts2</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+<span class="n">fig_compare</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">plot_snr_diff</span><span class="p">(</span><span class="n">ts1</span><span class="p">,</span> <span class="n">ts2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/snr_example_09.png"><img alt="../_images/snr_example_09.png" src="../_images/snr_example_09.png" style="width: 500px;" /></a>
+<p>References</p>
+<table class="docutils citation" frame="void" id="hsu2004" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[Hsu2004]</a></td><td>Hsu A, Borst A and Theunissen, FE (2004) Quantifying</td></tr>
+</tbody>
+</table>
+<p>variability in neural responses ans its application for the validation of
+model predictions. Network: Comput Neural Syst 15:91-109</p>
+<table class="docutils citation" frame="void" id="borst1999" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Borst1999]</a></td><td>Borst A and Theunissen FE (1999) Information theory and</td></tr>
+</tbody>
+</table>
+<p>neural coding. Nat Neurosci 2:947-957</p>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" download="" href="../_downloads/754d6e237c0501fe64d10c4de8f35e4c/snr_example.py"><code class="xref download docutils literal notranslate"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the Nitime source distribution under the
+<code class="file docutils literal notranslate"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ar_est_2vars.html" title="Multivariate auto-regressive modeling"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ar_model_fit.html" title="Fitting an MAR model: analyzer interface"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

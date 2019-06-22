@@ -1,0 +1,29 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+analysis.granger
+================
+
+Module: :mod:`analysis.granger`
+-------------------------------
+Inheritance diagram for ``nitime.analysis.granger``:
+
+.. inheritance-diagram:: nitime.analysis.granger 
+   :parts: 3
+
+.. automodule:: nitime.analysis.granger
+
+.. currentmodule:: nitime.analysis.granger
+
+:class:`GrangerAnalyzer`
+------------------------
+
+
+.. autoclass:: GrangerAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+.. autofunction:: nitime.analysis.granger.fit_model
+

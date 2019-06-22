@@ -1,0 +1,40 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+analysis.correlation
+====================
+
+Module: :mod:`analysis.correlation`
+-----------------------------------
+Inheritance diagram for ``nitime.analysis.correlation``:
+
+.. inheritance-diagram:: nitime.analysis.correlation 
+   :parts: 3
+
+.. automodule:: nitime.analysis.correlation
+
+.. currentmodule:: nitime.analysis.correlation
+
+Classes
+-------
+
+:class:`CorrelationAnalyzer`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: CorrelationAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`SeedCorrelationAnalyzer`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: SeedCorrelationAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__

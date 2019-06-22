@@ -1,0 +1,481 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Multitaper spectral estimation" href="multi_taper_spectral_estimation.html" />
+    <link rel="prev" title="Multitaper coherence estimation" href="multi_taper_coh.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="multi_taper_spectral_estimation.html" title="Multitaper spectral estimation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="multi_taper_coh.html" title="Multitaper coherence estimation"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="multi_taper_coh.html"
+                        title="previous chapter">Multitaper coherence estimation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="multi_taper_spectral_estimation.html"
+                        title="next chapter">Multitaper spectral estimation</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="filtering-and-normalizing-fmri-data">
+<span id="filter-fmri"></span><span id="example-filtering-fmri"></span><h1>Filtering and normalizing fMRI data<a class="headerlink" href="#filtering-and-normalizing-fmri-data" title="Permalink to this headline">¶</a></h1>
+<p>Filtering fMRI data is very important. The time-series usually collected in
+fMRI contain a broad-band signal. However, physilogically relevant signals are
+thought to be present in only particular parts of the spectrum. For this
+reason, filtering operations, such as detrending, are a common pre-processing
+step in analysis of fMRI data analysis. In addition, for many fMRI analyses, it
+is important to normalize the data in each voxel. This is because data may
+differ between different voxels for ‘uninteresting’ reasons, such as local
+blood-flow differences and signal amplitude differences due to the distance
+from the receive coil. In the following, we will demonstrate usage of nitimes
+analyzer objects for spectral estimation, filtering and normalization on fMRI
+data.</p>
+<p>We start by importing the needed modules. First modules from the standard lib
+and from 3rd parties:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+<p>Next, the particular nitime classes we will be using in this example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">nitime</span>
+
+<span class="c1"># Import the time-series objects:</span>
+<span class="kn">from</span> <span class="nn">nitime.timeseries</span> <span class="k">import</span> <span class="n">TimeSeries</span>
+
+<span class="c1"># Import the analysis objects:</span>
+<span class="kn">from</span> <span class="nn">nitime.analysis</span> <span class="k">import</span> <span class="n">SpectralAnalyzer</span><span class="p">,</span> <span class="n">FilterAnalyzer</span><span class="p">,</span> <span class="n">NormalizationAnalyzer</span>
+</pre></div>
+</div>
+<p>For starters, let’s analyze data that has been preprocessed and is extracted
+into indivudal ROIs. This is the same data used in <a class="reference internal" href="multi_taper_coh.html#multi-taper-coh"><span class="std std-ref">Multitaper coherence estimation</span></a> and
+in <a class="reference internal" href="resting_state_fmri.html#resting-state"><span class="std std-ref">Coherency analysis of fMRI data</span></a> (see these examples for details).</p>
+<p>We start by setting the TR and reading the data from the CSV table into which
+the data was saved:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TR</span> <span class="o">=</span> <span class="mf">1.89</span>
+
+<span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nitime</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s1">&#39;fmri_timeseries.csv&#39;</span><span class="p">),</span>
+                  <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+<span class="c1"># Extract ROI information from the csv file headers:</span>
+<span class="n">roi_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data_rec</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+
+<span class="c1"># This is the number of samples in each ROI:</span>
+<span class="n">n_samples</span> <span class="o">=</span> <span class="n">data_rec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Make an empty container for the data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">roi_names</span><span class="p">),</span> <span class="n">n_samples</span><span class="p">))</span>
+
+<span class="c1"># Insert the data from each ROI into a row in the data:</span>
+<span class="k">for</span> <span class="n">n_idx</span><span class="p">,</span> <span class="n">roi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">roi_names</span><span class="p">):</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">n_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_rec</span><span class="p">[</span><span class="n">roi</span><span class="p">]</span>
+
+<span class="c1"># Initialize TimeSeries object:</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sampling_interval</span><span class="o">=</span><span class="n">TR</span><span class="p">)</span>
+<span class="n">T</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;roi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">roi_names</span>
+</pre></div>
+</div>
+<p>We will start, by examining the spectrum of the original data, before
+filtering. We do this by initializing a SpectralAnalyzer for the original data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">S_original</span> <span class="o">=</span> <span class="n">SpectralAnalyzer</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+
+<span class="c1"># Initialize a figure to put the results into:</span>
+<span class="n">fig01</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax01</span> <span class="o">=</span> <span class="n">fig01</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The spectral analyzer has several different methods of spectral analysis,
+however the all have a common API. This means that for all of them the output
+is a tuple. The first item in the tuple are the central frequencies of the
+frequency bins in the spectrum and the second item in the tuple are the
+magnitude of the spectrum in that frequency bin. For the purpose of this
+example, we will only plot the data from the 10th ROI (by indexing into the
+spectra). We compare all the methods of spectral estimation by plotting them
+together:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ax01</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S_original</span><span class="o">.</span><span class="n">psd</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+          <span class="n">S_original</span><span class="o">.</span><span class="n">psd</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">9</span><span class="p">],</span>
+          <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Welch PSD&#39;</span><span class="p">)</span>
+
+<span class="n">ax01</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S_original</span><span class="o">.</span><span class="n">spectrum_fourier</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+          <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">S_original</span><span class="o">.</span><span class="n">spectrum_fourier</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">9</span><span class="p">]),</span>
+          <span class="n">label</span><span class="o">=</span><span class="s1">&#39;FFT&#39;</span><span class="p">)</span>
+
+<span class="n">ax01</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S_original</span><span class="o">.</span><span class="n">periodogram</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+          <span class="n">S_original</span><span class="o">.</span><span class="n">periodogram</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">9</span><span class="p">],</span>
+          <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Periodogram&#39;</span><span class="p">)</span>
+
+<span class="n">ax01</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S_original</span><span class="o">.</span><span class="n">spectrum_multi_taper</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+          <span class="n">S_original</span><span class="o">.</span><span class="n">spectrum_multi_taper</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">9</span><span class="p">],</span>
+          <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Multi-taper&#39;</span><span class="p">)</span>
+
+<span class="n">ax01</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency (Hz)&#39;</span><span class="p">)</span>
+<span class="n">ax01</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Power&#39;</span><span class="p">)</span>
+
+<span class="n">ax01</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/filtering_fmri_01.png"><img alt="../_images/filtering_fmri_01.png" src="../_images/filtering_fmri_01.png" style="width: 500px;" /></a>
+<p>Notice that, for this data, simply extracting a FFT is hardly informative (the
+reasons for that are explained in <a class="reference internal" href="multi_taper_spectral_estimation.html#multi-taper-psd"><span class="std std-ref">Multitaper spectral estimation</span></a>). On the other hand,
+the other methods provide different granularity of information, traded-off with
+the robustness of the estimation. The cadillac of spectral estimates is the
+multi-taper estimation, which provides both robustness and granularity, but
+notice that this estimate requires more computation than other estimates
+(certainly more estimates than the FFT).</p>
+<p>We note that a lot of the power in the fMRI data seems to be concentrated in
+frequencies below 0.02 Hz. These extremely low fluctuations in signal are often
+considered to be ‘noise’, rather than reflecting neural processing. In
+addition, there is a broad distribution of power up to the Nyquist
+frequency. However, some estimates of the hemodynamic response suggest that
+information above 0.15 could not reflect the slow filtering of neural response
+to the BOLD response measured in fMRI. Thus, it would be advantageous to remove
+fluctuations below 0.02 and above 0.15 Hz from the data. Next, we proceed to
+filter the data into this range, using different methods.</p>
+<p>We start by initializing a FilterAnalyzer. This is initialized with the
+time-series containing the data and with the upper and lower bounds of the
+range into which we wish to filter (in Hz):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">F</span> <span class="o">=</span> <span class="n">FilterAnalyzer</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">lb</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+
+<span class="c1"># Initialize a figure to display the results:</span>
+<span class="n">fig02</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax02</span> <span class="o">=</span> <span class="n">fig02</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Plot the original, unfiltered data:</span>
+<span class="n">ax02</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;unfiltered&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As with the SpectralAnalyzer, there is a common API for the different methods
+used for filtering. We use the following methods:</p>
+<ul class="simple">
+<li>Boxcar filter: The time-series is convolved with a box-car function of the
+right length to smooth the data to such an extent that the frequencies higher
+than represented by the length of this box-car function are no longer present
+in the smoothed version of the time-series. This functions as a low-pass filter. The
+data can then be high-pass filtered by subtracting this version of the data
+from the original. For a band-pass filter, both of these operations are done.</li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ax02</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">filtered_boxcar</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Boxcar filter&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>FIR filter: A digital filter with a finite impulse response. These filters
+have an order of 64 per default, but that can be adjusted by setting the key
+word argument ‘filt_order’, passed to initialize the FilterAnalyzer. For
+FIR filtering, <code class="xref py py-mod docutils literal notranslate"><span class="pre">nitime</span></code> uses a Hamming window filter, but this can also
+be changed by setting the key word argument ‘fir_win’.
+As with the boxcar filter, if band-pass filtering is required, a low-pass
+filter is applied and then a high-pass filter is applied to the resulting
+time-series.</li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ax02</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">fir</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;FIR&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>IIR filter: A digital filter with an infinite impulse response function. Per
+default an elliptic filter is used here, but this can be changed, by setting
+the ‘iir_type’ key word argument used when initializing the FilterAnalyzer.</li>
+</ul>
+<p>For both FIR filters and IIR filters, <code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.filtfilt()</span></code> is used in
+order to achieve zero phase delay filtering.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ax02</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">iir</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;IIR&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Fourier filter: this is a quick and dirty filter. The data is FFT-ed into the
+frequency domain. The power in the unwanted frequency bins is removed (by
+replacing the power in these bins with zero) and the data is IFFT-ed back
+into the time-domain.</li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ax02</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">filtered_fourier</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Fourier&#39;</span><span class="p">)</span>
+<span class="n">ax02</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax02</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (TR)&#39;</span><span class="p">)</span>
+<span class="n">ax02</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Signal amplitude (a.u.)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/filtering_fmri_02.png"><img alt="../_images/filtering_fmri_02.png" src="../_images/filtering_fmri_02.png" style="width: 500px;" /></a>
+<p>Examining the resulting time-series closely reveals that large fluctuations in
+very slow frequencies have been removed, but also small fluctuations in high
+frequencies have been attenuated through filtering.</p>
+<p>Comparing the resulting spectra of these different filters shows the various
+trade-offs of each filtering method, including the fidelity with which the
+original spectrum is replicated within the pass-band and the amount of
+attenuation within the stop-bands.</p>
+<p>We can do that by initializng a SpectralAnalyzer for each one of the filtered
+time-series resulting from the above operation and plotting their spectra. For
+ease of compariso, we only plot the spectra using the multi-taper spectral
+estimation. At the level of granularity provided by this method, the diferences
+between the methods are emphasized:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">S_fourier</span> <span class="o">=</span> <span class="n">SpectralAnalyzer</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">filtered_fourier</span><span class="p">)</span>
+<span class="n">S_boxcar</span> <span class="o">=</span> <span class="n">SpectralAnalyzer</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">filtered_boxcar</span><span class="p">)</span>
+<span class="n">S_fir</span> <span class="o">=</span> <span class="n">SpectralAnalyzer</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">fir</span><span class="p">)</span>
+<span class="n">S_iir</span> <span class="o">=</span> <span class="n">SpectralAnalyzer</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">iir</span><span class="p">)</span>
+
+<span class="n">fig03</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax03</span> <span class="o">=</span> <span class="n">fig03</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">ax03</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S_original</span><span class="o">.</span><span class="n">spectrum_multi_taper</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+          <span class="n">S_original</span><span class="o">.</span><span class="n">spectrum_multi_taper</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">9</span><span class="p">],</span>
+          <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">)</span>
+
+<span class="n">ax03</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S_fourier</span><span class="o">.</span><span class="n">spectrum_multi_taper</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+          <span class="n">S_fourier</span><span class="o">.</span><span class="n">spectrum_multi_taper</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">9</span><span class="p">],</span>
+          <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Fourier&#39;</span><span class="p">)</span>
+
+<span class="n">ax03</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S_boxcar</span><span class="o">.</span><span class="n">spectrum_multi_taper</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+          <span class="n">S_boxcar</span><span class="o">.</span><span class="n">spectrum_multi_taper</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">9</span><span class="p">],</span>
+          <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Boxcar&#39;</span><span class="p">)</span>
+
+<span class="n">ax03</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S_fir</span><span class="o">.</span><span class="n">spectrum_multi_taper</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+          <span class="n">S_fir</span><span class="o">.</span><span class="n">spectrum_multi_taper</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">9</span><span class="p">],</span>
+          <span class="n">label</span><span class="o">=</span><span class="s1">&#39;FIR&#39;</span><span class="p">)</span>
+
+<span class="n">ax03</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S_iir</span><span class="o">.</span><span class="n">spectrum_multi_taper</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+          <span class="n">S_iir</span><span class="o">.</span><span class="n">spectrum_multi_taper</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">9</span><span class="p">],</span>
+          <span class="n">label</span><span class="o">=</span><span class="s1">&#39;IIR&#39;</span><span class="p">)</span>
+
+<span class="n">ax03</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/filtering_fmri_03.png"><img alt="../_images/filtering_fmri_03.png" src="../_images/filtering_fmri_03.png" style="width: 500px;" /></a>
+<p>Next, we turn to normalize the filtered data. This can be done in one of two
+methods:</p>
+<ul class="simple">
+<li>Percent change: the data in each voxel is normalized as percent signal
+change, relative to the mean BOLD signal in the voxel</li>
+<li>Z score: The data in each voxel is normalized to have 0 mean and a standard
+deviation of 1.</li>
+</ul>
+<p>We will use the filtered data, in order to demonstrate how the output of one
+analyzer can be used as the input to the other:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig04</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax04</span> <span class="o">=</span> <span class="n">fig04</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">ax04</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">NormalizationAnalyzer</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">fir</span><span class="p">)</span><span class="o">.</span><span class="n">percent_change</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">% c</span><span class="s1">hange&#39;</span><span class="p">)</span>
+<span class="n">ax04</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">NormalizationAnalyzer</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">fir</span><span class="p">)</span><span class="o">.</span><span class="n">z_score</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Z score&#39;</span><span class="p">)</span>
+<span class="n">ax04</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax04</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time (TR)&#39;</span><span class="p">)</span>
+<span class="n">ax04</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude (</span><span class="si">% c</span><span class="s1">hange or Z-score)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/filtering_fmri_04.png"><img alt="../_images/filtering_fmri_04.png" src="../_images/filtering_fmri_04.png" style="width: 500px;" /></a>
+<p>Notice that the same methods of filtering and normalization can be applied to
+fMRI data, upon reading it from a nifti file, using <a class="reference internal" href="../api/generated/nitime.fmri.io.html#module-nitime.fmri.io" title="nitime.fmri.io"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nitime.fmri.io</span></code></a>.</p>
+<p>We demonstrate that in what follows.[Notice that nibabel
+(<a class="reference external" href="http://nipy.org/nibabel">http://nipy.org/nibabel</a>) is required in order to run the following
+examples. An error will be thrown if nibabel is not installed]</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">nibabel</span> <span class="k">import</span> <span class="n">load</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s1">&#39;You need nibabel (http:/nipy.org/nibabel/) in order to run this example&#39;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">nitime.fmri.io</span> <span class="k">as</span> <span class="nn">io</span>
+</pre></div>
+</div>
+<p>We define the TR of the analysis and the frequency band of interest:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TR</span> <span class="o">=</span> <span class="mf">1.35</span>
+<span class="n">f_lb</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="n">f_ub</span> <span class="o">=</span> <span class="mf">0.15</span>
+</pre></div>
+</div>
+<p>An fMRI data file with some fMRI data is shipped as part of the distribution,
+the following line will find the path to this data on the specific computer:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data_file_path</span> <span class="o">=</span> <span class="n">test_dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nitime</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                              <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+
+<span class="n">fmri_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_file_path</span><span class="p">,</span> <span class="s1">&#39;fmri1.nii.gz&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Read in the dimensions of the data, using nibabel:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fmri_data</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">fmri_file</span><span class="p">)</span>
+<span class="n">volume_shape</span> <span class="o">=</span> <span class="n">fmri_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">coords</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">volume_shape</span><span class="p">))</span>
+<span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+</pre></div>
+</div>
+<p>We use <a class="reference internal" href="../api/generated/nitime.fmri.io.html#module-nitime.fmri.io" title="nitime.fmri.io"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nitime.fmri.io</span></code></a> in order to generate a TimeSeries object from spatial
+coordinates in the data file. Notice that normalization method is provided as a
+string input to the keyword argument ‘normalize’ and the filter and its
+properties are provided as a dict to the keyword argument ‘filter’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">T_unfiltered</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">time_series_from_file</span><span class="p">(</span><span class="n">fmri_file</span><span class="p">,</span>
+                                        <span class="n">coords</span><span class="p">,</span>
+                                        <span class="n">TR</span><span class="o">=</span><span class="n">TR</span><span class="p">,</span>
+                                        <span class="n">normalize</span><span class="o">=</span><span class="s1">&#39;percent&#39;</span><span class="p">)</span>
+
+<span class="n">T_fir</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">time_series_from_file</span><span class="p">(</span><span class="n">fmri_file</span><span class="p">,</span>
+                              <span class="n">coords</span><span class="p">,</span>
+                              <span class="n">TR</span><span class="o">=</span><span class="n">TR</span><span class="p">,</span>
+                              <span class="n">normalize</span><span class="o">=</span><span class="s1">&#39;percent&#39;</span><span class="p">,</span>
+                              <span class="nb">filter</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">lb</span><span class="o">=</span><span class="n">f_lb</span><span class="p">,</span>
+                                          <span class="n">ub</span><span class="o">=</span><span class="n">f_ub</span><span class="p">,</span>
+                                          <span class="n">method</span><span class="o">=</span><span class="s1">&#39;fir&#39;</span><span class="p">,</span>
+                                          <span class="n">filt_order</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+
+<span class="n">T_iir</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">time_series_from_file</span><span class="p">(</span><span class="n">fmri_file</span><span class="p">,</span>
+                              <span class="n">coords</span><span class="p">,</span>
+                              <span class="n">TR</span><span class="o">=</span><span class="n">TR</span><span class="p">,</span>
+                              <span class="n">normalize</span><span class="o">=</span><span class="s1">&#39;percent&#39;</span><span class="p">,</span>
+                              <span class="nb">filter</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">lb</span><span class="o">=</span><span class="n">f_lb</span><span class="p">,</span>
+                                          <span class="n">ub</span><span class="o">=</span><span class="n">f_ub</span><span class="p">,</span>
+                                          <span class="n">method</span><span class="o">=</span><span class="s1">&#39;iir&#39;</span><span class="p">,</span>
+                                          <span class="n">filt_order</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+
+<span class="n">T_boxcar</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">time_series_from_file</span><span class="p">(</span><span class="n">fmri_file</span><span class="p">,</span>
+                              <span class="n">coords</span><span class="p">,</span>
+                              <span class="n">TR</span><span class="o">=</span><span class="n">TR</span><span class="p">,</span>
+                              <span class="n">normalize</span><span class="o">=</span><span class="s1">&#39;percent&#39;</span><span class="p">,</span>
+                              <span class="nb">filter</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">lb</span><span class="o">=</span><span class="n">f_lb</span><span class="p">,</span>
+                                          <span class="n">ub</span><span class="o">=</span><span class="n">f_ub</span><span class="p">,</span>
+                                          <span class="n">method</span><span class="o">=</span><span class="s1">&#39;boxcar&#39;</span><span class="p">,</span>
+                                          <span class="n">filt_order</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+
+<span class="n">fig05</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax05</span> <span class="o">=</span> <span class="n">fig05</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">S_unfiltered</span> <span class="o">=</span> <span class="n">SpectralAnalyzer</span><span class="p">(</span><span class="n">T_unfiltered</span><span class="p">)</span><span class="o">.</span><span class="n">spectrum_multi_taper</span>
+<span class="n">S_fir</span> <span class="o">=</span> <span class="n">SpectralAnalyzer</span><span class="p">(</span><span class="n">T_fir</span><span class="p">)</span><span class="o">.</span><span class="n">spectrum_multi_taper</span>
+<span class="n">S_iir</span> <span class="o">=</span> <span class="n">SpectralAnalyzer</span><span class="p">(</span><span class="n">T_iir</span><span class="p">)</span><span class="o">.</span><span class="n">spectrum_multi_taper</span>
+<span class="n">S_boxcar</span> <span class="o">=</span> <span class="n">SpectralAnalyzer</span><span class="p">(</span><span class="n">T_boxcar</span><span class="p">)</span><span class="o">.</span><span class="n">spectrum_multi_taper</span>
+
+<span class="n">random_voxel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">volume_shape</span><span class="p">))</span>
+
+<span class="n">ax05</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S_unfiltered</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">S_unfiltered</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">random_voxel</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Unfiltered&#39;</span><span class="p">)</span>
+<span class="n">ax05</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S_fir</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">S_fir</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">random_voxel</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;FIR filtered&#39;</span><span class="p">)</span>
+<span class="n">ax05</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S_iir</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">S_iir</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">random_voxel</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;IIR filtered&#39;</span><span class="p">)</span>
+<span class="n">ax05</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S_boxcar</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">S_boxcar</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">random_voxel</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Boxcar filtered&#39;</span><span class="p">)</span>
+<span class="n">ax05</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/filtering_fmri_05.png"><img alt="../_images/filtering_fmri_05.png" src="../_images/filtering_fmri_05.png" style="width: 500px;" /></a>
+<p>Notice that though the boxcar filter doesn’t usually do an amazing job with
+long time-series and IIR/FIR filters seem to be superior in those cases, in
+this example, where the time-series is much shorter, it sometimes does a
+relatively decent job.</p>
+<p>We call plt.show() in order to display the figure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" download="" href="../_downloads/8f5dd8e9e183dc1744f27933875bc3a6/filtering_fmri.py"><code class="xref download docutils literal notranslate"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the Nitime source distribution under the
+<code class="file docutils literal notranslate"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="multi_taper_spectral_estimation.html" title="Multitaper spectral estimation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="multi_taper_coh.html" title="Multitaper coherence estimation"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

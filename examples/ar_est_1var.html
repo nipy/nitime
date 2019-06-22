@@ -1,0 +1,207 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Auditory processing in grasshoppers" href="grasshopper.html" />
+    <link rel="prev" title="Multivariate auto-regressive modeling" href="ar_est_2vars.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="grasshopper.html" title="Auditory processing in grasshoppers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ar_est_2vars.html" title="Multivariate auto-regressive modeling"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ar_est_2vars.html"
+                        title="previous chapter">Multivariate auto-regressive modeling</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="grasshopper.html"
+                        title="next chapter">Auditory processing in grasshoppers</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="fitting-an-ar-model-algorithm-module-interface">
+<span id="ar"></span><span id="example-ar-est-1var"></span><h1>Fitting an AR model: algorithm module interface<a class="headerlink" href="#fitting-an-ar-model-algorithm-module-interface" title="Permalink to this headline">¶</a></h1>
+<p>Auto-regressive (AR) processes are processes that follow the following
+equation:</p>
+<div class="math notranslate nohighlight">
+\[x_t = \sum_{i=1}^{n}a_i * x_{t-i} + \epsilon_t\]</div>
+<p>In this example, we will demonstrate the estimation of the AR model
+coefficients and the estimation of the AR process spectrum, based on the
+estimation of the coefficients.</p>
+<p>We start with imports from numpy, matplotlib and import <a class="reference internal" href="../api/generated/nitime.utils.html#module-nitime.utils" title="nitime.utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nitime.utils</span></code></a> as
+well as <code class="xref py py-mod docutils literal notranslate"><span class="pre">nitime.algorithms:</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+<span class="kn">from</span> <span class="nn">nitime</span> <span class="k">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">nitime</span> <span class="k">import</span> <span class="n">algorithms</span> <span class="k">as</span> <span class="n">alg</span>
+<span class="kn">from</span> <span class="nn">nitime.timeseries</span> <span class="k">import</span> <span class="n">TimeSeries</span>
+<span class="kn">from</span> <span class="nn">nitime.viz</span> <span class="k">import</span> <span class="n">plot_tseries</span>
+</pre></div>
+</div>
+<p>We define some variables, which will be used in generating the AR process:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npts</span> <span class="o">=</span> <span class="mi">2048</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">drop_transients</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">Fs</span> <span class="o">=</span> <span class="mi">1000</span>
+</pre></div>
+</div>
+<p>In this case, we generate an order 2 AR process, with the following coefficients:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">coefs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.9</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This generates the AR(2) time series:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="p">,</span> <span class="n">noise</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">ar_generator</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">coefs</span><span class="p">,</span> <span class="n">drop_transients</span><span class="p">)</span>
+
+<span class="n">ts_x</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="n">Fs</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">)</span>
+<span class="n">ts_noise</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">noise</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We use the plot_tseries function in order to visualize the process:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig01</span> <span class="o">=</span> <span class="n">plot_tseries</span><span class="p">(</span><span class="n">ts_x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;AR signal&#39;</span><span class="p">)</span>
+<span class="n">fig01</span> <span class="o">=</span> <span class="n">plot_tseries</span><span class="p">(</span><span class="n">ts_noise</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="n">fig01</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Noise&#39;</span><span class="p">)</span>
+<span class="n">fig01</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/ar_est_1var_01.png"><img alt="../_images/ar_est_1var_01.png" src="../_images/ar_est_1var_01.png" style="width: 500px;" /></a>
+<p>Now we estimate back the model parameters, using two different estimation
+algorithms.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">coefs_est</span><span class="p">,</span> <span class="n">sigma_est</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">AR_est_YW</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="c1"># no rigorous purpose behind 100 transients</span>
+<span class="n">X_hat</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">ar_generator</span><span class="p">(</span>
+    <span class="n">N</span><span class="o">=</span><span class="n">npts</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma_est</span><span class="p">,</span> <span class="n">coefs</span><span class="o">=</span><span class="n">coefs_est</span><span class="p">,</span> <span class="n">drop_transients</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">v</span><span class="o">=</span><span class="n">noise</span>
+    <span class="p">)</span>
+<span class="n">fig02</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig02</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_hat</span><span class="p">)</span> <span class="o">+</span> <span class="mi">100</span><span class="p">),</span> <span class="n">X_hat</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;estimated process&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="s1">&#39;g--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;original process&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">err</span> <span class="o">=</span> <span class="n">X_hat</span> <span class="o">-</span> <span class="n">X</span><span class="p">[</span><span class="mi">100</span><span class="p">:]</span>
+<span class="n">mse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_hat</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Mean Square Error: </span><span class="si">%1.3e</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">mse</span><span class="p">)</span>
+
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" download="" href="../_downloads/0673b575e7d165bae83055e420bdedfd/ar_est_1var.py"><code class="xref download docutils literal notranslate"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the Nitime source distribution under the
+<code class="file docutils literal notranslate"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="grasshopper.html" title="Auditory processing in grasshoppers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ar_est_2vars.html" title="Multivariate auto-regressive modeling"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

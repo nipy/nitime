@@ -1,0 +1,376 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Fitting an AR model: algorithm module interface" href="ar_est_1var.html" />
+    <link rel="prev" title="Calculation of signal-to-noise and information" href="snr_example.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ar_est_1var.html" title="Fitting an AR model: algorithm module interface"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="snr_example.html" title="Calculation of signal-to-noise and information"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="snr_example.html"
+                        title="previous chapter">Calculation of signal-to-noise and information</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ar_est_1var.html"
+                        title="next chapter">Fitting an AR model: algorithm module interface</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="multivariate-auto-regressive-modeling">
+<span id="mar"></span><span id="example-ar-est-2vars"></span><h1>Multivariate auto-regressive modeling<a class="headerlink" href="#multivariate-auto-regressive-modeling" title="Permalink to this headline">¶</a></h1>
+<p>Multivariate auto-regressive modeling uses a simple</p>
+<p>This example is based on Ding, Chen and Bressler 2006 <a class="reference internal" href="granger_fmri.html#ding2006" id="id1">[Ding2006]</a>.</p>
+<p>We start by importing the required libraries:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+<p>From nitime, we import the algorithms and the utils:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">nitime.algorithms</span> <span class="k">as</span> <span class="nn">alg</span>
+<span class="kn">import</span> <span class="nn">nitime.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+</pre></div>
+</div>
+<p>Setting the random seed assures that we always get the same ‘random’ answer:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1981</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We will generate an AR(2) model, with the following coefficients (taken from
+<a class="reference internal" href="granger_fmri.html#ding2006" id="id2">[Ding2006]</a>, eq. 55):</p>
+<div class="math notranslate nohighlight">
+\[x_t = 0.9x_{t-1} - 0.5 x_{t-2} + \epsilon_t\]</div>
+<div class="math notranslate nohighlight">
+\[y_t = 0.8y_{t-1} - 0.5 y_{t-2} + 0.16 x_{t-1} - 0.2 x_{t-2} + \eta_t\]</div>
+<p>Or more succinctly, if we define:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}Z_{t}=\left(\begin{array}{c}
+x_{t}\\
+y_{t}\end{array}\right),\,E_t=\left(\begin{array}{c}
+\epsilon_{t}\\
+\eta_{t}\end{array}\right)\end{split}\]</div>
+<p>then:</p>
+<div class="math notranslate nohighlight">
+\[Z_t = A_1 Z_{t-1} + A_2 Z_{t-2} + E_t\]</div>
+<p>where:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}E_t \sim {\cal N} (\mu,\Sigma) \mathrm{, where} \,\, \Sigma=\left(\begin{array}{cc}var_{\epsilon} &amp; cov_{xy}\\ cov_{xy} &amp; var_{\eta}\end{array}\right)\end{split}\]</div>
+<p>We now build the two <span class="math notranslate nohighlight">\(A_i\)</span> matrices with the values indicated above:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+               <span class="p">[</span><span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]])</span>
+
+<span class="n">a2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+               <span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p>For implementation reasons, we rewrite the equation (<span class="xref std std-ref">eqn_ar</span>) as follows:</p>
+<div class="math notranslate nohighlight">
+\[Z_t + \sum_{i=1}^2 a_i Z_{t-i} = E_t\]</div>
+<p>where: <span class="math notranslate nohighlight">\(a_i = - A_i\)</span>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">am</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">a1</span><span class="p">,</span> <span class="o">-</span><span class="n">a2</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The variances and covariance of the processes are known (provided as part of
+the example in <a class="reference internal" href="granger_fmri.html#ding2006" id="id3">[Ding2006]</a>, after eq. 55):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">x_var</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">y_var</span> <span class="o">=</span> <span class="mf">0.7</span>
+<span class="n">xy_cov</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">x_var</span><span class="p">,</span> <span class="n">xy_cov</span><span class="p">],</span>
+                <span class="p">[</span><span class="n">xy_cov</span><span class="p">,</span> <span class="n">y_var</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p>We can calculate the spectral matrix analytically, based on the known
+coefficients, for 1024 frequency bins:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n_freqs</span> <span class="o">=</span> <span class="mi">1024</span>
+
+<span class="n">w</span><span class="p">,</span> <span class="n">Hw</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">transfer_function_xy</span><span class="p">(</span><span class="n">am</span><span class="p">,</span> <span class="n">n_freqs</span><span class="o">=</span><span class="n">n_freqs</span><span class="p">)</span>
+<span class="n">Sw_true</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">spectral_matrix_xy</span><span class="p">(</span><span class="n">Hw</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we will generate 500 example sets of 100 points of these processes, to analyze:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#Number of realizations of the process</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="c1">#Length of each realization:</span>
+<span class="n">L</span> <span class="o">=</span> <span class="mi">1024</span>
+
+<span class="n">order</span> <span class="o">=</span> <span class="n">am</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">n_lags</span> <span class="o">=</span> <span class="n">order</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">n_process</span> <span class="o">=</span> <span class="n">am</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">n_process</span><span class="p">,</span> <span class="n">L</span><span class="p">))</span>
+<span class="n">nz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">n_process</span><span class="p">,</span> <span class="n">L</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">nz</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">generate_mar</span><span class="p">(</span><span class="n">am</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can estimate the 2nd order AR coefficients, by averaging together N
+estimates of auto-covariance at lags k=0,1,2</p>
+<p>Each <span class="math notranslate nohighlight">\(R^{xx}(k)\)</span> has the shape (2,2), where:</p>
+<div class="math notranslate nohighlight">
+\[R^{xx}_{00}(k) = E( Z_0(t)Z_0^*(t-k) )\]</div>
+<div class="math notranslate nohighlight">
+\[R^{xx}_{01}(k) = E( Z_0(t)Z_1^*(t-k) )\]</div>
+<div class="math notranslate nohighlight">
+\[R^{xx}_{10}(k) = E( Z_1(t)Z_0^*(t-k) )\]</div>
+<div class="math notranslate nohighlight">
+\[R^{xx}_{11}(k) = E( Z_1(t)Z_1^*(t-k) )\]</div>
+<p>Where <span class="math notranslate nohighlight">\(E\)</span> is the expected value and <span class="math notranslate nohighlight">\(^*\)</span> marks the conjugate transpose. Thus, only <span class="math notranslate nohighlight">\(R^{xx}(0)\)</span> is symmetric.</p>
+<p>This is calculated by using the function <code class="xref py py-func docutils literal notranslate"><span class="pre">utils.autocov_vector()</span></code>. Notice
+that the estimation is done for an assumed known process order. In practice, if
+the order of the process is unknown, we will have to use some criterion in
+order to choose an appropriate order, given the data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Rxx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">n_process</span><span class="p">,</span> <span class="n">n_process</span><span class="p">,</span> <span class="n">n_lags</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <span class="n">Rxx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">autocov_vector</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">nlags</span><span class="o">=</span><span class="n">n_lags</span><span class="p">)</span>
+
+<span class="n">Rxx</span> <span class="o">=</span> <span class="n">Rxx</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">R0</span> <span class="o">=</span> <span class="n">Rxx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">Rm</span> <span class="o">=</span> <span class="n">Rxx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span>
+
+<span class="n">Rxx</span> <span class="o">=</span> <span class="n">Rxx</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We use the Levinson-Whittle(-Wiggins) and Robinson algorithm, as described in <a class="reference internal" href="#morf1978" id="id4">[Morf1978]</a>
+, in order to estimate the MAR coefficients and the covariance matrix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a</span><span class="p">,</span> <span class="n">ecov</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">lwr_recursion</span><span class="p">(</span><span class="n">Rxx</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we use the calculated coefficients and covariance matrix, in order to
+calculate Granger ‘causality’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">w</span><span class="p">,</span> <span class="n">f_x2y</span><span class="p">,</span> <span class="n">f_y2x</span><span class="p">,</span> <span class="n">f_xy</span><span class="p">,</span> <span class="n">Sw</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">granger_causality_xy</span><span class="p">(</span><span class="n">a</span><span class="p">,</span>
+                                                     <span class="n">ecov</span><span class="p">,</span>
+                                                     <span class="n">n_freqs</span><span class="o">=</span><span class="n">n_freqs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This results in several different outputs, which we will proceed to plot.</p>
+<p>First, we will plot the estimated spectrum. This will be compared to two other
+estimates of the spectrum. The first is the ‘true’ spectrum, calculated from
+the known coefficients that generated the data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig01</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax01</span> <span class="o">=</span> <span class="n">fig01</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># This is the estimate:</span>
+<span class="n">Sxx_est</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Sw</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">Syy_est</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Sw</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># This is the &#39;true&#39; value, corrected for one-sided spectral density functions</span>
+<span class="n">Sxx_true</span> <span class="o">=</span> <span class="n">Sw_true</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span>
+<span class="n">Syy_true</span> <span class="o">=</span> <span class="n">Sw_true</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">real</span>
+</pre></div>
+</div>
+<p>The other is an estimate based on a multitaper spectral estimate from the
+empirical signals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">c_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">L</span><span class="p">,</span> <span class="n">w</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">c_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">L</span><span class="p">,</span> <span class="n">w</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <span class="n">frex</span><span class="p">,</span> <span class="n">c_x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">nu</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">multi_taper_psd</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">frex</span><span class="p">,</span> <span class="n">c_y</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">nu</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">multi_taper_psd</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>We plot these on the same axes, for a direct comparison:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ax01</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">Sxx_true</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;true Sxx(w)&#39;</span><span class="p">)</span>
+<span class="n">ax01</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">Sxx_est</span><span class="p">,</span> <span class="s1">&#39;b--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;estimated Sxx(w)&#39;</span><span class="p">)</span>
+<span class="n">ax01</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">Syy_true</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;true Syy(w)&#39;</span><span class="p">)</span>
+<span class="n">ax01</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">Syy_est</span><span class="p">,</span> <span class="s1">&#39;g--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;estimated Syy(w)&#39;</span><span class="p">)</span>
+<span class="n">ax01</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">c_x</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Sxx(w) - MT PSD&#39;</span><span class="p">)</span>
+<span class="n">ax01</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">c_y</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s1">&#39;r--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Syy(w) - MT PSD&#39;</span><span class="p">)</span>
+
+<span class="n">ax01</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/ar_est_2vars_01.png"><img alt="../_images/ar_est_2vars_01.png" src="../_images/ar_est_2vars_01.png" style="width: 500px;" /></a>
+<p>Next, we plot the Granger causalities. There are three GCs. One for each
+direction of causality between the two processes (X =&gt; Y and Y =&gt; X). In
+addition, there is the instantaneous causality between the processes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig02</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax02</span> <span class="o">=</span> <span class="n">fig02</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># x causes y plot</span>
+<span class="n">ax02</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">f_x2y</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;X =&gt; Y&#39;</span><span class="p">)</span>
+<span class="c1"># y causes x plot</span>
+<span class="n">ax02</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">f_y2x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Y =&gt; X&#39;</span><span class="p">)</span>
+<span class="c1"># instantaneous causality</span>
+<span class="n">ax02</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">f_xy</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;X:Y&#39;</span><span class="p">)</span>
+
+<span class="n">ax02</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/ar_est_2vars_02.png"><img alt="../_images/ar_est_2vars_02.png" src="../_images/ar_est_2vars_02.png" style="width: 500px;" /></a>
+<p>Note that these results make intuitive sense, when you look at the equations
+governing the mutual influences. X is entirely influenced by X (no effects of Y
+on X in <span class="xref std std-ref">eq1</span>) and there is some influence of X on Y (<span class="xref std std-ref">eq2</span>),
+resulting in this pattern.</p>
+<p>Finally, we calculate the total causality, which is the sum of all the above
+causalities. We compare this to the interdependence between the processes. This is the
+measure of total dependence and is closely akin to the coherence between the
+processes. We also compare to the empirically calculated coherence:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig03</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax03</span> <span class="o">=</span> <span class="n">fig03</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># total causality</span>
+<span class="n">ax03</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">f_xy</span> <span class="o">+</span> <span class="n">f_x2y</span> <span class="o">+</span> <span class="n">f_y2x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Total causality&#39;</span><span class="p">)</span>
+
+<span class="c1">#Interdepence:</span>
+<span class="n">f_id</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">interdependence_xy</span><span class="p">(</span><span class="n">Sw</span><span class="p">)</span>
+<span class="n">ax03</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">f_id</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Interdependence&#39;</span><span class="p">)</span>
+
+<span class="n">coh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">33</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <span class="n">frex</span><span class="p">,</span> <span class="n">this_coh</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">coherence</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">coh</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">this_coh</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="n">ax03</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">frex</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">coh</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Coherence&#39;</span><span class="p">)</span>
+
+<span class="n">ax03</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/ar_est_2vars_03.png"><img alt="../_images/ar_est_2vars_03.png" src="../_images/ar_est_2vars_03.png" style="width: 500px;" /></a>
+<p>Finally, we call plt.show(), in order to show the figures:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<table class="docutils citation" frame="void" id="ding2006" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Ding2006]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>, <a class="fn-backref" href="#id3">3</a>)</em> M. Ding, Y. Chen and S.L. Bressler (2006) Granger causality:
+basic theory and application to neuroscience. In Handbook of Time Series
+Analysis, ed. B. Schelter, M. Winterhalder, and J. Timmer, Wiley-VCH
+Verlage, 2006: 451-474</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="morf1978" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[Morf1978]</a></td><td>M. Morf, A. Vieira and T. Kailath (1978) Covariance
+Characterization by Partial Autocorrelation Matrices. The Annals of Statistics,
+6: 643-648</td></tr>
+</tbody>
+</table>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" download="" href="../_downloads/6945f7bf99c9d8e4c647c0c5d4ce0fc2/ar_est_2vars.py"><code class="xref download docutils literal notranslate"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the Nitime source distribution under the
+<code class="file docutils literal notranslate"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ar_est_1var.html" title="Fitting an AR model: algorithm module interface"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="snr_example.html" title="Calculation of signal-to-noise and information"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

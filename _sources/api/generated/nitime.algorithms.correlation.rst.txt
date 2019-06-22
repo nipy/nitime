@@ -1,0 +1,13 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+algorithms.correlation
+======================
+
+Module: :mod:`algorithms.correlation`
+-------------------------------------
+.. automodule:: nitime.algorithms.correlation
+
+.. currentmodule:: nitime.algorithms.correlation
+
+.. autofunction:: nitime.algorithms.correlation.seed_corrcoef
+

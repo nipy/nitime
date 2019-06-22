@@ -1,0 +1,6 @@
+<map id="inheritance3332f28373" name="inheritance3332f28373">
+<area shape="rect" id="node1" href="nitime.analysis.base.html#nitime.analysis.base.BaseAnalyzer" target="_top" title="Analyzer that implements the default data flow." alt="" coords="312,49,484,71"/>
+<area shape="rect" id="node3" href="#nitime.analysis.correlation.CorrelationAnalyzer" target="_top" title="Analyzer object for correlation analysis. Has the same API as the" alt="" coords="528,49,763,71"/>
+<area shape="rect" id="node2" href="nitime.descriptors.html#nitime.descriptors.ResetMixin" target="_top" title="A Mixin class to add a .reset() method to users of OneTimeProperty." alt="" coords="47,49,226,71"/>
+<area shape="rect" id="node4" href="#nitime.analysis.correlation.SeedCorrelationAnalyzer" target="_top" title="This analyzer takes two time&#45;series. The first is designated as a" alt="" coords="5,5,268,27"/>
+</map>

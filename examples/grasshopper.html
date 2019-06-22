@@ -1,0 +1,284 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Seed correlation/coherence with fMRI data" href="seed_analysis.html" />
+    <link rel="prev" title="Fitting an AR model: algorithm module interface" href="ar_est_1var.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="seed_analysis.html" title="Seed correlation/coherence with fMRI data"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ar_est_1var.html" title="Fitting an AR model: algorithm module interface"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ar_est_1var.html"
+                        title="previous chapter">Fitting an AR model: algorithm module interface</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="seed_analysis.html"
+                        title="next chapter">Seed correlation/coherence with fMRI data</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="auditory-processing-in-grasshoppers">
+<span id="grasshopper"></span><span id="example-grasshopper"></span><h1>Auditory processing in grasshoppers<a class="headerlink" href="#auditory-processing-in-grasshoppers" title="Permalink to this headline">¶</a></h1>
+<p>Extracting the average time-series from one signal, time-locked to the
+occurrence of some type of event in another signal is a very typical operation in
+the analysis of time-series from neuroscience experiments. Therefore, we have
+an additional example of this kind of analysis in <a class="reference internal" href="event_related_fmri.html#et-fmri"><span class="std std-ref">Event-related fMRI</span></a></p>
+<p>In the following code-snippet, we demonstrate the calculation of the
+spike-triggered average (STA). This is the average of the stimulus wave-form
+preceding the emission of a spike in the neuron and can be thought of as the
+stimulus ‘preferred’ by this neuron.</p>
+<p>We start by importing the required modules:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">nitime</span>
+<span class="kn">import</span> <span class="nn">nitime.timeseries</span> <span class="k">as</span> <span class="nn">ts</span>
+<span class="kn">import</span> <span class="nn">nitime.analysis</span> <span class="k">as</span> <span class="nn">tsa</span>
+<span class="kn">import</span> <span class="nn">nitime.viz</span> <span class="k">as</span> <span class="nn">viz</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+</pre></div>
+</div>
+<p>Two data files are used in this example. The first contains the times of action
+potentials (‘spikes’), recorded intra-cellularly from primary auditory
+receptors in the grasshopper <em>Locusta Migratoria</em>.</p>
+<p>We read in these times and initialize an Events object from them. The
+spike-times are given in micro-seconds:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nitime</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+
+<span class="n">spike_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s1">&#39;grasshopper_spike_times1.txt&#39;</span><span class="p">))</span>
+
+<span class="n">spike_ev</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">Events</span><span class="p">(</span><span class="n">spike_times</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s1">&#39;us&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The first data file contains the stimulus that was played during the
+recording. Briefly, the stimulus played was a pure-tone in the cell’s preferred
+frequency amplitude modulated by Gaussian white-noise, up to a cut-off
+frequency (200 Hz in this case, for details on the experimental procedures and
+the stimulus see <a class="reference internal" href="#rokem2006" id="id1">[Rokem2006]</a>).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s1">&#39;grasshopper_stimulus1.txt&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The stimulus needs to be transformed from Volts to dB:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">volt2dB</span><span class="p">(</span><span class="n">stim</span><span class="p">,</span> <span class="n">maxdB</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">stim</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">stim</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0e-5</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">maxdB</span> <span class="o">-</span> <span class="n">stim</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">stim</span>
+
+<span class="n">stim</span> <span class="o">=</span> <span class="n">volt2dB</span><span class="p">(</span><span class="n">stim</span><span class="p">,</span> <span class="n">maxdB</span><span class="o">=</span><span class="mf">76.4286</span><span class="p">)</span>  <span class="c1"># maxdB taken from the spike file header</span>
+</pre></div>
+</div>
+<p>We create a time-series object for the stimulus, which was sampled at 20 kHz:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stim_time_series</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">(</span><span class="n">t0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                 <span class="n">data</span><span class="o">=</span><span class="n">stim</span><span class="p">,</span>
+                                 <span class="n">sampling_interval</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+                                 <span class="n">time_unit</span><span class="o">=</span><span class="s1">&#39;us&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the time-representation will not change if we now convert the
+time-unit into ms. The only thing this accomplishes is to use this time-unit in
+subsequent visualization of the resulting time-series</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stim_time_series</span><span class="o">.</span><span class="n">time_unit</span> <span class="o">=</span> <span class="s1">&#39;ms&#39;</span>
+</pre></div>
+</div>
+<p>Next, we initialize an EventRelatedAnalyzer:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">event_related</span> <span class="o">=</span> <span class="n">tsa</span><span class="o">.</span><span class="n">EventRelatedAnalyzer</span><span class="p">(</span><span class="n">stim_time_series</span><span class="p">,</span>
+                                         <span class="n">spike_ev</span><span class="p">,</span>
+                                         <span class="n">len_et</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+                                         <span class="n">offset</span><span class="o">=-</span><span class="mi">200</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The actual STA gets calculated in this line (the call to ‘event_related.eta’)
+and the result gets input directly into the plotting function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig01</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">plot_tseries</span><span class="p">(</span><span class="n">event_related</span><span class="o">.</span><span class="n">eta</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Amplitude (dB SPL)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We prettify the plot a bit by adding a dashed line at the mean of the stimulus</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig01</span><span class="o">.</span><span class="n">get_axes</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">xlim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+<span class="n">ylim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+<span class="n">mean_stim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">stim_time_series</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="n">mean_stim</span><span class="p">,</span> <span class="n">mean_stim</span><span class="p">],</span> <span class="s1">&#39;k--&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/grasshopper_01.png"><img alt="../_images/grasshopper_01.png" src="../_images/grasshopper_01.png" style="width: 500px;" /></a>
+<p>In the following example, a second channel has been added to both the stimulus
+and the spike-train time-series. This is the response of the same cell, to a
+different stimulus, in which the frequency modulation has a higher frequency
+cut-off (800 Hz).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stim2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s1">&#39;grasshopper_stimulus2.txt&#39;</span><span class="p">))</span>
+<span class="n">stim2</span> <span class="o">=</span> <span class="n">volt2dB</span><span class="p">(</span><span class="n">stim2</span><span class="p">,</span> <span class="n">maxdB</span><span class="o">=</span><span class="mf">76.4286</span><span class="p">)</span>
+<span class="n">spike_times2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s1">&#39;grasshopper_spike_times2.txt&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>We loop over the two spike-time events and stimulus time-series:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">et</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">means</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">stim</span><span class="p">,</span> <span class="n">spike</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">stim</span><span class="p">,</span> <span class="n">stim2</span><span class="p">],</span> <span class="p">[</span><span class="n">spike_times</span><span class="p">,</span> <span class="n">spike_times2</span><span class="p">]):</span>
+    <span class="n">stim_time_series</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">(</span><span class="n">t0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">stim</span><span class="p">,</span> <span class="n">sampling_interval</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+                                     <span class="n">time_unit</span><span class="o">=</span><span class="s1">&#39;us&#39;</span><span class="p">)</span>
+
+    <span class="n">stim_time_series</span><span class="o">.</span><span class="n">time_unit</span> <span class="o">=</span> <span class="s1">&#39;ms&#39;</span>
+
+    <span class="n">spike_ev</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">Events</span><span class="p">(</span><span class="n">spike</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s1">&#39;us&#39;</span><span class="p">)</span>
+    <span class="c1">#Initialize the event-related analyzer</span>
+    <span class="n">event_related</span> <span class="o">=</span> <span class="n">tsa</span><span class="o">.</span><span class="n">EventRelatedAnalyzer</span><span class="p">(</span><span class="n">stim_time_series</span><span class="p">,</span>
+                                             <span class="n">spike_ev</span><span class="p">,</span>
+                                             <span class="n">len_et</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+                                             <span class="n">offset</span><span class="o">=-</span><span class="mi">200</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is the line which actually executes the analysis</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">et</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event_related</span><span class="o">.</span><span class="n">eta</span><span class="p">)</span>
+<span class="n">means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">stim_time_series</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Stack the data from both time-series, initialize a new time-series and plot it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig02</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">plot_tseries</span><span class="p">(</span>
+    <span class="n">ts</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">et</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">et</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">]),</span>
+                  <span class="n">sampling_rate</span><span class="o">=</span><span class="n">et</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sampling_rate</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">))</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig02</span><span class="o">.</span><span class="n">get_axes</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">xlim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="n">means</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">means</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="s1">&#39;b--&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="n">means</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">means</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;g--&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/grasshopper_02.png"><img alt="../_images/grasshopper_02.png" src="../_images/grasshopper_02.png" style="width: 500px;" /></a>
+<p>plt.show() is called in order to display the figures</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The data used in this example is also available on the <a class="reference external" href="http://crcns.org/">CRCNS data sharing
+web-site</a>.</p>
+<table class="docutils citation" frame="void" id="rokem2006" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Rokem2006]</a></td><td>Ariel Rokem, Sebastian Watzl, Tim Gollisch, Martin Stemmler,
+Andreas V M Herz and Ines Samengo (2006). Spike-timing precision
+underlies the coding efficiency of auditory receptor neurons. J
+Neurophysiol, 95:2541–52</td></tr>
+</tbody>
+</table>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" download="" href="../_downloads/9ab0d1982f87e6c6fd6ff5000fcf7fc0/grasshopper.py"><code class="xref download docutils literal notranslate"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the Nitime source distribution under the
+<code class="file docutils literal notranslate"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="seed_analysis.html" title="Seed correlation/coherence with fMRI data"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ar_est_1var.html" title="Fitting an AR model: algorithm module interface"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

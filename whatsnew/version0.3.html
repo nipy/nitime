@@ -1,0 +1,256 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Examples" href="../examples/index.html" />
+    <link rel="prev" title="Release notes for nitime version 0.4" href="version0.4.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../examples/index.html" title="Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="version0.4.html" title="Release notes for nitime version 0.4"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">What’s new in Nitime</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Release notes for nitime version 0.3</a><ul>
+<li><a class="reference internal" href="#summary-of-changes">Summary of changes</a></li>
+<li><a class="reference internal" href="#contributors-to-this-release">Contributors to this release</a></li>
+<li><a class="reference internal" href="#detailed-stats-from-the-github-repository">Detailed stats from the github repository</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="version0.4.html"
+                        title="previous chapter">Release notes for nitime version 0.4</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../examples/index.html"
+                        title="next chapter">Examples</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="release-notes-for-nitime-version-0-3">
+<h1>Release notes for nitime version 0.3<a class="headerlink" href="#release-notes-for-nitime-version-0-3" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="summary-of-changes">
+<h2>Summary of changes<a class="headerlink" href="#summary-of-changes" title="Permalink to this headline">¶</a></h2>
+<p>Version 0.3 of nitime includes several additions and improvements:</p>
+<ol class="arabic simple">
+<li>Testing: Test coverage of nitime has improved substantially. At this point,
+84 % of the code is executed when the test suite is executed. This includes
+a full 100% execution of all l.o.c. in most of the algorithms
+sub-module. Work led by Ariel Rokem.</li>
+<li>Style and layout improvements: The layout of the algorithms and analysis
+sub-modules have been simplified and a large majority of the code-base has
+been modified to conform with PEP8 standards. Work led by Ariel Rokem, with
+additional thanks to Alex Gramfort for pushing for these changes and helping
+to bring them about.</li>
+<li>Bug-fixes to the SNRAnalyzer: Several bugs in this module have been
+fixed. Work led by Ariel Rokem (who put these bugs in there in the first
+place…).</li>
+<li>MAR estimation algorithms: Extensive reworking of MAR estimation algorithms.
+Work led by Mike Trumpis.</li>
+<li>SeedCorrelationAnalyzer: This analyzer allows flexible correlation analysis
+in a few-to-many channel mode. Work led by Michael Waskom.</li>
+<li>GrangerAnalyzer: Following Mike Trumpis’ work on MAR estimation, we have
+implemented an Analyzer for Granger ‘causality’ analysis. Work led by Ariel
+Rokem, Mike Trumpis and Fernando Perez</li>
+<li>Filtering: Implementation of zero phase-delay filtering, including IIR and
+FIR filter methods to the FilterAnalyzer. Work led by Ariel Rokem</li>
+<li>Several new examples, including examples of the usage of these new analysis
+methods.</li>
+<li>Epoch slicing: Additional work on TimeSeries objects, towards an
+implementation. This feature is still at an experimental stage at this
+point. Work led by Ariel Rokem, Fernando Perez, Killian Koepsell and Paul
+Ivanov.</li>
+</ol>
+</div>
+<div class="section" id="contributors-to-this-release">
+<h2>Contributors to this release<a class="headerlink" href="#contributors-to-this-release" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Alexandre Gramfort</li>
+<li>Ariel Rokem</li>
+<li>Christopher Burns</li>
+<li>Fernando Perez</li>
+<li>Jarrod Millman</li>
+<li>Killian Koepsell</li>
+<li>Michael Waskom</li>
+<li>Mike Trumpis</li>
+<li>Paul Ivanov</li>
+<li>Yaroslav Halchenko</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This list was generated using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">log</span> <span class="n">dev</span><span class="o">/</span><span class="mf">0.3</span> <span class="n">HEAD</span> <span class="o">--</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;* %aN &lt;%aE&gt;&#39;</span> <span class="o">|</span><span class="n">sed</span> <span class="s1">&#39;s/@/\-at\-/&#39;</span> <span class="o">|</span> <span class="n">sed</span> <span class="s1">&#39;s/&lt;&gt;//&#39;</span> <span class="o">|</span> <span class="n">sort</span> <span class="o">-</span><span class="n">u</span>
+</pre></div>
+</div>
+<p class="last">Please let us know if you should appear on this list and do not, so that we
+can add your name in future release notes.</p>
+</div>
+</div>
+<div class="section" id="detailed-stats-from-the-github-repository">
+<h2>Detailed stats from the github repository<a class="headerlink" href="#detailed-stats-from-the-github-repository" title="Permalink to this headline">¶</a></h2>
+<p>Github stats for the last  270 days.
+We closed a total of 38 issues, 28 pull requests and 10 regular
+issues; this is the full list (generated with the script
+<cite>tools/github_stats.py</cite>):</p>
+<p>Pull requests (28):</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/78">78</a>: Doctests</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/76">76</a>: Sphinx warnings</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/74">74</a>: BF: IIR filtering can do band-pass as well as low-pass and high-pass.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/72">72</a>: ENH: Throw an informative warning when time-series is short for the NFFT.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/75">75</a>: ENH: Default behavior for time_series_from_file.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/71">71</a>: Granger analyzer</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/73">73</a>: Seed correlation analyzer</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/69">69</a>: BF: add back tril_indices from numpy 1.4, to support operation with older</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/70">70</a>: Ar latex</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/67">67</a>: Mar examples</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/66">66</a>: Test coverage</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/63">63</a>: Utils work</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/62">62</a>: Interpolate dpss windows when they are too large to be calculated directl</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/64">64</a>: Pass fir window as a kwarg.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/39">39</a>: Fix xcorr plot</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/54">54</a>: Reorganize analysis</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/49">49</a>: added basic arithetics to timeseries objects</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/52">52</a>: Reorganization</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/48">48</a>: Fix filter analyzer</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/47">47</a>: Correlation analyzer</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/43">43</a>: Filtfilt</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/42">42</a>: (Not) Biopac</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/41">41</a>: Fix example bugs</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/40">40</a>: Epochslicing2</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/33">33</a>: Epochslicing</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/38">38</a>: Fix snr df bug</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/37">37</a>: Event slicing</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/36">36</a>: Index at bug</li>
+</ul>
+<p>Regular issues (10):</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/31">31</a>: tools/make_examples.py runs all the examples every time</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/56">56</a>: Test failure on newer versions of scipy</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/65">65</a>: Prune the nipy/nitime repo from old stragglers</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/57">57</a>: multi_taper_psd with jackknife=True fails with multiple timeseries input</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/59">59</a>: missing parameter docstring in utils.ar_generator</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/58">58</a>: Scale of sigma in algorithms.multi_taper_psd</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/61">61</a>: fail to estimate dpss_windows for long signals</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/34">34</a>: SNR information rates need to be normalized by the frequency resolution</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/45">45</a>: Bugs in CorrelationAnalyzer</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/29">29</a>: Filtering</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../examples/index.html" title="Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="version0.4.html" title="Release notes for nitime version 0.4"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >What’s new in Nitime</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

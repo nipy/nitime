@@ -1,0 +1,584 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="algorithms.wavelet" href="nitime.algorithms.wavelet.html" />
+    <link rel="prev" title="algorithms.filter" href="nitime.algorithms.filter.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.wavelet.html" title="algorithms.wavelet"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.filter.html" title="algorithms.filter"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">algorithms.spectral</a><ul>
+<li><a class="reference internal" href="#module-nitime.algorithms.spectral">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.spectral</span></code></a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.algorithms.filter.html"
+                        title="previous chapter">algorithms.filter</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.algorithms.wavelet.html"
+                        title="next chapter">algorithms.wavelet</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="algorithms-spectral">
+<h1>algorithms.spectral<a class="headerlink" href="#algorithms-spectral" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-nitime.algorithms.spectral">
+<span id="module-algorithms-spectral"></span><h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">algorithms.spectral</span></code><a class="headerlink" href="#module-nitime.algorithms.spectral" title="Permalink to this headline">¶</a></h2>
+<p>Spectral transforms are used in order to estimate the frequency-domain
+representation of time-series. Several methods can be used and this module
+contains implementations of several algorithms for the calculation of spectral
+transforms.</p>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nitime.algorithms.spectral.freq_response">
+<code class="descclassname">nitime.algorithms.spectral.</code><code class="descname">freq_response</code><span class="sig-paren">(</span><em>b</em>, <em>a=1.0</em>, <em>n_freqs=1024</em>, <em>sides='onesided'</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.spectral.freq_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the frequency response of the IIR or FIR filter described
+by beta and alpha coefficients.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>b</strong> : beta sequence (moving average component)</p>
+<p><strong>a</strong> : alpha sequence (autoregressive component)</p>
+<p><strong>n_freqs</strong> : size of frequency grid</p>
+<p><strong>sides</strong> : {‘onesided’, ‘twosided’}</p>
+<blockquote>
+<div><p>compute frequencies between [-PI,PI), or from [0, PI]</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fgrid, H(e^jw)</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>For a description of the linear constant-coefficient difference equation,
+see
+<a class="reference external" href="http://en.wikipedia.org/wiki/Z-transform">http://en.wikipedia.org/wiki/Z-transform</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.spectral.get_spectra">
+<code class="descclassname">nitime.algorithms.spectral.</code><code class="descname">get_spectra</code><span class="sig-paren">(</span><em>time_series</em>, <em>method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.spectral.get_spectra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the spectra of an n-tuple of time series and all of
+the pairwise cross-spectra.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series</strong> : float array</p>
+<blockquote>
+<div><p>The time-series, where time is the last dimension</p>
+</div></blockquote>
+<p><strong>method</strong> : dict, optional</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>contains: this_method:’welch’</dt>
+<dd><p class="first">indicates that <code class="xref py py-func docutils literal notranslate"><span class="pre">mlab.psd()</span></code> will be used in
+order to calculate the psd/csd, in which case, additional optional
+inputs (and default values) are:</p>
+<blockquote class="last">
+<div><p>NFFT=64</p>
+<p>Fs=2pi</p>
+<p>detrend=mlab.detrend_none</p>
+<p>window=mlab.window_hanning</p>
+<p>n_overlap=0</p>
+</div></blockquote>
+</dd>
+<dt>this_method:’periodogram_csd’</dt>
+<dd><p class="first">indicates that <a class="reference internal" href="#nitime.algorithms.spectral.periodogram" title="nitime.algorithms.spectral.periodogram"><code class="xref py py-func docutils literal notranslate"><span class="pre">periodogram()</span></code></a> will
+be used in order to calculate the psd/csd, in which case, additional
+optional inputs (and default values) are:</p>
+<blockquote class="last">
+<div><p>Skx=None</p>
+<p>Sky=None</p>
+<p>N=None</p>
+<p>sides=’onesided’</p>
+<p>normalize=True</p>
+<p>Fs=2pi</p>
+</div></blockquote>
+</dd>
+<dt>this_method:’multi_taper_csd’</dt>
+<dd><p class="first">indicates that <a class="reference internal" href="#nitime.algorithms.spectral.multi_taper_psd" title="nitime.algorithms.spectral.multi_taper_psd"><code class="xref py py-func docutils literal notranslate"><span class="pre">multi_taper_psd()</span></code></a> used in order to calculate
+psd/csd, in which case additional optional inputs (and default
+values) are:</p>
+<blockquote class="last">
+<div><p>BW=0.01</p>
+<p>Fs=2pi</p>
+<p>sides = ‘onesided’</p>
+</div></blockquote>
+</dd>
+</dl>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f</strong> : float array</p>
+<blockquote>
+<div><p>The central frequencies for the frequency bands for which the spectra
+are estimated</p>
+</div></blockquote>
+<p><strong>fxy</strong> : float array</p>
+<blockquote class="last">
+<div><p>A semi-filled matrix with the cross-spectra of the signals. The csd of
+signal i and signal j is in f[j][i], but not in f[i][j] (which will be
+filled with zeros). For i=j fxy[i][j] is the psd of signal i.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.spectral.get_spectra_bi">
+<code class="descclassname">nitime.algorithms.spectral.</code><code class="descname">get_spectra_bi</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.spectral.get_spectra_bi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the spectra of two timeseries and the cross-spectrum between them</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x,y</strong> : float arrays</p>
+<blockquote>
+<div><p>Time-series data</p>
+</div></blockquote>
+<p><strong>method</strong> : dict, optional</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="#nitime.algorithms.spectral.get_spectra" title="nitime.algorithms.spectral.get_spectra"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_spectra()</span></code></a> documentation for details</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f</strong> : float array</p>
+<blockquote>
+<div><p>The central frequencies for the frequency
+bands for which the spectra are estimated</p>
+</div></blockquote>
+<p><strong>fxx</strong> : float array</p>
+<blockquote>
+<div><p>The psd of the first signal</p>
+</div></blockquote>
+<p><strong>fyy</strong> : float array</p>
+<blockquote>
+<div><p>The psd of the second signal</p>
+</div></blockquote>
+<p><strong>fxy</strong> : float array</p>
+<blockquote class="last">
+<div><p>The cross-spectral density of the two signals</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.spectral.mtm_cross_spectrum">
+<code class="descclassname">nitime.algorithms.spectral.</code><code class="descname">mtm_cross_spectrum</code><span class="sig-paren">(</span><em>tx</em>, <em>ty</em>, <em>weights</em>, <em>sides='twosided'</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.spectral.mtm_cross_spectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>The cross-spectrum between two tapered time-series, derived from a
+multi-taper spectral estimation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tx, ty</strong> : ndarray (K, …, N)</p>
+<blockquote>
+<div><p>The complex DFTs of the tapered sequence</p>
+</div></blockquote>
+<p><strong>weights</strong> : ndarray, or 2-tuple or list</p>
+<blockquote>
+<div><p>Weights can be specified as a length-2 list of weights for spectra tx
+and ty respectively. Alternatively, if tx is ty and this function is
+computing the spectral density function of a single sequence, the
+weights can be given as an ndarray of weights for the spectrum.
+Weights may be</p>
+<ul class="simple">
+<li>scalars, if the shape of the array is (K, …, 1)</li>
+<li>vectors, with the shape of the array being the same as tx or ty</li>
+</ul>
+</div></blockquote>
+<p><strong>sides</strong> : str in {‘onesided’, ‘twosided’}</p>
+<blockquote class="last">
+<div><p>For the symmetric spectra of a real sequence, optionally combine half
+of the frequencies and scale the duplicate frequencies in the range
+(0, F_nyquist).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>spectral densities are always computed as</p>
+<p><span class="math notranslate nohighlight">\(S_{xy}^{mt}(f) = \frac{\sum_k
+[d_k^x(f)s_k^x(f)][d_k^y(f)(s_k^y(f))^{*}]}{[\sum_k
+d_k^x(f)^2]^{\frac{1}{2}}[\sum_k d_k^y(f)^2]^{\frac{1}{2}}}\)</span></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.spectral.multi_taper_csd">
+<code class="descclassname">nitime.algorithms.spectral.</code><code class="descname">multi_taper_csd</code><span class="sig-paren">(</span><em>s</em>, <em>Fs=6.283185307179586</em>, <em>NW=None</em>, <em>BW=None</em>, <em>low_bias=True</em>, <em>adaptive=False</em>, <em>sides='default'</em>, <em>NFFT=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.spectral.multi_taper_csd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an estimate of the Cross Spectral Density (CSD) function
+between all (N choose 2) pairs of timeseries in s, using the multitaper
+method. If the NW product, or the BW and Fs in Hz are not specified by
+the user, a bandwidth of 4 times the fundamental frequency, corresponding
+to NW = 4 will be used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>s</strong> : ndarray</p>
+<blockquote>
+<div><p>An array of sampled random processes, where the time axis is
+assumed to be on the last axis. If ndim &gt; 2, the number of time
+series to compare will still be taken as prod(s.shape[:-1])</p>
+</div></blockquote>
+<p><strong>Fs</strong> : float, Sampling rate of the signal</p>
+<p><strong>NW</strong> : float</p>
+<blockquote>
+<div><p>The normalized half-bandwidth of the data tapers, indicating a
+multiple of the fundamental frequency of the DFT (Fs/N).
+Common choices are n/2, for n &gt;= 4. This parameter is unitless
+and more MATLAB compatible. As an alternative, set the BW
+parameter in Hz. See Notes on bandwidth.</p>
+</div></blockquote>
+<p><strong>BW</strong> : float</p>
+<blockquote>
+<div><p>The sampling-relative bandwidth of the data tapers, in Hz.</p>
+</div></blockquote>
+<p><strong>adaptive</strong> : {True, False}</p>
+<blockquote>
+<div><p>Use adaptive weighting to combine spectra</p>
+</div></blockquote>
+<p><strong>low_bias</strong> : {True, False}</p>
+<blockquote>
+<div><p>Rather than use 2NW tapers, only use the tapers that have better than
+90% spectral concentration within the bandwidth (still using
+a maximum of 2NW tapers)</p>
+</div></blockquote>
+<p><strong>sides</strong> : str (optional)   [ ‘default’ | ‘onesided’ | ‘twosided’ ]</p>
+<blockquote>
+<div><p>This determines which sides of the spectrum to return.  For
+complex-valued inputs, the default is two-sided, for real-valued
+inputs, default is one-sided Indicates whether to return a one-sided
+or two-sided</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>(freqs, csd_est)</strong> : ndarrays</p>
+<blockquote class="last">
+<div><p>The estimatated CSD and the frequency points vector.
+The CSD{i,j}(f) are returned in a square “matrix” of vectors
+holding Sij(f). For an input array of (M,N), the output is (M,M,N)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The bandwidth of the windowing function will determine the number
+tapers to use. This parameters represents trade-off between frequency
+resolution (lower main lobe BW for the taper) and variance reduction
+(higher BW and number of averaged estimates). Typically, the number of
+tapers is calculated as 2x the bandwidth-to-fundamental-frequency
+ratio, as these eigenfunctions have the best energy concentration.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.spectral.multi_taper_psd">
+<code class="descclassname">nitime.algorithms.spectral.</code><code class="descname">multi_taper_psd</code><span class="sig-paren">(</span><em>s</em>, <em>Fs=6.283185307179586</em>, <em>NW=None</em>, <em>BW=None</em>, <em>adaptive=False</em>, <em>jackknife=True</em>, <em>low_bias=True</em>, <em>sides='default'</em>, <em>NFFT=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.spectral.multi_taper_psd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an estimate of the PSD function of s using the multitaper
+method. If the NW product, or the BW and Fs in Hz are not specified
+by the user, a bandwidth of 4 times the fundamental frequency,
+corresponding to NW = 4 will be used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>s</strong> : ndarray</p>
+<blockquote>
+<div><p>An array of sampled random processes, where the time axis is assumed to
+be on the last axis</p>
+</div></blockquote>
+<p><strong>Fs</strong> : float</p>
+<blockquote>
+<div><p>Sampling rate of the signal</p>
+</div></blockquote>
+<p><strong>NW</strong> : float</p>
+<blockquote>
+<div><p>The normalized half-bandwidth of the data tapers, indicating a
+multiple of the fundamental frequency of the DFT (Fs/N).
+Common choices are n/2, for n &gt;= 4. This parameter is unitless
+and more MATLAB compatible. As an alternative, set the BW
+parameter in Hz. See Notes on bandwidth.</p>
+</div></blockquote>
+<p><strong>BW</strong> : float</p>
+<blockquote>
+<div><p>The sampling-relative bandwidth of the data tapers, in Hz.</p>
+</div></blockquote>
+<p><strong>adaptive</strong> : {True/False}</p>
+<blockquote>
+<div><p>Use an adaptive weighting routine to combine the PSD estimates of
+different tapers.</p>
+</div></blockquote>
+<p><strong>jackknife</strong> : {True/False}</p>
+<blockquote>
+<div><p>Use the jackknife method to make an estimate of the PSD variance
+at each point.</p>
+</div></blockquote>
+<p><strong>low_bias</strong> : {True/False}</p>
+<blockquote>
+<div><p>Rather than use 2NW tapers, only use the tapers that have better than
+90% spectral concentration within the bandwidth (still using
+a maximum of 2NW tapers)</p>
+</div></blockquote>
+<p><strong>sides</strong> : str (optional)   [ ‘default’ | ‘onesided’ | ‘twosided’ ]</p>
+<blockquote>
+<div><p>This determines which sides of the spectrum to return.
+For complex-valued inputs, the default is two-sided, for real-valued
+inputs, default is one-sided Indicates whether to return a one-sided
+or two-sided</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>(freqs, psd_est, var_or_nu)</strong> : ndarrays</p>
+<blockquote class="last">
+<div><p>The first two arrays are the frequency points vector and the
+estimated PSD. The last returned array differs depending on whether
+the jackknife was used. It is either</p>
+<ul class="simple">
+<li>The jackknife estimated variance of the log-psd, OR</li>
+<li>The degrees of freedom in a chi2 model of how the estimated
+PSD is distributed about the true log-PSD (this is either
+2*floor(2*NW), or calculated from adaptive weights)</li>
+</ul>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The bandwidth of the windowing function will determine the number
+tapers to use. This parameters represents trade-off between frequency
+resolution (lower main lobe BW for the taper) and variance reduction
+(higher BW and number of averaged estimates). Typically, the number of
+tapers is calculated as 2x the bandwidth-to-fundamental-frequency
+ratio, as these eigenfunctions have the best energy concentration.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.spectral.periodogram">
+<code class="descclassname">nitime.algorithms.spectral.</code><code class="descname">periodogram</code><span class="sig-paren">(</span><em>s</em>, <em>Fs=6.283185307179586</em>, <em>Sk=None</em>, <em>N=None</em>, <em>sides='default'</em>, <em>normalize=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.spectral.periodogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes an N-point periodogram estimate of the PSD function. The
+number of points N, or a precomputed FFT Sk may be provided. By default,
+the PSD function returned is normalized so that the integral of the PSD
+is equal to the mean squared amplitude (mean energy) of s (see Notes).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>s</strong> : ndarray</p>
+<blockquote>
+<div><p>Signal(s) for which to estimate the PSD, time dimension in the last
+axis</p>
+</div></blockquote>
+<p><strong>Fs</strong> : float (optional)</p>
+<blockquote>
+<div><p>The sampling rate. Defaults to 2*pi</p>
+</div></blockquote>
+<p><strong>Sk</strong> : ndarray (optional)</p>
+<blockquote>
+<div><p>Precomputed FFT of s</p>
+</div></blockquote>
+<p><strong>N</strong> : int (optional)</p>
+<blockquote>
+<div><p>Indicates an N-point FFT where N != s.shape[-1]</p>
+</div></blockquote>
+<p><strong>sides</strong> : str (optional) [ ‘default’ | ‘onesided’ | ‘twosided’ ]</p>
+<blockquote>
+<div><p>This determines which sides of the spectrum to return.
+For complex-valued inputs, the default is two-sided, for real-valued
+inputs, default is one-sided Indicates whether to return a one-sided
+or two-sided</p>
+</div></blockquote>
+<p><strong>PSD normalize</strong> : boolean (optional, default=True) Normalizes the PSD</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>(f, psd)</strong> : tuple</p>
+<blockquote class="last">
+<div><p>f: The central frequencies for the frequency bands
+PSD estimate for each row of s</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.spectral.periodogram_csd">
+<code class="descclassname">nitime.algorithms.spectral.</code><code class="descname">periodogram_csd</code><span class="sig-paren">(</span><em>s</em>, <em>Fs=6.283185307179586</em>, <em>Sk=None</em>, <em>NFFT=None</em>, <em>sides='default'</em>, <em>normalize=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.spectral.periodogram_csd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes an N-point periodogram estimate of all the cross spectral
+density functions between rows of s.</p>
+<p>The number of points N, or a precomputed FFT Sk may be provided. By
+default, the CSD function returned is normalized so that the integral of
+the PSD is equal to the mean squared amplitude (mean energy) of s (see
+Notes).</p>
+<dl class="docutils">
+<dt>s <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span></dt>
+<dd>Signals for which to estimate the CSD, time dimension in the last axis</dd>
+<dt>Fs <span class="classifier-delimiter">:</span> <span class="classifier">float (optional)</span></dt>
+<dd>The sampling rate. Defaults to 2*pi</dd>
+<dt>Sk <span class="classifier-delimiter">:</span> <span class="classifier">ndarray (optional)</span></dt>
+<dd>Precomputed FFT of rows of s</dd>
+<dt>NFFT <span class="classifier-delimiter">:</span> <span class="classifier">int (optional)</span></dt>
+<dd>Indicates an N-point FFT where N != s.shape[-1]</dd>
+<dt>sides <span class="classifier-delimiter">:</span> <span class="classifier">str (optional)   [ ‘default’ | ‘onesided’ | ‘twosided’ ]</span></dt>
+<dd>This determines which sides of the spectrum to return.
+For complex-valued inputs, the default is two-sided, for real-valued
+inputs, default is one-sided Indicates whether to return a one-sided
+or two-sided</dd>
+<dt>normalize <span class="classifier-delimiter">:</span> <span class="classifier">boolean (optional)</span></dt>
+<dd>Normalizes the PSD</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>freqs, csd_est</strong> : ndarrays</p>
+<blockquote class="last">
+<div><p>The estimated CSD and the frequency points vector.
+The CSD{i,j}(f) are returned in a square “matrix” of vectors
+holding Sij(f). For an input array that is reshaped to (M,N),
+the output is (M,M,N)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.wavelet.html" title="algorithms.wavelet"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.filter.html" title="algorithms.filter"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

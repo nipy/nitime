@@ -1,0 +1,170 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Making your own copy (fork) of nitime" href="forking_hell.html" />
+    <link rel="prev" title="Making a patch" href="patching.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="forking_hell.html" title="Making your own copy (fork) of nitime"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="patching.html" title="Making a patch"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Working with <em>nitime</em> source code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="patching.html"
+                        title="previous chapter">Making a patch</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="forking_hell.html"
+                        title="next chapter">Making your own copy (fork) of nitime</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="git-for-development">
+<span id="git-development"></span><h1>Git for development<a class="headerlink" href="#git-for-development" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="forking_hell.html">Making your own copy (fork) of nitime</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="forking_hell.html#set-up-and-configure-a-github-account">Set up and configure a github account</a></li>
+<li class="toctree-l2"><a class="reference internal" href="forking_hell.html#create-your-own-forked-copy-of-nitime">Create your own forked copy of nitime</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="set_up_fork.html">Set up your fork</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="set_up_fork.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="set_up_fork.html#in-detail">In detail</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configure_git.html">Configure git</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configure_git.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure_git.html#in-detail">In detail</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="development_workflow.html">Development workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="development_workflow.html#workflow-summary">Workflow summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development_workflow.html#making-a-new-feature-branch">Making a new feature branch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development_workflow.html#the-editing-workflow">The editing workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development_workflow.html#asking-for-code-review">Asking for code review</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development_workflow.html#asking-for-your-changes-to-be-merged-with-the-main-repo">Asking for your changes to be merged with the main repo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development_workflow.html#merging-from-trunk">Merging from trunk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development_workflow.html#deleting-a-branch-on-github">Deleting a branch on github</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development_workflow.html#several-people-sharing-a-single-repository">Several people sharing a single repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development_workflow.html#exploring-your-repository">Exploring your repository</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="forking_hell.html" title="Making your own copy (fork) of nitime"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="patching.html" title="Making a patch"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Working with <em>nitime</em> source code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

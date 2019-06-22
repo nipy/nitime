@@ -1,0 +1,264 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Development workflow" href="development_workflow.html" />
+    <link rel="prev" title="Set up your fork" href="set_up_fork.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="development_workflow.html" title="Development workflow"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="set_up_fork.html" title="Set up your fork"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Working with <em>nitime</em> source code</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="git_development.html" accesskey="U">Git for development</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Configure git</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#in-detail">In detail</a><ul>
+<li><a class="reference internal" href="#user-name-and-user-email">user.name and user.email</a></li>
+<li><a class="reference internal" href="#aliases">Aliases</a></li>
+<li><a class="reference internal" href="#editor">Editor</a></li>
+<li><a class="reference internal" href="#merging">Merging</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="set_up_fork.html"
+                        title="previous chapter">Set up your fork</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="development_workflow.html"
+                        title="next chapter">Development workflow</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="configure-git">
+<span id="id1"></span><h1>Configure git<a class="headerlink" href="#configure-git" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<span id="git-config-basic"></span><h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Your personal <a class="reference external" href="http://git-scm.com/">git</a> configurations are saved in the <code class="docutils literal notranslate"><span class="pre">.gitconfig</span></code> file in
+your home directory.
+Here is an example <code class="docutils literal notranslate"><span class="pre">.gitconfig</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">user</span><span class="p">]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">Your</span> <span class="n">Name</span>
+        <span class="n">email</span> <span class="o">=</span> <span class="n">you</span><span class="nd">@yourdomain</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+
+<span class="p">[</span><span class="n">alias</span><span class="p">]</span>
+        <span class="n">ci</span> <span class="o">=</span> <span class="n">commit</span> <span class="o">-</span><span class="n">a</span>
+        <span class="n">co</span> <span class="o">=</span> <span class="n">checkout</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">status</span> <span class="o">-</span><span class="n">a</span>
+        <span class="n">stat</span> <span class="o">=</span> <span class="n">status</span> <span class="o">-</span><span class="n">a</span>
+        <span class="n">br</span> <span class="o">=</span> <span class="n">branch</span>
+        <span class="n">wdiff</span> <span class="o">=</span> <span class="n">diff</span> <span class="o">--</span><span class="n">color</span><span class="o">-</span><span class="n">words</span>
+
+<span class="p">[</span><span class="n">core</span><span class="p">]</span>
+        <span class="n">editor</span> <span class="o">=</span> <span class="n">vim</span>
+
+<span class="p">[</span><span class="n">merge</span><span class="p">]</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">true</span>
+</pre></div>
+</div>
+<p>You can edit this file directly or you can use the <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">config</span> <span class="pre">--global</span></code>
+command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span> <span class="s2">&quot;Your Name&quot;</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span> <span class="n">you</span><span class="nd">@yourdomain</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">alias</span><span class="o">.</span><span class="n">ci</span> <span class="s2">&quot;commit -a&quot;</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">alias</span><span class="o">.</span><span class="n">co</span> <span class="n">checkout</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">alias</span><span class="o">.</span><span class="n">st</span> <span class="s2">&quot;status -a&quot;</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">alias</span><span class="o">.</span><span class="n">stat</span> <span class="s2">&quot;status -a&quot;</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">alias</span><span class="o">.</span><span class="n">br</span> <span class="n">branch</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">alias</span><span class="o">.</span><span class="n">wdiff</span> <span class="s2">&quot;diff --color-words&quot;</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">core</span><span class="o">.</span><span class="n">editor</span> <span class="n">vim</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">merge</span><span class="o">.</span><span class="n">summary</span> <span class="n">true</span>
+</pre></div>
+</div>
+<p>To set up on another computer, you can copy your <code class="docutils literal notranslate"><span class="pre">~/.gitconfig</span></code> file,
+or run the commands above.</p>
+</div>
+<div class="section" id="in-detail">
+<h2>In detail<a class="headerlink" href="#in-detail" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="user-name-and-user-email">
+<h3>user.name and user.email<a class="headerlink" href="#user-name-and-user-email" title="Permalink to this headline">¶</a></h3>
+<p>It is good practice to tell <a class="reference external" href="http://git-scm.com/">git</a> who you are, for labeling any changes
+you make to the code.  The simplest way to do this is from the command
+line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span> <span class="s2">&quot;Your Name&quot;</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span> <span class="n">you</span><span class="nd">@yourdomain</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+</pre></div>
+</div>
+<p>This will write the settings into your git configuration file,  which
+should now contain a user section with your name and email:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">user</span><span class="p">]</span>
+      <span class="n">name</span> <span class="o">=</span> <span class="n">Your</span> <span class="n">Name</span>
+      <span class="n">email</span> <span class="o">=</span> <span class="n">you</span><span class="nd">@yourdomain</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+</pre></div>
+</div>
+<p>Of course you’ll need to replace <code class="docutils literal notranslate"><span class="pre">Your</span> <span class="pre">Name</span></code> and <code class="docutils literal notranslate"><span class="pre">you&#64;yourdomain.example.com</span></code>
+with your actual name and email address.</p>
+</div>
+<div class="section" id="aliases">
+<h3>Aliases<a class="headerlink" href="#aliases" title="Permalink to this headline">¶</a></h3>
+<p>You might well benefit from some aliases to common commands.</p>
+<p>For example, you might well want to be able to shorten <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span></code>
+to <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">co</span></code>.  Or you may want to alias <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">diff</span> <span class="pre">--color-words</span></code>
+(which gives a nicely formatted output of the diff) to <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">wdiff</span></code></p>
+<p>The following <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">config</span> <span class="pre">--global</span></code> commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">alias</span><span class="o">.</span><span class="n">ci</span> <span class="s2">&quot;commit -a&quot;</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">alias</span><span class="o">.</span><span class="n">co</span> <span class="n">checkout</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">alias</span><span class="o">.</span><span class="n">st</span> <span class="s2">&quot;status -a&quot;</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">alias</span><span class="o">.</span><span class="n">stat</span> <span class="s2">&quot;status -a&quot;</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">alias</span><span class="o">.</span><span class="n">br</span> <span class="n">branch</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">alias</span><span class="o">.</span><span class="n">wdiff</span> <span class="s2">&quot;diff --color-words&quot;</span>
+</pre></div>
+</div>
+<p>will create an <code class="docutils literal notranslate"><span class="pre">alias</span></code> section in your <code class="docutils literal notranslate"><span class="pre">.gitconfig</span></code> file with contents
+like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">alias</span><span class="p">]</span>
+        <span class="n">ci</span> <span class="o">=</span> <span class="n">commit</span> <span class="o">-</span><span class="n">a</span>
+        <span class="n">co</span> <span class="o">=</span> <span class="n">checkout</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">status</span> <span class="o">-</span><span class="n">a</span>
+        <span class="n">stat</span> <span class="o">=</span> <span class="n">status</span> <span class="o">-</span><span class="n">a</span>
+        <span class="n">br</span> <span class="o">=</span> <span class="n">branch</span>
+        <span class="n">wdiff</span> <span class="o">=</span> <span class="n">diff</span> <span class="o">--</span><span class="n">color</span><span class="o">-</span><span class="n">words</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="editor">
+<h3>Editor<a class="headerlink" href="#editor" title="Permalink to this headline">¶</a></h3>
+<p>You may also want to make sure that your editor of choice is used</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">core</span><span class="o">.</span><span class="n">editor</span> <span class="n">vim</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="merging">
+<h3>Merging<a class="headerlink" href="#merging" title="Permalink to this headline">¶</a></h3>
+<p>To enforce summaries when doing merges (<code class="docutils literal notranslate"><span class="pre">~/.gitconfig</span></code> file again):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">merge</span><span class="p">]</span>
+   <span class="n">summary</span> <span class="o">=</span> <span class="n">true</span>
+</pre></div>
+</div>
+<p>Or from the command line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">merge</span><span class="o">.</span><span class="n">summary</span> <span class="n">true</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="development_workflow.html" title="Development workflow"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="set_up_fork.html" title="Set up your fork"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Working with <em>nitime</em> source code</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="git_development.html" >Git for development</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

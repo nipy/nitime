@@ -1,0 +1,13 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+lazy
+====
+
+Module: :mod:`lazy`
+-------------------
+.. automodule:: nitime.lazy
+
+.. currentmodule:: nitime.lazy
+
+.. autofunction:: nitime.lazy.enabled
+

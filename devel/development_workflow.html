@@ -1,0 +1,383 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="git resources" href="git_resources.html" />
+    <link rel="prev" title="Configure git" href="configure_git.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="git_resources.html" title="git resources"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="configure_git.html" title="Configure git"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Working with <em>nitime</em> source code</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="git_development.html" accesskey="U">Git for development</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Development workflow</a><ul>
+<li><a class="reference internal" href="#workflow-summary">Workflow summary</a></li>
+<li><a class="reference internal" href="#making-a-new-feature-branch">Making a new feature branch</a></li>
+<li><a class="reference internal" href="#the-editing-workflow">The editing workflow</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#in-more-detail">In more detail</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#asking-for-code-review">Asking for code review</a></li>
+<li><a class="reference internal" href="#asking-for-your-changes-to-be-merged-with-the-main-repo">Asking for your changes to be merged with the main repo</a></li>
+<li><a class="reference internal" href="#merging-from-trunk">Merging from trunk</a><ul>
+<li><a class="reference internal" href="#id2">Overview</a></li>
+<li><a class="reference internal" href="#in-detail">In detail</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#deleting-a-branch-on-github">Deleting a branch on github</a></li>
+<li><a class="reference internal" href="#several-people-sharing-a-single-repository">Several people sharing a single repository</a></li>
+<li><a class="reference internal" href="#exploring-your-repository">Exploring your repository</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="configure_git.html"
+                        title="previous chapter">Configure git</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="git_resources.html"
+                        title="next chapter">git resources</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="development-workflow">
+<span id="id1"></span><h1>Development workflow<a class="headerlink" href="#development-workflow" title="Permalink to this headline">¶</a></h1>
+<p>You already have your own forked copy of the <a class="reference external" href="http://nipy.org/nitime">nitime</a> repository, by
+following <a class="reference internal" href="forking_hell.html#forking"><span class="std std-ref">Making your own copy (fork) of nitime</span></a>, <a class="reference internal" href="set_up_fork.html#set-up-fork"><span class="std std-ref">Set up your fork</span></a>, and you have configured
+<a class="reference external" href="http://git-scm.com/">git</a> by following <a class="reference internal" href="configure_git.html#configure-git"><span class="std std-ref">Configure git</span></a>.</p>
+<div class="section" id="workflow-summary">
+<h2>Workflow summary<a class="headerlink" href="#workflow-summary" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Keep your <code class="docutils literal notranslate"><span class="pre">master</span></code> branch clean of edits that have not been merged
+to the main <a class="reference external" href="http://nipy.org/nitime">nitime</a> development repo.  Your <code class="docutils literal notranslate"><span class="pre">master</span></code> then will follow
+the main <a class="reference external" href="http://nipy.org/nitime">nitime</a> repository.</li>
+<li>Start a new <em>feature branch</em> for each set of edits that you do.</li>
+<li>If you can avoid it, try not to merge other branches into your feature
+branch while you are working.</li>
+<li>Ask for review!</li>
+</ul>
+<p>This way of working really helps to keep work well organized, and in
+keeping history as clear as possible.</p>
+<p>See - for example - <a class="reference external" href="http://www.mail-archive.com/dri-devel&#64;lists.sourceforge.net/msg39091.html">linux git workflow</a>.</p>
+</div>
+<div class="section" id="making-a-new-feature-branch">
+<h2>Making a new feature branch<a class="headerlink" href="#making-a-new-feature-branch" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">branch</span> <span class="n">my</span><span class="o">-</span><span class="n">new</span><span class="o">-</span><span class="n">feature</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="n">my</span><span class="o">-</span><span class="n">new</span><span class="o">-</span><span class="n">feature</span>
+</pre></div>
+</div>
+<p>Generally, you will want to keep this also on your public <a class="reference external" href="http://github.com">github</a> fork
+of <a class="reference external" href="http://nipy.org/nitime">nitime</a>.  To do this, you <a class="reference external" href="http://www.kernel.org/pub/software/scm/git/docs/git-push.html">git push</a> this new branch up to your <a class="reference external" href="http://github.com">github</a>
+repo.  Generally (if you followed the instructions in these pages, and
+by default), git will have a link to your <a class="reference external" href="http://github.com">github</a> repo, called
+<code class="docutils literal notranslate"><span class="pre">origin</span></code>.  You push up to your own repo on <a class="reference external" href="http://github.com">github</a> with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">my</span><span class="o">-</span><span class="n">new</span><span class="o">-</span><span class="n">feature</span>
+</pre></div>
+</div>
+<p>From now on <a class="reference external" href="http://git-scm.com/">git</a> will know that <code class="docutils literal notranslate"><span class="pre">my-new-feature</span></code> is related to the
+<code class="docutils literal notranslate"><span class="pre">my-new-feature</span></code> branch in the <a class="reference external" href="http://github.com">github</a> repo.</p>
+</div>
+<div class="section" id="the-editing-workflow">
+<h2>The editing workflow<a class="headerlink" href="#the-editing-workflow" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="overview">
+<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># hack hack</span>
+<span class="n">git</span> <span class="n">add</span> <span class="n">my_new_file</span>
+<span class="n">git</span> <span class="n">commit</span> <span class="o">-</span><span class="n">am</span> <span class="s1">&#39;NF - some message&#39;</span>
+<span class="n">git</span> <span class="n">push</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="in-more-detail">
+<h3>In more detail<a class="headerlink" href="#in-more-detail" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">Make some changes</p>
+</li>
+<li><p class="first">See which files have changed with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">status</span></code> (see <a class="reference external" href="http://www.kernel.org/pub/software/scm/git/docs/git-status.html">git status</a>).
+You’ll see a listing like this one:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># On branch ny-new-feature</span>
+<span class="c1"># Changed but not updated:</span>
+<span class="c1">#   (use &quot;git add &lt;file&gt;...&quot; to update what will be committed)</span>
+<span class="c1">#   (use &quot;git checkout -- &lt;file&gt;...&quot; to discard changes in working directory)</span>
+<span class="c1">#</span>
+<span class="c1">#  modified:   README</span>
+<span class="c1">#</span>
+<span class="c1"># Untracked files:</span>
+<span class="c1">#   (use &quot;git add &lt;file&gt;...&quot; to include in what will be committed)</span>
+<span class="c1">#</span>
+<span class="c1">#  INSTALL</span>
+<span class="n">no</span> <span class="n">changes</span> <span class="n">added</span> <span class="n">to</span> <span class="n">commit</span> <span class="p">(</span><span class="n">use</span> <span class="s2">&quot;git add&quot;</span> <span class="ow">and</span><span class="o">/</span><span class="ow">or</span> <span class="s2">&quot;git commit -a&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Check what the actual changes are with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">diff</span></code> (<a class="reference external" href="http://www.kernel.org/pub/software/scm/git/docs/git-diff.html">git diff</a>).</p>
+</li>
+<li><p class="first">Add any new files to version control <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span> <span class="pre">new_file_name</span></code> (see
+<a class="reference external" href="http://www.kernel.org/pub/software/scm/git/docs/git-add.html">git add</a>).</p>
+</li>
+<li><p class="first">To commit all modified files into the local copy of your repo,, do
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-am</span> <span class="pre">'A</span> <span class="pre">commit</span> <span class="pre">message'</span></code>.  Note the <code class="docutils literal notranslate"><span class="pre">-am</span></code> options to
+<code class="docutils literal notranslate"><span class="pre">commit</span></code>. The <code class="docutils literal notranslate"><span class="pre">m</span></code> flag just signals that you’re going to type a
+message on the command line.  The <code class="docutils literal notranslate"><span class="pre">a</span></code> flag - you can just take on
+faith - or see <a class="reference external" href="http://www.gitready.com/beginner/2009/01/18/the-staging-area.html">why the -a flag?</a>. See also the <a class="reference external" href="http://www.kernel.org/pub/software/scm/git/docs/git-commit.html">git commit</a> manual
+page.</p>
+</li>
+<li><p class="first">To push the changes up to your forked repo on <a class="reference external" href="http://github.com">github</a>, do a <code class="docutils literal notranslate"><span class="pre">git</span>
+<span class="pre">push</span></code> (see <cite>git push</cite>).</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="section" id="asking-for-code-review">
+<h2>Asking for code review<a class="headerlink" href="#asking-for-code-review" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Go to your repo URL - e.g. <code class="docutils literal notranslate"><span class="pre">http://github.com/your-user-name/nitime</span></code>.</p>
+</li>
+<li><p class="first">Click on the <em>Branch list</em> button:</p>
+<img alt="../_images/branch_list.png" src="../_images/branch_list.png" />
+</li>
+<li><p class="first">Click on the <em>Compare</em> button for your feature branch - here <code class="docutils literal notranslate"><span class="pre">my-new-feature</span></code>:</p>
+<img alt="../_images/branch_list_compare.png" src="../_images/branch_list_compare.png" />
+</li>
+<li><p class="first">If asked, select the <em>base</em> and <em>comparison</em> branch names you want to
+compare.  Usually these will be <code class="docutils literal notranslate"><span class="pre">master</span></code> and <code class="docutils literal notranslate"><span class="pre">my-new-feature</span></code>
+(where that is your feature branch name).</p>
+</li>
+<li><p class="first">At this point you should get a nice summary of the changes.  Copy the
+URL for this, and post it to the <a class="reference external" href="http://projects.scipy.org/mailman/listinfo/nipy-devel">nitime mailing list</a>, asking for
+review.  The URL will look something like:
+<code class="docutils literal notranslate"><span class="pre">http://github.com/your-user-name/nitime/compare/master...my-new-feature</span></code>.
+There’s an example at
+<a class="reference external" href="http://github.com/matthew-brett/nipy/compare/master...find-install-data">http://github.com/matthew-brett/nipy/compare/master…find-install-data</a>
+See: <a class="reference external" href="http://github.com/blog/612-introducing-github-compare-view">http://github.com/blog/612-introducing-github-compare-view</a> for
+more detail.</p>
+</li>
+</ol>
+<p>The generated comparison, is between your feature branch
+<code class="docutils literal notranslate"><span class="pre">my-new-feature</span></code>, and the place in <code class="docutils literal notranslate"><span class="pre">master</span></code> from which you branched
+<code class="docutils literal notranslate"><span class="pre">my-new-feature</span></code>.  In other words, you can keep updating <code class="docutils literal notranslate"><span class="pre">master</span></code>
+without interfering with the output from the comparison.  More detail?
+Note the three dots in the URL above (<code class="docutils literal notranslate"><span class="pre">master...my-new-feature</span></code>) and
+see <a class="reference internal" href="dot2_dot3.html#dot2-dot3"><span class="std std-ref">Two and three dots in difference specs</span></a>.</p>
+</div>
+<div class="section" id="asking-for-your-changes-to-be-merged-with-the-main-repo">
+<h2>Asking for your changes to be merged with the main repo<a class="headerlink" href="#asking-for-your-changes-to-be-merged-with-the-main-repo" title="Permalink to this headline">¶</a></h2>
+<p>When you are ready to ask for the merge of your code:</p>
+<ol class="arabic">
+<li><p class="first">Go to the URL of your forked repo, say
+<code class="docutils literal notranslate"><span class="pre">http://github.com/your-user-name/nitime.git</span></code>.</p>
+</li>
+<li><p class="first">Click on the ‘Pull request’ button:</p>
+<img alt="../_images/pull_button.png" src="../_images/pull_button.png" />
+<p>Enter a message; we suggest you select only <code class="docutils literal notranslate"><span class="pre">nitime</span></code> as the
+recipient.  The message will go to the <a class="reference external" href="http://projects.scipy.org/mailman/listinfo/nipy-devel">nitime mailing list</a>.  Please
+feel free to add others from the list as you like.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="merging-from-trunk">
+<h2>Merging from trunk<a class="headerlink" href="#merging-from-trunk" title="Permalink to this headline">¶</a></h2>
+<p>This updates your code from the upstream <a class="reference external" href="http://github.com/nipy/nitime">nitime github</a>  repo.</p>
+<div class="section" id="id2">
+<h3>Overview<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># go to your master branch</span>
+<span class="n">git</span> <span class="n">checkout</span> <span class="n">master</span>
+<span class="c1"># pull changes from github</span>
+<span class="n">git</span> <span class="n">fetch</span> <span class="n">upstream</span>
+<span class="c1"># merge from upstream</span>
+<span class="n">git</span> <span class="n">merge</span> <span class="n">upstream</span><span class="o">/</span><span class="n">master</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="in-detail">
+<h3>In detail<a class="headerlink" href="#in-detail" title="Permalink to this headline">¶</a></h3>
+<p>We suggest that you do this only for your <code class="docutils literal notranslate"><span class="pre">master</span></code> branch, and leave
+your ‘feature’ branches unmerged, to keep their history as clean as
+possible.  This makes code review easier:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="n">master</span>
+</pre></div>
+</div>
+<p>Make sure you have done <a class="reference internal" href="set_up_fork.html#linking-to-upstream"><span class="std std-ref">Linking your repository to the upstream repo</span></a>.</p>
+<p>Merge the upstream code into your current development by first pulling
+the upstream repo to a copy on your local machine:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">fetch</span> <span class="n">upstream</span>
+</pre></div>
+</div>
+<p>then merging into your current branch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">merge</span> <span class="n">upstream</span><span class="o">/</span><span class="n">master</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="deleting-a-branch-on-github">
+<h2>Deleting a branch on <a class="reference external" href="http://github.com">github</a><a class="headerlink" href="#deleting-a-branch-on-github" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="n">master</span>
+<span class="c1"># delete branch locally</span>
+<span class="n">git</span> <span class="n">branch</span> <span class="o">-</span><span class="n">D</span> <span class="n">my</span><span class="o">-</span><span class="n">unwanted</span><span class="o">-</span><span class="n">branch</span>
+<span class="c1"># delete branch on github</span>
+<span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="p">:</span><span class="n">my</span><span class="o">-</span><span class="n">unwanted</span><span class="o">-</span><span class="n">branch</span>
+</pre></div>
+</div>
+<p>(Note the colon <code class="docutils literal notranslate"><span class="pre">:</span></code> before <code class="docutils literal notranslate"><span class="pre">test-branch</span></code>.  See also:
+<a class="reference external" href="http://github.com/guides/remove-a-remote-branch">http://github.com/guides/remove-a-remote-branch</a></p>
+</div>
+<div class="section" id="several-people-sharing-a-single-repository">
+<h2>Several people sharing a single repository<a class="headerlink" href="#several-people-sharing-a-single-repository" title="Permalink to this headline">¶</a></h2>
+<p>If you want to work on some stuff with other people, where you are all
+committing into the same repository, or even the same branch, then just
+share it via <a class="reference external" href="http://github.com">github</a>.</p>
+<p>First fork nitime into your account, as from <a class="reference internal" href="forking_hell.html#forking"><span class="std std-ref">Making your own copy (fork) of nitime</span></a>.</p>
+<p>Then, go to your forked repository github page, say
+<code class="docutils literal notranslate"><span class="pre">http://github.com/your-user-name/nitime</span></code></p>
+<p>Click on the ‘Admin’ button, and add anyone else to the repo as a
+collaborator:</p>
+<blockquote>
+<div><img alt="../_images/pull_button.png" src="../_images/pull_button.png" />
+</div></blockquote>
+<p>Now all those people can do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@githhub</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">your</span><span class="o">-</span><span class="n">user</span><span class="o">-</span><span class="n">name</span><span class="o">/</span><span class="n">nitime</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>Remember that links starting with <code class="docutils literal notranslate"><span class="pre">git&#64;</span></code> use the ssh protocol and are
+read-write; links starting with <code class="docutils literal notranslate"><span class="pre">git://</span></code> are read-only.</p>
+<p>Your collaborators can then commit directly into that repo with the
+usual:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">commit</span> <span class="o">-</span><span class="n">am</span> <span class="s1">&#39;ENH - much better code&#39;</span>
+<span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">master</span> <span class="c1"># pushes directly into your repo</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="exploring-your-repository">
+<h2>Exploring your repository<a class="headerlink" href="#exploring-your-repository" title="Permalink to this headline">¶</a></h2>
+<p>To see a graphical representation of the repository branches and
+commits:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gitk</span> <span class="o">--</span><span class="nb">all</span>
+</pre></div>
+</div>
+<p>To see a linear list of commits for this branch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">log</span>
+</pre></div>
+</div>
+<p>You can also look at the <a class="reference external" href="http://github.com/blog/39-say-hello-to-the-network-graph-visualizer">network graph visualizer</a> for your <a class="reference external" href="http://github.com">github</a>
+repo.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="git_resources.html" title="git resources"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="configure_git.html" title="Configure git"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Working with <em>nitime</em> source code</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="git_development.html" >Git for development</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

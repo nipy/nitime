@@ -1,0 +1,68 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+viz
+===
+
+Module: :mod:`viz`
+------------------
+.. automodule:: nitime.viz
+
+.. currentmodule:: nitime.viz
+
+Functions
+---------
+
+
+.. autofunction:: nitime.viz.draw_arrows
+
+
+.. autofunction:: nitime.viz.draw_graph
+
+
+.. autofunction:: nitime.viz.draw_matrix
+
+
+.. autofunction:: nitime.viz.draw_networkx_nodes
+
+
+.. autofunction:: nitime.viz.drawgraph_channels
+
+
+.. autofunction:: nitime.viz.drawmatrix_channels
+
+
+.. autofunction:: nitime.viz.lab2node
+
+
+.. autofunction:: nitime.viz.matshow_tseries
+
+
+.. autofunction:: nitime.viz.mkgraph
+
+
+.. autofunction:: nitime.viz.plot_corr_diff
+
+
+.. autofunction:: nitime.viz.plot_snr
+
+
+.. autofunction:: nitime.viz.plot_snr_diff
+
+
+.. autofunction:: nitime.viz.plot_spectral_estimate
+
+
+.. autofunction:: nitime.viz.plot_tseries
+
+
+.. autofunction:: nitime.viz.plot_xcorr
+
+
+.. autofunction:: nitime.viz.rgb_to_dict
+
+
+.. autofunction:: nitime.viz.subcolormap
+
+
+.. autofunction:: nitime.viz.winspect
+

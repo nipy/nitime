@@ -1,0 +1,26 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+analysis.base
+=============
+
+Module: :mod:`analysis.base`
+----------------------------
+Inheritance diagram for ``nitime.analysis.base``:
+
+.. inheritance-diagram:: nitime.analysis.base 
+   :parts: 3
+
+.. automodule:: nitime.analysis.base
+
+.. currentmodule:: nitime.analysis.base
+
+:class:`BaseAnalyzer`
+---------------------
+
+
+.. autoclass:: BaseAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__

@@ -1,0 +1,372 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tutorial" href="tutorial.html" />
+    <link rel="prev" title="Download and install" href="install.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Download and install"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">User Guide</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Nitime: an overview</a></li>
+<li><a class="reference internal" href="#design-principles">Design Principles</a></li>
+<li><a class="reference internal" href="#base-classes">Base classes</a><ul>
+<li><a class="reference internal" href="#time">Time</a><ul>
+<li><a class="reference internal" href="#timearray"><code class="docutils literal notranslate"><span class="pre">TimeArray</span></code></a></li>
+<li><a class="reference internal" href="#uniformtime"><code class="docutils literal notranslate"><span class="pre">UniformTime</span></code></a></li>
+<li><a class="reference internal" href="#frequency"><code class="docutils literal notranslate"><span class="pre">Frequency</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#time-series">Time-series</a><ul>
+<li><a class="reference internal" href="#timeseries"><code class="docutils literal notranslate"><span class="pre">TimeSeries</span></code></a></li>
+<li><a class="reference internal" href="#epochs"><code class="docutils literal notranslate"><span class="pre">Epochs</span></code></a></li>
+<li><a class="reference internal" href="#events"><code class="docutils literal notranslate"><span class="pre">Events</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#analyzers">Analyzers</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install.html"
+                        title="previous chapter">Download and install</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="next chapter">Tutorial</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="nitime-an-overview">
+<span id="overview"></span><h1>Nitime: an overview<a class="headerlink" href="#nitime-an-overview" title="Permalink to this headline">¶</a></h1>
+<p>Nitime can be used in order to represent, manipulate and analyze data in
+time-series from experimental data. The main intention of the library is to
+serve as a platform for analyzing data collected in neuroscientific
+experiments, ranging from single-cell recordings to fMRI. However, the
+object-oriented interface may match other kinds of time-series.</p>
+<p>In the <a class="reference internal" href="tutorial.html#tutorial"><span class="std std-ref">Tutorial</span></a>, we provide examples of usage of the objects in the
+library and of some basic analysis.</p>
+<p>Here, we will provide a brief overview of the guiding principles underlying the
+structure and implementation of the library and the programming interface
+provided by library.</p>
+<p>We will survey the library their attributes and central functions and some possible example
+use-cases.</p>
+</div>
+<div class="section" id="design-principles">
+<h1>Design Principles<a class="headerlink" href="#design-principles" title="Permalink to this headline">¶</a></h1>
+<p>The main principle of the implementation of this library is a separation
+between representation of time-series and the analysis of time-series. Thus,
+the implementation is divided into three main elements:</p>
+<ul class="simple">
+<li>Base classes for representation of time and data: These include objects
+representing time (including support for the representation and conversion
+between time-units) and objects that serve as containers for data:
+representation of the time-series to be analyzed. These base classes will be
+surveyed in more detail in the <a class="reference internal" href="#base-classes"><span class="std std-ref">Base classes</span></a></li>
+<li>Algorithms for analysis of time-series: A library containing implementations
+of algorithms for various analysis methods is provided. Importantly, this
+library is intentionally agnostic to the existence of the library
+base-classes. Thus, users can choose to use these algorithms directly,
+instead of relying on the base-classes provided by the library</li>
+<li>Analyzer interfaces: These objects provide an interface between the algorithm
+library and the time-series objects. Each one of these objects calls an
+algorithm from the algorithms  These objects rely on the details of the
+implementation of the time-series objects. The input to these classes is
+usually a time-series object and a set of parameters, which guide the
+analysis. Some of the analyzer objects implement a thin interface (or
+‘facade’) to algorithms provided by scipy.signal.</li>
+</ul>
+<p>This principle is important, because it allows use of the analysis algorithms
+at two different levels. The algorithms are more general-purpose, but provide
+less support for the unique properties of time-series. The analyzer objects, on
+the other hand, provide a richer interface, but may be less flexible in their
+usage, because they assume use of the base-classes of the library.</p>
+<p>This structure also makes development of new algorithms and adoption of
+analysis code from other sources easier, because no specialized design
+properties are required in order to include an algorithm or set of algorithms
+in the algorithm library. However, once algorithms are adopted into the
+library, it requires that additional development of the analyzer object
+specific for this set of algorithms be implemented as well.</p>
+<p>Another important principle of the implementation is lazy initialization. Most
+attributes of both time-series and analysis objects are provided on a
+need-to-know basis. That is, initializing a time-series object, or an analyzer
+object does not trigger any intensive computations. Instead the computation of
+the attributes of analyzer objects is delayed until the moment the user calls
+these attributes. In addition, once a computation is triggered it is stored as
+an attribute of the object, which assures that accessing the results of an
+analysis will trigger the computation only on the first time the analysis resut
+is required. Thereafter, the result of the analysis is stored for further use
+of this result.</p>
+</div>
+<div class="section" id="base-classes">
+<span id="id1"></span><h1>Base classes<a class="headerlink" href="#base-classes" title="Permalink to this headline">¶</a></h1>
+<p>The library has several sets of classes, used for the representation of time
+and of time-series, in addition to classes used for analysis.</p>
+<p>The first kind of classes is used in order to represent time and inherits from
+<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>, see <a class="reference internal" href="#time-classes"><span class="std std-ref">Time</span></a>. Another are data containers, used
+to represent different kinds of time-series data, see
+<a class="reference internal" href="#time-series-classes"><span class="std std-ref">Time-series</span></a> A third important kind are <em>analyzer</em> objects. These
+objects can be used in order to apply a particular analysis to time-series
+objects, see <span class="xref std std-ref">analyzer_objects</span></p>
+<div class="section" id="time">
+<span id="time-classes"></span><h2>Time<a class="headerlink" href="#time" title="Permalink to this headline">¶</a></h2>
+<p>Experimental data is usually represented with regard to <em>relative</em> time. That
+is, the time relative to the beginning of the measurement. This is in contrast
+to many other kinds of data, which are represented with regard to <em>absolute</em>
+time, (one example of this kind of time is calendaric time, which includes a
+reference to some common point, such as 0 CE, or Jan. 1st 1970). An example of
+data which benefits from representation with absolute time is the
+representation of financial time-series, which can be compared against each
+other, using the common reference and for which the concept of the work-week
+applies.</p>
+<p>However, because most often the absolute calendar time of the occurrence of
+events in an experiment is of no importance, we can disregard it. Rather, the
+comparison of the time progression of data in different experiments conducted
+in different calendar times (different days, different times in the same day)
+is more common.</p>
+<p>The underlying representation of time in <code class="xref py py-mod docutils literal notranslate"><span class="pre">nitime</span></code> is in arrays of dtype
+<code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code>. This allows the representation to be immune to rounding errors
+arising from representation of time with floating point numbers (see
+<a class="reference internal" href="#goldberg1991" id="id2">[Goldberg1991]</a>). However, it restricts the smallest time-interval that can be
+represented. In <code class="xref py py-mod docutils literal notranslate"><span class="pre">nitime</span></code>, the smallest discrete time-points are of size
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">base_unit</span></code>, and this unit is <em>picoseconds</em>. Thus, all underlying
+representations of time are made in this unit. Since for most practical uses,
+this representation is far too small, this might have resulted, in most cases
+in representations of time too long to be useful. In order to make the
+time-objects more manageable, time objects in <code class="xref py py-mod docutils literal notranslate"><span class="pre">nitime</span></code> carry a
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">time_unit</span></code> and a <code class="xref py py-attr docutils literal notranslate"><span class="pre">_conversion_factor</span></code>, which can be used
+as a convenience, in order to convert between the representation of time in the
+base unit and the appearance of time in the relevant time-unit.</p>
+<p>The first set of base classes is a set of representations of time itself. All
+these classes inherit from <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>. As mentioned above, the dtype of
+these classes is <code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code> and the underlying representation is always at
+the base unit. In addition to the methods inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>,
+these time representations have an <code class="xref py py-func docutils literal notranslate"><span class="pre">at()</span></code> method which . The result of this indexing
+will be to return the time-point in the the respective <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeries</span></code>
+which is most appropriate (see <a class="reference internal" href="../discussion/time_series_access.html#time-series-access"><span class="std std-ref">Time-series access</span></a> for details). They
+have an <code class="xref py py-func docutils literal notranslate"><span class="pre">index_at()</span></code> method, which returns the integer index of this time
+in the underlying array. Finally, they will all have a <code class="xref py py-func docutils literal notranslate"><span class="pre">during()</span></code> method,
+which will allow indexing into these objects with an
+<a class="reference internal" href="../discussion/interval_object.html#interval-class"><span class="std std-ref">Interval object</span></a>. This will return the appropriate times corresponding to
+an <a class="reference internal" href="../discussion/interval_object.html#interval-class"><span class="std std-ref">Interval object</span></a> and <code class="xref py py-func docutils literal notranslate"><span class="pre">index_during()</span></code>, which will return the array
+of integers corresponding to the indices of these time-points in the array.</p>
+<p>For the time being, there are two types of Time classes: <a class="reference internal" href="#timearray"><span class="std std-ref">TimeArray</span></a> and <a class="reference internal" href="#uniformtime"><span class="std std-ref">UniformTime</span></a>.</p>
+<div class="section" id="timearray">
+<span id="id3"></span><h3><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeArray</span></code><a class="headerlink" href="#timearray" title="Permalink to this headline">¶</a></h3>
+<p>This class has less restrictions on it: it is made of an 1-d array, which contains time-points that are not necessarily ordered. It can also contain several copies of the same time-point. This class can be used in order to represent sparsely occurring events, measured at some unspecified sampling rate and possibly collected from several different channels, where the data is sampled in order of channel and not in order of time. As in the case of the <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>. This representation of time carries, in addition to the array itself an attribute <code class="xref py py-attr docutils literal notranslate"><span class="pre">time_unit</span></code>, which is the unit in which we would like to present the time-points (recall that the underlying representation is always in the base-unit).</p>
+</div>
+<div class="section" id="uniformtime">
+<span id="id4"></span><h3><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformTime</span></code><a class="headerlink" href="#uniformtime" title="Permalink to this headline">¶</a></h3>
+<p>This class contains ordered uniformly sampled time-points. This class has an explicit representation of <code class="xref py py-attr docutils literal notranslate"><span class="pre">t_0</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">sampling_rate</span></code> and <code class="xref py py-attr docutils literal notranslate"><span class="pre">sampling_interval</span></code>. Thus, each element in this array can be used in order to represent the entire time interval <span class="math notranslate nohighlight">\(t\)</span>, such that: <span class="math notranslate nohighlight">\(t_i\leq t &lt; t + \delta t\)</span>, where <span class="math notranslate nohighlight">\(t_i\)</span> is the nominal value held by that element of the array, and <span class="math notranslate nohighlight">\(\delta t\)</span> is the value of <code class="xref py py-attr docutils literal notranslate"><span class="pre">sampling_interval</span></code>.</p>
+<p>This object contains additional attributes that are not shared by the other
+time objects. In particular, an object of <code class="xref py py-class docutils literal notranslate"><span class="pre">UniformTime</span></code>, UT, will have
+the following:</p>
+<ul class="simple">
+<li><code class="xref py py-attr docutils literal notranslate"><span class="pre">UT.t_0</span></code>: the first time-point in the series.</li>
+<li><code class="xref py py-attr docutils literal notranslate"><span class="pre">UT.sampling_rate</span></code>: the sampling rate of the series (this is an
+instance of .</li>
+<li><code class="xref py py-attr docutils literal notranslate"><span class="pre">UT.sampling_interval</span></code>: the value of <span class="math notranslate nohighlight">\(\delta t\)</span>, mentioned above.</li>
+<li><code class="xref py py-attr docutils literal notranslate"><span class="pre">UT.duration</span></code>: the total time of the series.</li>
+</ul>
+<p>Obviously, <code class="xref py py-attr docutils literal notranslate"><span class="pre">UT.sampling_rate</span></code> and <code class="xref py py-attr docutils literal notranslate"><span class="pre">UT.sampling_interval</span></code> are redundant, but can both be useful.</p>
+</div>
+<div class="section" id="frequency">
+<h3><code class="xref py py-class docutils literal notranslate"><span class="pre">Frequency</span></code><a class="headerlink" href="#frequency" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="xref py py-attr docutils literal notranslate"><span class="pre">UT.sampling_rate</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">UniformTime</span></code> is an object of the <code class="xref py py-class docutils literal notranslate"><span class="pre">Frequency</span></code> class. This is a representation of the frequency in Hz. It is derived from a combination of the <code class="xref py py-attr docutils literal notranslate"><span class="pre">sampling_interval</span></code> and the <code class="xref py py-attr docutils literal notranslate"><span class="pre">time_unit</span></code>.</p>
+</div>
+</div>
+<div class="section" id="time-series">
+<span id="time-series-classes"></span><h2>Time-series<a class="headerlink" href="#time-series" title="Permalink to this headline">¶</a></h2>
+<p>These are data container classes for representing different kinds of
+time-series data types.</p>
+<p>In implementing these objects, we follow the following principles:</p>
+<ul class="simple">
+<li>The time-series data representations do not inherit from
+<code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>. Instead, one of their attributes is a <code class="xref py py-attr docutils literal notranslate"><span class="pre">data</span></code>
+attribute, which <em>is</em> a <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>. This principle should allow for
+a clean and compact implementation, which doesn’t carry all manner of
+unwanted properties into a bloated object with obscure and unknown behaviors.
+We have previously decided to make <em>time</em> the last dimension in this
+object, but recently we have been considering making this a user choice (in
+order to enable indexing into the data by time in a straight-forward manner
+(using expressions such as <code class="xref py py-class docutils literal notranslate"><span class="pre">TI.data[i]</span></code>.</li>
+<li>In tandem, one of their attributes is one of the <a class="reference internal" href="#time-classes"><span class="std std-ref">Time</span></a> base
+classes described above. This is the <code class="xref py py-attr docutils literal notranslate"><span class="pre">time</span></code> attribute of the
+time-series object. Therefore, for <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeries</span></code> it is implemented in
+the object with a <code class="xref py py-func docutils literal notranslate"><span class="pre">desc.setattr_on_read()</span></code> decoration, so that it is only
+generated if it is needed.</li>
+</ul>
+<div class="section" id="timeseries">
+<span id="id5"></span><h3><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeries</span></code><a class="headerlink" href="#timeseries" title="Permalink to this headline">¶</a></h3>
+<p>This represents time-series of data collected continuously and regularly. Can
+be used in order to represent typical physiological data measurements, such as
+measurements of BOLD responses, or of membrane-potential. The representation of
+time here is <a class="reference internal" href="#uniformtime"><span class="std std-ref">UniformTime</span></a>.</p>
+<p>XXX Write more about the different attributes of this class.</p>
+</div>
+<div class="section" id="epochs">
+<span id="id6"></span><h3><code class="xref py py-class docutils literal notranslate"><span class="pre">Epochs</span></code><a class="headerlink" href="#epochs" title="Permalink to this headline">¶</a></h3>
+<p>This class represents intervals of time, or epochs. Each instance of this class
+contains several attributes:</p>
+<ul class="simple">
+<li><code class="xref py py-attr docutils literal notranslate"><span class="pre">E.start</span></code>: This is an object of class <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeArray</span></code>, which
+represents a collection of starting times of epochs</li>
+<li><code class="xref py py-attr docutils literal notranslate"><span class="pre">E.stop</span></code>: This is an object of class <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeArray</span></code> which
+represents a collection of end points of the epochs.</li>
+<li><code class="xref py py-attr docutils literal notranslate"><span class="pre">E.duration</span></code>: This is an object of class <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeArray</span></code> which
+represents the durations of the epochs.</li>
+<li><code class="xref py py-attr docutils literal notranslate"><span class="pre">E.offset</span></code>: This attribute represents the offset of the epoch</li>
+<li><code class="xref py py-attr docutils literal notranslate"><span class="pre">E.time_unit</span></code>: This is</li>
+</ul>
+</div>
+<div class="section" id="events">
+<span id="id7"></span><h3><code class="xref py py-class docutils literal notranslate"><span class="pre">Events</span></code><a class="headerlink" href="#events" title="Permalink to this headline">¶</a></h3>
+<p>This is an object which represents a collection of events. For example, this
+can represent discrete button presses occurring during an experiment. This
+object contains a <a class="reference internal" href="#timearray"><span class="std std-ref">TimeArray</span></a> as its representation of time. This means
+that the events recorded in the <code class="xref py py-attr docutils literal notranslate"><span class="pre">data</span></code> array can be organized
+according to any organizing principle you would want, not necessarily according
+to their organization or order in time. For example, if events are read from
+different devices, the order of the events in the data array can be arbitrarily
+chosen to be the order of the devices from which data is read.</p>
+</div>
+</div>
+<div class="section" id="analyzers">
+<h2>Analyzers<a class="headerlink" href="#analyzers" title="Permalink to this headline">¶</a></h2>
+<p>These objects implement a particular analysis, or family of analyses. Typically, the initialization of this kind of object can happen with
+a time-series object provided as input, as well as a set of parameter values  setting. However, for most analyzer objects, the inputs can be provided upong
+calling the object, or by assignment to the already generated object.</p>
+<p>Sometimes, a user may wish to revert the computation, change some of the
+analysis parameters and recompute one or more of the results of the
+analysis. In order to do that, the analyzer objects implement a <code class="xref py py-attr docutils literal notranslate"><span class="pre">reset</span></code>
+attribute, which reverts the computation of analysis attributes and allows to
+change parameters in the analyzer and recompute the analysis results. This
+structure keeps the cost of computation of quantities derived from the analysis
+rather low.</p>
+<table class="docutils citation" frame="void" id="goldberg1991" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[Goldberg1991]</a></td><td>Goldberg D (1991). What every computer scientist should know
+about floating-point arithmetic. ACM computing surveys 23: 5-48</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Download and install"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >User Guide</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+analysis.event_related
+======================
+
+Module: :mod:`analysis.event_related`
+-------------------------------------
+Inheritance diagram for ``nitime.analysis.event_related``:
+
+.. inheritance-diagram:: nitime.analysis.event_related 
+   :parts: 3
+
+.. automodule:: nitime.analysis.event_related
+
+.. currentmodule:: nitime.analysis.event_related
+
+:class:`EventRelatedAnalyzer`
+-----------------------------
+
+
+.. autoclass:: EventRelatedAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__

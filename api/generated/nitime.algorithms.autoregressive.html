@@ -1,0 +1,507 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="algorithms.cohere" href="nitime.algorithms.cohere.html" />
+    <link rel="prev" title="API" href="../index.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.cohere.html" title="algorithms.cohere"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="API"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">algorithms.autoregressive</a><ul>
+<li><a class="reference internal" href="#module-nitime.algorithms.autoregressive">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.autoregressive</span></code></a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.algorithms.cohere.html"
+                        title="next chapter">algorithms.cohere</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="algorithms-autoregressive">
+<h1>algorithms.autoregressive<a class="headerlink" href="#algorithms-autoregressive" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-nitime.algorithms.autoregressive">
+<span id="module-algorithms-autoregressive"></span><h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">algorithms.autoregressive</span></code><a class="headerlink" href="#module-nitime.algorithms.autoregressive" title="Permalink to this headline">¶</a></h2>
+<p>Autoregressive (AR) processes are processes of the form:</p>
+<div class="math notranslate nohighlight">
+\[x(n) = a(1)x(n-1) + a(2)x(n-2) + ... + a(P)x(n-P) + e(n)\]</div>
+<p>where e(n) is a white noise process. The usage of ‘e’ suggests interpreting
+the linear combination of P past values of x(n) as the minimum mean square
+error linear predictor of x(n) Thus</p>
+<div class="math notranslate nohighlight">
+\[e(n) = x(n) - a(1)x(n-1) - a(2)x(n-2) - ... - a(P)x(n-P)\]</div>
+<p>Due to whiteness, e(n) is also pointwise uncorrelated–ie,</p>
+<div class="math notranslate nohighlight">
+\begin{align*}
+   \text{(i)}   &amp;&amp; E\{e(n)e^{*}(n-m)\}&amp; = \delta(n-m) &amp;\\
+   \text{(ii)}  &amp;&amp; E\{e(n)x^{*}(m)\}  &amp; = 0           &amp; m\neq n\\
+   \text{(iii)} &amp;&amp; E\{|e|^{2}\} = E\{e(n)e^{*}(n)\} &amp;= E\{e(n)x^{*}(n)\} &amp;
+\end{align*}</div><p>These principles form the basis of the methods in this module for
+estimating the AR coefficients and the error/innovations power.</p>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nitime.algorithms.autoregressive.AR_est_LD">
+<code class="descclassname">nitime.algorithms.autoregressive.</code><code class="descname">AR_est_LD</code><span class="sig-paren">(</span><em>x</em>, <em>order</em>, <em>rxx=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.autoregressive.AR_est_LD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Levinson-Durbin algorithm for solving the Hermitian Toeplitz
+system of Yule-Walker equations in the AR estimation problem</p>
+<div class="math notranslate nohighlight">
+\[T^{(p)}a^{(p)} = \gamma^{(p+1)}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\begin{align*}
+T^{(p)} &amp;= \begin{pmatrix}
+   R_{0} &amp; R_{1}^{*} &amp; \cdots &amp; R_{p-1}^{*}\\
+   R_{1} &amp; R_{0} &amp; \cdots &amp; R_{p-2}^{*}\\
+   \vdots &amp; \vdots &amp; \ddots &amp; \vdots\\
+   R_{p-1}^{*} &amp; R_{p-2}^{*} &amp; \cdots &amp; R_{0}
+\end{pmatrix}\\
+a^{(p)} &amp;=\begin{pmatrix} a_1 &amp; a_2 &amp; \cdots a_p \end{pmatrix}^{T}\\
+\gamma^{(p+1)}&amp;=\begin{pmatrix}R_1 &amp; R_2 &amp; \cdots &amp; R_p \end{pmatrix}^{T}
+\end{align*}</div><p>and <span class="math notranslate nohighlight">\(R_k\)</span> is the autocorrelation of the kth lag</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>the zero-mean stochastic process</p>
+</div></blockquote>
+<p><strong>order</strong> : int</p>
+<blockquote>
+<div><p>the AR model order–IE the rank of the system.</p>
+</div></blockquote>
+<p><strong>rxx</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>(at least) order+1 samples of the autocorrelation sequence</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ak, sig_sq</strong> :</p>
+<blockquote class="last">
+<div><p>The AR coefficients for 1 &lt;= k &lt;= p, and the variance of the
+driving white noise process</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.autoregressive.AR_est_YW">
+<code class="descclassname">nitime.algorithms.autoregressive.</code><code class="descname">AR_est_YW</code><span class="sig-paren">(</span><em>x</em>, <em>order</em>, <em>rxx=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.autoregressive.AR_est_YW" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the autoregressive (AR) model of a random process x using
+the Yule Walker equations. The AR model takes this convention:</p>
+<div class="math notranslate nohighlight">
+\[x(n) = a(1)x(n-1) + a(2)x(n-2) + \dots + a(p)x(n-p) + e(n)\]</div>
+<p>where e(n) is a zero-mean white noise process with variance sig_sq,
+and p is the order of the AR model. This method returns the a_i and
+sigma</p>
+<p>The orthogonality property of minimum mean square error estimates
+states that</p>
+<div class="math notranslate nohighlight">
+\[E\{e(n)x^{*}(n-k)\} = 0 \quad 1\leq k\leq p\]</div>
+<p>Inserting the definition of the error signal into the equations above
+yields the Yule Walker system of equations:</p>
+<div class="math notranslate nohighlight">
+\[R_{xx}(k) = \sum_{i=1}^{p}a(i)R_{xx}(k-i) \quad1\leq k\leq p\]</div>
+<p>Similarly, the variance of the error process is</p>
+<div class="math notranslate nohighlight">
+\[E\{e(n)e^{*}(n)\}   = E\{e(n)x^{*}(n)\} = R_{xx}(0)-\sum_{i=1}^{p}a(i)R^{*}(i)\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>The sampled autoregressive random process</p>
+</div></blockquote>
+<p><strong>order</strong> : int</p>
+<blockquote>
+<div><p>The order p of the AR system</p>
+</div></blockquote>
+<p><strong>rxx</strong> : ndarray (optional)</p>
+<blockquote>
+<div><p>An optional, possibly unbiased estimate of the autocorrelation of x</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>ak, sig_sq</strong> : The estimated AR coefficients and innovations variance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.autoregressive.AR_psd">
+<code class="descclassname">nitime.algorithms.autoregressive.</code><code class="descname">AR_psd</code><span class="sig-paren">(</span><em>ak</em>, <em>sigma_v</em>, <em>n_freqs=1024</em>, <em>sides='onesided'</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.autoregressive.AR_psd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the PSD of an AR process, based on the process coefficients and
+covariance</p>
+<dl class="docutils">
+<dt>n_freqs <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>The number of spacings on the frequency grid from [-PI,PI).
+If sides==’onesided’, n_freqs/2+1 frequencies are computed from [0,PI]</dd>
+<dt>sides <span class="classifier-delimiter">:</span> <span class="classifier">str (optional)</span></dt>
+<dd>Indicates whether to return a one-sided or two-sided PSD</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>(w, ar_psd)</strong> :</p>
+<p><strong>w</strong> : Array of normalized frequences from [-.5, .5) or [0,.5]</p>
+<p><strong>ar_psd</strong> : A PSD estimate computed by sigma_v / <a href="#id1"><span class="problematic" id="id2">|</span></a>1-a(f)|**2 , where</p>
+<blockquote class="last">
+<div><p>a(f) = DTFT(ak)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.autoregressive.MAR_est_LWR">
+<code class="descclassname">nitime.algorithms.autoregressive.</code><code class="descname">MAR_est_LWR</code><span class="sig-paren">(</span><em>x</em>, <em>order</em>, <em>rxx=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.autoregressive.MAR_est_LWR" title="Permalink to this definition">¶</a></dt>
+<dd><p>MAR estimation, using the LWR algorithm, as in Morf et al.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<blockquote>
+<div><p>The sampled autoregressive random process</p>
+</div></blockquote>
+<p><strong>order</strong> : int</p>
+<blockquote>
+<div><p>The order P of the AR system</p>
+</div></blockquote>
+<p><strong>rxx</strong> : ndarray (optional)</p>
+<blockquote>
+<div><p>An optional, possibly unbiased estimate of the autocovariance of x</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>a, ecov</strong> : The system coefficients and the estimated covariance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.autoregressive.coherence_from_spectral">
+<code class="descclassname">nitime.algorithms.autoregressive.</code><code class="descname">coherence_from_spectral</code><span class="sig-paren">(</span><em>Sw</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.autoregressive.coherence_from_spectral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the spectral coherence between processes X and Y,
+given their spectral matrix S(w)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Sw</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>spectral matrix</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.autoregressive.granger_causality_xy">
+<code class="descclassname">nitime.algorithms.autoregressive.</code><code class="descname">granger_causality_xy</code><span class="sig-paren">(</span><em>a</em>, <em>cov</em>, <em>n_freqs=1024</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.autoregressive.granger_causality_xy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Granger causality between processes X and Y, which
+are linked in a multivariate autoregressive (mAR) model parameterized
+by coefficient matrices a(i) and the innovations covariance matrix</p>
+<p>X[t] + sum_{k=1}^P a[k]X[t-k] = Err[t]</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>a</strong> : ndarray, (P,2,2)</p>
+<blockquote>
+<div><p>coefficient matrices characterizing the autoregressive mixing</p>
+</div></blockquote>
+<p><strong>cov</strong> : ndarray, (2,2)</p>
+<blockquote>
+<div><p>covariance matrix characterizing the innovations vector</p>
+</div></blockquote>
+<p><strong>n_freqs: int</strong> :</p>
+<blockquote>
+<div><p>number of frequencies to compute in the fourier transform</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>w, f_x_on_y, f_y_on_x, f_xy, Sw</strong> :</p>
+<blockquote class="last">
+<div><ol class="arabic simple">
+<li>vector of frequencies</li>
+<li>function of the Granger causality of X on Y</li>
+<li>function of the Granger causality of Y on X</li>
+<li>function of the ‘instantaneous causality’ between X and Y</li>
+<li>spectral density matrix</li>
+</ol>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.autoregressive.interdependence_xy">
+<code class="descclassname">nitime.algorithms.autoregressive.</code><code class="descname">interdependence_xy</code><span class="sig-paren">(</span><em>Sw</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.autoregressive.interdependence_xy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the ‘total interdependence’ between processes X and Y,
+given their spectral matrix S(w)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Sw</strong> : ndarray</p>
+<blockquote>
+<div><p>spectral matrix</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fxy(w)</strong> :</p>
+<blockquote class="last">
+<div><p>interdependence function of frequency</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.autoregressive.lwr_recursion">
+<code class="descclassname">nitime.algorithms.autoregressive.</code><code class="descname">lwr_recursion</code><span class="sig-paren">(</span><em>r</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.autoregressive.lwr_recursion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a Levinson-Wiggins[Whittle]-Robinson recursion to
+find the coefficients a(i) that satisfy the matrix version
+of the Yule-Walker system of P + 1 equations:</p>
+<p>sum_{i=0}^{P} a(i)r(k-i) = 0, for k = {1,2,…,P}</p>
+<p>with the additional equation</p>
+<p>sum_{i=0}^{P} a(i)r(-k) = V</p>
+<p>where V is the covariance matrix of the innovations process,
+and a(0) is fixed at the identity matrix</p>
+<p>Also note that r is defined as:</p>
+<p>r(k) = E{ X(t)X*(t-k) } ( * = conjugate transpose )
+r(-k) = r*(k)</p>
+<p>This routine adapts the algorithm found in eqs (1)-(11)
+in Morf, Vieira, Kailath 1978</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>r</strong> : ndarray, shape (P + 1, nc, nc)</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>a</strong> : ndarray (P,nc,nc)</p>
+<blockquote>
+<div><p>coefficient sequence of order P</p>
+</div></blockquote>
+<p><strong>sigma</strong> : ndarray (nc,nc)</p>
+<blockquote class="last">
+<div><p>covariance estimate</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.autoregressive.spectral_matrix_xy">
+<code class="descclassname">nitime.algorithms.autoregressive.</code><code class="descname">spectral_matrix_xy</code><span class="sig-paren">(</span><em>Hw</em>, <em>cov</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.autoregressive.spectral_matrix_xy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the spectral matrix S(w), from the convention:</p>
+<p>X[t] + sum_{k=1}^P a[k]X[t-k] = Err[t]</p>
+<p>The formulation follows from Ding, Chen, Bressler 2008,
+pg 6 eqs (11) to (15)</p>
+<p>The transfer function H(w) should be computed first from
+transfer_function_xy()</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Hw</strong> : ndarray (2, 2, n_freqs)</p>
+<blockquote>
+<div><p>Pre-computed transfer function from transfer_function_xy()</p>
+</div></blockquote>
+<p><strong>cov</strong> : ndarray (2, 2)</p>
+<blockquote>
+<div><p>The covariance between innovations processes in Err[t]</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Sw</strong> : ndarrays</p>
+<blockquote class="last">
+<div><p>matrix of spectral density functions</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.autoregressive.transfer_function_xy">
+<code class="descclassname">nitime.algorithms.autoregressive.</code><code class="descname">transfer_function_xy</code><span class="sig-paren">(</span><em>a</em>, <em>n_freqs=1024</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.autoregressive.transfer_function_xy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper routine to compute the transfer function H(w) based
+on sequence of coefficient matrices A(i). The z transforms
+follow from this definition:</p>
+<p>X[t] + sum_{k=1}^P a[k]X[t-k] = Err[t]</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>a</strong> : ndarray, shape (P, 2, 2)</p>
+<blockquote>
+<div><p>sequence of coef matrices describing an mAR process</p>
+</div></blockquote>
+<p><strong>n_freqs</strong> : int, optional</p>
+<blockquote>
+<div><p>number of frequencies to compute in range [0,PI]</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Hw</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>The transfer function from innovations process vector to
+mAR process X</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.cohere.html" title="algorithms.cohere"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="API"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,29 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+analysis.snr
+============
+
+Module: :mod:`analysis.snr`
+---------------------------
+Inheritance diagram for ``nitime.analysis.snr``:
+
+.. inheritance-diagram:: nitime.analysis.snr 
+   :parts: 3
+
+.. automodule:: nitime.analysis.snr
+
+.. currentmodule:: nitime.analysis.snr
+
+:class:`SNRAnalyzer`
+--------------------
+
+
+.. autoclass:: SNRAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+.. autofunction:: nitime.analysis.snr.signal_noise
+

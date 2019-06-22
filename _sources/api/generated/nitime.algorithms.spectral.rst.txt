@@ -1,0 +1,38 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+algorithms.spectral
+===================
+
+Module: :mod:`algorithms.spectral`
+----------------------------------
+.. automodule:: nitime.algorithms.spectral
+
+.. currentmodule:: nitime.algorithms.spectral
+
+Functions
+---------
+
+
+.. autofunction:: nitime.algorithms.spectral.freq_response
+
+
+.. autofunction:: nitime.algorithms.spectral.get_spectra
+
+
+.. autofunction:: nitime.algorithms.spectral.get_spectra_bi
+
+
+.. autofunction:: nitime.algorithms.spectral.mtm_cross_spectrum
+
+
+.. autofunction:: nitime.algorithms.spectral.multi_taper_csd
+
+
+.. autofunction:: nitime.algorithms.spectral.multi_taper_psd
+
+
+.. autofunction:: nitime.algorithms.spectral.periodogram
+
+
+.. autofunction:: nitime.algorithms.spectral.periodogram_csd
+

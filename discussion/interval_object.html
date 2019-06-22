@@ -1,0 +1,269 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Interval object</a><ul>
+<li><a class="reference internal" href="#attributes">Attributes</a></li>
+<li><a class="reference internal" href="#initialization">Initialization</a></li>
+<li><a class="reference internal" href="#implementation-using-a-slice-object">Implementation using a slice object</a></li>
+<li><a class="reference internal" href="#interval-arrays">Interval arrays</a></li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="interval-object">
+<span id="interval-class"></span><h1>Interval object<a class="headerlink" href="#interval-object" title="Permalink to this headline">¶</a></h1>
+<p>Intervals can carry particular special meaning in the analysis of
+time-series. For example, a typical case, is when two time-series are recorded
+simultaneously. One is recorded from measurement of some continuous
+physilogical variable, such as fMRI BOLD (and is represented by a an object of
+type <span class="xref std std-ref">UniformTimeSeries</span>). The other is a series of discrete events
+occurring concurrently (and can be represented by a <span class="xref std std-ref">EventSeries</span> or by a
+<span class="xref std std-ref">NonUniformTimeSeries</span>). For example, button presses by the subject, or
+trials of different kinds. If we want to analyze the progression of the
+physiological time-series, locked to particular kinds of events in the
+event-series, we would need a notion of an interval of time surrounding those
+events.</p>
+<p>In order to do that, we propose implementing a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInterval</span></code>
+object.</p>
+<div class="section" id="attributes">
+<span id="interval-attributes"></span><h2>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h2>
+<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInterval</span></code> object can be thought of as a <code class="xref py py-class docutils literal notranslate"><span class="pre">Slice</span></code> for
+time-series objects and therefore should at least implement all attributes and
+methods of the slice object (sub-classing of slice doesn’t seem to be possible,
+see <span class="xref std std-ref">interval_from_slice</span>).</p>
+<p>In particular, an object of class <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInterval</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">TI</span></code>, has
+the attributes/functions:</p>
+<ul class="simple">
+<li><code class="xref py py-attr docutils literal notranslate"><span class="pre">TI.t_start</span></code>: the start time of the interval.</li>
+<li><code class="xref py py-attr docutils literal notranslate"><span class="pre">TI.t_stop</span></code>: the end time of the interval.</li>
+<li><code class="xref py py-attr docutils literal notranslate"><span class="pre">TI.duration</span></code>: the duration of the interval.</li>
+</ul>
+<p>Obviously, knowledge of two of these, should allow calculation of the
+third. Therefore, this should be implemented in the object with a
+<code class="xref py py-func docutils literal notranslate"><span class="pre">setattr_on_read()</span></code> decoration and the object should inherit
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ResetMixin</span></code>.  Initialization of the object would
+verify that enough information exists and that the information provided is
+consistent, in the same manner that is already implemented in
+<code class="xref py py-class docutils literal notranslate"><span class="pre">UniformTimeSeries</span></code>.</p>
+<ul class="simple">
+<li><code class="xref py py-attr docutils literal notranslate"><span class="pre">TI.t_step</span></code>: originally, we thought that this could be abused to
+represent a time offset, relative to the attributes <code class="xref py py-attr docutils literal notranslate"><span class="pre">t_start</span></code> and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">t_stop</span></code>. That is, it can tell us where relative to these two
+time-points some interesting even, which this interval surrounds, or this
+interval is close to, occurs. This can be used in order to interpert how
+time-series access is done using the <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInterval</span></code> object. See
+<a class="reference internal" href="time_series_access.html#time-series-access"><span class="std std-ref">Time-series access</span></a>. This attribute can be implemented as an optional
+input on initialization, such that it defaults to be equal to
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">t_start</span></code>.</li>
+<li><code class="xref py py-func docutils literal notranslate"><span class="pre">TI.indices(len)()</span></code>: this method returns a tuple of time points that can
+be used for slicing. Originally, this is meant to produce a list of indices
+of length len that can be directly used to obtain a slice of the same
+length. However, when we use a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInterval</span></code> for slicing, we don’t
+know yet, how long the sliced object will be (it depends on the sampling
+interval of the sliced object). If we just use len=0, the indices method just
+returns a 3-tuple that still contains all necessary information and can be
+used for slicing:</li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="go">&gt;&gt;&gt;TI.indices(0)</span>
+<span class="go">(TI.t_start TI.t_stop, TI.t_step)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="initialization">
+<span id="interval-initialization"></span><h2>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h2>
+<p>There are various different ways to initialize a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInterval</span></code>:</p>
+<ul class="simple">
+<li>With two time points t_start and t_stop, both of <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeArray</span></code>:</li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">TimeInterval</span><span class="p">(</span><span class="n">t_start</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span><span class="n">t_stop</span><span class="o">=</span><span class="n">t2</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>With a time point <code class="xref py py-attr docutils literal notranslate"><span class="pre">t_start</span></code> (a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeArray</span></code>) and a duration (a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">TimeArray</span></code>):</li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">TimeInterval</span><span class="p">(</span><span class="n">t_start</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span><span class="n">duration</span><span class="o">=</span><span class="n">t_duration</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>With an optional third argument <code class="xref py py-attr docutils literal notranslate"><span class="pre">t_step</span></code>  (a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeArray</span></code>)
+indicating a time offset of a time point <span class="math notranslate nohighlight">\(t_0=t_{start}-t_{step}\)</span> relative to
+which the time inside the interval should be interpreted. The relevance of
+this third argument will become clearer when the time interval is used to
+slice into a time-series object (see <a class="reference internal" href="time_series_access.html#time-series-access"><span class="std std-ref">Time-series access</span></a>). Briefly -
+the returned object would be a time-series object with the <code class="xref py py-attr docutils literal notranslate"><span class="pre">t0</span></code>
+attribute set to be the <span class="math notranslate nohighlight">\(t_0\)</span> described above. If not provided, this would
+default to be equal to <code class="xref py py-attr docutils literal notranslate"><span class="pre">t_start</span></code>:</li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">TimeInterval</span><span class="p">(</span><span class="n">t_start</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span> <span class="n">t_stop</span><span class="o">=</span><span class="n">t2</span><span class="p">,</span> <span class="n">t_step</span><span class="o">=</span><span class="n">delta_t</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">TimeInterval</span> <span class="p">(</span><span class="n">t_start</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span><span class="n">duration</span><span class="o">=</span><span class="n">delta_t1</span><span class="p">,</span> <span class="n">t_step</span><span class="o">=</span><span class="n">delta_t2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, we would like allow setting the interval with floating point values,
+which will be interpreted as time points <code class="xref py py-attr docutils literal notranslate"><span class="pre">t_start</span></code> and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">t_stop</span></code>. This convention would be convenient, but requires that the
+initialization of the object will know what the units are. In order to make
+this possible, the interval (similar to the current implementation of the
+time-series object will have an attribute <code class="xref py py-attr docutils literal notranslate"><span class="pre">t_unit</span></code>, which would default
+to ‘s’. The initialization will then cast the values provided into the
+appropriate <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeArray</span></code> objects.</p>
+</div>
+<div class="section" id="implementation-using-a-slice-object">
+<h2>Implementation using a slice object<a class="headerlink" href="#implementation-using-a-slice-object" title="Permalink to this headline">¶</a></h2>
+<p>Sub-classing of the slice object doesn’t seem to be possible:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">myslice</span><span class="p">(</span><span class="nb">slice</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="go">------------------------------------------------------------</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;ipython console&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">TypeError</span>: <span class="n">Error when calling the metaclass bases</span>
+<span class="go">    type &#39;slice&#39; is not an acceptable base type</span>
+</pre></div>
+</div>
+<p>However, it seems that a (scalar) <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInterval</span></code> can be implemented
+using a slice object, provided the time points <code class="xref py py-attr docutils literal notranslate"><span class="pre">t_start</span></code> and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">t_stop</span></code> and the time offset <code class="xref py py-attr docutils literal notranslate"><span class="pre">t_step</span></code> implement an __index__
+method:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="s1">&#39;t_start&#39;</span><span class="p">,</span><span class="s1">&#39;t_stop&#39;</span><span class="p">,</span><span class="s1">&#39;t_step&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span>
+<span class="go">&#39;t_start&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">stop</span>
+<span class="go">&#39;t_stop&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">step</span>
+<span class="go">&#39;t_step&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">------------------------------------------------------------</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;ipython console&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">TypeError</span>: <span class="n">slice indices must be integers or None or have an __index__ method</span>
+</pre></div>
+</div>
+<p>Alternatively, the <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInterval</span></code> can be implemented as an original
+object with the default constructor as similar as possible to the constructor
+of the slice object, so that we can use slice-like operations, but still
+maintain slice algebra and such.</p>
+<p>In addition to the possibility of algebraic operations, there are other reasons
+to have the <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInterval</span></code> be an original class that holds a slice
+object that can be returned by the method <code class="xref py py-func docutils literal notranslate"><span class="pre">TI.asslice()</span></code>.</p>
+</div>
+<div class="section" id="interval-arrays">
+<span id="id1"></span><h2>Interval arrays<a class="headerlink" href="#interval-arrays" title="Permalink to this headline">¶</a></h2>
+<p>In addition to scalar <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInterval</span></code> objects, it also makes sense to
+define arrays of <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInterval</span></code> objects. These arrays can be implemented
+as <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>, with an <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a> dtype.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

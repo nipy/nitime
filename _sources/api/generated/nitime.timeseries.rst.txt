@@ -1,0 +1,133 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+timeseries
+==========
+
+Module: :mod:`timeseries`
+-------------------------
+Inheritance diagram for ``nitime.timeseries``:
+
+.. inheritance-diagram:: nitime.timeseries 
+   :parts: 3
+
+.. automodule:: nitime.timeseries
+
+.. currentmodule:: nitime.timeseries
+
+Classes
+-------
+
+:class:`Epochs`
+~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Epochs
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`Events`
+~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Events
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`Frequency`
+~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Frequency
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`TimeArray`
+~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: TimeArray
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`TimeInterface`
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: TimeInterface
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`TimeSeries`
+~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: TimeSeries
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`TimeSeriesBase`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: TimeSeriesBase
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`TimeSeriesInterface`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: TimeSeriesInterface
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`UniformTime`
+~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: UniformTime
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+Functions
+---------
+
+
+.. autofunction:: nitime.timeseries.concatenate_time_series
+
+
+.. autofunction:: nitime.timeseries.get_time_unit
+
+
+.. autofunction:: nitime.timeseries.str_tspec
+
+
+.. autofunction:: nitime.timeseries.str_valid_tspecs
+

@@ -1,0 +1,26 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+analysis.normalization
+======================
+
+Module: :mod:`analysis.normalization`
+-------------------------------------
+Inheritance diagram for ``nitime.analysis.normalization``:
+
+.. inheritance-diagram:: nitime.analysis.normalization 
+   :parts: 3
+
+.. automodule:: nitime.analysis.normalization
+
+.. currentmodule:: nitime.analysis.normalization
+
+:class:`NormalizationAnalyzer`
+------------------------------
+
+
+.. autoclass:: NormalizationAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__

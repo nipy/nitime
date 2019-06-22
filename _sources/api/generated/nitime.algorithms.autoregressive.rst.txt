@@ -1,0 +1,44 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+algorithms.autoregressive
+=========================
+
+Module: :mod:`algorithms.autoregressive`
+----------------------------------------
+.. automodule:: nitime.algorithms.autoregressive
+
+.. currentmodule:: nitime.algorithms.autoregressive
+
+Functions
+---------
+
+
+.. autofunction:: nitime.algorithms.autoregressive.AR_est_LD
+
+
+.. autofunction:: nitime.algorithms.autoregressive.AR_est_YW
+
+
+.. autofunction:: nitime.algorithms.autoregressive.AR_psd
+
+
+.. autofunction:: nitime.algorithms.autoregressive.MAR_est_LWR
+
+
+.. autofunction:: nitime.algorithms.autoregressive.coherence_from_spectral
+
+
+.. autofunction:: nitime.algorithms.autoregressive.granger_causality_xy
+
+
+.. autofunction:: nitime.algorithms.autoregressive.interdependence_xy
+
+
+.. autofunction:: nitime.algorithms.autoregressive.lwr_recursion
+
+
+.. autofunction:: nitime.algorithms.autoregressive.spectral_matrix_xy
+
+
+.. autofunction:: nitime.algorithms.autoregressive.transfer_function_xy
+

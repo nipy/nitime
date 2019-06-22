@@ -1,0 +1,62 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+analysis.coherence
+==================
+
+Module: :mod:`analysis.coherence`
+---------------------------------
+Inheritance diagram for ``nitime.analysis.coherence``:
+
+.. inheritance-diagram:: nitime.analysis.coherence 
+   :parts: 3
+
+.. automodule:: nitime.analysis.coherence
+
+.. currentmodule:: nitime.analysis.coherence
+
+Classes
+-------
+
+:class:`CoherenceAnalyzer`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: CoherenceAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`MTCoherenceAnalyzer`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: MTCoherenceAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`SeedCoherenceAnalyzer`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: SeedCoherenceAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`SparseCoherenceAnalyzer`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: SparseCoherenceAnalyzer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__

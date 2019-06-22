@@ -1,0 +1,229 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Release notes for nitime version 0.4" href="version0.4.html" />
+    <link rel="prev" title="Release notes for nitime version 0.6" href="version0.6.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="version0.4.html" title="Release notes for nitime version 0.4"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="version0.6.html" title="Release notes for nitime version 0.6"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">What’s new in Nitime</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Release notes for nitime version 0.5</a><ul>
+<li><a class="reference internal" href="#summary-of-changes">Summary of changes</a></li>
+<li><a class="reference internal" href="#contributors-to-this-release">Contributors to this release</a></li>
+<li><a class="reference internal" href="#detailed-stats-from-the-github-repository">Detailed stats from the github repository</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="version0.6.html"
+                        title="previous chapter">Release notes for nitime version 0.6</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="version0.4.html"
+                        title="next chapter">Release notes for nitime version 0.4</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="release-notes-for-nitime-version-0-5">
+<h1>Release notes for nitime version 0.5<a class="headerlink" href="#release-notes-for-nitime-version-0-5" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="summary-of-changes">
+<h2>Summary of changes<a class="headerlink" href="#summary-of-changes" title="Permalink to this headline">¶</a></h2>
+<p>Major changes introduced in version 0.5 of <code class="xref py py-mod docutils literal notranslate"><span class="pre">nitime</span></code>:</p>
+<ol class="arabic simple">
+<li>Python 3 support. Work led by Paul Ivanov and Ariel Rokem, with help from Thomas Kluyver, and Matthew Brett.</li>
+<li>Multi-taper F-test for harmonic components. Work led by Mike Trumpis.</li>
+<li>Continuous integration testing with Travis. Work led by Ariel Rokem.</li>
+<li>Various fixes and robustifications from several contributors (see below).</li>
+</ol>
+</div>
+<div class="section" id="contributors-to-this-release">
+<h2>Contributors to this release<a class="headerlink" href="#contributors-to-this-release" title="Permalink to this headline">¶</a></h2>
+<p>The following people contributed to this release:</p>
+<ul class="simple">
+<li>Ariel Rokem</li>
+<li>Dmitry Shachnev</li>
+<li>Eric Larson</li>
+<li>Mike Trumpis</li>
+<li>Paul Ivanov</li>
+<li>endolith</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This list was generated using:</p>
+<p>git log –pretty=format:”* %aN” rel/0.4… | sort | uniq</p>
+<p class="last">Please let us know if you should appear on this list and do not, so that we
+can add your name in future release notes.</p>
+</div>
+</div>
+<div class="section" id="detailed-stats-from-the-github-repository">
+<h2>Detailed stats from the github repository<a class="headerlink" href="#detailed-stats-from-the-github-repository" title="Permalink to this headline">¶</a></h2>
+<p>GitHub stats for the last 730 days.  We closed a total of 40 issues, 17 pull
+requests and 23 regular issues; this is the full list (generated with the
+script <cite>tools/github_stats.py</cite>):</p>
+<p>Pull Requests (17):</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/124/">#124</a>: Buildbot mpl</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/114/">#114</a>: This should help the buildbot on older platforms</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/122/">#122</a>: Mpl units patch</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/121/">#121</a>: RF: Remove the dependency on external ‘six’, by integrating that file in</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/119/">#119</a>: Python3 support!</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/120/">#120</a>: Pi=py3k</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/115/">#115</a>: BF: For complex signals, return both the negative and positive spectrum</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/112/">#112</a>: Mt fix ups</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/118/">#118</a>: FIX: Pass int</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/117/">#117</a>: NF: On the way to enabling travis ci.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/111/">#111</a>: Use inheritance_diagram.py provided by Sphinx (&gt;= 0.6)</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/110/">#110</a>: BF + TST: Robustification and testing of utility function.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/108/">#108</a>: Doc timeseries</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/109/">#109</a>: Spectra for multi-dimensional time-series</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/107/">#107</a>: DOC: fix parameter rendering for timeseries</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/106/">#106</a>: Fix rst definition list formatting</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/105/">#105</a>: FIX: Kmax wrong, BW = bandwidth</li>
+</ul>
+<p>Issues (23):</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/116/">#116</a>: Refer to github more prominently on webpage</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/124/">#124</a>: Buildbot mpl</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/114/">#114</a>: This should help the buildbot on older platforms</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/123/">#123</a>: Memory error of  GrangerAnalyzer</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/122/">#122</a>: Mpl units patch</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/121/">#121</a>: RF: Remove the dependency on external ‘six’, by integrating that file in</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/120/">#120</a>: Pi=py3k</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/119/">#119</a>: Python3 support!</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/115/">#115</a>: BF: For complex signals, return both the negative and positive spectrum</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/112/">#112</a>: Mt fix ups</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/118/">#118</a>: FIX: Pass int</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/117/">#117</a>: NF: On the way to enabling travis ci.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/113/">#113</a>: Race condition provoked in TimeArray</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/111/">#111</a>: Use inheritance_diagram.py provided by Sphinx (&gt;= 0.6)</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/110/">#110</a>: BF + TST: Robustification and testing of utility function.</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/108/">#108</a>: Doc timeseries</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/109/">#109</a>: Spectra for multi-dimensional time-series</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/107/">#107</a>: DOC: fix parameter rendering for timeseries</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/106/">#106</a>: Fix rst definition list formatting</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/105/">#105</a>: FIX: Kmax wrong, BW = bandwidth</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/30/">#30</a>: Make default behavior for fmri.io.time_series_from_file</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/84/">#84</a>: Note on examples</li>
+<li><a class="reference external" href="https://github.com/nipy/nitime/issues/93/">#93</a>: TimeArray .prod is borked (because of overflow?)</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="version0.4.html" title="Release notes for nitime version 0.4"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="version0.6.html" title="Release notes for nitime version 0.6"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >What’s new in Nitime</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

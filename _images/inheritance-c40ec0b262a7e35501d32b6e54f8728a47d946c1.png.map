@@ -1,0 +1,13 @@
+<map id="inheritance5480e4f538" name="inheritance5480e4f538">
+<area shape="rect" id="node1" href="nitime.descriptors.html#nitime.descriptors.ResetMixin" target="_top" title="A Mixin class to add a .reset() method to users of OneTimeProperty." alt="" coords="19,248,214,272"/>
+<area shape="rect" id="node2" href="#nitime.timeseries.Epochs" target="_top" title="Represents a time interval" alt="" coords="313,248,482,272"/>
+<area shape="rect" id="node3" href="#nitime.timeseries.Events" target="_top" title="Represents timestamps and associated data" alt="" coords="315,53,481,77"/>
+<area shape="rect" id="node4" href="#nitime.timeseries.TimeInterface" target="_top" title="The minimal object interface for time representations" alt="" coords="13,135,220,159"/>
+<area shape="rect" id="node6" href="#nitime.timeseries.TimeArray" target="_top" title="Base&#45;class for time representations, implementing the TimeInterface" alt="" coords="305,149,491,173"/>
+<area shape="rect" id="node10" href="#nitime.timeseries.TimeSeriesInterface" target="_top" title="The minimally agreed upon interface for all time series." alt="" coords="276,101,520,125"/>
+<area shape="rect" id="node11" href="#nitime.timeseries.UniformTime" target="_top" title="A representation of time sampled uniformly" alt="" coords="297,197,498,221"/>
+<area shape="rect" id="node5" href="#nitime.timeseries.Frequency" target="_top" title="A class for representation of the frequency (in Hz)" alt="" coords="22,63,211,87"/>
+<area shape="rect" id="node7" title="ndarray(shape, dtype=float, buffer=None, offset=0," alt="" coords="62,195,171,219"/>
+<area shape="rect" id="node8" href="#nitime.timeseries.TimeSeries" target="_top" title="Represent data collected at uniform intervals." alt="" coords="302,5,494,29"/>
+<area shape="rect" id="node9" href="#nitime.timeseries.TimeSeriesBase" target="_top" title="Base class for time series, implementing the TimeSeriesInterface." alt="" coords="5,5,228,29"/>
+</map>

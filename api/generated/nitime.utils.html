@@ -1,0 +1,1881 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="viz" href="nitime.viz.html" />
+    <link rel="prev" title="timeseries" href="nitime.timeseries.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.viz.html" title="viz"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.timeseries.html" title="timeseries"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">utils</a><ul>
+<li><a class="reference internal" href="#module-nitime.utils">Module: <code class="docutils literal notranslate"><span class="pre">utils</span></code></a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.timeseries.html"
+                        title="previous chapter">timeseries</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.viz.html"
+                        title="next chapter">viz</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="utils">
+<h1>utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-nitime.utils">
+<span id="module-utils"></span><h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code><a class="headerlink" href="#module-nitime.utils" title="Permalink to this headline">¶</a></h2>
+<p>Miscellaneous utilities for time series analysis.</p>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nitime.utils.adaptive_weights">
+<code class="descclassname">nitime.utils.</code><code class="descname">adaptive_weights</code><span class="sig-paren">(</span><em>yk</em>, <em>eigvals</em>, <em>sides='onesided'</em>, <em>max_iter=150</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.adaptive_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform an iterative procedure to find the optimal weights for K
+direct spectral estimators of DPSS tapered signals.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yk</strong> : ndarray (K, N)</p>
+<blockquote>
+<div><p>The K DFTs of the tapered sequences</p>
+</div></blockquote>
+<p><strong>eigvals</strong> : ndarray, length-K</p>
+<blockquote>
+<div><p>The eigenvalues of the DPSS tapers</p>
+</div></blockquote>
+<p><strong>sides</strong> : str</p>
+<blockquote>
+<div><p>Whether to compute weights on a one-sided or two-sided spectrum</p>
+</div></blockquote>
+<p><strong>max_iter</strong> : int</p>
+<blockquote>
+<div><p>Maximum number of iterations for weight computation</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>weights, nu</strong> :</p>
+<blockquote class="last">
+<div><p>The weights (array like sdfs), and the
+“equivalent degrees of freedom” (array length-L)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The weights to use for making the multitaper estimate, such that
+<span class="math notranslate nohighlight">\(S_{mt} = \sum_{k} |w_k|^2S_k^{mt} / \sum_{k} |w_k|^2\)</span></p>
+<p>If there are less than 3 tapers, then the adaptive weights are not
+found. The square root of the eigenvalues are returned as weights,
+and the degrees of freedom are 2*K</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.akaike_information_criterion">
+<code class="descclassname">nitime.utils.</code><code class="descname">akaike_information_criterion</code><span class="sig-paren">(</span><em>ecov</em>, <em>p</em>, <em>m</em>, <em>Ntotal</em>, <em>corrected=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.akaike_information_criterion" title="Permalink to this definition">¶</a></dt>
+<dd><p>A measure of the goodness of fit of an auto-regressive model based on the
+model order and the error covariance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ecov</strong> : float array</p>
+<blockquote>
+<div><p>The error covariance of the system</p>
+</div></blockquote>
+<p><strong>p</strong> :</p>
+<blockquote>
+<div><p>the number of channels</p>
+</div></blockquote>
+<p><strong>m</strong> : int</p>
+<blockquote>
+<div><p>the model order</p>
+</div></blockquote>
+<p><strong>Ntotal</strong> :</p>
+<blockquote>
+<div><p>the number of total time-points (across channels)</p>
+</div></blockquote>
+<p><strong>corrected</strong> : boolean (optional)</p>
+<blockquote>
+<div><p>Whether to correct for small sample size</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>AIC</strong> : float</p>
+<blockquote class="last">
+<div><p>The value of the AIC</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This is an implementation of equation (50) in Ding et al. (2006):</p>
+<p>M Ding and Y Chen and S Bressler (2006) Granger Causality: Basic Theory and
+Application to Neuroscience. <a class="reference external" href="http://arxiv.org/abs/q-bio/0608035v1">http://arxiv.org/abs/q-bio/0608035v1</a></p>
+<p>Correction for small sample size is taken from:
+<a class="reference external" href="http://en.wikipedia.org/wiki/Akaike_information_criterion">http://en.wikipedia.org/wiki/Akaike_information_criterion</a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.antisymm_rand_arr">
+<code class="descclassname">nitime.utils.</code><code class="descname">antisymm_rand_arr</code><span class="sig-paren">(</span><em>size</em>, <em>sample_func=&lt;built-in method random_sample of mtrand.RandomState object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.antisymm_rand_arr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make an anti-symmetric random 2-d array of shape (size,size).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>Size of the output array.</p>
+</div></blockquote>
+<p><strong>sample_func</strong> : function, optional.</p>
+<blockquote class="last">
+<div><p>Must be a function which when called with a 2-tuple of ints, returns a
+2-d array of that shape.  By default, np.random.random is used, but any
+other sampling function can be used as long as matches this API.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># for doctesting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># for doctesting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">antisymm_rand_arr</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([[ 0.    ,  0.7152,  0.6028,  0.5449],</span>
+<span class="go">       [-0.7152,  0.    ,  0.4376,  0.8918],</span>
+<span class="go">       [-0.6028, -0.4376,  0.    ,  0.5289],</span>
+<span class="go">       [-0.5449, -0.8918, -0.5289,  0.    ]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.ar_generator">
+<code class="descclassname">nitime.utils.</code><code class="descname">ar_generator</code><span class="sig-paren">(</span><em>N=512</em>, <em>sigma=1.0</em>, <em>coefs=None</em>, <em>drop_transients=0</em>, <em>v=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.ar_generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>This generates a signal u(n) = a1*u(n-1) + a2*u(n-2) + … + v(n)
+where v(n) is a stationary stochastic process with zero mean
+and variance = sigma. XXX: confusing variance notation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>N</strong> : float</p>
+<blockquote>
+<div><p>The number of points in the AR process generated. Default: 512</p>
+</div></blockquote>
+<p><strong>sigma</strong> : float</p>
+<blockquote>
+<div><p>The variance of the noise in the AR process. Default: 1</p>
+</div></blockquote>
+<p><strong>coefs</strong> : list or array of floats</p>
+<blockquote>
+<div><p>The AR model coefficients. Default: [2.7607, -3.8106, 2.6535, -0.9238],
+which is a sequence shown to be well-estimated by an order 8 AR system.</p>
+</div></blockquote>
+<p><strong>drop_transients</strong> : float</p>
+<blockquote>
+<div><p>How many samples to drop from the beginning of the sequence (the
+transient phases of the process), so that the process can be considered
+stationary.</p>
+</div></blockquote>
+<p><strong>v</strong> : float array</p>
+<blockquote>
+<div><p>Optionally, input a specific sequence of noise samples (this over-rides
+the sigma parameter). Default: None</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>u</strong> : ndarray</p>
+<blockquote>
+<div><p>the AR sequence</p>
+</div></blockquote>
+<p><strong>v</strong> : ndarray</p>
+<blockquote>
+<div><p>the unit-variance innovations sequence</p>
+</div></blockquote>
+<p><strong>coefs</strong> : ndarray</p>
+<blockquote>
+<div><p>feedback coefficients from k=1,len(coefs)</p>
+</div></blockquote>
+<p><strong>The form of the feedback coefficients is a little different than</strong> :</p>
+<p><strong>the normal linear constant-coefficient difference equation. Therefore</strong> :</p>
+<p><strong>the transfer function implemented in this method is</strong> :</p>
+<p class="last"><strong>H(z) = sigma**0.5 / ( 1 - sum_k coefs(k)z**(-k) )    1 &lt;= k &lt;= P</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">nitime.algorithms</span> <span class="k">as</span> <span class="nn">alg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ar_seq</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="n">ar_generator</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fgrid</span><span class="p">,</span> <span class="n">hz</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">freq_response</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">alpha</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sdf_ar</span> <span class="o">=</span> <span class="p">(</span><span class="n">hz</span> <span class="o">*</span> <span class="n">hz</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span><span class="o">.</span><span class="n">real</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.autocorr">
+<code class="descclassname">nitime.utils.</code><code class="descname">autocorr</code><span class="sig-paren">(</span><em>x</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.autocorr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the autocorrelation of signal s at all lags.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<p><strong>axis</strong> : time axis</p>
+<p><strong>all_lags</strong> : {True/False}</p>
+<blockquote class="last">
+<div><p>whether to return all nonzero lags, or to clip the length of r_xy
+to be the length of x and y. If False, then the zero lag correlation
+is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Adheres to the definition</p>
+<div class="math notranslate nohighlight">
+\[\]</div>
+<p>R_{xx}[k]=E{X[n+k]X^{*}[n]}</p>
+<p>where X is a discrete, stationary (ergodic) random process</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.autocov">
+<code class="descclassname">nitime.utils.</code><code class="descname">autocov</code><span class="sig-paren">(</span><em>x</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.autocov" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the autocovariance of signal s at all lags.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<p><strong>axis</strong> : time axis</p>
+<p><strong>all_lags</strong> : {True/False}</p>
+<blockquote>
+<div><p>whether to return all nonzero lags, or to clip the length of r_xy
+to be the length of x and y. If False, then the zero lag correlation
+is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cxx</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>The autocovariance function</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Adheres to the definition</p>
+<div class="math notranslate nohighlight">
+\[\]</div>
+<p>C_{xx}[k]=E{(X[n+k]-E{X})(X[n]-E{X})^{*}}</p>
+<p>where X is a discrete, stationary (ergodic) random process</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.autocov_vector">
+<code class="descclassname">nitime.utils.</code><code class="descname">autocov_vector</code><span class="sig-paren">(</span><em>x</em>, <em>nlags=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.autocov_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method computes the following function</p>
+<div class="math notranslate nohighlight">
+\[\]</div>
+<p>R_{xx}(k) = E{ x(t)x^{*}(t-k) } = E{ x(t+k)x^{*}(t) }
+k in {0, 1, …, nlags-1}</p>
+<p>(* := conjugate transpose)</p>
+<p>Note: this is related to
+the other commonly used definition for vector autocovariance</p>
+<div class="math notranslate nohighlight">
+\[\]</div>
+<p>R_{xx}^{(2)}(k) = E{ x(t-k)x^{*}(t) } = R_{xx}(-k) = R_{xx}^{*}(k)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray (nc, N)</p>
+<p><strong>nlags</strong> : int, optional</p>
+<blockquote>
+<div><p>compute lags for k in {0, …, nlags-1}</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>rxx</strong> : ndarray (nc, nc, nlags)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.bayesian_information_criterion">
+<code class="descclassname">nitime.utils.</code><code class="descname">bayesian_information_criterion</code><span class="sig-paren">(</span><em>ecov</em>, <em>p</em>, <em>m</em>, <em>Ntotal</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.bayesian_information_criterion" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>The Bayesian Information Criterion, also known as the Schwarz criterion</dt>
+<dd>is a measure of goodness of fit of a statistical model, based on the
+number of model parameters and the likelihood of the model</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ecov</strong> : float array</p>
+<blockquote>
+<div><p>The error covariance of the system</p>
+</div></blockquote>
+<p><strong>p</strong> : int</p>
+<blockquote>
+<div><p>the system size (how many variables).</p>
+</div></blockquote>
+<p><strong>m</strong> : int</p>
+<blockquote>
+<div><p>the model order.</p>
+</div></blockquote>
+<p><strong>corrected</strong> : boolean (optional)</p>
+<blockquote>
+<div><p>Whether to correct for small sample size</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>BIC</strong> : float</p>
+<blockquote>
+<div><p>The value of the BIC</p>
+</div></blockquote>
+<p><strong>a</strong> :</p>
+<blockquote class="last">
+<div><p>the resulting autocovariance vector</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This is an implementation of equation (51) in Ding et al. (2006):</p>
+<div class="math notranslate nohighlight">
+\[\]</div>
+<p>BIC(m) = 2 log(<a href="#id1"><span class="problematic" id="id2">|\Sigma|</span></a>) + frac{2p^2 m log(N_{total})}{N_{total}},</p>
+<p>where $Sigma$ is the noise covariance matrix. In auto-regressive model
+estimation, this matrix will contain in $Sigma_{i,j}$ the residual
+variance in estimating time-series $i$ from $j$, $p$ is the dimensionality
+of the data, $m$ is the number of parameters in the model and $N_{total}$
+is the number of time-points.</p>
+<p>M Ding and Y Chen and S Bressler (2006) Granger Causality: Basic Theory and
+Application to Neuroscience. <a class="reference external" href="http://arxiv.org/abs/q-bio/0608035v1">http://arxiv.org/abs/q-bio/0608035v1</a></p>
+<p>See <a class="reference external" href="http://en.wikipedia.org/wiki/Schwarz_criterion">http://en.wikipedia.org/wiki/Schwarz_criterion</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.circle_to_hz">
+<code class="descclassname">nitime.utils.</code><code class="descname">circle_to_hz</code><span class="sig-paren">(</span><em>omega</em>, <em>Fsamp</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.circle_to_hz" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a frequency grid spaced on the unit circle of an imaginary plane,
+return the corresponding frequency grid in Hz.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.circularize">
+<code class="descclassname">nitime.utils.</code><code class="descname">circularize</code><span class="sig-paren">(</span><em>x</em>, <em>bottom=0</em>, <em>top=6.283185307179586</em>, <em>deg=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.circularize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps the input into the continuous interval (bottom, top) where
+bottom defaults to 0 and top defaults to 2*pi</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray - the input array</p>
+<p><strong>bottom</strong> : float, optional (defaults to 0).</p>
+<blockquote>
+<div><p>If you want to set the bottom of the interval into which you
+modulu to something else than 0.</p>
+</div></blockquote>
+<p><strong>top</strong> : float, optional (defaults to 2*pi).</p>
+<blockquote>
+<div><p>If you want to set the top of the interval into which you
+modulu to something else than 2*pi</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>The input array, mapped into the interval (bottom,top)</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.crosscorr">
+<code class="descclassname">nitime.utils.</code><code class="descname">crosscorr</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.crosscorr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the crosscorrelation sequence between two ndarrays.
+This is performed by calling fftconvolve on x, y[::-1]</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<p><strong>y</strong> : ndarray</p>
+<p><strong>axis</strong> : time axis</p>
+<p><strong>all_lags</strong> : {True/False}</p>
+<blockquote>
+<div><p>whether to return all nonzero lags, or to clip the length of r_xy
+to be the length of x and y. If False, then the zero lag correlation
+is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>rxy</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>The crosscorrelation function</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>cross correlation is defined as</p>
+<div class="math notranslate nohighlight">
+\[\]</div>
+<p>R_{xy}[k]=E{X[n+k]Y^{*}[n]}</p>
+<p>where X and Y are discrete, stationary (ergodic) random processes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.crosscov">
+<code class="descclassname">nitime.utils.</code><code class="descname">crosscov</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>axis=-1</em>, <em>all_lags=False</em>, <em>debias=True</em>, <em>normalize=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.crosscov" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the crosscovariance sequence between two ndarrays.
+This is performed by calling fftconvolve on x, y[::-1]</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray</p>
+<p><strong>y</strong> : ndarray</p>
+<p><strong>axis</strong> : time axis</p>
+<p><strong>all_lags</strong> : {True/False}</p>
+<blockquote>
+<div><p>whether to return all nonzero lags, or to clip the length of s_xy
+to be the length of x and y. If False, then the zero lag covariance
+is at index 0. Otherwise, it is found at (len(x) + len(y) - 1)/2</p>
+</div></blockquote>
+<p><strong>debias</strong> : {True/False}</p>
+<blockquote>
+<div><p>Always removes an estimate of the mean along the axis, unless
+told not to (eg X and Y are known zero-mean)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cxy</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>The crosscovariance function</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>cross covariance of processes x and y is defined as</p>
+<div class="math notranslate nohighlight">
+\[\]</div>
+<p>C_{xy}[k]=E{(X(n+k)-E{X})(Y(n)-E{Y})^{*}}</p>
+<p>where X and Y are discrete, stationary (or ergodic) random processes</p>
+<p>Also note that this routine is the workhorse for all auto/cross/cov/corr
+functions.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.crosscov_vector">
+<code class="descclassname">nitime.utils.</code><code class="descname">crosscov_vector</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>nlags=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.crosscov_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method computes the following function</p>
+<div class="math notranslate nohighlight">
+\[R_{xy}(k) = E{ x(t)y^{*}(t-k) } = E{ x(t+k)y^{*}(t) }
+k \in {0, 1, ..., nlags-1}\]</div>
+<p>(* := conjugate transpose)</p>
+<p>Note: This is related to the other commonly used definition
+for vector crosscovariance</p>
+<div class="math notranslate nohighlight">
+\[R_{xy}^{(2)}(k) = E{ x(t-k)y^{*}(t) } = R_{xy}^(-k) = R_{yx}^{*}(k)\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x, y</strong> : ndarray (nc, N)</p>
+<p><strong>nlags</strong> : int, optional</p>
+<blockquote>
+<div><p>compute lags for k in {0, …, nlags-1}</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>rxy</strong> : ndarray (nc, nc, nlags)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.dB">
+<code class="descclassname">nitime.utils.</code><code class="descname">dB</code><span class="sig-paren">(</span><em>x</em>, <em>power=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.dB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the values in x to decibels.
+If the values in x are in ‘power’-like units, then set the power
+flag accordingly</p>
+<ol class="arabic simple">
+<li>dB(x) = 10log10(x)                     (if power==True)</li>
+<li>dB(x) = 10log10(<a href="#id3"><span class="problematic" id="id4">|x|^2) = 20log10(|x|</span></a>)  (if power==False)</li>
+</ol>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.detect_lines">
+<code class="descclassname">nitime.utils.</code><code class="descname">detect_lines</code><span class="sig-paren">(</span><em>s</em>, <em>tapers</em>, <em>p=None</em>, <em>**taper_kws</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.detect_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect the presence of line spectra in s using the F-test
+described in “Spectrum estimation and harmonic analysis” (Thompson 81).
+Strategies for detecting harmonics in low SNR include increasing the
+number of FFT points (NFFT keyword arg) and/or increasing the stability
+of the spectral estimate by using more tapers (higher NW parameter).</p>
+<dl class="docutils">
+<dt>s <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span></dt>
+<dd>The sequence(s) to test. If s.ndim &gt; 1, then test sequences in
+the last axis in parallel</dd>
+<dt>tapers <span class="classifier-delimiter">:</span> <span class="classifier">ndarray or container</span></dt>
+<dd>Either the precomputed DPSS tapers, or the pair of parameters
+(NW, K) needed to compute K tapers of length n_pts.</dd>
+<dt>p <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The confidence threshold: under the null hypothesis of
+a locally white spectrum, there is a threshold such that
+there is a (1-p)% chance of a line amplitude being larger
+than that threshold. Only detect lines with amplitude greater
+than this threshold. The default is 1/NFFT, to control for false
+positives.</dd>
+<dt>taper_kws</dt>
+<dd>Options for the tapered_spectra method, if no DPSS are provided.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>(freq, beta)</strong> : sequence</p>
+<blockquote class="last">
+<div><p>The frequencies (normalized in [0, .5]) and coefficients of the
+complex exponentials detected in the spectrum. A pair is returned
+for each sequence tested.</p>
+<p>One can reconstruct the line components as such:</p>
+<p>sn = 2*(beta[:,None]*np.exp(i*2*np.pi*np.arange(N)*freq[:,None])).real
+sn = sn.sum(axis=0)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.diag_indices">
+<code class="descclassname">nitime.utils.</code><code class="descname">diag_indices</code><span class="sig-paren">(</span><em>n</em>, <em>ndim=2</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.diag_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the indices to access the main diagonal of an array.</p>
+<p>This returns a tuple of indices that can be used to access the main
+diagonal of an array with ndim (&gt;=2) dimensions and shape (n,n,…,n).  For
+ndim=2 this is the usual diagonal, for ndim&gt;2 this is the set of indices
+to access A[i,i,…,i] for i=[0..n-1].</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>The size, along each dimension, of the arrays for which the returned
+indices can be used.</p>
+</div></blockquote>
+<p><strong>ndim</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>The number of dimensions</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal notranslate"><span class="pre">-</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">array.</span></code></p>
+</div>
+<p class="rubric">Examples</p>
+<p>Create a set of indices to access the diagonal of a (4,4) array:
+&gt;&gt;&gt; di = diag_indices(4)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">],[</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">],[</span><span class="mi">13</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">16</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">array([[ 1,  2,  3,  4],</span>
+<span class="go">       [ 5,  6,  7,  8],</span>
+<span class="go">       [ 9, 10, 11, 12],</span>
+<span class="go">       [13, 14, 15, 16]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="n">di</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">array([[100,   2,   3,   4],</span>
+<span class="go">       [  5, 100,   7,   8],</span>
+<span class="go">       [  9,  10, 100,  12],</span>
+<span class="go">       [ 13,  14,  15, 100]])</span>
+</pre></div>
+</div>
+<p>Now, we create indices to manipulate a 3-d array:
+&gt;&gt;&gt; d3 = diag_indices(2,3)</p>
+<p>And use it to set the diagonal of a zeros array to 1:
+&gt;&gt;&gt; a = np.zeros((2,2,2),int)
+&gt;&gt;&gt; a[d3] = 1
+&gt;&gt;&gt; a
+array([[[1, 0],</p>
+<blockquote>
+<div>[0, 0]],</div></blockquote>
+<dl class="docutils">
+<dt>&lt;BLANKLINE&gt;</dt>
+<dd><dl class="first last docutils">
+<dt>[[0, 0],</dt>
+<dd>[0, 1]]])</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.diag_indices_from">
+<code class="descclassname">nitime.utils.</code><code class="descname">diag_indices_from</code><span class="sig-paren">(</span><em>arr</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.diag_indices_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the indices to access the main diagonal of an n-dimensional
+array.</p>
+<p>See diag_indices() for full details.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>arr</strong> : array, at least 2-d</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.dpss_windows">
+<code class="descclassname">nitime.utils.</code><code class="descname">dpss_windows</code><span class="sig-paren">(</span><em>N</em>, <em>NW</em>, <em>Kmax</em>, <em>interp_from=None</em>, <em>interp_kind='linear'</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.dpss_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Discrete Prolate Spheroidal Sequences of orders [0,Kmax-1]
+for a given frequency-spacing multiple NW and sequence length N.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>N</strong> : int</p>
+<blockquote>
+<div><p>sequence length</p>
+</div></blockquote>
+<p><strong>NW</strong> : float, unitless</p>
+<blockquote>
+<div><p>standardized half bandwidth corresponding to 2NW = BW/f0 = BW*N*dt
+but with dt taken as 1</p>
+</div></blockquote>
+<p><strong>Kmax</strong> : int</p>
+<blockquote>
+<div><p>number of DPSS windows to return is Kmax (orders 0 through Kmax-1)</p>
+</div></blockquote>
+<p><strong>interp_from</strong> : int (optional)</p>
+<blockquote>
+<div><p>The dpss can be calculated using interpolation from a set of dpss
+with the same NW and Kmax, but shorter N. This is the length of this
+shorter set of dpss windows.</p>
+</div></blockquote>
+<p><strong>interp_kind</strong> : str (optional)</p>
+<blockquote>
+<div><p>This input variable is passed to scipy.interpolate.interp1d and
+specifies the kind of interpolation as a string (‘linear’, ‘nearest’,
+‘zero’, ‘slinear’, ‘quadratic, ‘cubic’) or as an integer specifying the
+order of the spline interpolator to use.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>v, e</strong> : tuple,</p>
+<blockquote class="last">
+<div><p>v is an array of DPSS windows shaped (Kmax, N)
+e are the eigenvalues</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Tridiagonal form of DPSS calculation from:</p>
+<p>Slepian, D. Prolate spheroidal wave functions, Fourier analysis, and
+uncertainty V: The discrete case. Bell System Technical Journal,
+Volume 57 (1978), 1371430</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.expected_jk_variance">
+<code class="descclassname">nitime.utils.</code><code class="descname">expected_jk_variance</code><span class="sig-paren">(</span><em>K</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.expected_jk_variance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the expected value of the jackknife variance estimate
+over K windows below. This expected value formula is based on the
+asymptotic expansion of the trigamma function derived in
+[Thompson_1994]</p>
+<dl class="docutils">
+<dt>K <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Number of tapers used in the multitaper method</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>evar</strong> : float</p>
+<blockquote class="last">
+<div><p>Expected value of the jackknife variance estimator</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.fftconvolve">
+<code class="descclassname">nitime.utils.</code><code class="descname">fftconvolve</code><span class="sig-paren">(</span><em>in1</em>, <em>in2</em>, <em>mode='full'</em>, <em>axis=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.fftconvolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convolve two N-dimensional arrays using FFT. See convolve.</p>
+<p>This is a fix of scipy.signal.fftconvolve, adding an axis argument.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.fill_diagonal">
+<code class="descclassname">nitime.utils.</code><code class="descname">fill_diagonal</code><span class="sig-paren">(</span><em>a</em>, <em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.fill_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill the main diagonal of the given array of any dimensionality.</p>
+<p>For an array with ndim &gt; 2, the diagonal is the list of locations with
+indices a[i,i,…,i], all identical.</p>
+<p>This function modifies the input array in-place, it does not return a
+value.</p>
+<p>This functionality can be obtained via diag_indices(), but internally this
+version uses a much faster implementation that never constructs the indices
+and uses simple slicing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>a</strong> : array, at least 2-dimensional.</p>
+<blockquote>
+<div><p>Array whose diagonal is to be filled, it gets modified in-place.</p>
+</div></blockquote>
+<p><strong>val</strong> : scalar</p>
+<blockquote class="last">
+<div><p>Value to be written on the diagonal, its type must be compatible with
+that of the array a.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal notranslate"><span class="pre">-</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">-</span></code></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="nb">int</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">array([[5, 0, 0],</span>
+<span class="go">       [0, 5, 0],</span>
+<span class="go">       [0, 0, 5]])</span>
+</pre></div>
+</div>
+<p>The same function can operate on a 4-d array:
+&gt;&gt;&gt; a = np.zeros((3,3,3,3),int)
+&gt;&gt;&gt; fill_diagonal(a,4)</p>
+<p>We only show a few blocks for clarity:
+&gt;&gt;&gt; a[0,0]
+array([[4, 0, 0],</p>
+<blockquote>
+<div>[0, 0, 0],
+[0, 0, 0]])</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">array([[0, 0, 0],</span>
+<span class="go">       [0, 4, 0],</span>
+<span class="go">       [0, 0, 0]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="go">array([[0, 0, 0],</span>
+<span class="go">       [0, 0, 0],</span>
+<span class="go">       [0, 0, 4]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.fir_design_matrix">
+<code class="descclassname">nitime.utils.</code><code class="descname">fir_design_matrix</code><span class="sig-paren">(</span><em>events</em>, <em>len_hrf</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.fir_design_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a FIR event matrix from a time-series of events.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>events</strong> : 1-d int array</p>
+<blockquote>
+<div><p>Integers denoting different kinds of events, occurring at the time
+corresponding to the bin represented by each slot in the array. In
+time-bins in which no event occurred, a 0 should be entered. If negative
+event values are entered, they will be used as “negative” events, as in
+events that should be contrasted with the postitive events (typically -1
+and 1 can be used for a simple contrast of two conditions)</p>
+</div></blockquote>
+<p><strong>len_hrf</strong> : int</p>
+<blockquote>
+<div><p>The expected length of the HRF (in the same time-units as the events are
+represented (presumably TR). The size of the block dedicated in the
+fir_matrix to each type of event</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fir_matrix</strong> : matrix</p>
+<blockquote class="last">
+<div><p>The design matrix for FIR estimation</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.generate_mar">
+<code class="descclassname">nitime.utils.</code><code class="descname">generate_mar</code><span class="sig-paren">(</span><em>a</em>, <em>cov</em>, <em>N</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.generate_mar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a multivariate autoregressive dataset given the formula:</p>
+<p>X(t) + sum_{i=1}^{P} a(i)X(t-i) = E(t)</p>
+<p>Where E(t) is a vector of samples from possibly covarying noise processes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>a</strong> : ndarray (n_order, n_c, n_c)</p>
+<blockquote>
+<div><p>An order n_order set of coefficient matrices, each shaped (n_c, n_c) for
+n_channel data</p>
+</div></blockquote>
+<p><strong>cov</strong> : ndarray (n_c, n_c)</p>
+<blockquote>
+<div><p>The innovations process covariance</p>
+</div></blockquote>
+<p><strong>N</strong> : int</p>
+<blockquote>
+<div><p>how many samples to generate</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mar, nz</strong> :</p>
+<p class="last"><strong>mar and noise process shaped (n_c, N)</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.get_bounds">
+<code class="descclassname">nitime.utils.</code><code class="descname">get_bounds</code><span class="sig-paren">(</span><em>f</em>, <em>lb=0</em>, <em>ub=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.get_bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the indices of the lower and upper bounds within an array f</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>f, array</strong> :</p>
+<p><strong>lb,ub, float</strong> :</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>lb_idx, ub_idx: the indices into ‘f’ which correspond to values bounded</strong> :</p>
+<p class="last"><strong>between ub and lb in that array</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.get_freqs">
+<code class="descclassname">nitime.utils.</code><code class="descname">get_freqs</code><span class="sig-paren">(</span><em>Fs</em>, <em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.get_freqs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the center frequencies of the frequency decomposition of a time
+series of length n, sampled at Fs Hz</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.hanning_window_spectrum">
+<code class="descclassname">nitime.utils.</code><code class="descname">hanning_window_spectrum</code><span class="sig-paren">(</span><em>N</em>, <em>Fs</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.hanning_window_spectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the analytical spectrum of a Hanning window</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>N</strong> : int</p>
+<blockquote>
+<div><p>The size of the window</p>
+</div></blockquote>
+<p><strong>Fs</strong> : float</p>
+<blockquote>
+<div><p>The sampling rate</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>float array - the frequency bands, given N and FS</strong> :</p>
+<p><strong>complex array: the power in the spectrum of the square window in the</strong> :</p>
+<p class="last"><strong>frequency bands</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This is equation 28b in Harris (1978):</p>
+<div class="math notranslate nohighlight">
+\[W(\theta) = 0.5 D(\theta) + 0.25 (D(\theta - \frac{2\pi}{N}) +
+          D(\theta + \frac{2\pi}{N}) ),\]</div>
+<p>where:</p>
+<div class="math notranslate nohighlight">
+\[D(\theta) = exp(j\frac{\theta}{2})
+            \frac{sin\frac{N\theta}{2}}{sin\frac{\theta}{2}}\]</div>
+<p>F.J. Harris (1978). On the use of windows for harmonic analysis with the
+discrete Fourier transform. Proceedings of the IEEE, 66:51-83</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.intersect_coords">
+<code class="descclassname">nitime.utils.</code><code class="descname">intersect_coords</code><span class="sig-paren">(</span><em>coords1</em>, <em>coords2</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.intersect_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>For two sets of coordinates, find the coordinates that are common to
+both, where the dimensionality is the coords1.shape[0]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.jackknifed_coh_variance">
+<code class="descclassname">nitime.utils.</code><code class="descname">jackknifed_coh_variance</code><span class="sig-paren">(</span><em>tx</em>, <em>ty</em>, <em>eigvals</em>, <em>adaptive=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.jackknifed_coh_variance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the variance of the coherency between x and y, estimated
+through jack-knifing the tapered samples in {tx, ty}.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tx</strong> : ndarray, (K, L)</p>
+<blockquote>
+<div><p>The K complex spectra of tapered timeseries x</p>
+</div></blockquote>
+<p><strong>ty</strong> : ndarray, (K, L)</p>
+<blockquote>
+<div><p>The K complex spectra of tapered timeseries y</p>
+</div></blockquote>
+<p><strong>eigvals</strong> : ndarray (K,)</p>
+<blockquote>
+<div><p>The eigenvalues associated with the K DPSS tapers</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>jk_var</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>The variance computed in the transformed domain (see
+normalize_coherence)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.jackknifed_sdf_variance">
+<code class="descclassname">nitime.utils.</code><code class="descname">jackknifed_sdf_variance</code><span class="sig-paren">(</span><em>yk</em>, <em>eigvals</em>, <em>sides='onesided'</em>, <em>adaptive=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.jackknifed_sdf_variance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the variance of the log-sdf estimated through jack-knifing
+a group of independent sdf estimates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yk</strong> : ndarray (K, L)</p>
+<blockquote>
+<div><p>The K DFTs of the tapered sequences</p>
+</div></blockquote>
+<p><strong>eigvals</strong> : ndarray (K,)</p>
+<blockquote>
+<div><p>The eigenvalues corresponding to the K DPSS tapers</p>
+</div></blockquote>
+<p><strong>sides</strong> : str, optional</p>
+<blockquote>
+<div><p>Compute the jackknife pseudovalues over as one-sided or
+two-sided spectra</p>
+</div></blockquote>
+<p><strong>adpative</strong> : bool, optional</p>
+<blockquote>
+<div><p>Compute the adaptive weighting for each jackknife pseudovalue</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>var</strong> : The estimate for log-sdf variance</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The jackknifed mean estimate is distributed about the true mean as
+a Student’s t-distribution with (K-1) degrees of freedom, and
+standard error equal to sqrt(var). However, Thompson and Chave [1]
+point out that this variance better describes the sample mean.</p>
+<p>[1] Thomson D J, Chave A D (1991) Advances in Spectrum Analysis and Array
+Processing (Prentice-Hall, Englewood Cliffs, NJ), 1, pp 58-113.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.mask_indices">
+<code class="descclassname">nitime.utils.</code><code class="descname">mask_indices</code><span class="sig-paren">(</span><em>n</em>, <em>mask_func</em>, <em>k=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.mask_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the indices to access (n,n) arrays, given a masking function.</p>
+<p>Assume mask_func() is a function that, for a square array a of size (n,n)
+with a possible offset argument k, when called as mask_func(a,k) returns a
+new array with zeros in certain locations (functions like triu() or tril()
+do precisely this).  Then this function returns the indices where the
+non-zero values would be located.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>The returned indices will be valid to access arrays of shape (n,n).</p>
+</div></blockquote>
+<p><strong>mask_func</strong> : callable</p>
+<blockquote>
+<div><p>A function whose api is similar to that of numpy.tri{u,l}.  That is,
+mask_func(x,k) returns a boolean array, shaped like x.  k is an optional
+argument to the function.</p>
+</div></blockquote>
+<p><strong>k</strong> : scalar</p>
+<blockquote>
+<div><p>An optional argument which is passed through to mask_func().  Functions
+like tri{u,l} take a second argument that is interpreted as an offset.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>indices</strong> : an n-tuple of index arrays.</p>
+<blockquote class="last">
+<div><p>The indices corresponding to the locations where mask_func(ones((n,n)),k)
+is True.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>These are the indices that would allow you to access the upper triangular
+part of any 3x3 array:
+&gt;&gt;&gt; iu = mask_indices(3,np.triu)</p>
+<p>For example, if <cite>a</cite> is a 3x3 array:
+&gt;&gt;&gt; a = np.arange(9).reshape(3,3)
+&gt;&gt;&gt; a
+array([[0, 1, 2],</p>
+<blockquote>
+<div>[3, 4, 5],
+[6, 7, 8]])</div></blockquote>
+<p>Then:
+&gt;&gt;&gt; a[iu]
+array([0, 1, 2, 4, 5, 8])</p>
+<p>An offset can be passed also to the masking function.  This gets us the
+indices starting on the first diagonal right of the main one:
+&gt;&gt;&gt; iu1 = mask_indices(3,np.triu,1)</p>
+<p>with which we now extract only three elements:
+&gt;&gt;&gt; a[iu1]
+array([1, 2, 5])</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.minmax_norm">
+<code class="descclassname">nitime.utils.</code><code class="descname">minmax_norm</code><span class="sig-paren">(</span><em>arr</em>, <em>mode='direct'</em>, <em>folding_edges=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.minmax_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minmax_norm an array to [0,1] range.</p>
+<p>By default, this simply rescales the input array to [0,1].  But it has a
+special ‘folding’ mode that allows for the normalization of an array with
+negative and positive values by mapping the negative values to their
+flipped sign</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>arr</strong> : 1d array</p>
+<p><strong>mode</strong> : string, one of [‘direct’,’folding’]</p>
+<p><strong>folding_edges</strong> : (float,float)</p>
+<blockquote class="last">
+<div><p>Only needed for folding mode, ignored in ‘direct’ mode.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># for doctesting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.8</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">minmax_norm</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">array([ 0.    ,  0.3333,  0.6667,  1.    ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">0.7</span><span class="p">,</span><span class="o">-</span><span class="mf">0.3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>
+<span class="gp">... </span>                            <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.8</span><span class="p">,</span><span class="mi">3</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span>
+<span class="go">array([-0.7 , -0.5 , -0.3 ,  0.3 ,  0.55,  0.8 ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">minmax_norm</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="s1">&#39;folding&#39;</span><span class="p">,[</span><span class="o">-</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.3</span><span class="p">])</span>
+<span class="go">array([ 0.8,  0.4,  0. ,  0. ,  0.5,  1. ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.multi_intersect">
+<code class="descclassname">nitime.utils.</code><code class="descname">multi_intersect</code><span class="sig-paren">(</span><em>input</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.multi_intersect" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function for finding the intersection of several different arrays</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input is a tuple of arrays, with all the different arrays</strong> :</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>array - the intersection of the inputs</strong> :</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Simply runs intersect1d iteratively on the inputs</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.normal_coherence_to_unit">
+<code class="descclassname">nitime.utils.</code><code class="descname">normal_coherence_to_unit</code><span class="sig-paren">(</span><em>y</em>, <em>dof</em>, <em>out=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.normal_coherence_to_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inverse transform of the above normalization</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.normalize_coherence">
+<code class="descclassname">nitime.utils.</code><code class="descname">normalize_coherence</code><span class="sig-paren">(</span><em>x</em>, <em>dof</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.normalize_coherence" title="Permalink to this definition">¶</a></dt>
+<dd><p>The generally accepted choice to transform coherence measures into
+a more normal distribution</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x</strong> : ndarray, real</p>
+<blockquote>
+<div><p>square-root of magnitude-square coherence measures</p>
+</div></blockquote>
+<p><strong>dof</strong> : int</p>
+<blockquote>
+<div><p>number of degrees of freedom in the multitaper model</p>
+</div></blockquote>
+<p><strong>copy</strong> : bool</p>
+<blockquote>
+<div><p>Copy or return inplace modified x.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>y</strong> : ndarray, real</p>
+<blockquote class="last">
+<div><p>The transformed array.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.percent_change">
+<code class="descclassname">nitime.utils.</code><code class="descname">percent_change</code><span class="sig-paren">(</span><em>ts</em>, <em>ax=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.percent_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the % signal change of each point of the times series
+along a given axis of the array time_series</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ts</strong> : ndarray</p>
+<blockquote>
+<div><p>an array of time series</p>
+</div></blockquote>
+<p><strong>ax</strong> : int, optional (default to -1)</p>
+<blockquote>
+<div><p>the axis of time_series along which to compute means and stdevs</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ndarray</strong> :</p>
+<blockquote class="last">
+<div><p>the renormalized time series array (in units of %)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">percent_change</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span><span class="n">ax</span><span class="p">)</span>
+<span class="go">array([[-100.    ,  -88.2353,  -78.9474,  -71.4286,  -65.2174],</span>
+<span class="go">       [ -33.3333,  -29.4118,  -26.3158,  -23.8095,  -21.7391],</span>
+<span class="go">       [  33.3333,   29.4118,   26.3158,   23.8095,   21.7391],</span>
+<span class="go">       [ 100.    ,   88.2353,   78.9474,   71.4286,   65.2174]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">percent_change</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span><span class="n">ax</span><span class="p">)</span>
+<span class="go">array([[-100.    ,  -50.    ,    0.    ,   50.    ,  100.    ],</span>
+<span class="go">       [ -28.5714,  -14.2857,    0.    ,   14.2857,   28.5714],</span>
+<span class="go">       [ -16.6667,   -8.3333,    0.    ,    8.3333,   16.6667],</span>
+<span class="go">       [ -11.7647,   -5.8824,    0.    ,    5.8824,   11.7647]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.remove_bias">
+<code class="descclassname">nitime.utils.</code><code class="descname">remove_bias</code><span class="sig-paren">(</span><em>x</em>, <em>axis</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.remove_bias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subtracts an estimate of the mean from signal x at axis</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.rescale_arr">
+<code class="descclassname">nitime.utils.</code><code class="descname">rescale_arr</code><span class="sig-paren">(</span><em>arr</em>, <em>amin</em>, <em>amax</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.rescale_arr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rescale an array to a new range.</p>
+<p>Return a new array whose range of values is (amin,amax).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>arr</strong> : array-like</p>
+<p><strong>amin</strong> : float</p>
+<blockquote>
+<div><p>new minimum value</p>
+</div></blockquote>
+<p><strong>amax</strong> : float</p>
+<blockquote class="last">
+<div><p>new maximum value</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rescale_arr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span>
+<span class="go">array([ 3.  ,  3.75,  4.5 ,  5.25,  6.  ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.square_window_spectrum">
+<code class="descclassname">nitime.utils.</code><code class="descname">square_window_spectrum</code><span class="sig-paren">(</span><em>N</em>, <em>Fs</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.square_window_spectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the analytical spectrum of a square window</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>N</strong> : int</p>
+<blockquote>
+<div><p>the size of the window</p>
+</div></blockquote>
+<p><strong>Fs</strong> : float</p>
+<blockquote>
+<div><p>The sampling rate</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>float array - the frequency bands, given N and FS</strong> :</p>
+<p><strong>complex array: the power in the spectrum of the square window in the</strong> :</p>
+<p class="last"><strong>frequency bands</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This is equation 21c in Harris (1978):</p>
+<div class="math notranslate nohighlight">
+\[W(\theta) = exp(-j \frac{N-1}{2} \theta) \frac{sin \frac{N\theta}{2}} {sin\frac{\theta}{2}}\]</div>
+<p>F.J. Harris (1978). On the use of windows for harmonic analysis with the
+discrete Fourier transform. Proceedings of the IEEE, 66:51-83</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.structured_rand_arr">
+<code class="descclassname">nitime.utils.</code><code class="descname">structured_rand_arr</code><span class="sig-paren">(</span><em>size</em>, <em>sample_func=&lt;built-in method random_sample of mtrand.RandomState object&gt;</em>, <em>ltfac=None</em>, <em>utfac=None</em>, <em>fill_diag=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.structured_rand_arr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a structured random 2-d array of shape (size,size).</p>
+<p>If no optional arguments are given, a symmetric array is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>size</strong> : int</p>
+<blockquote>
+<div><p>Determines the shape of the output array: (size,size).</p>
+</div></blockquote>
+<p><strong>sample_func</strong> : function, optional.</p>
+<blockquote>
+<div><p>Must be a function which when called with a 2-tuple of ints, returns a
+2-d array of that shape.  By default, np.random.random is used, but any
+other sampling function can be used as long as matches this API.</p>
+</div></blockquote>
+<p><strong>utfac</strong> : float, optional</p>
+<blockquote>
+<div><p>Multiplicative factor for the upper triangular part of the matrix.</p>
+</div></blockquote>
+<p><strong>ltfac</strong> : float, optional</p>
+<blockquote>
+<div><p>Multiplicative factor for the lower triangular part of the matrix.</p>
+</div></blockquote>
+<p><strong>fill_diag</strong> : float, optional</p>
+<blockquote class="last">
+<div><p>If given, use this value to fill in the diagonal.  Otherwise the diagonal
+will contain random elements.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># for doctesting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># for doctesting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structured_rand_arr</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([[ 0.5488,  0.7152,  0.6028,  0.5449],</span>
+<span class="go">       [ 0.7152,  0.6459,  0.4376,  0.8918],</span>
+<span class="go">       [ 0.6028,  0.4376,  0.7917,  0.5289],</span>
+<span class="go">       [ 0.5449,  0.8918,  0.5289,  0.0871]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structured_rand_arr</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="n">ltfac</span><span class="o">=-</span><span class="mi">10</span><span class="p">,</span><span class="n">utfac</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">fill_diag</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="go">array([[ 0.5   ,  8.3262,  7.7816,  8.7001],</span>
+<span class="go">       [-8.3262,  0.5   ,  4.6148,  7.8053],</span>
+<span class="go">       [-7.7816, -4.6148,  0.5   ,  9.4467],</span>
+<span class="go">       [-8.7001, -7.8053, -9.4467,  0.5   ]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.symm_rand_arr">
+<code class="descclassname">nitime.utils.</code><code class="descname">symm_rand_arr</code><span class="sig-paren">(</span><em>size</em>, <em>sample_func=&lt;built-in method random_sample of mtrand.RandomState object&gt;</em>, <em>fill_diag=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.symm_rand_arr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a symmetric random 2-d array of shape (size,size).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>Size of the output array.</p>
+</div></blockquote>
+<p><strong>sample_func</strong> : function, optional.</p>
+<blockquote>
+<div><p>Must be a function which when called with a 2-tuple of ints, returns a
+2-d array of that shape.  By default, np.random.random is used, but any
+other sampling function can be used as long as matches this API.</p>
+</div></blockquote>
+<p><strong>fill_diag</strong> : float, optional</p>
+<blockquote class="last">
+<div><p>If given, use this value to fill in the diagonal.  Useful for</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># for doctesting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># for doctesting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">symm_rand_arr</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([[ 0.5488,  0.7152,  0.6028,  0.5449],</span>
+<span class="go">       [ 0.7152,  0.6459,  0.4376,  0.8918],</span>
+<span class="go">       [ 0.6028,  0.4376,  0.7917,  0.5289],</span>
+<span class="go">       [ 0.5449,  0.8918,  0.5289,  0.0871]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">symm_rand_arr</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="n">fill_diag</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([[ 4.    ,  0.8326,  0.7782,  0.87  ],</span>
+<span class="go">       [ 0.8326,  4.    ,  0.4615,  0.7805],</span>
+<span class="go">       [ 0.7782,  0.4615,  4.    ,  0.9447],</span>
+<span class="go">       [ 0.87  ,  0.7805,  0.9447,  4.    ]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.tapered_spectra">
+<code class="descclassname">nitime.utils.</code><code class="descname">tapered_spectra</code><span class="sig-paren">(</span><em>s</em>, <em>tapers</em>, <em>NFFT=None</em>, <em>low_bias=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.tapered_spectra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the tapered spectra of the rows of s.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>s</strong> : ndarray, (n_arr, n_pts)</p>
+<blockquote>
+<div><p>An array whose rows are timeseries.</p>
+</div></blockquote>
+<p><strong>tapers</strong> : ndarray or container</p>
+<blockquote>
+<div><p>Either the precomputed DPSS tapers, or the pair of parameters
+(NW, K) needed to compute K tapers of length n_pts.</p>
+</div></blockquote>
+<p><strong>NFFT</strong> : int</p>
+<blockquote>
+<div><p>Number of FFT bins to compute</p>
+</div></blockquote>
+<p><strong>low_bias</strong> : Boolean</p>
+<blockquote>
+<div><p>If compute DPSS, automatically select tapers corresponding to
+&gt; 90% energy concentration.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>t_spectra</strong> : ndarray, shaped (n_arr, K, NFFT)</p>
+<blockquote>
+<div><p>The FFT of the tapered sequences in s. First dimension is squeezed
+out if n_arr is 1.</p>
+</div></blockquote>
+<p><strong>eigvals</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>The eigenvalues are also returned if DPSS are calculated here.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.threshold_arr">
+<code class="descclassname">nitime.utils.</code><code class="descname">threshold_arr</code><span class="sig-paren">(</span><em>cmat</em>, <em>threshold=0.0</em>, <em>threshold2=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.threshold_arr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Threshold values from the input array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cmat</strong> : array</p>
+<p><strong>threshold</strong> : float, optional.</p>
+<blockquote>
+<div><p>First threshold.</p>
+</div></blockquote>
+<p><strong>threshold2</strong> : float, optional.</p>
+<blockquote>
+<div><p>Second threshold.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>indices, values: a tuple with ndim+1</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># For doctesting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">array([ 0.  ,  0.05,  0.1 ,  0.15,  0.2 ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">threshold_arr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="go">(array([3, 4]), array([ 0.15,  0.2 ]))</span>
+</pre></div>
+</div>
+<p>With two thresholds:
+&gt;&gt;&gt; threshold_arr(a,0.1,0.2)
+(array([0, 1]), array([ 0.  ,  0.05]))</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.thresholded_arr">
+<code class="descclassname">nitime.utils.</code><code class="descname">thresholded_arr</code><span class="sig-paren">(</span><em>arr</em>, <em>threshold=0.0</em>, <em>threshold2=None</em>, <em>fill_val=nan</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.thresholded_arr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Threshold values from the input matrix and return a new matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>arr</strong> : array</p>
+<p><strong>threshold</strong> : float</p>
+<blockquote>
+<div><p>First threshold.</p>
+</div></blockquote>
+<p><strong>threshold2</strong> : float, optional.</p>
+<blockquote>
+<div><p>Second threshold.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>An array shaped like the input, with the values outside the threshold</strong> :</p>
+<p class="last"><strong>replaced with fill_val.</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.tridi_inverse_iteration">
+<code class="descclassname">nitime.utils.</code><code class="descname">tridi_inverse_iteration</code><span class="sig-paren">(</span><em>d</em>, <em>e</em>, <em>w</em>, <em>x0=None</em>, <em>rtol=1e-08</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.tridi_inverse_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform an inverse iteration to find the eigenvector corresponding
+to the given eigenvalue in a symmetric tridiagonal system.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>d</strong> : ndarray</p>
+<blockquote>
+<div><p>main diagonal of the tridiagonal system</p>
+</div></blockquote>
+<p><strong>e</strong> : ndarray</p>
+<blockquote>
+<div><p>offdiagonal stored in e[:-1]</p>
+</div></blockquote>
+<p><strong>w</strong> : float</p>
+<blockquote>
+<div><p>eigenvalue of the eigenvector</p>
+</div></blockquote>
+<p><strong>x0</strong> : ndarray</p>
+<blockquote>
+<div><p>initial point to start the iteration</p>
+</div></blockquote>
+<p><strong>rtol</strong> : float</p>
+<blockquote>
+<div><p>tolerance for the norm of the difference of iterates</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>e</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>The converged eigenvector</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.tril_indices">
+<code class="descclassname">nitime.utils.</code><code class="descname">tril_indices</code><span class="sig-paren">(</span><em>n</em>, <em>k=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.tril_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the indices for the lower-triangle of an (n,n) array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>Sets the size of the arrays for which the returned indices will be valid.</p>
+</div></blockquote>
+<p><strong>k</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>Diagonal offset (see tril() for details).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal notranslate"><span class="pre">-</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">for</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">-</span></code></p>
+</div>
+<p class="rubric">Examples</p>
+<p>Commpute two different sets of indices to access 4x4 arrays, one for the
+lower triangular part starting at the main diagonal, and one starting two
+diagonals further right:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">il1</span> <span class="o">=</span> <span class="n">tril_indices</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">il2</span> <span class="o">=</span> <span class="n">tril_indices</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here is how they can be used with a sample array:
+&gt;&gt;&gt; a = np.array([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]])
+&gt;&gt;&gt; a
+array([[ 1,  2,  3,  4],</p>
+<blockquote>
+<div>[ 5,  6,  7,  8],
+[ 9, 10, 11, 12],
+[13, 14, 15, 16]])</div></blockquote>
+<p>Both for indexing:
+&gt;&gt;&gt; a[il1]
+array([ 1,  5,  6,  9, 10, 11, 13, 14, 15, 16])</p>
+<p>And for assigning values:
+&gt;&gt;&gt; a[il1] = -1
+&gt;&gt;&gt; a
+array([[-1,  2,  3,  4],</p>
+<blockquote>
+<div>[-1, -1,  7,  8],
+[-1, -1, -1, 12],
+[-1, -1, -1, -1]])</div></blockquote>
+<p>These cover almost the whole array (two diagonals right of the main one):
+&gt;&gt;&gt; a[il2] = -10
+&gt;&gt;&gt; a
+array([[-10, -10, -10,   4],</p>
+<blockquote>
+<div>[-10, -10, -10, -10],
+[-10, -10, -10, -10],
+[-10, -10, -10, -10]])</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.tril_indices_from">
+<code class="descclassname">nitime.utils.</code><code class="descname">tril_indices_from</code><span class="sig-paren">(</span><em>arr</em>, <em>k=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.tril_indices_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the indices for the lower-triangle of an (n,n) array.</p>
+<p>See tril_indices() for full details.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>Sets the size of the arrays for which the returned indices will be valid.</p>
+</div></blockquote>
+<p><strong>k</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>Diagonal offset (see tril() for details).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.triu_indices">
+<code class="descclassname">nitime.utils.</code><code class="descname">triu_indices</code><span class="sig-paren">(</span><em>n</em>, <em>k=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.triu_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the indices for the upper-triangle of an (n,n) array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>Sets the size of the arrays for which the returned indices will be valid.</p>
+</div></blockquote>
+<p><strong>k</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>Diagonal offset (see triu() for details).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal notranslate"><span class="pre">-</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">for</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">-</span></code></p>
+</div>
+<p class="rubric">Examples</p>
+<p>Commpute two different sets of indices to access 4x4 arrays, one for the
+upper triangular part starting at the main diagonal, and one starting two
+diagonals further right:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">iu1</span> <span class="o">=</span> <span class="n">triu_indices</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iu2</span> <span class="o">=</span> <span class="n">triu_indices</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here is how they can be used with a sample array:
+&gt;&gt;&gt; a = np.array([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]])
+&gt;&gt;&gt; a
+array([[ 1,  2,  3,  4],</p>
+<blockquote>
+<div>[ 5,  6,  7,  8],
+[ 9, 10, 11, 12],
+[13, 14, 15, 16]])</div></blockquote>
+<p>Both for indexing:
+&gt;&gt;&gt; a[iu1]
+array([ 1,  2,  3,  4,  6,  7,  8, 11, 12, 16])</p>
+<p>And for assigning values:
+&gt;&gt;&gt; a[iu1] = -1
+&gt;&gt;&gt; a
+array([[-1, -1, -1, -1],</p>
+<blockquote>
+<div>[ 5, -1, -1, -1],
+[ 9, 10, -1, -1],
+[13, 14, 15, -1]])</div></blockquote>
+<p>These cover almost the whole array (two diagonals right of the main one):
+&gt;&gt;&gt; a[iu2] = -10
+&gt;&gt;&gt; a
+array([[ -1,  -1, -10, -10],</p>
+<blockquote>
+<div>[  5,  -1,  -1, -10],
+[  9,  10,  -1,  -1],
+[ 13,  14,  15,  -1]])</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.triu_indices_from">
+<code class="descclassname">nitime.utils.</code><code class="descname">triu_indices_from</code><span class="sig-paren">(</span><em>arr</em>, <em>k=0</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.triu_indices_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the indices for the lower-triangle of an (n,n) array.</p>
+<p>See triu_indices() for full details.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>Sets the size of the arrays for which the returned indices will be valid.</p>
+</div></blockquote>
+<p><strong>k</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>Diagonal offset (see triu() for details).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.unwrap_phases">
+<code class="descclassname">nitime.utils.</code><code class="descname">unwrap_phases</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.unwrap_phases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes consecutive jumps larger than pi to their 2*pi complement.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.zero_pad">
+<code class="descclassname">nitime.utils.</code><code class="descname">zero_pad</code><span class="sig-paren">(</span><em>time_series</em>, <em>NFFT</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.zero_pad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pad a time-series with zeros on either side, depending on its length</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series</strong> : n-d array</p>
+<blockquote>
+<div><p>Time-series data with time as the last dimension</p>
+</div></blockquote>
+<p><strong>NFFT</strong> : int</p>
+<blockquote class="last">
+<div><p>The length to pad the data up to.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.utils.zscore">
+<code class="descclassname">nitime.utils.</code><code class="descname">zscore</code><span class="sig-paren">(</span><em>time_series</em>, <em>axis=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.utils.zscore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the z-score of each point of the time series
+along a given axis of the array time_series.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series</strong> : ndarray</p>
+<blockquote>
+<div><p>an array of time series</p>
+</div></blockquote>
+<p><strong>axis</strong> : int, optional</p>
+<blockquote>
+<div><p>the axis of time_series along which to compute means and stdevs</p>
+</div></blockquote>
+<p><strong>Returns</strong> :</p>
+<p><strong>_______</strong> :</p>
+<p><strong>zt</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>the renormalized time series array</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.viz.html" title="viz"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.timeseries.html" title="timeseries"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

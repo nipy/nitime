@@ -1,0 +1,134 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+six
+===
+
+Module: :mod:`six`
+------------------
+Inheritance diagram for ``nitime.six``:
+
+.. inheritance-diagram:: nitime.six 
+   :parts: 3
+
+.. automodule:: nitime.six
+
+.. currentmodule:: nitime.six
+
+Classes
+-------
+
+:class:`Module_six_moves_urllib`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Module_six_moves_urllib
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`Module_six_moves_urllib_error`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Module_six_moves_urllib_error
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`Module_six_moves_urllib_parse`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Module_six_moves_urllib_parse
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`Module_six_moves_urllib_request`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Module_six_moves_urllib_request
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`Module_six_moves_urllib_response`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Module_six_moves_urllib_response
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`Module_six_moves_urllib_robotparser`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Module_six_moves_urllib_robotparser
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`MovedAttribute`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: MovedAttribute
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+:class:`MovedModule`
+~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: MovedModule
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+Functions
+---------
+
+
+.. autofunction:: nitime.six.add_metaclass
+
+
+.. autofunction:: nitime.six.add_move
+
+
+.. autofunction:: nitime.six.iteritems
+
+
+.. autofunction:: nitime.six.iterkeys
+
+
+.. autofunction:: nitime.six.iterlists
+
+
+.. autofunction:: nitime.six.itervalues
+
+
+.. autofunction:: nitime.six.remove_move
+
+
+.. autofunction:: nitime.six.with_metaclass
+

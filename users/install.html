@@ -1,0 +1,212 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Nitime: an overview" href="overview.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="overview.html" title="Nitime: an overview"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Quickstart"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">User Guide</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Download and install</a><ul>
+<li><a class="reference internal" href="#dependencies">Dependencies</a><ul>
+<li><a class="reference internal" href="#must-have">Must Have</a></li>
+<li><a class="reference internal" href="#recommended-optional">Recommended/optional</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#getting-the-latest-release">Getting the latest release</a></li>
+<li><a class="reference internal" href="#building-from-source">Building from source</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="quickstart.html"
+                        title="previous chapter">Quickstart</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="overview.html"
+                        title="next chapter">Nitime: an overview</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="download-and-install">
+<span id="install"></span><h1>Download and install<a class="headerlink" href="#download-and-install" title="Permalink to this headline">¶</a></h1>
+<p>This page covers the necessary steps to install nitime.  Below is a
+list of required dependencies, and some additional recommended software, which
+are dependencies for some particular functionality.</p>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="must-have">
+<h3>Must Have<a class="headerlink" href="#must-have" title="Permalink to this headline">¶</a></h3>
+<p>Nitime supports <a class="reference external" href="http://www.python.org">Python</a> 2.7 and 3.3/3.4/3.5, requiring also reasonably recent
+versions of <a class="reference external" href="http://www.scipy.org/NumPy">NumPy</a> and <a class="reference external" href="http://www.scipy.org">SciPy</a>, as well as <a class="reference external" href="http://matplotlib.sourceforge.net">Matplotlib</a> (In particular,
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">Nitime</span></code> makes use of the <code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib.mlab</span></code> module for some
+implementation of numerical algorithms)</p>
+</div>
+<div class="section" id="recommended-optional">
+<h3>Recommended/optional<a class="headerlink" href="#recommended-optional" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><a class="reference external" href="http://sphinx.pocoo.org/">Sphinx</a></dt>
+<dd>Required for building the documentation</dd>
+<dt><a class="reference external" href="http://networkx.lanl.gov/">Networkx</a></dt>
+<dd>Used for some visualization functions; required in order to build the
+documentation.</dd>
+<dt><a class="reference external" href="http://nipy.org/nibabel">Nibabel</a></dt>
+<dd>Used for reading in data from fMRI data files; required in order to build the
+documentation.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="getting-the-latest-release">
+<h2>Getting the latest release<a class="headerlink" href="#getting-the-latest-release" title="Permalink to this headline">¶</a></h2>
+<p>Using the standard <cite>pip</cite> installation mechanism, you can install nitime by
+issuing the following command in your terminal:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">nitime</span>
+</pre></div>
+</div>
+<p>The source code of the latest release is also available to download at the
+<a class="reference external" href="http://pypi.python.org/pypi/nitime">cheeseshop</a>, or in our Github repo release <a class="reference external" href="https://github.com/nipy/nitime/releases">page</a></p>
+<p>If you want to download the source-code as it is being developed (pre-release),
+follow the instructions here: <a class="reference internal" href="../devel/following_latest.html#following-latest"><span class="std std-ref">Following the latest source</span></a></p>
+<p>Or, if you just want to look at the current development, without using our
+source version-control system, you can download it directly <a class="reference external" href="https://github.com/nipy/nitime/archive/master.zip">here</a></p>
+<p>You can also install nitime using <a class="reference external" href="http://conda.pydata.org/">conda</a>, by issuing the following commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="n">nitime</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="building-from-source">
+<h2>Building from source<a class="headerlink" href="#building-from-source" title="Permalink to this headline">¶</a></h2>
+<p>The installation process is similar to other Python packages so it
+will be familiar if you have Python experience. In addition to the previously
+mentioned dependencies, you will need to have <a class="reference external" href="http://cython.org">cython</a> installed</p>
+<p>Unpack the tarball and change into the source directory.  Once in the
+source directory, you can build nitime using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>Or:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="overview.html" title="Nitime: an overview"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Quickstart"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >User Guide</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

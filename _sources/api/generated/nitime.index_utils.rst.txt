@@ -1,0 +1,44 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+index_utils
+===========
+
+Module: :mod:`index_utils`
+--------------------------
+.. automodule:: nitime.index_utils
+
+.. currentmodule:: nitime.index_utils
+
+Functions
+---------
+
+
+.. autofunction:: nitime.index_utils.histogram2d
+
+
+.. autofunction:: nitime.index_utils.mask_indices
+
+
+.. autofunction:: nitime.index_utils.tri
+
+
+.. autofunction:: nitime.index_utils.tril
+
+
+.. autofunction:: nitime.index_utils.tril_indices
+
+
+.. autofunction:: nitime.index_utils.tril_indices_from
+
+
+.. autofunction:: nitime.index_utils.triu
+
+
+.. autofunction:: nitime.index_utils.triu_indices
+
+
+.. autofunction:: nitime.index_utils.triu_indices_from
+
+
+.. autofunction:: nitime.index_utils.vander
+

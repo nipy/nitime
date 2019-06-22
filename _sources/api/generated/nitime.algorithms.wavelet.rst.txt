@@ -1,0 +1,26 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+algorithms.wavelet
+==================
+
+Module: :mod:`algorithms.wavelet`
+---------------------------------
+.. automodule:: nitime.algorithms.wavelet
+
+.. currentmodule:: nitime.algorithms.wavelet
+
+Functions
+---------
+
+
+.. autofunction:: nitime.algorithms.wavelet.wfmorlet_fft
+
+
+.. autofunction:: nitime.algorithms.wavelet.wlogmorlet
+
+
+.. autofunction:: nitime.algorithms.wavelet.wlogmorlet_fft
+
+
+.. autofunction:: nitime.algorithms.wavelet.wmorlet
+

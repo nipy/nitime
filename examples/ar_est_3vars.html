@@ -1,0 +1,314 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Granger ‘causality’ of fMRI data" href="granger_fmri.html" />
+    <link rel="prev" title="Multitaper F-test for harmonic components" href="mtm_harmonic_test.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="granger_fmri.html" title="Granger ‘causality’ of fMRI data"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mtm_harmonic_test.html" title="Multitaper F-test for harmonic components"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mtm_harmonic_test.html"
+                        title="previous chapter">Multitaper F-test for harmonic components</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="granger_fmri.html"
+                        title="next chapter">Granger ‘causality’ of fMRI data</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="multivariate-auto-regressive-modeling-3-variables">
+<span id="mar3"></span><span id="example-ar-est-3vars"></span><h1>Multivariate auto-regressive modeling - 3 variables<a class="headerlink" href="#multivariate-auto-regressive-modeling-3-variables" title="Permalink to this headline">¶</a></h1>
+<p>This example is an extension of the example presented here: <a class="reference internal" href="ar_est_2vars.html#mar"><span class="std std-ref">Multivariate auto-regressive modeling</span></a>. Here,
+instead of 2 variables and the mutual influences between them, we map out the
+mutual interactions between three variables. This example follows closely an
+example provided in the paper by Ding, Chen and Bressler (2006) <a class="reference internal" href="granger_fmri.html#ding2006" id="id1">[Ding2006]</a>.</p>
+<p>Start with the necessary imports:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">pp</span>
+
+<span class="kn">import</span> <span class="nn">nitime.algorithms</span> <span class="k">as</span> <span class="nn">alg</span>
+<span class="kn">import</span> <span class="nn">nitime.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+</pre></div>
+</div>
+<p>Set the random seed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1981</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Simulate two multivariate autoregressive systems.</p>
+<p>The first is defined by the following equations:</p>
+<div class="math notranslate nohighlight">
+\[X(t) = 0.8X_{t-1} - 0.5X_{t-2} + 0.4Z_{t-1} + \epsilon_x\]</div>
+<div class="math notranslate nohighlight">
+\[Y(t) = 0.9Y_{t-1} - 0.8Y_{t-2} + \epsilon_y\]</div>
+<div class="math notranslate nohighlight">
+\[Z(t) = 0.5Z_{t-1} - 0.2Z_{t-2} + 0.5Y_{t-1} + \epsilon_z\]</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+
+
+<span class="n">a1</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span>
+                 <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                 <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p>The second is defined by the following equations:</p>
+<div class="math notranslate nohighlight">
+\[X(t) = 0.8X_{t-1} - 0.5X_{t-2} + 0.4Z_{t-1} + 0.2Y_{t-2} + \epsilon_x\]</div>
+<div class="math notranslate nohighlight">
+\[Y(t) = 0.9Y_{t-1} - 0.8Y_{t-2} + \epsilon_y\]</div>
+<div class="math notranslate nohighlight">
+\[Z(t) = 0.5Z_{t-1} -0.2Z_{t-2} + 0.5Y_{t-1} + \epsilon_z\]</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a2</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                 <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                 <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">]])</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a1</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">a2</span><span class="o">.</span><span class="n">copy</span><span class="p">()])</span>
+</pre></div>
+</div>
+<p>Add some feedback from Y to X at 2 lags:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.2</span>
+
+<span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a1</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">a2</span><span class="o">.</span><span class="n">copy</span><span class="p">()])</span>
+
+
+<span class="k">def</span> <span class="nf">extract_ij</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+    <span class="n">m_ij_rows</span> <span class="o">=</span> <span class="n">m</span><span class="p">[[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">m_ij_rows</span><span class="p">[:,</span> <span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>We calculate the transfer function based on the coefficients:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">w</span><span class="p">,</span> <span class="n">Haw</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">transfer_function_xy</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">w</span><span class="p">,</span> <span class="n">Hbw</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">transfer_function_xy</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Generate 500 sets of 100 points</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">L</span> <span class="o">=</span> <span class="mi">100</span>
+</pre></div>
+</div>
+<p>Generate the instances of the time-series based on the coefficients:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">za</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">L</span><span class="p">))</span>
+<span class="n">zb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">L</span><span class="p">))</span>
+<span class="n">ea</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">L</span><span class="p">))</span>
+<span class="n">eb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">L</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <span class="n">za</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ea</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">generate_mar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+    <span class="n">zb</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">eb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">generate_mar</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Try to estimate the 2nd order (m)AR coefficients– Average together N estimates
+of auto-covariance at lags k=0,1,2</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Raxx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">Rbxx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+    <span class="n">Raxx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">autocov_vector</span><span class="p">(</span><span class="n">za</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">nlags</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">Rbxx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">autocov_vector</span><span class="p">(</span><span class="n">zb</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">nlags</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Average trials together to find autocovariance estimate, and extract pairwise
+components from the ac sequence:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Raxx</span> <span class="o">=</span> <span class="n">Raxx</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">xyRa</span> <span class="o">=</span> <span class="n">extract_ij</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Raxx</span><span class="p">)</span>
+<span class="n">xzRa</span> <span class="o">=</span> <span class="n">extract_ij</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">Raxx</span><span class="p">)</span>
+<span class="n">yzRa</span> <span class="o">=</span> <span class="n">extract_ij</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">Raxx</span><span class="p">)</span>
+
+<span class="n">Rbxx</span> <span class="o">=</span> <span class="n">Rbxx</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">xyRb</span> <span class="o">=</span> <span class="n">extract_ij</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Rbxx</span><span class="p">)</span>
+<span class="n">xzRb</span> <span class="o">=</span> <span class="n">extract_ij</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">Rbxx</span><span class="p">)</span>
+<span class="n">yzRb</span> <span class="o">=</span> <span class="n">extract_ij</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">Rbxx</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now estimate mAR coefficients and covariance from the full and pairwise relationships:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Raxx</span> <span class="o">=</span> <span class="n">Raxx</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">a_est</span><span class="p">,</span> <span class="n">cov_est1</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">lwr_recursion</span><span class="p">(</span><span class="n">Raxx</span><span class="p">)</span>
+<span class="n">a_xy_est</span><span class="p">,</span> <span class="n">cov_xy_est1</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">lwr_recursion</span><span class="p">(</span><span class="n">xyRa</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">a_xz_est</span><span class="p">,</span> <span class="n">cov_xz_est1</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">lwr_recursion</span><span class="p">(</span><span class="n">xzRa</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">a_yz_est</span><span class="p">,</span> <span class="n">cov_yz_est1</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">lwr_recursion</span><span class="p">(</span><span class="n">yzRa</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="n">Rbxx</span> <span class="o">=</span> <span class="n">Rbxx</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">b_est</span><span class="p">,</span> <span class="n">cov_est2</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">lwr_recursion</span><span class="p">(</span><span class="n">Rbxx</span><span class="p">)</span>
+<span class="n">b_xy_est</span><span class="p">,</span> <span class="n">cov_xy_est2</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">lwr_recursion</span><span class="p">(</span><span class="n">xyRb</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">b_xz_est</span><span class="p">,</span> <span class="n">cov_xz_est2</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">lwr_recursion</span><span class="p">(</span><span class="n">xzRb</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">b_yz_est</span><span class="p">,</span> <span class="n">cov_yz_est2</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">lwr_recursion</span><span class="p">(</span><span class="n">yzRb</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>We proceed to visualize these relationships:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig01</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+<span class="n">w</span><span class="p">,</span> <span class="n">x2y_a</span><span class="p">,</span> <span class="n">y2x_a</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">granger_causality_xy</span><span class="p">(</span><span class="n">a_xy_est</span><span class="p">,</span> <span class="n">cov_xy_est1</span><span class="p">)</span>
+<span class="n">w</span><span class="p">,</span> <span class="n">x2y_b</span><span class="p">,</span> <span class="n">y2x_b</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">granger_causality_xy</span><span class="p">(</span><span class="n">b_xy_est</span><span class="p">,</span> <span class="n">cov_xy_est2</span><span class="p">)</span>
+<span class="n">ax01</span> <span class="o">=</span> <span class="n">fig01</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">321</span><span class="p">)</span>
+<span class="n">ax01</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x2y_a</span><span class="p">,</span> <span class="s1">&#39;b--&#39;</span><span class="p">)</span>
+<span class="n">ax01</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x2y_b</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">)</span>
+<span class="n">ax01</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;x to y&#39;</span><span class="p">)</span>
+<span class="n">ax01</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">ax02</span> <span class="o">=</span> <span class="n">fig01</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">322</span><span class="p">)</span>
+<span class="n">ax02</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">y2x_a</span><span class="p">,</span> <span class="s1">&#39;b--&#39;</span><span class="p">)</span>
+<span class="n">ax02</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">y2x_b</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">)</span>
+<span class="n">ax02</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;y to x&#39;</span><span class="p">)</span>
+<span class="n">ax02</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+<span class="n">w</span><span class="p">,</span> <span class="n">y2z_a</span><span class="p">,</span> <span class="n">z2y_a</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">granger_causality_xy</span><span class="p">(</span><span class="n">a_yz_est</span><span class="p">,</span> <span class="n">cov_yz_est1</span><span class="p">)</span>
+<span class="n">w</span><span class="p">,</span> <span class="n">y2z_b</span><span class="p">,</span> <span class="n">z2y_b</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">granger_causality_xy</span><span class="p">(</span><span class="n">b_yz_est</span><span class="p">,</span> <span class="n">cov_yz_est2</span><span class="p">)</span>
+<span class="n">ax03</span> <span class="o">=</span> <span class="n">fig01</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">323</span><span class="p">)</span>
+<span class="n">ax03</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">y2z_a</span><span class="p">,</span> <span class="s1">&#39;b--&#39;</span><span class="p">)</span>
+<span class="n">ax03</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">y2z_b</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">)</span>
+<span class="n">ax03</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;y to z&#39;</span><span class="p">)</span>
+<span class="n">ax03</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">ax03</span> <span class="o">=</span> <span class="n">fig01</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">324</span><span class="p">)</span>
+<span class="n">ax03</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">z2y_a</span><span class="p">,</span> <span class="s1">&#39;b--&#39;</span><span class="p">)</span>
+<span class="n">ax03</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">z2y_b</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">)</span>
+<span class="n">ax03</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;z to y&#39;</span><span class="p">)</span>
+<span class="n">ax03</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+<span class="n">w</span><span class="p">,</span> <span class="n">x2z_a</span><span class="p">,</span> <span class="n">z2x_a</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">granger_causality_xy</span><span class="p">(</span><span class="n">a_xz_est</span><span class="p">,</span> <span class="n">cov_xz_est1</span><span class="p">)</span>
+<span class="n">w</span><span class="p">,</span> <span class="n">x2z_b</span><span class="p">,</span> <span class="n">z2x_b</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">granger_causality_xy</span><span class="p">(</span><span class="n">b_xz_est</span><span class="p">,</span> <span class="n">cov_xz_est2</span><span class="p">)</span>
+<span class="n">ax04</span> <span class="o">=</span> <span class="n">fig01</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">325</span><span class="p">)</span>
+<span class="n">ax04</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x2z_a</span><span class="p">,</span> <span class="s1">&#39;b--&#39;</span><span class="p">)</span>
+<span class="n">ax04</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x2z_b</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">)</span>
+<span class="n">ax04</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;x to z&#39;</span><span class="p">)</span>
+<span class="n">ax04</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">ax05</span> <span class="o">=</span> <span class="n">fig01</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">326</span><span class="p">)</span>
+<span class="n">ax05</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">z2x_a</span><span class="p">,</span> <span class="s1">&#39;b--&#39;</span><span class="p">)</span>
+<span class="n">ax05</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">z2x_b</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">)</span>
+<span class="n">ax05</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;z to x&#39;</span><span class="p">)</span>
+<span class="n">ax05</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+<span class="n">pp</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Compare to figure 3 in <a class="reference internal" href="granger_fmri.html#ding2006" id="id2">[Ding2006]</a>:</p>
+<a class="reference external image-reference" href="../_images/ar_est_3vars_01.png"><img alt="../_images/ar_est_3vars_01.png" src="../_images/ar_est_3vars_01.png" style="width: 500px;" /></a>
+<table class="docutils citation" frame="void" id="ding2006" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Ding2006]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>)</em> M. Ding, Y. Chen and S.L. Bressler (2006) Granger causality:
+basic theory and application to neuroscience. In Handbook of Time Series
+Analysis, ed. B. Schelter, M. Winterhalder, and J. Timmer, Wiley-VCH
+Verlage, 2006: 451-474</td></tr>
+</tbody>
+</table>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" download="" href="../_downloads/9cfbf4ba7d5b9b9ca7d4bafe36a9a1b3/ar_est_3vars.py"><code class="xref download docutils literal notranslate"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the Nitime source distribution under the
+<code class="file docutils literal notranslate"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="granger_fmri.html" title="Granger ‘causality’ of fMRI data"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mtm_harmonic_test.html" title="Multitaper F-test for harmonic components"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

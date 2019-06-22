@@ -1,0 +1,23 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+algorithms.event_related
+========================
+
+Module: :mod:`algorithms.event_related`
+---------------------------------------
+.. automodule:: nitime.algorithms.event_related
+
+.. currentmodule:: nitime.algorithms.event_related
+
+Functions
+---------
+
+
+.. autofunction:: nitime.algorithms.event_related.fir
+
+
+.. autofunction:: nitime.algorithms.event_related.freq_domain_xcorr
+
+
+.. autofunction:: nitime.algorithms.event_related.freq_domain_xcorr_zscored
+

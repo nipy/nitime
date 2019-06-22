@@ -1,0 +1,467 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Multitaper F-test for harmonic components" href="mtm_harmonic_test.html" />
+    <link rel="prev" title="Filtering and normalizing fMRI data" href="filtering_fmri.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mtm_harmonic_test.html" title="Multitaper F-test for harmonic components"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="filtering_fmri.html" title="Filtering and normalizing fMRI data"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="filtering_fmri.html"
+                        title="previous chapter">Filtering and normalizing fMRI data</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mtm_harmonic_test.html"
+                        title="next chapter">Multitaper F-test for harmonic components</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="multitaper-spectral-estimation">
+<span id="multi-taper-psd"></span><span id="example-multi-taper-spectral-estimation"></span><h1>Multitaper spectral estimation<a class="headerlink" href="#multitaper-spectral-estimation" title="Permalink to this headline">¶</a></h1>
+<p>The distribution of power in a signal, as a function of frequency, known as the
+power spectrum (or PSD, for power spectral density) can be estimated using
+variants of the discrete Fourier transform (DFT). The naive estimate of the
+power spectrum, based on the values of the DFT estimated directly from the
+signal, using the fast Fourier transform algorithm (FFT) is referred to as a
+periodogram (see <code class="xref py py-func docutils literal notranslate"><span class="pre">algorithms.periodogram()</span></code>). This estimate suffers from
+several problems <a class="reference internal" href="#nr2007" id="id1">[NR2007]</a>:</p>
+<ul class="simple">
+<li>Inefficiency: In most estimation problems, additional samples, or a denser
+sampling grid would usually lead to a better estimate (smaller variance of
+the estimate, given a constant level of noise). However, this is not the case
+for the periodogram. Even as we add more samples to our signal, or increase
+our sampling rate, our estimate at frequency <span class="math notranslate nohighlight">\(f_k\)</span> does not improve. This is
+because of the effects these kinds of changes have on spectral
+estimates. Adding additional samples will improve the frequency domain
+resolution of our estimate and sampling at a finer rate will change the
+Nyquist frequency, the highest frequency for which the spectrum can be
+estimated. Thus, these changes do not improve the estimate at frequency
+<span class="math notranslate nohighlight">\(f_k\)</span>.</li>
+</ul>
+<p>The inefficiency problem can be solved by treating different parts of the
+signal as different samples from the same distribution, while assuming
+stationarity of the signal. In this method, a sliding window is applied to
+different parts of the signal and the windowed spectrum is averaged from these
+different samples. This is sometimes referred to as Welch’s periodogram
+<a class="reference internal" href="#welch1967" id="id2">[Welch1967]</a> and it is the default method used in
+<code class="xref py py-func docutils literal notranslate"><span class="pre">algorithms.get_spectra()</span></code> (with the Hanning window as the window function
+used and no overlap between the windows).  However, it may lead to the
+following problem:</p>
+<ul class="simple">
+<li>Spectral leakage and bias: Spectral leakage refers to the fact that the
+estimate of the spectrum at any given frequency bin is contaminated with the
+power from other frequency bands. This is a consequence of the fact that we
+always look at a time-limited signal. In the naive peridogram estimate all
+the samples within the time-limited signal are taken as they are (implicitly
+multiplied by 1) and all the samples outside of this time-limited signal are
+not taken at all (implicitly multiplied by 0). This is akin to what would
+happen if the signal were multiplied sample-by-sample with a ‘boxcar’ window,
+so called because the shape of this window is square, going from 0 to 1 over
+one sampling window. Multiplying the signal with a boxcar window in the
+time-domain is equivalent (due to the convolution theorem) to convolving it
+in the frequency domain with the spectrum of the boxcar window. The spectral
+leakage induced by this operation is demonstrated in the following example.</li>
+</ul>
+<p>We start by importing the modules/functions we will need in this example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="k">as</span> <span class="nn">sig</span>
+<span class="kn">import</span> <span class="nn">scipy.stats.distributions</span> <span class="k">as</span> <span class="nn">dist</span>
+
+<span class="kn">import</span> <span class="nn">nitime.algorithms</span> <span class="k">as</span> <span class="nn">tsa</span>
+<span class="kn">import</span> <span class="nn">nitime.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">nitime.viz</span> <span class="k">import</span> <span class="n">winspect</span>
+<span class="kn">from</span> <span class="nn">nitime.viz</span> <span class="k">import</span> <span class="n">plot_spectral_estimate</span>
+</pre></div>
+</div>
+<p>For demonstration, we will use a window of 128 points:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npts</span> <span class="o">=</span> <span class="mi">128</span>
+
+<span class="n">fig01</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+<span class="c1"># Boxcar with zeroed out fraction</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">boxcar</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span>
+<span class="n">zfrac</span> <span class="o">=</span> <span class="mf">0.15</span>
+<span class="n">zi</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">npts</span> <span class="o">*</span> <span class="n">zfrac</span><span class="p">)</span>
+<span class="n">b</span><span class="p">[:</span><span class="n">zi</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="o">-</span><span class="n">zi</span><span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Boxcar - zero fraction=</span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">zfrac</span>
+<span class="n">winspect</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">fig01</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/multi_taper_spectral_estimation_01.png"><img alt="../_images/multi_taper_spectral_estimation_01.png" src="../_images/multi_taper_spectral_estimation_01.png" style="width: 500px;" /></a>
+<p>The figure on the left shows a boxcar window and the figure on the right
+shows the spectrum of the boxcar function (in dB units, relative to the
+frequency band of interest).</p>
+<p>These two problems can together be mitigated through the use of other
+windows. Other windows have been designed in order to optimize the amount of
+spectral leakage and limit it to certain parts of the spectrum. The following
+example demonstrates the spectral leakage for several different windows
+(including the boxcar):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig02</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+<span class="c1"># Boxcar with zeroed out fraction</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">boxcar</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span>
+<span class="n">zfrac</span> <span class="o">=</span> <span class="mf">0.15</span>
+<span class="n">zi</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">npts</span> <span class="o">*</span> <span class="n">zfrac</span><span class="p">)</span>
+<span class="n">b</span><span class="p">[:</span><span class="n">zi</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="o">-</span><span class="n">zi</span><span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Boxcar - zero fraction=</span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">zfrac</span>
+<span class="n">winspect</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">fig02</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+<span class="n">winspect</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">hanning</span><span class="p">(</span><span class="n">npts</span><span class="p">),</span> <span class="n">fig02</span><span class="p">,</span> <span class="s1">&#39;Hanning&#39;</span><span class="p">)</span>
+<span class="n">winspect</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">bartlett</span><span class="p">(</span><span class="n">npts</span><span class="p">),</span> <span class="n">fig02</span><span class="p">,</span> <span class="s1">&#39;Bartlett&#39;</span><span class="p">)</span>
+<span class="n">winspect</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">barthann</span><span class="p">(</span><span class="n">npts</span><span class="p">),</span> <span class="n">fig02</span><span class="p">,</span> <span class="s1">&#39;Modified Bartlett-Hann&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/multi_taper_spectral_estimation_02.png"><img alt="../_images/multi_taper_spectral_estimation_02.png" src="../_images/multi_taper_spectral_estimation_02.png" style="width: 500px;" /></a>
+<p>As before, the left figure displays the windowing function in the temporal
+domain and the figure on the left displays the attentuation of spectral leakage
+in the other frequency bands in the spectrum. Notice that though different
+windowing functions have different spectral attenuation profiles, trading off
+attenuation of leakage from frequency bands near the frequency of interest
+(narrow-band leakage) with leakage from faraway frequency bands (broad-band
+leakage) they are all superior in both of these respects to the boxcar window
+used in the naive periodogram.</p>
+<p>Another approach which deals with both the inefficiency problem and with the
+spectral leakage problem is the use of taper functions. In this approach, the
+entire signal is multiplied by a time-varying function. Several of these
+functions may be used in order to emphasize and de-emphasize different parts of
+the signal and these can be constructed to be orthogonal to each other,
+constructing maximally independent samples at the length of the signal. As we
+will see below, this allows for statistical estimation of the distribution of
+the spectrum.</p>
+<p>Discrete prolate spheroidal sequences (DPSS, also known as Slepian sequences)
+<a class="reference internal" href="#slepian1978" id="id3">[Slepian1978]</a> are a class of taper functions which are constructed as a
+solution to the problem of concentrating the spectrum to within a pre-specified
+bandwidth. These tapers can be constructed using
+<code class="xref py py-func docutils literal notranslate"><span class="pre">algorithms.dpss_windows()</span></code>, but for the purpose of spectral estimation, it
+is sufficient to specify the bandwidth (which defines the boundary between
+narrow-band and broad-band leakage) as an input to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">algorithms.mutli_taper_psd()</span></code> and this function will then construct the
+appropriate windows, calculate the tapered spectra and average them.</p>
+<p>We will demonstrate the use of DPSS in spectral estimation on a time-series
+with known spectral properties generated from an auto-regressive process.</p>
+<p>We start by defining a function which will be used throughout this example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">dB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And the conversion factor from ln to dB:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ln2db</span> <span class="o">=</span> <span class="n">dB</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">e</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we generate a sequence with known spectral properties:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">512</span>
+<span class="n">ar_seq</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">ar_generator</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">drop_transients</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">ar_seq</span> <span class="o">-=</span> <span class="n">ar_seq</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This is the true PSD for this sequence:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fgrid</span><span class="p">,</span> <span class="n">hz</span> <span class="o">=</span> <span class="n">tsa</span><span class="o">.</span><span class="n">freq_response</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">alpha</span><span class="p">],</span> <span class="n">n_freqs</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">psd</span> <span class="o">=</span> <span class="p">(</span><span class="n">hz</span> <span class="o">*</span> <span class="n">hz</span><span class="o">.</span><span class="n">conj</span><span class="p">())</span><span class="o">.</span><span class="n">real</span>
+</pre></div>
+</div>
+<p>This is a one-sided spectrum, so we double the power:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">psd</span> <span class="o">*=</span> <span class="mi">2</span>
+<span class="n">dB</span><span class="p">(</span><span class="n">psd</span><span class="p">,</span> <span class="n">psd</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We begin by using the naive periodogram function (<code class="xref py py-func docutils literal notranslate"><span class="pre">tsa.periodogram()</span></code> in
+order to calculate the PSD and compare that to the true PSD calculated above.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">freqs</span><span class="p">,</span> <span class="n">d_psd</span> <span class="o">=</span> <span class="n">tsa</span><span class="o">.</span><span class="n">periodogram</span><span class="p">(</span><span class="n">ar_seq</span><span class="p">)</span>
+<span class="n">dB</span><span class="p">(</span><span class="n">d_psd</span><span class="p">,</span> <span class="n">d_psd</span><span class="p">)</span>
+
+<span class="n">fig03</span> <span class="o">=</span> <span class="n">plot_spectral_estimate</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">psd</span><span class="p">,</span> <span class="p">(</span><span class="n">d_psd</span><span class="p">,),</span> <span class="n">elabels</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Periodogram&quot;</span><span class="p">,))</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/multi_taper_spectral_estimation_03.png"><img alt="../_images/multi_taper_spectral_estimation_03.png" src="../_images/multi_taper_spectral_estimation_03.png" style="width: 500px;" /></a>
+<p>Next, we use Welch’s periodogram, by applying <code class="xref py py-func docutils literal notranslate"><span class="pre">tsa.get_spectra()</span></code>. Note
+that we explicitly provide the function with a ‘method’ dict, which specifies
+the method used in order to calculate the PSD, but the default method is ‘welch’.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">welch_freqs</span><span class="p">,</span> <span class="n">welch_psd</span> <span class="o">=</span> <span class="n">tsa</span><span class="o">.</span><span class="n">get_spectra</span><span class="p">(</span><span class="n">ar_seq</span><span class="p">,</span>
+                                         <span class="n">method</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">this_method</span><span class="o">=</span><span class="s1">&#39;welch&#39;</span><span class="p">,</span> <span class="n">NFFT</span><span class="o">=</span><span class="n">N</span><span class="p">))</span>
+<span class="n">welch_freqs</span> <span class="o">*=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">welch_freqs</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="n">welch_psd</span> <span class="o">=</span> <span class="n">welch_psd</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<span class="n">dB</span><span class="p">(</span><span class="n">welch_psd</span><span class="p">,</span> <span class="n">welch_psd</span><span class="p">)</span>
+
+<span class="n">fig04</span> <span class="o">=</span> <span class="n">plot_spectral_estimate</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">psd</span><span class="p">,</span> <span class="p">(</span><span class="n">welch_psd</span><span class="p">,),</span> <span class="n">elabels</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Welch&quot;</span><span class="p">,))</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/multi_taper_spectral_estimation_04.png"><img alt="../_images/multi_taper_spectral_estimation_04.png" src="../_images/multi_taper_spectral_estimation_04.png" style="width: 500px;" /></a>
+<p>Next, we use the multitaper estimation method. We estimate the spectrum:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="p">,</span> <span class="n">psd_mt</span><span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="n">tsa</span><span class="o">.</span><span class="n">multi_taper_psd</span><span class="p">(</span>
+    <span class="n">ar_seq</span><span class="p">,</span> <span class="n">adaptive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">jackknife</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+<span class="n">dB</span><span class="p">(</span><span class="n">psd_mt</span><span class="p">,</span> <span class="n">psd_mt</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And get the number of tapers from here:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Kmax</span> <span class="o">=</span> <span class="n">nu</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>We calculate a Chi-squared model 95% confidence interval 2*Kmax degrees of
+freedom (see <a class="reference internal" href="#percival1993" id="id4">[Percival1993]</a> eq 258)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p975</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">chi2</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="o">.</span><span class="mi">975</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">Kmax</span><span class="p">)</span>
+<span class="n">p025</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">chi2</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="o">.</span><span class="mi">025</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">Kmax</span><span class="p">)</span>
+
+<span class="n">l1</span> <span class="o">=</span> <span class="n">ln2db</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">Kmax</span> <span class="o">/</span> <span class="n">p975</span><span class="p">)</span>
+<span class="n">l2</span> <span class="o">=</span> <span class="n">ln2db</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">Kmax</span> <span class="o">/</span> <span class="n">p025</span><span class="p">)</span>
+
+<span class="n">hyp_limits</span> <span class="o">=</span> <span class="p">(</span><span class="n">psd_mt</span> <span class="o">+</span> <span class="n">l1</span><span class="p">,</span> <span class="n">psd_mt</span> <span class="o">+</span> <span class="n">l2</span><span class="p">)</span>
+
+<span class="n">fig05</span> <span class="o">=</span> <span class="n">plot_spectral_estimate</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">psd</span><span class="p">,</span> <span class="p">(</span><span class="n">psd_mt</span><span class="p">,),</span> <span class="n">hyp_limits</span><span class="p">,</span>
+                               <span class="n">elabels</span><span class="o">=</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;MT with :math:`\chi^</span><span class="si">{2}</span><span class="s2">` 95</span><span class="si">% i</span><span class="s2">nterval&quot;</span><span class="p">,))</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/multi_taper_spectral_estimation_05.png"><img alt="../_images/multi_taper_spectral_estimation_05.png" src="../_images/multi_taper_spectral_estimation_05.png" style="width: 500px;" /></a>
+<p>An iterative method (<a class="reference internal" href="#thomson2007" id="id5">[Thomson2007]</a>) can be used in order to adaptively set the
+weighting of the different tapers, according to the actual spectral
+concentration in the given signal (and not only the theoretical spectral
+concentration calculated per default).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="p">,</span> <span class="n">adaptive_psd_mt</span><span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="n">tsa</span><span class="o">.</span><span class="n">multi_taper_psd</span><span class="p">(</span>
+    <span class="n">ar_seq</span><span class="p">,</span>  <span class="n">adaptive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">jackknife</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+<span class="n">dB</span><span class="p">(</span><span class="n">adaptive_psd_mt</span><span class="p">,</span> <span class="n">adaptive_psd_mt</span><span class="p">)</span>
+
+<span class="n">p975</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">chi2</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="o">.</span><span class="mi">975</span><span class="p">,</span> <span class="n">nu</span><span class="p">)</span>
+<span class="n">p025</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">chi2</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="o">.</span><span class="mi">025</span><span class="p">,</span> <span class="n">nu</span><span class="p">)</span>
+
+<span class="n">l1</span> <span class="o">=</span> <span class="n">ln2db</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">nu</span> <span class="o">/</span> <span class="n">p975</span><span class="p">)</span>
+<span class="n">l2</span> <span class="o">=</span> <span class="n">ln2db</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">nu</span> <span class="o">/</span> <span class="n">p025</span><span class="p">)</span>
+
+<span class="n">hyp_limits</span> <span class="o">=</span> <span class="p">(</span><span class="n">adaptive_psd_mt</span> <span class="o">+</span> <span class="n">l1</span><span class="p">,</span> <span class="n">adaptive_psd_mt</span> <span class="o">+</span> <span class="n">l2</span><span class="p">)</span>
+
+<span class="n">fig06</span> <span class="o">=</span> <span class="n">plot_spectral_estimate</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">psd</span><span class="p">,</span> <span class="p">(</span><span class="n">adaptive_psd_mt</span><span class="p">,),</span> <span class="n">hyp_limits</span><span class="p">,</span>
+                       <span class="n">elabels</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;MT with adaptive weighting and 95</span><span class="si">% i</span><span class="s1">nterval&#39;</span><span class="p">,))</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/multi_taper_spectral_estimation_06.png"><img alt="../_images/multi_taper_spectral_estimation_06.png" src="../_images/multi_taper_spectral_estimation_06.png" style="width: 500px;" /></a>
+<p>As metioned above, in addition to estimating the spectrum itself, an estimate
+of the confidence interval of the spectrum can be generated using a
+jack-knifing procedure <a class="reference internal" href="#thomson2007" id="id6">[Thomson2007]</a>.</p>
+<p>Let us define the following:</p>
+<div class="line-block">
+<div class="line"><strong>simple sample estimate</strong></div>
+<div class="line"><span class="math notranslate nohighlight">\(\hat{\theta} = \dfrac{1}{n}\sum_i Y_i\)</span></div>
+</div>
+<p>This is the parameter estimate averaged from all the samples in the
+distribution (all the tapered spectra).</p>
+<div class="line-block">
+<div class="line"><strong>leave-one-out measurement</strong></div>
+<div class="line"><span class="math notranslate nohighlight">\(\hat{\theta}_{-i} = \dfrac{1}{n-1}\sum_{k \neq i}Y_k\)</span></div>
+</div>
+<p>This defines a group of estimates, where each sample is based on leaving one
+measurement (one tapered spectrum) out.</p>
+<div class="line-block">
+<div class="line"><strong>pseudovalues</strong></div>
+<div class="line"><span class="math notranslate nohighlight">\(\hat{\theta}_i = n\hat{\theta} - (n-1)\hat{\theta}_{-i}\)</span></div>
+</div>
+<p>The jackknifed estimator is computed as:</p>
+<p><span class="math notranslate nohighlight">\(\tilde{\theta} = \dfrac{1}{n}\sum_i \hat{\theta}_i = n\hat{\theta} - \dfrac{n-1}{n}\sum_i \hat{\theta}_{-i}\)</span></p>
+<p>This estimator is known <a class="reference internal" href="#thomson2007" id="id7">[Thomson2007]</a> to be distributed about the true parameter theta approximately as a Student’s t distribution, with standard error defined as:</p>
+<p><span class="math notranslate nohighlight">\(s^{2} = \dfrac{n-1}{n}\sum_i \left(\hat{\theta}_i - \tilde{\theta}\right)^{2}\)</span></p>
+<p>And degrees of freedom which depend on the number of tapers used (Kmax-1):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">jk_var</span> <span class="o">=</span> <span class="n">tsa</span><span class="o">.</span><span class="n">multi_taper_psd</span><span class="p">(</span><span class="n">ar_seq</span><span class="p">,</span> <span class="n">adaptive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">jackknife</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">jk_p</span> <span class="o">=</span> <span class="p">(</span><span class="n">dist</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="o">.</span><span class="mi">975</span><span class="p">,</span> <span class="n">Kmax</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">jk_var</span><span class="p">))</span> <span class="o">*</span> <span class="n">ln2db</span>
+
+<span class="n">jk_limits</span> <span class="o">=</span> <span class="p">(</span><span class="n">psd_mt</span> <span class="o">-</span> <span class="n">jk_p</span><span class="p">,</span> <span class="n">psd_mt</span> <span class="o">+</span> <span class="n">jk_p</span><span class="p">)</span>
+
+
+<span class="n">fig07</span> <span class="o">=</span> <span class="n">plot_spectral_estimate</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">psd</span><span class="p">,</span> <span class="p">(</span><span class="n">psd_mt</span><span class="p">,),</span>
+                               <span class="n">jk_limits</span><span class="p">,</span>
+                               <span class="n">elabels</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;MT with JK 95</span><span class="si">% i</span><span class="s1">nterval&#39;</span><span class="p">,))</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/multi_taper_spectral_estimation_07.png"><img alt="../_images/multi_taper_spectral_estimation_07.png" src="../_images/multi_taper_spectral_estimation_07.png" style="width: 500px;" /></a>
+<p>In addition, if the ‘adaptive’ flag is set to True, an iterative adaptive
+method is used in order to correct bias in the spectrum.</p>
+<p>Finally, we combine the adaptive estimation of the weights with the
+jack-knifing procedure.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">adaptive_jk_var</span> <span class="o">=</span> <span class="n">tsa</span><span class="o">.</span><span class="n">multi_taper_psd</span><span class="p">(</span>
+    <span class="n">ar_seq</span><span class="p">,</span> <span class="n">adaptive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">jackknife</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+<span class="c1"># find 95% confidence limits from inverse of t-dist CDF</span>
+<span class="n">jk_p</span> <span class="o">=</span> <span class="p">(</span><span class="n">dist</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="o">.</span><span class="mi">975</span><span class="p">,</span> <span class="n">Kmax</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">adaptive_jk_var</span><span class="p">))</span> <span class="o">*</span> <span class="n">ln2db</span>
+
+<span class="n">adaptive_jk_limits</span> <span class="o">=</span> <span class="p">(</span><span class="n">adaptive_psd_mt</span> <span class="o">-</span> <span class="n">jk_p</span><span class="p">,</span> <span class="n">adaptive_psd_mt</span> <span class="o">+</span> <span class="n">jk_p</span><span class="p">)</span>
+
+<span class="n">fig08</span> <span class="o">=</span> <span class="n">plot_spectral_estimate</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">psd</span><span class="p">,</span> <span class="p">(</span><span class="n">adaptive_psd_mt</span><span class="p">,),</span>
+                               <span class="n">adaptive_jk_limits</span><span class="p">,</span>
+                               <span class="n">elabels</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;adaptive-MT with JK 95</span><span class="si">% i</span><span class="s1">nterval&#39;</span><span class="p">,))</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/multi_taper_spectral_estimation_08.png"><img alt="../_images/multi_taper_spectral_estimation_08.png" src="../_images/multi_taper_spectral_estimation_08.png" style="width: 500px;" /></a>
+<p>We call plt.show() in order to show all the figures:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>References</p>
+<table class="docutils citation" frame="void" id="nr2007" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[NR2007]</a></td><td>W.H. Press, S.A. Teukolsky, W.T Vetterling and B.P. Flannery (2007)
+Numerical Recipes: The Art of Scientific Computing. Cambridge:
+Cambridge University Press. 3rd Ed.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="thomson2007" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Thomson2007]</td><td><em>(<a class="fn-backref" href="#id5">1</a>, <a class="fn-backref" href="#id6">2</a>, <a class="fn-backref" href="#id7">3</a>)</em> D.J. Thomson, Jackknifing Multitaper Spectrum Estimates, IEEE
+Signal Processing Magazine, 2007, pp. 20-30.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="welch1967" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[Welch1967]</a></td><td>P.D. Welch (1967), The use of the fast fourier transform for the
+estimation of power spectra: a method based on time averaging
+over short modified periodograms. IEEE Transcations on Audio and
+Electroacoustics.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="slepian1978" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[Slepian1978]</a></td><td>Slepian, D. Prolate spheroidal wave functions, Fourier
+analysis, and uncertainty V: The discrete case. Bell System
+Technical Journal, Volume 57 (1978), 1371430</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="percival1993" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[Percival1993]</a></td><td>Percival D.B. and Walden A.T. (1993) Spectral Analysis for
+Physical Applications: Multitaper and Conventional Univariate
+Techniques. Cambridge University Press</td></tr>
+</tbody>
+</table>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" download="" href="../_downloads/5cf202a2386084551d86ad2bc409e474/multi_taper_spectral_estimation.py"><code class="xref download docutils literal notranslate"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the Nitime source distribution under the
+<code class="file docutils literal notranslate"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mtm_harmonic_test.html" title="Multitaper F-test for harmonic components"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="filtering_fmri.html" title="Filtering and normalizing fMRI data"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

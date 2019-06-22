@@ -1,0 +1,801 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="utils" href="nitime.utils.html" />
+    <link rel="prev" title="six" href="nitime.six.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.utils.html" title="utils"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.six.html" title="six"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">timeseries</a><ul>
+<li><a class="reference internal" href="#module-timeseries">Module: <code class="docutils literal notranslate"><span class="pre">timeseries</span></code></a></li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#epochs"><code class="docutils literal notranslate"><span class="pre">Epochs</span></code></a></li>
+<li><a class="reference internal" href="#events"><code class="docutils literal notranslate"><span class="pre">Events</span></code></a></li>
+<li><a class="reference internal" href="#frequency"><code class="docutils literal notranslate"><span class="pre">Frequency</span></code></a></li>
+<li><a class="reference internal" href="#timearray"><code class="docutils literal notranslate"><span class="pre">TimeArray</span></code></a></li>
+<li><a class="reference internal" href="#timeinterface"><code class="docutils literal notranslate"><span class="pre">TimeInterface</span></code></a></li>
+<li><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">TimeSeries</span></code></a></li>
+<li><a class="reference internal" href="#timeseriesbase"><code class="docutils literal notranslate"><span class="pre">TimeSeriesBase</span></code></a></li>
+<li><a class="reference internal" href="#timeseriesinterface"><code class="docutils literal notranslate"><span class="pre">TimeSeriesInterface</span></code></a></li>
+<li><a class="reference internal" href="#uniformtime"><code class="docutils literal notranslate"><span class="pre">UniformTime</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.six.html"
+                        title="previous chapter">six</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.utils.html"
+                        title="next chapter">utils</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="timeseries">
+<h1>timeseries<a class="headerlink" href="#timeseries" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-timeseries">
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">timeseries</span></code><a class="headerlink" href="#module-timeseries" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">nitime.timeseries</span></code>:</p>
+<div class="graphviz"><img src="../../_images/inheritance-c40ec0b262a7e35501d32b6e54f8728a47d946c1.png" alt="Inheritance diagram of nitime.timeseries" usemap="#inheritance5480e4f538" class="inheritance graphviz" /></div>
+<map id="inheritance5480e4f538" name="inheritance5480e4f538">
+<area shape="rect" id="node1" href="nitime.descriptors.html#nitime.descriptors.ResetMixin" target="_top" title="A Mixin class to add a .reset() method to users of OneTimeProperty." alt="" coords="19,248,214,272"/>
+<area shape="rect" id="node2" href="#nitime.timeseries.Epochs" target="_top" title="Represents a time interval" alt="" coords="313,248,482,272"/>
+<area shape="rect" id="node3" href="#nitime.timeseries.Events" target="_top" title="Represents timestamps and associated data" alt="" coords="315,53,481,77"/>
+<area shape="rect" id="node4" href="#nitime.timeseries.TimeInterface" target="_top" title="The minimal object interface for time representations" alt="" coords="13,135,220,159"/>
+<area shape="rect" id="node6" href="#nitime.timeseries.TimeArray" target="_top" title="Base&#45;class for time representations, implementing the TimeInterface" alt="" coords="305,149,491,173"/>
+<area shape="rect" id="node10" href="#nitime.timeseries.TimeSeriesInterface" target="_top" title="The minimally agreed upon interface for all time series." alt="" coords="276,101,520,125"/>
+<area shape="rect" id="node11" href="#nitime.timeseries.UniformTime" target="_top" title="A representation of time sampled uniformly" alt="" coords="297,197,498,221"/>
+<area shape="rect" id="node5" href="#nitime.timeseries.Frequency" target="_top" title="A class for representation of the frequency (in Hz)" alt="" coords="22,63,211,87"/>
+<area shape="rect" id="node8" href="#nitime.timeseries.TimeSeries" target="_top" title="Represent data collected at uniform intervals." alt="" coords="302,5,494,29"/>
+<area shape="rect" id="node9" href="#nitime.timeseries.TimeSeriesBase" target="_top" title="Base class for time series, implementing the TimeSeriesInterface." alt="" coords="5,5,228,29"/>
+</map><span class="target" id="module-nitime.timeseries"></span><p>Base classes for generic time series analysis.</p>
+<p>The classes implemented here are meant to provide fairly basic objects for
+managing time series data.  They should serve mainly as data containers, with
+only minimal algorithmic functionality.</p>
+<p>In the timeseries subpackage, there is a separate library of algorithms, and
+the classes defined here mostly delegate any computational facilities they may
+have to that library.</p>
+<p>Over time, it is OK to add increasingly functionally rich classes, but only
+after their design is well proven in real-world use.</p>
+</div>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="epochs">
+<h3><a class="reference internal" href="#nitime.timeseries.Epochs" title="nitime.timeseries.Epochs"><code class="xref py py-class docutils literal notranslate"><span class="pre">Epochs</span></code></a><a class="headerlink" href="#epochs" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.timeseries.Epochs">
+<em class="property">class </em><code class="descclassname">nitime.timeseries.</code><code class="descname">Epochs</code><span class="sig-paren">(</span><em>t0=None</em>, <em>stop=None</em>, <em>offset=None</em>, <em>start=None</em>, <em>duration=None</em>, <em>time_unit=None</em>, <em>static=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.Epochs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="nitime.descriptors.html#nitime.descriptors.ResetMixin" title="nitime.descriptors.ResetMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">nitime.descriptors.ResetMixin</span></code></a></p>
+<p>Represents a time interval</p>
+<dl class="method">
+<dt id="nitime.timeseries.Epochs.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>t0=None</em>, <em>stop=None</em>, <em>offset=None</em>, <em>start=None</em>, <em>duration=None</em>, <em>time_unit=None</em>, <em>static=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.Epochs.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>t0</strong> : 1-d array or <cite>TimeArray</cite></p>
+<blockquote>
+<div><blockquote>
+<div><p>A time relative to which the epochs started. Per default <cite>t0</cite> and</p>
+</div></blockquote>
+<dl class="docutils">
+<dt><cite>start</cite> are the same, but setting the <cite>offset</cite> parameter can adjust</dt>
+<dd><p class="first last">that, so that the start-times are at a fixed time, relative to t0.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>stop</strong> : 1-d array or <cite>TimeArray</cite></p>
+<blockquote>
+<div><p>The times of ends of epochs</p>
+</div></blockquote>
+<p><strong>offset</strong> : float, int or singleton <cite>TimeArray</cite></p>
+<blockquote>
+<div><p>A constant offset applied to t0 to set the starts of Epochs</p>
+</div></blockquote>
+<p><strong>start</strong> : 1-d array or <cite>TimeArray</cite></p>
+<blockquote>
+<div><p>The times of beginnings of epochs</p>
+</div></blockquote>
+<p><strong>duration</strong> : 1-d array or <cite>TimeArray</cite></p>
+<blockquote>
+<div><p>The durations of intervals.</p>
+</div></blockquote>
+<p><strong>time_unit</strong> : str, optional</p>
+<blockquote>
+<div><p>The time unit of the object and all time-related things in it.
+Default: ‘s’</p>
+</div></blockquote>
+<p><strong>static</strong> : dict, optional</p>
+<blockquote class="last">
+<div><p>For fast initialization of an <cite>Epochs</cite> object from another <cite>Epochs</cite>
+object, this dict should contain all necessary items to have an
+<cite>Epoch</cite> defined.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.Epochs.duration">
+<code class="descname">duration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.Epochs.duration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Duration array for the epoch</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.timeseries.Epochs.start">
+<code class="descname">start</code><a class="headerlink" href="#nitime.timeseries.Epochs.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.timeseries.Epochs.stop">
+<code class="descname">stop</code><a class="headerlink" href="#nitime.timeseries.Epochs.stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="events">
+<h3><a class="reference internal" href="#nitime.timeseries.Events" title="nitime.timeseries.Events"><code class="xref py py-class docutils literal notranslate"><span class="pre">Events</span></code></a><a class="headerlink" href="#events" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.timeseries.Events">
+<em class="property">class </em><code class="descclassname">nitime.timeseries.</code><code class="descname">Events</code><span class="sig-paren">(</span><em>time</em>, <em>labels=None</em>, <em>indices=None</em>, <em>time_unit=None</em>, <em>**data</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.Events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nitime.timeseries.TimeInterface" title="nitime.timeseries.TimeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">nitime.timeseries.TimeInterface</span></code></a></p>
+<p>Represents timestamps and associated data</p>
+<dl class="method">
+<dt id="nitime.timeseries.Events.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>time</em>, <em>labels=None</em>, <em>indices=None</em>, <em>time_unit=None</em>, <em>**data</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.Events.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time</strong> : array or TimeArray</p>
+<blockquote>
+<div><p>The times at which events occurred</p>
+</div></blockquote>
+<p><strong>labels</strong> : array, optional</p>
+<p class="last"><strong>indices</strong> : int array, optional</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="frequency">
+<h3><a class="reference internal" href="#nitime.timeseries.Frequency" title="nitime.timeseries.Frequency"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frequency</span></code></a><a class="headerlink" href="#frequency" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.timeseries.Frequency">
+<em class="property">class </em><code class="descclassname">nitime.timeseries.</code><code class="descname">Frequency</code><a class="headerlink" href="#nitime.timeseries.Frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<p>A class for representation of the frequency (in Hz)</p>
+<dl class="method">
+<dt id="nitime.timeseries.Frequency.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.Frequency.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.Frequency.to_period">
+<code class="descname">to_period</code><span class="sig-paren">(</span><em>time_unit='ps'</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.Frequency.to_period" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the value of a frequency to the corresponding period
+(defaulting to a representation in the base_unit)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="timearray">
+<h3><a class="reference internal" href="#nitime.timeseries.TimeArray" title="nitime.timeseries.TimeArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeArray</span></code></a><a class="headerlink" href="#timearray" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.timeseries.TimeArray">
+<em class="property">class </em><code class="descclassname">nitime.timeseries.</code><code class="descname">TimeArray</code><a class="headerlink" href="#nitime.timeseries.TimeArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>, <a class="reference internal" href="#nitime.timeseries.TimeInterface" title="nitime.timeseries.TimeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">nitime.timeseries.TimeInterface</span></code></a></p>
+<p>Base-class for time representations, implementing the TimeInterface</p>
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.at">
+<code class="descname">at</code><span class="sig-paren">(</span><em>t</em>, <em>tol=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the values of the TimeArray object at time t</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.convert_unit">
+<code class="descname">convert_unit</code><span class="sig-paren">(</span><em>time_unit</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.convert_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert from one time unit to another in place</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.during">
+<code class="descname">during</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.during" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the values of the TimeArray object during Epoch e</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.index_at">
+<code class="descname">index_at</code><span class="sig-paren">(</span><em>t</em>, <em>tol=None</em>, <em>mode='closest'</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.index_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the integer indices that corresponds to the time t</p>
+<p>The returned indices depend on both <cite>tol</cite> and <cite>mode</cite>.  The <cite>tol</cite>
+parameter specifies how close the given time must be to those present
+in the array to give a match, when <cite>mode</cite> is <cite>closest</cite>.  The default
+tolerance is 1 <cite>base_unit</cite> (by default, picoseconds).  If you specify
+the tolerance as 0, then only <em>exact</em> matches are allowed, be careful
+in this case of possible problems due to floating point roundoff error
+in your time specification.</p>
+<p>When mode is <cite>before</cite> or <cite>after</cite>, the tolerance is completely ignored.
+In this case, either the largest time equal or <em>before</em> the given <cite>t</cite>
+or the earliest time equal or <em>after</em> the given <cite>t</cite> is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>t</strong> : time-like</p>
+<blockquote>
+<div><p>Anything that is valid input for a TimeArray constructor.</p>
+</div></blockquote>
+<p><strong>tol</strong> : time-like, optional</p>
+<blockquote>
+<div><p>Tolerance, specified in the time units of this TimeArray.</p>
+</div></blockquote>
+<p><strong>mode</strong> : string</p>
+<blockquote>
+<div><p>One of [‘closest’, ‘before’, ‘after’].</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>idx</strong> : The array with all the indices where the condition is met.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.max">
+<code class="descname">max</code><span class="sig-paren">(</span><em>axis=None</em>, <em>out=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the maximal time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.mean">
+<code class="descname">mean</code><span class="sig-paren">(</span><em>axis=None</em>, <em>dtype=None</em>, <em>out=None</em>, <em>keepdims=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the average of the array elements along given axis.</p>
+<p>Refer to <cite>numpy.mean</cite> for full documentation.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.mean</span></code></dt>
+<dd>equivalent function</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.min">
+<code class="descname">min</code><span class="sig-paren">(</span><em>axis=None</em>, <em>out=None</em>, <em>keepdims=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.min" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the minimum along a given axis.</p>
+<p>Refer to <cite>numpy.amin</cite> for full documentation.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.amin</span></code></dt>
+<dd>equivalent function</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.prod">
+<code class="descname">prod</code><span class="sig-paren">(</span><em>axis=None</em>, <em>dtype=None</em>, <em>out=None</em>, <em>keepdims=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.prod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the product of the array elements over the given axis</p>
+<p>Refer to <cite>numpy.prod</cite> for full documentation.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.prod</span></code></dt>
+<dd>equivalent function</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.ptp">
+<code class="descname">ptp</code><span class="sig-paren">(</span><em>axis=None</em>, <em>out=None</em>, <em>keepdims=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.ptp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Peak to peak (maximum - minimum) value along a given axis.</p>
+<p>Refer to <cite>numpy.ptp</cite> for full documentation.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.ptp</span></code></dt>
+<dd>equivalent function</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.slice_during">
+<code class="descname">slice_during</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.slice_during" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the slice that corresponds to Epoch e</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.std">
+<code class="descname">std</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.std" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the standard deviation of this TimeArray (with time units)
+for detailed information, see numpy.std()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.sum">
+<code class="descname">sum</code><span class="sig-paren">(</span><em>axis=None</em>, <em>dtype=None</em>, <em>out=None</em>, <em>keepdims=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the sum of the array elements over the given axis.</p>
+<p>Refer to <cite>numpy.sum</cite> for full documentation.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.sum</span></code></dt>
+<dd>equivalent function</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeArray.var">
+<code class="descname">var</code><span class="sig-paren">(</span><em>axis=None</em>, <em>dtype=None</em>, <em>out=None</em>, <em>ddof=0</em>, <em>keepdims=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeArray.var" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the variance of the array elements, along given axis.</p>
+<p>Refer to <cite>numpy.var</cite> for full documentation.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.var</span></code></dt>
+<dd>equivalent function</dd>
+</dl>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="timeinterface">
+<h3><a class="reference internal" href="#nitime.timeseries.TimeInterface" title="nitime.timeseries.TimeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInterface</span></code></a><a class="headerlink" href="#timeinterface" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.timeseries.TimeInterface">
+<em class="property">class </em><code class="descclassname">nitime.timeseries.</code><code class="descname">TimeInterface</code><a class="headerlink" href="#nitime.timeseries.TimeInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>The minimal object interface for time representations</p>
+<p>This should be thought of as an abstract base class.</p>
+<dl class="method">
+<dt id="nitime.timeseries.TimeInterface.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeInterface.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.timeseries.TimeInterface.time_unit">
+<code class="descname">time_unit</code><em class="property"> = None</em><a class="headerlink" href="#nitime.timeseries.TimeInterface.time_unit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="id1">
+<h3><a class="reference internal" href="#nitime.timeseries.TimeSeries" title="nitime.timeseries.TimeSeries"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeries</span></code></a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.timeseries.TimeSeries">
+<em class="property">class </em><code class="descclassname">nitime.timeseries.</code><code class="descname">TimeSeries</code><span class="sig-paren">(</span><em>data</em>, <em>t0=None</em>, <em>sampling_interval=None</em>, <em>sampling_rate=None</em>, <em>duration=None</em>, <em>time=None</em>, <em>time_unit='s'</em>, <em>metadata=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nitime.timeseries.TimeSeriesBase" title="nitime.timeseries.TimeSeriesBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">nitime.timeseries.TimeSeriesBase</span></code></a></p>
+<p>Represent data collected at uniform intervals.</p>
+<dl class="method">
+<dt id="nitime.timeseries.TimeSeries.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>data</em>, <em>t0=None</em>, <em>sampling_interval=None</em>, <em>sampling_rate=None</em>, <em>duration=None</em>, <em>time=None</em>, <em>time_unit='s'</em>, <em>metadata=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeSeries.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new TimeSeries.</p>
+<p>This class assumes that data is uniformly sampled, but you can specify
+the sampling in one of three (mutually exclusive) ways:</p>
+<ul class="simple">
+<li>sampling_interval [, t0]: data sampled starting at t0, equal
+intervals of sampling_interval.</li>
+<li>sampling_rate [, t0]: data sampled starting at t0, equal intervals of
+width 1/sampling_rate.</li>
+<li>time: a UniformTime object, in which case the TimeSeries can
+‘inherit’ the properties of this object.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : array_like</p>
+<blockquote>
+<div><p>Data array, interpreted as having its last dimension being time.</p>
+</div></blockquote>
+<p><strong>sampling_interval</strong> : float</p>
+<blockquote>
+<div><p>Interval between successive time points.</p>
+</div></blockquote>
+<p><strong>sampling_rate</strong> : float</p>
+<blockquote>
+<div><p>Inverse of the interval between successive time points.</p>
+</div></blockquote>
+<p><strong>t0</strong> : float</p>
+<blockquote>
+<div><p>If you provide a sampling rate, you can optionally also provide a
+starting time.</p>
+</div></blockquote>
+<p><strong>time</strong> :</p>
+<blockquote>
+<div><p>Instead of sampling rate, you can explicitly provide an object of
+class UniformTime. Note that you can still also provide a different
+sampling_rate/sampling_interval/duration to take the place of the
+one in this object, but only as long as the changes are consistent
+with the length of the data.</p>
+</div></blockquote>
+<p><strong>time_unit</strong> :  string</p>
+<blockquote class="last">
+<div><p>The unit of time.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>The minimal specification of data and sampling interval:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">sampling_interval</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">time</span>
+<span class="go">UniformTime([ 0.  ,  0.25,  0.5 ], time_unit=&#39;s&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">t0</span>
+<span class="go">0.0 s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">sampling_rate</span>
+<span class="go">4.0 Hz</span>
+</pre></div>
+</div>
+<p>Or data and sampling rate:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">sampling_rate</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">time</span>
+<span class="go">UniformTime([ 0. ,  0.5,  1. ], time_unit=&#39;s&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">t0</span>
+<span class="go">0.0 s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">sampling_interval</span>
+<span class="go">0.5 s</span>
+</pre></div>
+</div>
+<p>A time series where we specify the start time and sampling interval:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">t0</span><span class="o">=</span><span class="mf">4.25</span><span class="p">,</span><span class="n">sampling_interval</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">data</span>
+<span class="go">array([1, 2, 3])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">time</span>
+<span class="go">UniformTime([ 4.25,  4.75,  5.25], time_unit=&#39;s&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">t0</span>
+<span class="go">4.25 s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">sampling_interval</span>
+<span class="go">0.5 s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">sampling_rate</span>
+<span class="go">2.0 Hz</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="n">t0</span><span class="o">=</span><span class="mf">4.25</span><span class="p">,</span><span class="n">sampling_rate</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">data</span>
+<span class="go">array([1, 2, 3])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">time</span>
+<span class="go">UniformTime([ 4.25,  4.75,  5.25], time_unit=&#39;s&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">t0</span>
+<span class="go">4.25 s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">sampling_interval</span>
+<span class="go">0.5 s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">sampling_rate</span>
+<span class="go">2.0 Hz</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeSeries.at">
+<code class="descname">at</code><span class="sig-paren">(</span><em>t</em>, <em>tol=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeSeries.at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the values of the TimeArray object at time t</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeSeries.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeSeries.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeSeries.during">
+<code class="descname">during</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeSeries.during" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the TimeSeries slice corresponding to epoch e</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="nitime.timeseries.TimeSeries.from_time_and_data">
+<em class="property">static </em><code class="descname">from_time_and_data</code><span class="sig-paren">(</span><em>time</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeSeries.from_time_and_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.timeseries.TimeSeries.shape">
+<code class="descname">shape</code><a class="headerlink" href="#nitime.timeseries.TimeSeries.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.TimeSeries.time">
+<code class="descname">time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeSeries.time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct time array for the time-series object. This holds a
+UniformTime object, with properties derived from the TimeSeries
+object</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="timeseriesbase">
+<h3><a class="reference internal" href="#nitime.timeseries.TimeSeriesBase" title="nitime.timeseries.TimeSeriesBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesBase</span></code></a><a class="headerlink" href="#timeseriesbase" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.timeseries.TimeSeriesBase">
+<em class="property">class </em><code class="descclassname">nitime.timeseries.</code><code class="descname">TimeSeriesBase</code><span class="sig-paren">(</span><em>data</em>, <em>time_unit</em>, <em>metadata=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeSeriesBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Base class for time series, implementing the TimeSeriesInterface.</p>
+<dl class="method">
+<dt id="nitime.timeseries.TimeSeriesBase.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>data</em>, <em>time_unit</em>, <em>metadata=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeSeriesBase.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Common constructor shared by all TimeSeries classes.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.timeseries.TimeSeriesBase.data">
+<code class="descname">data</code><em class="property"> = None</em><a class="headerlink" href="#nitime.timeseries.TimeSeriesBase.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>the data is an arbitrary numpy array</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="timeseriesinterface">
+<h3><a class="reference internal" href="#nitime.timeseries.TimeSeriesInterface" title="nitime.timeseries.TimeSeriesInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesInterface</span></code></a><a class="headerlink" href="#timeseriesinterface" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.timeseries.TimeSeriesInterface">
+<em class="property">class </em><code class="descclassname">nitime.timeseries.</code><code class="descname">TimeSeriesInterface</code><a class="headerlink" href="#nitime.timeseries.TimeSeriesInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nitime.timeseries.TimeInterface" title="nitime.timeseries.TimeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">nitime.timeseries.TimeInterface</span></code></a></p>
+<p>The minimally agreed upon interface for all time series.</p>
+<p>This should be thought of as an abstract base class.</p>
+<dl class="method">
+<dt id="nitime.timeseries.TimeSeriesInterface.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.TimeSeriesInterface.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.timeseries.TimeSeriesInterface.data">
+<code class="descname">data</code><em class="property"> = None</em><a class="headerlink" href="#nitime.timeseries.TimeSeriesInterface.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.timeseries.TimeSeriesInterface.metadata">
+<code class="descname">metadata</code><em class="property"> = None</em><a class="headerlink" href="#nitime.timeseries.TimeSeriesInterface.metadata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="nitime.timeseries.TimeSeriesInterface.time">
+<code class="descname">time</code><em class="property"> = None</em><a class="headerlink" href="#nitime.timeseries.TimeSeriesInterface.time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="uniformtime">
+<h3><a class="reference internal" href="#nitime.timeseries.UniformTime" title="nitime.timeseries.UniformTime"><code class="xref py py-class docutils literal notranslate"><span class="pre">UniformTime</span></code></a><a class="headerlink" href="#uniformtime" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.timeseries.UniformTime">
+<em class="property">class </em><code class="descclassname">nitime.timeseries.</code><code class="descname">UniformTime</code><a class="headerlink" href="#nitime.timeseries.UniformTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>, <a class="reference internal" href="#nitime.timeseries.TimeInterface" title="nitime.timeseries.TimeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">nitime.timeseries.TimeInterface</span></code></a></p>
+<p>A representation of time sampled uniformly</p>
+<dl class="method">
+<dt id="nitime.timeseries.UniformTime.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.UniformTime.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.UniformTime.at">
+<code class="descname">at</code><span class="sig-paren">(</span><em>t</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.UniformTime.at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the values of the UniformTime object at time t</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.UniformTime.during">
+<code class="descname">during</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.UniformTime.during" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the values of the UniformTime object during Epoch e</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.UniformTime.index_at">
+<code class="descname">index_at</code><span class="sig-paren">(</span><em>t</em>, <em>boolean=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.UniformTime.index_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the index that corresponds to the time bin containing t</p>
+<p>Returns boolean mask if boolean=True and integer indices otherwise.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.UniformTime.max">
+<code class="descname">max</code><span class="sig-paren">(</span><em>axis=None</em>, <em>out=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.UniformTime.max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the maximal time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.UniformTime.min">
+<code class="descname">min</code><span class="sig-paren">(</span><em>axis=None</em>, <em>out=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.UniformTime.min" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the minimal time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.timeseries.UniformTime.slice_during">
+<code class="descname">slice_during</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.UniformTime.slice_during" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the slice that corresponds to Epoch e</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nitime.timeseries.concatenate_time_series">
+<code class="descclassname">nitime.timeseries.</code><code class="descname">concatenate_time_series</code><span class="sig-paren">(</span><em>time_series_seq</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.concatenate_time_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenates a sequence of time-series objects in time.</p>
+<p>The input can be any iterable of time-series objects; metadata, sampling
+rates and other attributes are kept from the last one in the sequence.</p>
+<p>This one requires that all the time-series in the list have the same
+sampling rate and that all the data have the same number of items in all
+dimensions, except the time dimension</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.timeseries.get_time_unit">
+<code class="descclassname">nitime.timeseries.</code><code class="descname">get_time_unit</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.get_time_unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the time unit of the object. If it is an iterable, get the time
+unit of the first element.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.timeseries.str_tspec">
+<code class="descclassname">nitime.timeseries.</code><code class="descname">str_tspec</code><span class="sig-paren">(</span><em>tspec</em>, <em>arg_names</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.str_tspec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a single tspec into human readable form</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.timeseries.str_valid_tspecs">
+<code class="descclassname">nitime.timeseries.</code><code class="descname">str_valid_tspecs</code><span class="sig-paren">(</span><em>valid_tspecs</em>, <em>arg_names</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.timeseries.str_valid_tspecs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a set of valid_tspecs, return a string that turns them into
+human-readable form</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.utils.html" title="utils"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.six.html" title="six"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

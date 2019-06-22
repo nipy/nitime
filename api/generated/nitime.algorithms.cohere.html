@@ -1,0 +1,873 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="algorithms.correlation" href="nitime.algorithms.correlation.html" />
+    <link rel="prev" title="algorithms.autoregressive" href="nitime.algorithms.autoregressive.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.correlation.html" title="algorithms.correlation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.autoregressive.html" title="algorithms.autoregressive"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">algorithms.cohere</a><ul>
+<li><a class="reference internal" href="#module-nitime.algorithms.cohere">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.cohere</span></code></a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.algorithms.autoregressive.html"
+                        title="previous chapter">algorithms.autoregressive</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.algorithms.correlation.html"
+                        title="next chapter">algorithms.correlation</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="algorithms-cohere">
+<h1>algorithms.cohere<a class="headerlink" href="#algorithms-cohere" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-nitime.algorithms.cohere">
+<span id="module-algorithms-cohere"></span><h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">algorithms.cohere</span></code><a class="headerlink" href="#module-nitime.algorithms.cohere" title="Permalink to this headline">¶</a></h2>
+<p>Coherency is an analogue of correlation, calculated in the frequency
+domain. This is a useful quantity for describing a system of oscillators
+coupled with delay. This is because the coherency captures not only the
+magnitude of the time-shift-independent correlation between the time-series
+(termed ‘coherence’), but can also be used in order to estimate the size of the
+time-delay (the phase-delay between the time-series in a particular frequency
+band).</p>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nitime.algorithms.cohere.cache_fft">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">cache_fft</code><span class="sig-paren">(</span><em>time_series</em>, <em>ij</em>, <em>lb=0</em>, <em>ub=None</em>, <em>method=None</em>, <em>prefer_speed_over_memory=False</em>, <em>scale_by_freq=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.cache_fft" title="Permalink to this definition">¶</a></dt>
+<dd><p>compute and cache the windowed FFTs of the time_series, in such a way
+that computing the psd and csd of any combination of them can be done
+quickly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series</strong> : float array</p>
+<blockquote>
+<div><p>An ndarray with time-series, where time is the last dimension</p>
+</div></blockquote>
+<p><strong>ij: list of tuples</strong> :</p>
+<blockquote>
+<div><p>Each tuple in this variable should contain a pair of
+indices of the form (i,j). The resulting cache will contain the fft of
+time-series in the rows indexed by the unique elements of the union of i
+and j</p>
+</div></blockquote>
+<p><strong>lb,ub: float</strong> :</p>
+<blockquote>
+<div><p>Define a frequency band of interest, for which the fft will be cached</p>
+</div></blockquote>
+<p><strong>method: dict, optional</strong> :</p>
+<blockquote>
+<div><p>See <code class="xref py py-func docutils literal notranslate"><span class="pre">get_spectra()</span></code> for details on how this is used. For this set
+of functions, ‘this_method’ has to be ‘welch’</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>freqs, cache</strong> :</p>
+<blockquote class="last">
+<div><dl class="docutils">
+<dt>where: cache =</dt>
+<dd><p class="first last">{‘FFT_slices’:FFT_slices,’FFT_conj_slices’:FFT_conj_slices,
+‘norm_val’:norm_val}</p>
+</dd>
+</dl>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li>For these functions, only the Welch windowed periodogram (‘welch’) is
+available.</li>
+<li>Detrending the input is not an option here, in order to save
+time on an empty function call.</li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.cache_to_coherency">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">cache_to_coherency</code><span class="sig-paren">(</span><em>cache</em>, <em>ij</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.cache_to_coherency" title="Permalink to this definition">¶</a></dt>
+<dd><p>From a set of cached spectra, calculate the coherency
+relationships</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cache: dict</strong> :</p>
+<blockquote>
+<div><p>the return value from <a class="reference internal" href="#nitime.algorithms.cohere.cache_fft" title="nitime.algorithms.cohere.cache_fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">cache_fft()</span></code></a></p>
+</div></blockquote>
+<p><strong>ij: list</strong> :</p>
+<blockquote>
+<div><p>a list of (i,j) tuples, the pairs of indices for which the
+cross-coherency is to be calculated</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Cxy: dict</strong> :</p>
+<blockquote class="last">
+<div><p>coherence values between the time-series ij. Indexing into this dict
+takes the form Cxy[i,j] in order to extract the coherency between
+time-series i and time-series j in the original input to
+<a class="reference internal" href="#nitime.algorithms.cohere.cache_fft" title="nitime.algorithms.cohere.cache_fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">cache_fft()</span></code></a></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.cache_to_phase">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">cache_to_phase</code><span class="sig-paren">(</span><em>cache</em>, <em>ij</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.cache_to_phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>From a set of cached set of windowed fft’s, calculate the
+frequency-band dependent phase for each of the channels in ij.
+Note that this returns the absolute phases of the time-series, not the
+relative phases between them. In order to get relative phases, use
+cache_to_relative_phase</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cache</strong> : dict</p>
+<blockquote>
+<div><p>The return value of  <a class="reference internal" href="#nitime.algorithms.cohere.cache_fft" title="nitime.algorithms.cohere.cache_fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">cache_fft()</span></code></a></p>
+</div></blockquote>
+<p><strong>ij: list</strong> :</p>
+<blockquote>
+<div><p>A list of tuples of the form (i,j) for all the indices for which to
+calculate the phases</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Phase</strong> : dict</p>
+<blockquote class="last">
+<div><p>The individual phases, keys are all the i and j in ij, such that
+Phase[i] gives you the phase for the time-series i in the input to
+<a class="reference internal" href="#nitime.algorithms.cohere.cache_fft" title="nitime.algorithms.cohere.cache_fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">cache_fft()</span></code></a></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.cache_to_psd">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">cache_to_psd</code><span class="sig-paren">(</span><em>cache</em>, <em>ij</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.cache_to_psd" title="Permalink to this definition">¶</a></dt>
+<dd><p>From a set of cached windowed fft, calculate the psd</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cache</strong> : dict</p>
+<blockquote>
+<div><p>Return value from <a class="reference internal" href="#nitime.algorithms.cohere.cache_fft" title="nitime.algorithms.cohere.cache_fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">cache_fft()</span></code></a></p>
+</div></blockquote>
+<p><strong>ij</strong> : list</p>
+<blockquote>
+<div><p>A list of tuples of the form (i,j).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Pxx</strong> : dict</p>
+<blockquote class="last">
+<div><p>The phases for the intersection of (time_series[i],time_series[j]). The
+keys are the intersection of i,j values in the parameter ij</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.cache_to_relative_phase">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">cache_to_relative_phase</code><span class="sig-paren">(</span><em>cache</em>, <em>ij</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.cache_to_relative_phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>From a set of cached set of windowed fft’s, calculate the
+frequency-band dependent relative phase for the combinations ij.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cache: dict</strong> :</p>
+<blockquote>
+<div><p>The return value from <a class="reference internal" href="#nitime.algorithms.cohere.cache_fft" title="nitime.algorithms.cohere.cache_fft"><code class="xref py py-func docutils literal notranslate"><span class="pre">cache_fft()</span></code></a></p>
+</div></blockquote>
+<p><strong>ij: list</strong> :</p>
+<blockquote>
+<div><p>A list of tuples of the form (i,j), all the pairs of indices for which
+to calculate the relative phases</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Phi_xy</strong> : dict</p>
+<blockquote class="last">
+<div><p>The relative phases between the time-series i and j. Such that
+Phi_xy[i,j] is the phase from time_series[i] to time_series[j].</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.coherence">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">coherence</code><span class="sig-paren">(</span><em>time_series</em>, <em>csd_method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.coherence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the coherence between the spectra of an n-tuple of time_series.</p>
+<p>Parameters of this function are in the time domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series</strong> : float array</p>
+<blockquote>
+<div><p>an array of different time series with time as the last dimension</p>
+</div></blockquote>
+<p><strong>csd_method</strong> : dict, optional</p>
+<blockquote>
+<div><p>See <code class="xref py py-func docutils literal notranslate"><span class="pre">algorithms.spectral.get_spectra()</span></code> documentation for details</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f</strong> : float array</p>
+<blockquote>
+<div><p>The central frequencies for the frequency bands for which the spectra
+are estimated</p>
+</div></blockquote>
+<p><strong>c</strong> : float array</p>
+<blockquote class="last">
+<div><p>This is a symmetric matrix with the coherencys of the signals. The
+coherency of signal i and signal j is in f[i][j].</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This is an implementation of equation (2) of Sun (2005):</p>
+<div class="math notranslate nohighlight">
+\[Coh_{xy}(\lambda) = |{R_{xy}(\lambda)}|^2 =
+\frac{|{f_{xy}(\lambda)}|^2}{f_{xx}(\lambda) \cdot f_{yy}(\lambda)}\]</div>
+<p>F.T. Sun and L.M. Miller and M. D’Esposito (2005). Measuring temporal
+dynamics of functional networks using phase spectrum of fMRI data.
+Neuroimage, 28: 227-37.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.coherence_bavg">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">coherence_bavg</code><span class="sig-paren">(</span><em>time_series</em>, <em>lb=0</em>, <em>ub=None</em>, <em>csd_method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.coherence_bavg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the band-averaged coherence between the spectra of two time series.</p>
+<p>Input to this function is in the time domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series</strong> : float array</p>
+<blockquote>
+<div><p>An array of time series, time as the last dimension.</p>
+</div></blockquote>
+<p><strong>lb, ub: float, optional</strong> :</p>
+<blockquote>
+<div><p>The upper and lower bound on the frequency band to be used in averaging
+defaults to 1,max(f)</p>
+</div></blockquote>
+<p><strong>csd_method: dict, optional.</strong> :</p>
+<blockquote>
+<div><p>See <code class="xref py py-func docutils literal notranslate"><span class="pre">get_spectra()</span></code> documentation for details</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>c</strong> : float</p>
+<blockquote class="last">
+<div><p>This is an upper-diagonal array, where c[i][j] is the band-averaged
+coherency between time_series[i] and time_series[j]</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.coherence_partial">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">coherence_partial</code><span class="sig-paren">(</span><em>time_series</em>, <em>r</em>, <em>csd_method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.coherence_partial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the band-specific partial coherence between the spectra of
+two time series.</p>
+<p>The partial coherence is the part of the coherence between x and
+y, which cannot be attributed to a common cause, r.</p>
+<p>Input to this function is in the time domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series: float array</strong> :</p>
+<blockquote>
+<div><p>An array of time-series, with time as the last dimension.</p>
+</div></blockquote>
+<p><strong>r: float array</strong> :</p>
+<blockquote>
+<div><p>This array represents the temporal sequence of the common cause to be
+partialed out, sampled at the same rate as time_series</p>
+</div></blockquote>
+<p><strong>csd_method: dict, optional</strong> :</p>
+<blockquote>
+<div><p>See <code class="xref py py-func docutils literal notranslate"><span class="pre">get_spectra()</span></code> documentation for details</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f: array,</strong> :</p>
+<blockquote>
+<div><p>The mid-frequencies of the frequency bands in the spectral
+decomposition</p>
+</div></blockquote>
+<p><strong>c: float array</strong> :</p>
+<blockquote class="last">
+<div><p>The frequency dependent partial coherence between time_series i and
+time_series j in c[i][j] and in c[j][i], with r partialed out</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This is an implementation of equation (2) of Sun (2004):</p>
+<div class="math notranslate nohighlight">
+\[Coh_{xy|r} = \frac{|{R_{xy}(\lambda) - R_{xr}(\lambda)
+R_{ry}(\lambda)}|^2}{(1-|{R_{xr}}|^2)(1-|{R_{ry}}|^2)}\]</div>
+<p>F.T. Sun and L.M. Miller and M. D’Esposito (2004). Measuring interregional
+functional connectivity using coherence and partial coherence analyses of
+fMRI data Neuroimage, 21: 647-58.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.coherence_partial_spec">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">coherence_partial_spec</code><span class="sig-paren">(</span><em>fxy</em>, <em>fxx</em>, <em>fyy</em>, <em>fxr</em>, <em>fry</em>, <em>frr</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.coherence_partial_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the band-specific partial coherence between the spectra of
+two time series. See <code class="xref py py-func docutils literal notranslate"><span class="pre">partial_coherence()</span></code>.</p>
+<p>Input to this function is in the frequency domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fxy</strong> : float array</p>
+<blockquote>
+<div><p>The cross-spectrum of the time series</p>
+</div></blockquote>
+<p><strong>fyy, fxx</strong> : float array</p>
+<blockquote>
+<div><p>The spectra of the signals</p>
+</div></blockquote>
+<p><strong>fxr, fry</strong> : float array</p>
+<blockquote>
+<div><p>The cross-spectra of the signals with the event</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>float</strong> :</p>
+<blockquote class="last">
+<div><p>the band-averaged coherency</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.coherence_regularized">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">coherence_regularized</code><span class="sig-paren">(</span><em>time_series</em>, <em>epsilon</em>, <em>alpha</em>, <em>csd_method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.coherence_regularized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as coherence, except regularized in order to overcome numerical
+imprecisions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series: n-d float array</strong> :</p>
+<blockquote>
+<div><p>The time series data for which the regularized coherence is calculated</p>
+</div></blockquote>
+<p><strong>epsilon: float</strong> :</p>
+<blockquote>
+<div><p>Small regularization parameter. Should be much smaller than any
+meaningful value of coherence you might encounter</p>
+</div></blockquote>
+<p><strong>alpha: float</strong> :</p>
+<blockquote>
+<div><p>large regularization parameter. Should be much larger than any
+meaningful value of coherence you might encounter (preferably much
+larger than 1).</p>
+</div></blockquote>
+<p><strong>csd_method: dict, optional.</strong> :</p>
+<blockquote>
+<div><p>See <code class="xref py py-func docutils literal notranslate"><span class="pre">get_spectra()</span></code> documentation for details</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f: float array</strong> :</p>
+<blockquote>
+<div><p>The central frequencies for the frequency bands for which the spectra
+are estimated</p>
+</div></blockquote>
+<p><strong>c: n-d array</strong> :</p>
+<blockquote class="last">
+<div><p>This is a symmetric matrix with the coherencys of the signals. The
+coherency of signal i and signal j is in f[i][j].</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The regularization scheme is as follows:</p>
+<div class="math notranslate nohighlight">
+\[C_{x,y} = \frac{(\alpha f_{xx} + \epsilon)^2}
+{\alpha^{2}((f_{xx}+\epsilon)(f_{yy}+\epsilon))}\]</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.coherence_spec">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">coherence_spec</code><span class="sig-paren">(</span><em>fxy</em>, <em>fxx</em>, <em>fyy</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.coherence_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the coherence between the spectra of two time series.</p>
+<p>Parameters of this function are in the frequency domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fxy</strong> : array</p>
+<blockquote>
+<div><p>The cross-spectrum of the time series</p>
+</div></blockquote>
+<p><strong>fyy, fxx</strong> : array</p>
+<blockquote>
+<div><p>The spectra of the signals</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>float</strong> : a frequency-band-dependent measure of the linear association</p>
+<blockquote class="last">
+<div><p>between the two time series</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#nitime.algorithms.cohere.coherence" title="nitime.algorithms.cohere.coherence"><code class="xref py py-func docutils literal notranslate"><span class="pre">coherence()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.coherency">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">coherency</code><span class="sig-paren">(</span><em>time_series</em>, <em>csd_method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.coherency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the coherency between the spectra of n-tuple of time series.
+Input to this function is in the time domain</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series</strong> : n*t float array</p>
+<blockquote>
+<div><p>an array of n different time series of length t each</p>
+</div></blockquote>
+<p><strong>csd_method</strong> : dict, optional.</p>
+<blockquote>
+<div><p>See <code class="xref py py-func docutils literal notranslate"><span class="pre">get_spectra()</span></code> documentation for details</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f</strong> : float array</p>
+<blockquote>
+<div><p>The central frequencies for the frequency bands for which the spectra
+are estimated</p>
+</div></blockquote>
+<p><strong>c</strong> : float array</p>
+<blockquote class="last">
+<div><p>This is a symmetric matrix with the coherencys of the signals. The
+coherency of signal i and signal j is in f[i][j]. Note that f[i][j] =
+f[j][i].conj()</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This is an implementation of equation (1) of Sun (2005):</p>
+<div class="math notranslate nohighlight">
+\[R_{xy} (\lambda) = \frac{f_{xy}(\lambda)}
+{\sqrt{f_{xx} (\lambda) \cdot f_{yy}(\lambda)}}\]</div>
+<p>F.T. Sun and L.M. Miller and M. D’Esposito (2005). Measuring temporal
+dynamics of functional networks using phase spectrum of fMRI
+data. Neuroimage, 28: 227-37.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.coherency_bavg">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">coherency_bavg</code><span class="sig-paren">(</span><em>time_series</em>, <em>lb=0</em>, <em>ub=None</em>, <em>csd_method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.coherency_bavg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the band-averaged coherency between the spectra of two time series.</p>
+<p>Input to this function is in the time domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series: n*t float array</strong> :</p>
+<blockquote>
+<div><p>an array of n different time series of length t each</p>
+</div></blockquote>
+<p><strong>lb, ub: float, optional</strong> :</p>
+<blockquote>
+<div><p>the upper and lower bound on the frequency band to be used in averaging
+defaults to 1,max(f)</p>
+</div></blockquote>
+<p><strong>csd_method: dict, optional.</strong> :</p>
+<blockquote>
+<div><p>See <code class="xref py py-func docutils literal notranslate"><span class="pre">get_spectra()</span></code> documentation for details</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>c: float array</strong> :</p>
+<blockquote class="last">
+<div><p>This is an upper-diagonal array, where c[i][j] is the band-averaged
+coherency between time_series[i] and time_series[j]</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This is an implementation of equation (A4) of Sun(2005):</p>
+<div class="math notranslate nohighlight">
+\[\bar{Coh_{xy}} (\bar{\lambda}) =
+\frac{\left|{\sum_\lambda{\hat{f_{xy}}}}\right|^2}
+{\sum_\lambda{\hat{f_{xx}}}\cdot sum_\lambda{\hat{f_{yy}}}}\]</div>
+<p>F.T. Sun and L.M. Miller and M. D’Esposito (2005). Measuring
+temporal dynamics of functional networks using phase spectrum of fMRI
+data. Neuroimage, 28: 227-37.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.coherency_phase_delay">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">coherency_phase_delay</code><span class="sig-paren">(</span><em>time_series</em>, <em>lb=0</em>, <em>ub=None</em>, <em>csd_method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.coherency_phase_delay" title="Permalink to this definition">¶</a></dt>
+<dd><p>The temporal delay calculated from the coherency phase spectrum.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series: float array</strong> :</p>
+<blockquote>
+<div><p>The time-series data for which the delay is calculated.</p>
+</div></blockquote>
+<p><strong>lb, ub: float</strong> :</p>
+<blockquote>
+<div><p>Frequency boundaries (in Hz), for the domain over which the delays are
+calculated. Defaults to 0-max(f)</p>
+</div></blockquote>
+<p><strong>csd_method</strong> : dict, optional.</p>
+<blockquote>
+<div><p>See <code class="xref py py-func docutils literal notranslate"><span class="pre">get_spectra()</span></code></p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f</strong> : float array</p>
+<blockquote>
+<div><p>The mid-frequencies for the frequency bands over which the calculation
+is done.</p>
+</div></blockquote>
+<p><strong>p</strong> : float array</p>
+<blockquote class="last">
+<div><p>Pairwise temporal delays between time-series (in seconds).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.coherency_phase_spectrum">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">coherency_phase_spectrum</code><span class="sig-paren">(</span><em>time_series</em>, <em>csd_method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.coherency_phase_spectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the phase spectrum of the cross-spectrum between two time series.</p>
+<p>The parameters of this function are in the time domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series</strong> : n*t float array</p>
+<p><strong>The time series, with t, time, as the last dimension</strong> :</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f</strong> : mid frequencies of the bands</p>
+<p><strong>p</strong> : an array with the pairwise phase spectrum between the time</p>
+<p><strong>series, where p[i][j] is the phase spectrum between time series[i] and</strong> :</p>
+<p class="last"><strong>time_series[j]</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This is an implementation of equation (3) of Sun et al. (2005) <a class="reference internal" href="../../examples/resting_state_fmri.html#sun2005" id="id1">[Sun2005]</a>:</p>
+<div class="math notranslate nohighlight">
+\[\phi(\lambda) = arg [R_{xy} (\lambda)] = arg [f_{xy} (\lambda)]\]</div>
+<p>F.T. Sun and L.M. Miller and M. D’Esposito (2005). Measuring temporal
+dynamics of functional networks using phase spectrum of fMRI data.
+Neuroimage, 28: 227-37.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.coherency_regularized">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">coherency_regularized</code><span class="sig-paren">(</span><em>time_series</em>, <em>epsilon</em>, <em>alpha</em>, <em>csd_method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.coherency_regularized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a regularized measure of the coherence.</p>
+<p>Regularization may be needed in order to overcome numerical imprecisions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time_series: float array</strong> :</p>
+<blockquote>
+<div><p>The time series data for which the regularized coherence is
+calculated. Time as the last dimension.</p>
+</div></blockquote>
+<p><strong>epsilon: float</strong> :</p>
+<blockquote>
+<div><p>Small regularization parameter. Should be much smaller than any
+meaningful value of coherence you might encounter</p>
+</div></blockquote>
+<p><strong>alpha: float</strong> :</p>
+<blockquote>
+<div><p>Large regularization parameter. Should be much larger than any
+meaningful value of coherence you might encounter (preferably much
+larger than 1).</p>
+</div></blockquote>
+<p><strong>csd_method: dict, optional.</strong> :</p>
+<blockquote>
+<div><p>See <code class="xref py py-func docutils literal notranslate"><span class="pre">get_spectra()</span></code> documentation for details</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f: float array</strong> :</p>
+<blockquote>
+<div><p>The central frequencies for the frequency bands for which the spectra
+are estimated</p>
+</div></blockquote>
+<p><strong>c: float array</strong> :</p>
+<blockquote class="last">
+<div><p>This is a symmetric matrix with the coherencys of the signals. The
+coherency of signal i and signal j is in f[i][j]. Note that f[i][j] =
+f[j][i].conj()</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The regularization scheme is as follows:</p>
+<div class="math notranslate nohighlight">
+\[Coh_{xy}^R = \frac{(\alpha f_{xx} + \epsilon) ^2}
+                  {\alpha^{2}(f_{xx}+\epsilon)(f_{yy}+\epsilon)}\]</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.coherency_spec">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">coherency_spec</code><span class="sig-paren">(</span><em>fxy</em>, <em>fxx</em>, <em>fyy</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.coherency_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the coherency between the spectra of two time series.</p>
+<p>Input to this function is in the frequency domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fxy</strong> : float array</p>
+<blockquote>
+<div><p>The cross-spectrum of the time series</p>
+</div></blockquote>
+<p><strong>fyy,fxx</strong> : float array</p>
+<blockquote>
+<div><p>The spectra of the signals</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>complex array</strong> :</p>
+<blockquote class="last">
+<div><p>the frequency-band-dependent coherency</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#nitime.algorithms.cohere.coherency" title="nitime.algorithms.cohere.coherency"><code class="xref py py-func docutils literal notranslate"><span class="pre">coherency()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.cohere.correlation_spectrum">
+<code class="descclassname">nitime.algorithms.cohere.</code><code class="descname">correlation_spectrum</code><span class="sig-paren">(</span><em>x1</em>, <em>x2</em>, <em>Fs=6.283185307179586</em>, <em>norm=False</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.cohere.correlation_spectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the spectral decomposition of the correlation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x1,x2: ndarray</strong> :</p>
+<blockquote>
+<div><p>Two arrays to be correlated. Same dimensions</p>
+</div></blockquote>
+<p><strong>Fs: float, optional</strong> :</p>
+<blockquote>
+<div><p>Sampling rate in Hz. If provided, an array of
+frequencies will be returned.Defaults to 2</p>
+</div></blockquote>
+<p><strong>norm: bool, optional</strong> :</p>
+<blockquote>
+<div><p>When this is true, the spectrum is normalized to sum to 1</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f: ndarray</strong> :</p>
+<blockquote>
+<div><p>ndarray with the frequencies</p>
+</div></blockquote>
+<p><strong>ccn: ndarray</strong> :</p>
+<blockquote class="last">
+<div><p>The spectral decomposition of the correlation</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This method is described in full in: D Cordes, V M Haughton, K Arfanakis, G
+J Wendt, P A Turski, C H Moritz, M A Quigley, M E Meyerand (2000). Mapping
+functionally related regions of brain with functional connectivity MR
+imaging. AJNR American journal of neuroradiology 21:1636-44</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.correlation.html" title="algorithms.correlation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.autoregressive.html" title="algorithms.autoregressive"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

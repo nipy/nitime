@@ -1,0 +1,363 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Filtering and normalizing fMRI data" href="filtering_fmri.html" />
+    <link rel="prev" title="Event-related fMRI" href="event_related_fmri.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="filtering_fmri.html" title="Filtering and normalizing fMRI data"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="event_related_fmri.html" title="Event-related fMRI"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="event_related_fmri.html"
+                        title="previous chapter">Event-related fMRI</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="filtering_fmri.html"
+                        title="next chapter">Filtering and normalizing fMRI data</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="multitaper-coherence-estimation">
+<span id="multi-taper-coh"></span><span id="example-multi-taper-coh"></span><h1>Multitaper coherence estimation<a class="headerlink" href="#multitaper-coherence-estimation" title="Permalink to this headline">¶</a></h1>
+<p>Coherence estimation can be done using windowed-spectra. This is the method
+used in the example <a class="reference internal" href="resting_state_fmri.html#resting-state"><span class="std std-ref">Coherency analysis of fMRI data</span></a>. In addition, multitaper spectral
+estimation can be used in order to calculate coherence and also confidence
+intervals for the coherence values that result (see <a class="reference internal" href="multi_taper_spectral_estimation.html#multi-taper-psd"><span class="std std-ref">Multitaper spectral estimation</span></a>)</p>
+<p>The data analyzed here is an fMRI data-set contributed by Beth Mormino. The
+data is taken from a single subject in a “resting-state” scan, in which subjects
+are fixating on a cross and maintaining alert wakefulness, but not performing
+any other behavioral task.</p>
+<p>We start by importing modules/functions we will use in this example and define
+variables which will be used as the sampling interval of the TimeSeries
+objects and as upper and lower bounds on the frequency range analyzed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">scipy.stats.distributions</span> <span class="k">as</span> <span class="nn">dist</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">fftpack</span>
+
+<span class="kn">import</span> <span class="nn">nitime</span>
+<span class="kn">from</span> <span class="nn">nitime.timeseries</span> <span class="k">import</span> <span class="n">TimeSeries</span>
+<span class="kn">from</span> <span class="nn">nitime</span> <span class="k">import</span> <span class="n">utils</span>
+<span class="kn">import</span> <span class="nn">nitime.algorithms</span> <span class="k">as</span> <span class="nn">alg</span>
+<span class="kn">import</span> <span class="nn">nitime.viz</span>
+<span class="kn">from</span> <span class="nn">nitime.viz</span> <span class="k">import</span> <span class="n">drawmatrix_channels</span>
+<span class="kn">from</span> <span class="nn">nitime.analysis</span> <span class="k">import</span> <span class="n">CoherenceAnalyzer</span><span class="p">,</span> <span class="n">MTCoherenceAnalyzer</span>
+
+<span class="n">TR</span> <span class="o">=</span> <span class="mf">1.89</span>
+<span class="n">f_ub</span> <span class="o">=</span> <span class="mf">0.15</span>
+<span class="n">f_lb</span> <span class="o">=</span> <span class="mf">0.02</span>
+</pre></div>
+</div>
+<p>We read in the data into a recarray from a csv file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nitime</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+
+<span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s1">&#39;fmri_timeseries.csv&#39;</span><span class="p">)</span>
+
+<span class="n">data_rec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The first line in the file contains the names of the different brain regions
+(or ROI = regions of interest) from which the time-series were derived. We
+extract the data into a regular array, while keeping the names to be used later:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">roi_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data_rec</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+<span class="n">nseq</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">roi_names</span><span class="p">)</span>
+<span class="n">n_samples</span> <span class="o">=</span> <span class="n">data_rec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nseq</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">n_idx</span><span class="p">,</span> <span class="n">roi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">roi_names</span><span class="p">):</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">n_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_rec</span><span class="p">[</span><span class="n">roi</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We normalize the data in each of the ROIs to be in units of % change:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pdata</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">percent_change</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We start by performing the detailed analysis, but note that a significant
+short-cut is presented below, so if you just want to know how to do this
+(without needing to understand the details), skip on down.</p>
+<p>We start by defining how many tapers will be used and calculate the values of
+the tapers and the associated eigenvalues of each taper:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">NW</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">K</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">NW</span> <span class="o">-</span> <span class="mi">1</span>
+
+<span class="n">tapers</span><span class="p">,</span> <span class="n">eigs</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">dpss_windows</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">NW</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We multiply the data by the tapers and derive the Fourier transform and the
+magnitude of the squared spectra (the power) for each tapered time-series:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tdata</span> <span class="o">=</span> <span class="n">tapers</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">pdata</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+<span class="n">tspectra</span> <span class="o">=</span> <span class="n">fftpack</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">tdata</span><span class="p">)</span>
+<span class="c1">## mag_sqr_spectra = np.abs(tspectra)</span>
+<span class="c1">## np.power(mag_sqr_spectra, 2, mag_sqr_spectra)</span>
+</pre></div>
+</div>
+<p>Coherence for real sequences is symmetric, so we calculate this for only half
+the spectrum (the other half is equal):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">L</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">sides</span> <span class="o">=</span> <span class="s1">&#39;onesided&#39;</span>
+</pre></div>
+</div>
+<p>We estimate adaptive weighting of the tapers, based on the data (see
+<a class="reference internal" href="multi_taper_spectral_estimation.html#multi-taper-psd"><span class="std std-ref">Multitaper spectral estimation</span></a> for an explanation and references):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nseq</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">L</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nseq</span><span class="p">):</span>
+    <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">adaptive_weights</span><span class="p">(</span><span class="n">tspectra</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">eigs</span><span class="p">,</span> <span class="n">sides</span><span class="o">=</span><span class="n">sides</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We proceed to calculate the coherence. We initialize empty data containers:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">csd_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nseq</span><span class="p">,</span> <span class="n">nseq</span><span class="p">,</span> <span class="n">L</span><span class="p">),</span> <span class="s1">&#39;D&#39;</span><span class="p">)</span>
+<span class="n">psd_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">nseq</span><span class="p">,</span> <span class="n">nseq</span><span class="p">,</span> <span class="n">L</span><span class="p">),</span> <span class="s1">&#39;d&#39;</span><span class="p">)</span>
+<span class="n">coh_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nseq</span><span class="p">,</span> <span class="n">nseq</span><span class="p">,</span> <span class="n">L</span><span class="p">),</span> <span class="s1">&#39;d&#39;</span><span class="p">)</span>
+<span class="n">coh_var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">coh_mat</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Looping over the ROIs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nseq</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>We calculate the multi-tapered cross spectrum between each two
+time-series:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sxy</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">mtm_cross_spectrum</span><span class="p">(</span>
+   <span class="n">tspectra</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">tspectra</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">w</span><span class="p">[</span><span class="n">j</span><span class="p">]),</span> <span class="n">sides</span><span class="o">=</span><span class="s1">&#39;onesided&#39;</span>
+ <span class="p">)</span>
+</pre></div>
+</div>
+<p>And the individual PSD for each:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sxx</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">mtm_cross_spectrum</span><span class="p">(</span>
+   <span class="n">tspectra</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">tspectra</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">sides</span><span class="o">=</span><span class="s1">&#39;onesided&#39;</span>
+   <span class="p">)</span>
+<span class="n">syy</span> <span class="o">=</span> <span class="n">alg</span><span class="o">.</span><span class="n">mtm_cross_spectrum</span><span class="p">(</span>
+   <span class="n">tspectra</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">tspectra</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">w</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">sides</span><span class="o">=</span><span class="s1">&#39;onesided&#39;</span>
+   <span class="p">)</span>
+
+<span class="n">psd_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">sxx</span>
+<span class="n">psd_mat</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">syy</span>
+</pre></div>
+</div>
+<p>Coherence is : <span class="math notranslate nohighlight">\(Coh_{xy}(\lambda) = \frac{|{f_{xy}(\lambda)}|^2}{f_{xx}(\lambda) \cdot f_{yy}(\lambda)}\)</span></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">coh_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sxy</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="n">coh_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">/=</span> <span class="p">(</span><span class="n">sxx</span> <span class="o">*</span> <span class="n">syy</span><span class="p">)</span>
+<span class="n">csd_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">sxy</span>
+</pre></div>
+</div>
+<p>The variance from the different samples is calculated using a jack-knife
+approach:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">:</span>
+    <span class="n">coh_var</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">jackknifed_coh_variance</span><span class="p">(</span>
+       <span class="n">tspectra</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">tspectra</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">eigs</span><span class="p">,</span> <span class="n">adaptive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+       <span class="p">)</span>
+</pre></div>
+</div>
+<p>This measure is normalized, based on the number of tapers:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">coh_mat_xform</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">normalize_coherence</span><span class="p">(</span><span class="n">coh_mat</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">K</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We calculate 95% confidence intervals based on the jack-knife variance
+calculation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">t025_limit</span> <span class="o">=</span> <span class="n">coh_mat_xform</span> <span class="o">+</span> <span class="n">dist</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="o">.</span><span class="mi">025</span><span class="p">,</span> <span class="n">K</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">coh_var</span><span class="p">)</span>
+<span class="n">t975_limit</span> <span class="o">=</span> <span class="n">coh_mat_xform</span> <span class="o">+</span> <span class="n">dist</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="o">.</span><span class="mi">975</span><span class="p">,</span> <span class="n">K</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">coh_var</span><span class="p">)</span>
+
+
+<span class="n">utils</span><span class="o">.</span><span class="n">normal_coherence_to_unit</span><span class="p">(</span><span class="n">t025_limit</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">K</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">t025_limit</span><span class="p">)</span>
+<span class="n">utils</span><span class="o">.</span><span class="n">normal_coherence_to_unit</span><span class="p">(</span><span class="n">t975_limit</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">K</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">t975_limit</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">L</span> <span class="o">&lt;</span> <span class="n">n_samples</span><span class="p">:</span>
+    <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">TR</span><span class="p">),</span> <span class="n">L</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">TR</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We look only at frequencies between 0.02 and 0.15 (the physiologically
+relevant band, see <a class="reference external" href="http://imaging.mrc-cbu.cam.ac.uk/imaging/DesignEfficiency">http://imaging.mrc-cbu.cam.ac.uk/imaging/DesignEfficiency</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">freq_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">freqs</span> <span class="o">&gt;</span> <span class="n">f_lb</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;</span> <span class="n">f_ub</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We extract the coherence and average over all these frequency bands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">coh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">coh_mat</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">freq_idx</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Averaging on the last dimension</span>
+</pre></div>
+</div>
+<p>The next line calls the visualization routine which displays the data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig01</span> <span class="o">=</span> <span class="n">drawmatrix_channels</span><span class="p">(</span><span class="n">coh</span><span class="p">,</span>
+                            <span class="n">roi_names</span><span class="p">,</span>
+                            <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">],</span>
+                            <span class="n">color_anchor</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;MTM Coherence&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/multi_taper_coh_01.png"><img alt="../_images/multi_taper_coh_01.png" src="../_images/multi_taper_coh_01.png" style="width: 500px;" /></a>
+<p>Next we perform the same analysis, using the nitime object oriented interface.</p>
+<p>We start by initializing a TimeSeries object with this data and with the
+sampling_interval provided above. We set the metadata ‘roi’ field with the ROI
+names.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">T</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">pdata</span><span class="p">,</span> <span class="n">sampling_interval</span><span class="o">=</span><span class="n">TR</span><span class="p">)</span>
+<span class="n">T</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;roi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">roi_names</span>
+</pre></div>
+</div>
+<p>We initialize an MTCoherenceAnalyzer object with the TimeSeries object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C2</span> <span class="o">=</span> <span class="n">MTCoherenceAnalyzer</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The relevant indices in the Analyzer object are derived:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">freq_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">C2</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">&gt;</span> <span class="mf">0.02</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">C2</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">&lt;</span> <span class="mf">0.15</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The call to C2.coherence triggers the computation and this is averaged over the
+frequency range of interest in the same line and then displayed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">coh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">C2</span><span class="o">.</span><span class="n">coherence</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">freq_idx</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Averaging on the last dimension</span>
+<span class="n">fig02</span> <span class="o">=</span> <span class="n">drawmatrix_channels</span><span class="p">(</span><span class="n">coh</span><span class="p">,</span>
+                            <span class="n">roi_names</span><span class="p">,</span>
+                            <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">],</span>
+                            <span class="n">color_anchor</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;MTCoherenceAnalyzer&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/multi_taper_coh_02.png"><img alt="../_images/multi_taper_coh_02.png" src="../_images/multi_taper_coh_02.png" style="width: 500px;" /></a>
+<p>For comparison, we also perform the analysis using the standard
+CoherenceAnalyzer object, which does the analysis using Welch’s windowed
+periodogram, instead of the multitaper spectral estimation method (see
+<span class="xref std std-ref">resting_state</span> for a more thorough analysis of this data using this
+method):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C3</span> <span class="o">=</span> <span class="n">CoherenceAnalyzer</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+
+<span class="n">freq_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">C3</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">&gt;</span> <span class="n">f_lb</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">C3</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">&lt;</span> <span class="n">f_ub</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1">#Extract the coherence and average across these frequency bands:</span>
+<span class="n">coh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">C3</span><span class="o">.</span><span class="n">coherence</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">freq_idx</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Averaging on the last dimension</span>
+<span class="n">fig03</span> <span class="o">=</span> <span class="n">drawmatrix_channels</span><span class="p">(</span><span class="n">coh</span><span class="p">,</span>
+                            <span class="n">roi_names</span><span class="p">,</span>
+                            <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">],</span>
+                            <span class="n">color_anchor</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;CoherenceAnalyzer&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<a class="reference external image-reference" href="../_images/multi_taper_coh_03.png"><img alt="../_images/multi_taper_coh_03.png" src="../_images/multi_taper_coh_03.png" style="width: 500px;" /></a>
+<p>plt.show() is called in order to display the figures:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" download="" href="../_downloads/bca0d37381cab624810b4162600cc9d2/multi_taper_coh.py"><code class="xref download docutils literal notranslate"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the Nitime source distribution under the
+<code class="file docutils literal notranslate"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="filtering_fmri.html" title="Filtering and normalizing fMRI data"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="event_related_fmri.html" title="Event-related fMRI"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

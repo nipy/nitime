@@ -1,0 +1,289 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="algorithms.filter" href="nitime.algorithms.filter.html" />
+    <link rel="prev" title="algorithms.entropy" href="nitime.algorithms.entropy.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.filter.html" title="algorithms.filter"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.entropy.html" title="algorithms.entropy"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">algorithms.event_related</a><ul>
+<li><a class="reference internal" href="#module-nitime.algorithms.event_related">Module: <code class="docutils literal notranslate"><span class="pre">algorithms.event_related</span></code></a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.algorithms.entropy.html"
+                        title="previous chapter">algorithms.entropy</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.algorithms.filter.html"
+                        title="next chapter">algorithms.filter</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="algorithms-event-related">
+<h1>algorithms.event_related<a class="headerlink" href="#algorithms-event-related" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-nitime.algorithms.event_related">
+<span id="module-algorithms-event-related"></span><h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">algorithms.event_related</span></code><a class="headerlink" href="#module-nitime.algorithms.event_related" title="Permalink to this headline">¶</a></h2>
+<p>Event-related analysis</p>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="nitime.algorithms.event_related.fir">
+<code class="descclassname">nitime.algorithms.event_related.</code><code class="descname">fir</code><span class="sig-paren">(</span><em>timeseries</em>, <em>design</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.event_related.fir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the FIR (finite impulse response) HRF, according to <a class="reference internal" href="../../examples/event_related_fmri.html#burock2000" id="id1">[Burock2000]</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>timeseries</strong> : float array</p>
+<blockquote>
+<div><p>timeseries data</p>
+</div></blockquote>
+<p><strong>design</strong> : int array</p>
+<blockquote>
+<div><p>This is a design matrix.  It has to have shape = (number
+of TRS, number of conditions * length of HRF)</p>
+<p>The form of the matrix is:</p>
+<blockquote>
+<div><p>A B C …</p>
+</div></blockquote>
+<p>where A is a (number of TRs) x (length of HRF) matrix with a unity
+matrix placed with its top left corner placed in each TR in which
+event of type A occurred in the design. B is the equivalent for
+events of type B, etc.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>HRF: float array</strong> :</p>
+<blockquote class="last">
+<div><p>HRF is a numpy array of 1X(length of HRF * number of conditions)
+with the HRFs for the different conditions concatenated. This is an
+estimate of the linear filters between the time-series and the events
+described in design.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Implements equation 4 in Burock(2000):</p>
+<div class="math notranslate nohighlight">
+\[\hat{h} = (X^T X)^{-1} X^T y\]</div>
+<p>M.A. Burock and A.M.Dale (2000). Estimation and Detection of Event-Related
+fMRI Signals with Temporally Correlated Noise: A Statistically Efficient
+and Unbiased Approach. Human Brain Mapping, 11:249-260</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.event_related.freq_domain_xcorr">
+<code class="descclassname">nitime.algorithms.event_related.</code><code class="descname">freq_domain_xcorr</code><span class="sig-paren">(</span><em>tseries</em>, <em>events</em>, <em>t_before</em>, <em>t_after</em>, <em>Fs=1</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.event_related.freq_domain_xcorr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the  event related timeseries, using a cross-correlation in the
+frequency domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tseries: float array</strong> :</p>
+<blockquote>
+<div><p>Time series data with time as the last dimension</p>
+</div></blockquote>
+<p><strong>events: float array</strong> :</p>
+<blockquote>
+<div><p>An array with time-resolved events, at the same sampling rate as tseries</p>
+</div></blockquote>
+<p><strong>t_before: float</strong> :</p>
+<blockquote>
+<div><p>Time before the event to include</p>
+</div></blockquote>
+<p><strong>t_after: float</strong> :</p>
+<blockquote>
+<div><p>Time after the event to include</p>
+</div></blockquote>
+<p><strong>Fs: float</strong> :</p>
+<blockquote>
+<div><p>Sampling rate of the time-series (in Hz)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>xcorr: float array</strong> :</p>
+<blockquote class="last">
+<div><p>The correlation function between the tseries and the events. Can be
+interperted as a linear filter from events to responses (the
+time-series) of an LTI.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="nitime.algorithms.event_related.freq_domain_xcorr_zscored">
+<code class="descclassname">nitime.algorithms.event_related.</code><code class="descname">freq_domain_xcorr_zscored</code><span class="sig-paren">(</span><em>tseries</em>, <em>events</em>, <em>t_before</em>, <em>t_after</em>, <em>Fs=1</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.algorithms.event_related.freq_domain_xcorr_zscored" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the z-scored event related timeseries, using a cross-correlation
+in the frequency domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tseries: float array</strong> :</p>
+<blockquote>
+<div><p>Time series data with time as the last dimension</p>
+</div></blockquote>
+<p><strong>events: float array</strong> :</p>
+<blockquote>
+<div><p>An array with time-resolved events, at the same sampling rate as tseries</p>
+</div></blockquote>
+<p><strong>t_before: float</strong> :</p>
+<blockquote>
+<div><p>Time before the event to include</p>
+</div></blockquote>
+<p><strong>t_after: float</strong> :</p>
+<blockquote>
+<div><p>Time after the event to include</p>
+</div></blockquote>
+<p><strong>Fs: float</strong> :</p>
+<blockquote>
+<div><p>Sampling rate of the time-series (in Hz)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>xcorr: float array</strong> :</p>
+<blockquote class="last">
+<div><p>The correlation function between the tseries and the events. Can be
+interperted as a linear filter from events to responses (the
+time-series) of an LTI. Because it is normalized to its own mean and
+variance, it can be interperted as measuring statistical significance
+relative to all time-shifted versions of the events.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.filter.html" title="algorithms.filter"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.algorithms.entropy.html" title="algorithms.entropy"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

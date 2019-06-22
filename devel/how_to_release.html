@@ -1,0 +1,190 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API" href="../api/index.html" />
+    <link rel="prev" title="git resources" href="git_resources.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../api/index.html" title="API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="git_resources.html" title="git resources"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Working with <em>nitime</em> source code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="index.html">Development</a></li>
+    <li><a href="../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="git_resources.html"
+                        title="previous chapter">git resources</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../api/index.html"
+                        title="next chapter">API</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="releasing-nitime">
+<span id="how-to-release"></span><h1>Releasing Nitime<a class="headerlink" href="#releasing-nitime" title="Permalink to this headline">¶</a></h1>
+<p>This section contains notes about the process that is used to release Nitime.</p>
+<p>Most of the release process is automated by the <code class="file docutils literal notranslate"><span class="pre">release</span></code> script in the
+<code class="file docutils literal notranslate"><span class="pre">tools</span></code> directory.  This is just a handy reminder for the release manager.</p>
+<ol class="arabic">
+<li><p class="first">Write release notes in <code class="file docutils literal notranslate"><span class="pre">doc/whatsnew/</span></code> for the current release. Use
+the notes that have hopefully accumulated in
+<code class="file docutils literal notranslate"><span class="pre">doc/whatsnew/development</span></code>. For writing release notes, this will
+cleanly show who contributed as author of commits (get the previous release
+name from the tag list with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">tag</span></code>):</p>
+<p>git log –pretty=format:”* %aN” PREV_RELEASE… | sort | uniq</p>
+</li>
+<li><p class="first">Uncomment the empty <code class="docutils literal notranslate"><span class="pre">version_extra</span></code> assignment in the <code class="file docutils literal notranslate"><span class="pre">version.py</span></code>
+file, so that the complete version-string will not have the <code class="docutils literal notranslate"><span class="pre">dev</span></code> suffix.</p>
+</li>
+<li><p class="first">Update the website with announcements and links to the updated files on
+github. Remember to put a short note both on the news page of the site, and
+the index <code class="docutils literal notranslate"><span class="pre">What's</span> <span class="pre">New</span></code> section.</p>
+</li>
+<li><p class="first">Make sure that the released version of the docs is live on the site.</p>
+</li>
+<li><p class="first">Run <code class="file docutils literal notranslate"><span class="pre">build_release</span></code>, which does all the file checking and building
+that the real release script will do.  This will let you do test
+installations, check that the build procedure runs OK, etc.</p>
+</li>
+<li><p class="first">Make the test installation <strong>from one of the release tarballs</strong>, make sure
+that:</p>
+<ul class="simple">
+<li>The installation is being done into a place in your <cite>PYTHONPATH</cite>, which
+will over-ride your development tree.</li>
+<li>The docs build in your test installation.</li>
+<li>The tests run and pass in your test installation.</li>
+</ul>
+</li>
+<li><p class="first">Run the <code class="file docutils literal notranslate"><span class="pre">release</span></code> script, which makes the tar.gz, eggs and Win32 .exe
+installer. It posts them to the site and registers the release with PyPI.</p>
+</li>
+<li><p class="first">Tag the current state of the repository:</p>
+<p>git tag -a rel/x.y -m”Releasing version x.y”
+git push –tags origin master</p>
+</li>
+<li><p class="first">Draft a short release announcement with highlights of the release (and send
+it off!).</p>
+</li>
+<li><p class="first">Increment the version number in the <code class="file docutils literal notranslate"><span class="pre">version.py</span></code> file and comment the
+line with the additional <code class="docutils literal notranslate"><span class="pre">version_extra</span></code>, so that you get back the <code class="docutils literal notranslate"><span class="pre">dev</span></code>
+tag on the version number.</p>
+</li>
+<li><p class="first">Commit this as the beginning of the development of the next version.</p>
+</li>
+<li><p class="first">Celebrate!</p>
+</li>
+</ol>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../api/index.html" title="API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="git_resources.html" title="git resources"
+             >previous</a> |</li>
+  <li><a href="../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Working with <em>nitime</em> source code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

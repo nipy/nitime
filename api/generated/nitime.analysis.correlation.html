@@ -1,0 +1,286 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Neuroimaging in Python &#8212; nitime 0.9.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/nitime.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="analysis.event_related" href="nitime.analysis.event_related.html" />
+    <link rel="prev" title="analysis.coherence" href="nitime.analysis.coherence.html" />
+  <meta name="keywords" content="nipy, neuroimaging, python, neuroscience, time
+				 series">
+
+  </head><body>
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../../index.html">
+  <img src="../../_static/nitime-banner-bg.png" alt="NIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.event_related.html" title="analysis.event_related"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.coherence.html" title="analysis.coherence"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" accesskey="U">API</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+  
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../../documentation.html">Documentation</a></li>
+    <li><a href="../../devel/index.html">Development</a></li>
+    <li><a href="../../news.html">News</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/projects/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="http://mail.scipy.org/mailman/listinfo/nipy-devel">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.sourceforge.net/software/license/index.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">analysis.correlation</a><ul>
+<li><a class="reference internal" href="#module-analysis-correlation">Module: <code class="docutils literal notranslate"><span class="pre">analysis.correlation</span></code></a></li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#correlationanalyzer"><code class="docutils literal notranslate"><span class="pre">CorrelationAnalyzer</span></code></a></li>
+<li><a class="reference internal" href="#seedcorrelationanalyzer"><code class="docutils literal notranslate"><span class="pre">SeedCorrelationAnalyzer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nitime.analysis.coherence.html"
+                        title="previous chapter">analysis.coherence</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nitime.analysis.event_related.html"
+                        title="next chapter">analysis.event_related</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="analysis-correlation">
+<h1>analysis.correlation<a class="headerlink" href="#analysis-correlation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-analysis-correlation">
+<h2>Module: <code class="xref py py-mod docutils literal notranslate"><span class="pre">analysis.correlation</span></code><a class="headerlink" href="#module-analysis-correlation" title="Permalink to this headline">¶</a></h2>
+<p>Inheritance diagram for <code class="docutils literal notranslate"><span class="pre">nitime.analysis.correlation</span></code>:</p>
+<div class="graphviz"><img src="../../_images/inheritance-e68cc57d154f6ffdef3061432605b3c86411b95f.png" alt="Inheritance diagram of nitime.analysis.correlation" usemap="#inheritance3332f28373" class="inheritance graphviz" /></div>
+<map id="inheritance3332f28373" name="inheritance3332f28373">
+<area shape="rect" id="node1" href="nitime.analysis.base.html#nitime.analysis.base.BaseAnalyzer" target="_top" title="Analyzer that implements the default data flow." alt="" coords="312,49,484,71"/>
+<area shape="rect" id="node3" href="#nitime.analysis.correlation.CorrelationAnalyzer" target="_top" title="Analyzer object for correlation analysis. Has the same API as the" alt="" coords="528,49,763,71"/>
+<area shape="rect" id="node2" href="nitime.descriptors.html#nitime.descriptors.ResetMixin" target="_top" title="A Mixin class to add a .reset() method to users of OneTimeProperty." alt="" coords="47,49,226,71"/>
+<area shape="rect" id="node4" href="#nitime.analysis.correlation.SeedCorrelationAnalyzer" target="_top" title="This analyzer takes two time&#45;series. The first is designated as a" alt="" coords="5,5,268,27"/>
+</map><span class="target" id="module-nitime.analysis.correlation"></span></div>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="correlationanalyzer">
+<h3><a class="reference internal" href="#nitime.analysis.correlation.CorrelationAnalyzer" title="nitime.analysis.correlation.CorrelationAnalyzer"><code class="xref py py-class docutils literal notranslate"><span class="pre">CorrelationAnalyzer</span></code></a><a class="headerlink" href="#correlationanalyzer" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.analysis.correlation.CorrelationAnalyzer">
+<em class="property">class </em><code class="descclassname">nitime.analysis.correlation.</code><code class="descname">CorrelationAnalyzer</code><span class="sig-paren">(</span><em>input=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.correlation.CorrelationAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="nitime.analysis.base.html#nitime.analysis.base.BaseAnalyzer" title="nitime.analysis.base.BaseAnalyzer"><code class="xref py py-class docutils literal notranslate"><span class="pre">nitime.analysis.base.BaseAnalyzer</span></code></a></p>
+<p>Analyzer object for correlation analysis. Has the same API as the
+CoherenceAnalyzer</p>
+<dl class="method">
+<dt id="nitime.analysis.correlation.CorrelationAnalyzer.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>input=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.correlation.CorrelationAnalyzer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>input</strong> : TimeSeries object</p>
+<blockquote class="last">
+<div><p>Containing the data to analyze.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># for doctesting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t1</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">TimeSeries</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span>
+<span class="gp">... </span>                   <span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span><span class="mi">10</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">100</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">50</span><span class="p">),</span>
+<span class="gp">... </span>                                     <span class="n">sampling_rate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c1</span> <span class="o">=</span> <span class="n">CorrelationAnalyzer</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c1</span> <span class="o">=</span> <span class="n">CorrelationAnalyzer</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c1</span><span class="o">.</span><span class="n">corrcoef</span>
+<span class="go">array([[ 1., -1.],</span>
+<span class="go">       [-1.,  1.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c1</span><span class="o">.</span><span class="n">xcorr</span><span class="o">.</span><span class="n">sampling_rate</span>  <span class="c1"># doctest: +ELLIPSIS</span>
+<span class="go">3.141592653... Hz</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c1</span><span class="o">.</span><span class="n">xcorr</span><span class="o">.</span><span class="n">t0</span>  <span class="c1"># doctest: +ELLIPSIS</span>
+<span class="go">-15.91549430915... s</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.correlation.CorrelationAnalyzer.corrcoef">
+<code class="descname">corrcoef</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.correlation.CorrelationAnalyzer.corrcoef" title="Permalink to this definition">¶</a></dt>
+<dd><p>The correlation coefficient between every pairwise combination of
+time-series contained in the object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.correlation.CorrelationAnalyzer.xcorr">
+<code class="descname">xcorr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.correlation.CorrelationAnalyzer.xcorr" title="Permalink to this definition">¶</a></dt>
+<dd><p>The cross-correlation between every pairwise combination time-series
+in the object. Uses np.correlation(‘full’).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>TimeSeries</strong> : the time-dependent cross-correlation, with zero-lag</p>
+<p class="last"><strong>at time=0</strong> :</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.correlation.CorrelationAnalyzer.xcorr_norm">
+<code class="descname">xcorr_norm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.correlation.CorrelationAnalyzer.xcorr_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>The cross-correlation between every pairwise combination time-series
+in the object, where the zero lag correlation is normalized to be equal
+to the correlation coefficient between the time-series</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>TimeSeries</strong> : A TimeSeries object</p>
+<blockquote class="last">
+<div><p>the time-dependent cross-correlation, with zero-lag at time=0</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="seedcorrelationanalyzer">
+<h3><a class="reference internal" href="#nitime.analysis.correlation.SeedCorrelationAnalyzer" title="nitime.analysis.correlation.SeedCorrelationAnalyzer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeedCorrelationAnalyzer</span></code></a><a class="headerlink" href="#seedcorrelationanalyzer" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="nitime.analysis.correlation.SeedCorrelationAnalyzer">
+<em class="property">class </em><code class="descclassname">nitime.analysis.correlation.</code><code class="descname">SeedCorrelationAnalyzer</code><span class="sig-paren">(</span><em>seed_time_series=None</em>, <em>target_time_series=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.correlation.SeedCorrelationAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This analyzer takes two time-series. The first is designated as a
+time-series of seeds. The other is designated as a time-series of targets.
+The analyzer performs a correlation analysis between each of the channels
+in the seed time-series and <em>all</em> of the channels in the target
+time-series.</p>
+<dl class="method">
+<dt id="nitime.analysis.correlation.SeedCorrelationAnalyzer.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>seed_time_series=None</em>, <em>target_time_series=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.correlation.SeedCorrelationAnalyzer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>seed_time_series</strong> : a TimeSeries object</p>
+<p class="last"><strong>target_time_series</strong> : a TimeSeries object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="nitime.analysis.correlation.SeedCorrelationAnalyzer.corrcoef">
+<code class="descname">corrcoef</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nitime.analysis.correlation.SeedCorrelationAnalyzer.corrcoef" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.event_related.html" title="analysis.event_related"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nitime.analysis.coherence.html" title="analysis.coherence"
+             >previous</a> |</li>
+  <li><a href="../../index.html">Nitime Home</a> |&nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../documentation.html" >Nitime Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../index.html" >API</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2009, Neuroimaging in Python team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+  </body>
+</html>

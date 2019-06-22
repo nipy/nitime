@@ -1,0 +1,167 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+utils
+=====
+
+Module: :mod:`utils`
+--------------------
+.. automodule:: nitime.utils
+
+.. currentmodule:: nitime.utils
+
+Functions
+---------
+
+
+.. autofunction:: nitime.utils.adaptive_weights
+
+
+.. autofunction:: nitime.utils.akaike_information_criterion
+
+
+.. autofunction:: nitime.utils.antisymm_rand_arr
+
+
+.. autofunction:: nitime.utils.ar_generator
+
+
+.. autofunction:: nitime.utils.autocorr
+
+
+.. autofunction:: nitime.utils.autocov
+
+
+.. autofunction:: nitime.utils.autocov_vector
+
+
+.. autofunction:: nitime.utils.bayesian_information_criterion
+
+
+.. autofunction:: nitime.utils.circle_to_hz
+
+
+.. autofunction:: nitime.utils.circularize
+
+
+.. autofunction:: nitime.utils.crosscorr
+
+
+.. autofunction:: nitime.utils.crosscov
+
+
+.. autofunction:: nitime.utils.crosscov_vector
+
+
+.. autofunction:: nitime.utils.dB
+
+
+.. autofunction:: nitime.utils.detect_lines
+
+
+.. autofunction:: nitime.utils.diag_indices
+
+
+.. autofunction:: nitime.utils.diag_indices_from
+
+
+.. autofunction:: nitime.utils.dpss_windows
+
+
+.. autofunction:: nitime.utils.expected_jk_variance
+
+
+.. autofunction:: nitime.utils.fftconvolve
+
+
+.. autofunction:: nitime.utils.fill_diagonal
+
+
+.. autofunction:: nitime.utils.fir_design_matrix
+
+
+.. autofunction:: nitime.utils.generate_mar
+
+
+.. autofunction:: nitime.utils.get_bounds
+
+
+.. autofunction:: nitime.utils.get_freqs
+
+
+.. autofunction:: nitime.utils.hanning_window_spectrum
+
+
+.. autofunction:: nitime.utils.intersect_coords
+
+
+.. autofunction:: nitime.utils.jackknifed_coh_variance
+
+
+.. autofunction:: nitime.utils.jackknifed_sdf_variance
+
+
+.. autofunction:: nitime.utils.mask_indices
+
+
+.. autofunction:: nitime.utils.minmax_norm
+
+
+.. autofunction:: nitime.utils.multi_intersect
+
+
+.. autofunction:: nitime.utils.normal_coherence_to_unit
+
+
+.. autofunction:: nitime.utils.normalize_coherence
+
+
+.. autofunction:: nitime.utils.percent_change
+
+
+.. autofunction:: nitime.utils.remove_bias
+
+
+.. autofunction:: nitime.utils.rescale_arr
+
+
+.. autofunction:: nitime.utils.square_window_spectrum
+
+
+.. autofunction:: nitime.utils.structured_rand_arr
+
+
+.. autofunction:: nitime.utils.symm_rand_arr
+
+
+.. autofunction:: nitime.utils.tapered_spectra
+
+
+.. autofunction:: nitime.utils.threshold_arr
+
+
+.. autofunction:: nitime.utils.thresholded_arr
+
+
+.. autofunction:: nitime.utils.tridi_inverse_iteration
+
+
+.. autofunction:: nitime.utils.tril_indices
+
+
+.. autofunction:: nitime.utils.tril_indices_from
+
+
+.. autofunction:: nitime.utils.triu_indices
+
+
+.. autofunction:: nitime.utils.triu_indices_from
+
+
+.. autofunction:: nitime.utils.unwrap_phases
+
+
+.. autofunction:: nitime.utils.zero_pad
+
+
+.. autofunction:: nitime.utils.zscore
+
