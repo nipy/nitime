@@ -105,7 +105,7 @@ def get_spectra(time_series, method=None):
         Fs = method.get('Fs', 2 * np.pi)
         detrend = method.get('detrend', mlab.detrend_none)
         window = method.get('window', mlab.window_hanning)
-        n_overlap = method.get('n_overlap', int(np.ceil(NFFT / 2)))
+        n_overlap = method.get('n_overlap', int(np.ceil(NFFT //  2)))
 
         # The length of the spectrum depends on how many sides are taken, which
         # depends on whether or not this is a complex object:
@@ -587,7 +587,7 @@ def multi_taper_psd(
     sdf_est /= Fs
 
     if sides == 'onesided':
-        freqs = np.linspace(0, Fs / 2, NFFT / 2 + 1)
+        freqs = np.linspace(0, Fs / 2, NFFT //  2 + 1)
     else:
         freqs = np.linspace(0, Fs, NFFT, endpoint=False)
 
@@ -726,7 +726,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
     csdfs /= Fs
 
     if sides == 'onesided':
-        freqs = np.linspace(0, Fs / 2, NFFT / 2 + 1)
+        freqs = np.linspace(0, Fs / 2, NFFT //  2 + 1)
     else:
         freqs = np.linspace(0, Fs, NFFT, endpoint=False)
 
