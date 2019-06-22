@@ -1,7 +1,6 @@
 import sys
-import os
+import numpy as np
 import numpy.testing as npt
-import numpy.testing.decorators as dec
 
 import pytest
 
@@ -17,7 +16,8 @@ def test_lazy():
     # repr for mlab should be <module 'matplotlib.mlab' will be lazily loaded>
     assert 'lazily loaded' in repr(mlab)
     # accessing mlab's attribute will cause an import of mlab
-    npt.assert_equal(mlab.dist(1969,2011), 42.0)
+    npt.assert_(np.all(mlab.detrend_mean(np.array([1, 2, 3]))  ==
+                       np.array([-1., 0., 1.])))
     # now mlab should be of class LoadedLazyImport an repr(mlab) should be
     # <module 'matplotlib.mlab' from # '.../matplotlib/mlab.pyc>
     assert 'lazily loaded' not in repr(mlab)
