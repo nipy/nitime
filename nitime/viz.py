@@ -9,9 +9,6 @@ from __future__ import print_function
 import sys
 from nitime.six.moves import map
 from nitime.six.moves import zip
-if "nose" in sys.modules:
-    import matplotlib
-    matplotlib.use('agg')
 
 # Then do all the rest of it:
 import numpy as np
@@ -20,7 +17,7 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib.colors as colors
-from mpl_toolkits.axes_grid import make_axes_locatable
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from nitime import timeseries as ts
 import nitime.utils as tsu

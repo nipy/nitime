@@ -1,5 +1,5 @@
 
-from inspect import getargspec
+from inspect import getfullargspec
 
 from nitime import descriptors as desc
 
@@ -16,7 +16,7 @@ class BaseAnalyzer(desc.ResetMixin):
 
     @desc.setattr_on_read
     def parameterlist(self):
-        plist = getargspec(self.__init__).args
+        plist = getfullargspec(self.__init__).args
         plist.remove('self')
         plist.remove('input')
         return plist

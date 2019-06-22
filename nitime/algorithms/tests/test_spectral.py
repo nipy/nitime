@@ -7,7 +7,6 @@ import numpy as np
 import scipy
 from scipy import fftpack
 import numpy.testing as npt
-import numpy.testing.decorators as dec
 import pytest
 
 import nitime.algorithms as tsa
@@ -320,7 +319,6 @@ def test_mtm_cross_spectrum():
         tsa.mtm_cross_spectrum(tspectra, np.r_[tspectra, tspectra], (w, w))
 
 
-@dec.slow
 def test_multi_taper_psd_csd():
     """
 
