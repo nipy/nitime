@@ -1,13 +1,5 @@
 language: python
 sudo: false
-deploy:
-  provider: pypi
-  user: arokem
-  password:
-    secure: sr2oQY1fOGNQRslNyNLq8B6bVGrvkwIxf23mcYY7F87DPLVvJ799VE1yxKwOJQeVmcFXDwWnxo3pzLvhSYNS3yDHjt9ymJ0+togNx4TUKPPcOHzlTNr+CfTkcx684aypykJjfAgGxUQs5cF2BVutEvKGbCla8OuO+N42Kc8350w=
-  on:
-    tags: true
-    repo: nipy/nitime
 
 python:
 - 3.6
