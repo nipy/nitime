@@ -1161,8 +1161,8 @@ def fftconvolve(in1, in2, mode="full", axis=None):
     """
     s1 = np.array(in1.shape)
     s2 = np.array(in2.shape)
-    complex_result = (np.issubdtype(in1.dtype, np.complex) or
-                      np.issubdtype(in2.dtype, np.complex))
+    complex_result = (np.issubdtype(in1.dtype, np.complex128) or
+                      np.issubdtype(in2.dtype, np.complex128))
 
     if axis is None:
         size = s1 + s2 - 1
@@ -1209,7 +1209,7 @@ def get_freqs(Fs, n):
     """Returns the center frequencies of the frequency decomposition of a time
     series of length n, sampled at Fs Hz"""
 
-    return np.linspace(0, Fs / 2, n / 2 + 1)
+    return np.linspace(0, Fs / 2, int(n / 2 + 1))
 
 
 def circle_to_hz(omega, Fsamp):
