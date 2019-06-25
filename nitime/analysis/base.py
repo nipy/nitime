@@ -1,5 +1,8 @@
 
-from inspect import getfullargspec
+try:
+    from inspect import getfullargspec
+except ImportError:  # PY2
+    from inspect import getargspec as getfullargspec
 
 from nitime import descriptors as desc
 
