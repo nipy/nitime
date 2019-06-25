@@ -57,7 +57,7 @@ def fir(timeseries, design):
     """
     X = np.array(design)
     y = np.array(timeseries)
-    h = np.array(linalg.pinv(X.T @ X) @ X.T @ y.T)
+    h = np.array(np.dot(np.dot(linalg.pinv(np.dot(X.T, X)), X.T), y.T))
     return h
 
 
