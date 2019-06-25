@@ -1,5 +1,5 @@
 sphinx
-pytest==3.6
+pytest==3.6.1
 pytest-cov
 nibabel
 networkx
