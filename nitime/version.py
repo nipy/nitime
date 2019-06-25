@@ -96,3 +96,4 @@ MICRO = _version_micro
 VERSION = __version__
 PACKAGE_DATA = {"nitime": ["LICENSE", "tests/*.txt", "tests/*.npy",
                            "data/*.nii.gz", "data/*.txt", "data/*.csv"]}
+PYTHON_REQUIRES = ">=3.5"

@@ -45,6 +45,7 @@ opts = dict(name=NAME,
             package_data=PACKAGE_DATA,
             install_requires=REQUIRES,
             requires=REQUIRES,
+            python_requires=PYTHON_REQUIRES,
             )
 
 try:
