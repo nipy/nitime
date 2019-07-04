@@ -55,10 +55,7 @@ def fir(timeseries, design):
     and Unbiased Approach. Human Brain Mapping, 11:249-260
 
     """
-    h = np.array(np.dot(np.dot(linalg.pinv(np.dot(design.T, design)),
-                               design.T),
-                        timeseries.T))
-    return h
+    return linalg.pinv(design.T @design) @ design.T @ timeseries.T
 
 
 def freq_domain_xcorr(tseries, events, t_before, t_after, Fs=1):

@@ -7,8 +7,6 @@ from __future__ import print_function
 
 # If you are running nosetests right now, you might want to use 'agg' as a backend:
 import sys
-from nitime.six.moves import map
-from nitime.six.moves import zip
 
 # Then do all the rest of it:
 import numpy as np
