@@ -37,8 +37,8 @@ def builder_inited(app):
         html_only.traverse = only_base.dont_traverse
 
 def setup(app):
-    app.add_directive('htmlonly', html_only_directive, True, (0, 0, 0))
-    app.add_directive('latexonly', latex_only_directive, True, (0, 0, 0))
+    app.add_directive('htmlonly', html_only_directive, True)
+    app.add_directive('latexonly', latex_only_directive, True)
     app.add_node(html_only)
     app.add_node(latex_only)
 
