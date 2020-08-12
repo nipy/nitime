@@ -11,6 +11,7 @@ install:
 
 script:
   - py.test --pyargs nitime --cov-report term-missing --cov=nitime --verbose
+  - sphinx-build doc html-no-exec
 
 after_success:
 - coveralls
