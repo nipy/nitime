@@ -19,6 +19,7 @@ Authors
 
 from docutils import nodes, utils
 from docutils.parsers.rst.roles import set_classes
+from sphinx.util import logging
 
 def make_link_node(rawtext, app, type, slug, options):
     """Create a link to a github resource.
@@ -146,7 +147,8 @@ def setup(app):
 
     :param app: Sphinx application context.
     """
-    app.info('Initializing GitHub plugin')
+    LOG = logging.getLogger(__name__)
+    LOG.info('Initializing GitHub plugin')
     app.add_role('ghissue', ghissue_role)
     app.add_role('ghpull', ghissue_role)
     app.add_role('ghuser', ghuser_role)
