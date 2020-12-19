@@ -4,8 +4,8 @@
 _version_major = 0
 _version_minor = 9
 _version_micro = ''  # use '' for first of series, number for 1 and above
-_version_extra = 'dev'
-#  _version_extra = ''  # Uncomment this for full releases
+#  _version_extra = 'dev'
+_version_extra = ''  # Uncomment this for full releases
 
 # Construct full version string from these.
 _ver = [_version_major, _version_minor]
@@ -75,20 +75,20 @@ for usage, and a DISCLAIMER OF ALL WARRANTIES.
 
 All trademarks referenced herein are property of their respective holders.
 
-Copyright (c) 2006-2016, NIPY Developers
+Copyright (c) 2006-2020, NIPY Developers
 All rights reserved.
 """
 
 NAME = "nitime"
 MAINTAINER = "Nipy Developers"
-MAINTAINER_EMAIL = "nipy-devel@neuroimaging.scipy.org"
+MAINTAINER_EMAIL = "neuroimaging@python.org"
 DESCRIPTION = description
 LONG_DESCRIPTION = long_description
 URL = "http://nipy.org/nitime"
 DOWNLOAD_URL = "http://github.com/nipy/nitime/downloads"
 LICENSE = "Simplified BSD"
 AUTHOR = "Nitime developers"
-AUTHOR_EMAIL = "nipy-devel@neuroimaging.scipy.org"
+AUTHOR_EMAIL = "neuroimaging@python.org"
 PLATFORMS = "OS Independent"
 MAJOR = _version_major
 MINOR = _version_minor
