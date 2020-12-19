@@ -902,7 +902,8 @@ class Frequency(float):
 
     def __repr__(self):
 
-        return str(self) + ' Hz'
+        return str(float(self)) + ' Hz'
+
 
     def to_period(self, time_unit=base_unit):
         """Convert the value of a frequency to the corresponding period
