@@ -325,4 +325,4 @@ def test_MTCoherenceAnalyzer():
     TS = ts.TimeSeries(my_signal, sampling_rate=30.02)
     # T.metadata['roi'] = vessel_names
     C2 = nta.MTCoherenceAnalyzer(TS, bandwidth=multitaper_bandwidth)
-    npt.assert_equal(C2.coherence.shape, (10, 1337))
+    npt.assert_equal(C2.coherence.shape, (10, 10, 1337))
