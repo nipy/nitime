@@ -314,3 +314,15 @@ def test_MorletWaveletAnalyzer():
     npt.assert_almost_equal(np.sin(HL.phase.data[10:-10]),
                             np.sin(WL.phase.data[10:-10]),
                             decimal=0)
+
+
+def test_MTCoherenceAnalyzer():
+    """
+    Based on gh-188
+    """
+    my_signal = np.random.randn(10, int(np.round(30.02*89)))
+    multitaper_bandwidth = 0.1  # [Hz]
+    TS = ts.TimeSeries(my_signal, sampling_rate=30.02)
+    # T.metadata['roi'] = vessel_names
+    C2 = nta.MTCoherenceAnalyzer(TS, bandwidth=multitaper_bandwidth)
+    npt.assert_equal(C2.coherence.shape, (10, 10, 1337))

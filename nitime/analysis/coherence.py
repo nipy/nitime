@@ -304,7 +304,7 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
     @desc.setattr_on_read
     def df(self):
         # The degrees of freedom:
-        return 2 * self.NW - 1
+        return int(2 * self.NW - 1)
 
     @desc.setattr_on_read
     def spectra(self):
@@ -328,9 +328,9 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
         else:
             wshape = [1] * len(self.spectra.shape)
             wshape[0] = channel_n
-            wshape[-2] = int(self.df)
+            wshape[-2] = self.df
             pre_w = np.sqrt(self.eigs) + np.zeros((wshape[0],
-                                                    self.eigs.shape[0]))
+                                                   self.eigs.shape[0]))
 
             w = pre_w.reshape(*wshape)
 
