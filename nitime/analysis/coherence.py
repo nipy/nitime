@@ -351,7 +351,7 @@ class MTCoherenceAnalyzer(BaseAnalyzer):
                                              self.weights[i],
                                              sides='onesided')
                 syy = tsa.mtm_cross_spectrum(self.spectra[j], self.spectra[j],
-                                             self.weights[i],
+                                             self.weights[j],
                                              sides='onesided')
                 psd_mat[0, i, j] = sxx
                 psd_mat[1, i, j] = syy
