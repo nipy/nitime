@@ -108,10 +108,8 @@ class GrangerAnalyzer(BaseAnalyzer):
             # non-same i's and j's:
             x, y = np.meshgrid(np.arange(self._n_process),
                                np.arange(self._n_process))
-            # index into the **lower** triangle. Then the element (i,j) stores
-            # the causality from x to y, e.g. gc['gc_xy'][i, j] = f_x2y
-            self.ij = list(zip(y[tril_indices_from(y, -1)],
-                          x[tril_indices_from(x, -1)]))
+            self.ij = list(zip(x[tril_indices_from(x, -1)],
+                          y[tril_indices_from(y, -1)]))
         else:
             self.ij = ij
 
