@@ -152,7 +152,7 @@ Looping over the ROIs:
 """
 
 for i in range(nseq):
-    for j in range(i):
+    for j in range(i, nseq):
 
         """
 
