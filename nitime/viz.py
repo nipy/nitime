@@ -30,7 +30,7 @@ if matplotlib.__version__[:3] == '1.3' or matplotlib.__version__[:3] == '1.4':
     import matplotlib.axis as ax
     ax.munits = mpl_units
 
-from nitime.utils import triu_indices
+from nitime.utils import tril_indices
 
 #Some visualization functions require networkx. Import that if possible:
 try:
@@ -272,10 +272,12 @@ def drawmatrix_channels(in_m, channel_names=None, fig=None, x_tick_rot=0,
     # data provided
     m = in_m.copy()
 
-    # Null the upper triangle, so that you don't get the redundant and the
+    # Null the **lower** triangle, so that you don't get the redundant and the
     # diagonal values:
-    idx_null = triu_indices(m.shape[0])
+    idx_null = tril_indices(m.shape[0])
     m[idx_null] = np.nan
+    # tranpose the upper triangle to lower
+    m = m.T
 
     # Extract the minimum and maximum values for scaling of the
     # colormap/colorbar:
