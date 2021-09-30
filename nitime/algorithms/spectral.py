@@ -249,7 +249,8 @@ def periodogram(s, Fs=2 * np.pi, Sk=None, N=None,
         Fl = (N + 1) // 2
         pshape[-1] = Fn
         P = np.zeros(pshape, 'd')
-        freqs = np.linspace(0, Fs // 2, Fn)
+        #freqs = np.linspace(0, Fs // 2, Fn)
+        freqs = np.fft.rfftfreq(N)
         P[..., 0] = (Sk[..., 0] * Sk[..., 0].conj()).real
         P[..., 1:Fl] = 2 * (Sk[..., 1:Fl] * Sk[..., 1:Fl].conj()).real
         if Fn > Fl:
