@@ -2,6 +2,7 @@
 requires = [
   "setuptools",
   "cython",
-  "numpy==1.21",  # NEP29 minimum supported numpy as of Jan 31, 2023
+  "numpy==1.21; python_version > '3.6'",  # NEP29 minimum supported numpy as of Jan 31, 2023
+  "numpy==1.19; python_version <= '3.6'",  # cibuildwheel wants to build for Python 3.6 still
 ]
 build-backend = "setuptools.build_meta"
