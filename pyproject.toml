@@ -1,0 +1,7 @@
+[build-system]
+requires = [
+  "setuptools",
+  "cython",
+  "numpy==1.21",  # NEP29 minimum supported numpy as of Jan 31, 2023
+]
+build-backend = "setuptools.build_meta"
