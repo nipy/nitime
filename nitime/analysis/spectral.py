@@ -418,8 +418,8 @@ class FilterAnalyzer(desc.ResetMixin):
 
             wp = [lb_frac, ub_frac]
 
-            ws = [np.max([lb_frac - 0.1, 0]),
-                  np.min([ub_frac + 0.1, 1.0])]
+            ws = [np.max([lb_frac - 0.1, 0.001]),
+                  np.min([ub_frac + 0.1, 0.999])]
 
         # For the lowpass:
         elif lb_frac == 0:

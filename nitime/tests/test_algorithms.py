@@ -149,7 +149,7 @@ def test_psd_matlab():
 
     NFFT = 256
     Fs = 1.0
-    noverlap = NFFT / 2
+    noverlap = NFFT // 2
 
     fxx, f = mlab.psd(ts0, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                       scale_by_freq=True)
