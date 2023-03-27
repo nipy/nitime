@@ -145,7 +145,7 @@ def test_psd_matlab():
     ts = np.loadtxt(os.path.join(test_dir_path, 'tseries12.txt'))
 
     #Complex signal!
-    ts0 = ts[1] + ts[0] * np.complex(0, 1)
+    ts0 = ts[1] + ts[0] * complex(0, 1)
 
     NFFT = 256
     Fs = 1.0

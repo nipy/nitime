@@ -1005,7 +1005,7 @@ def cache_fft(time_series, ij, lb=0, ub=None,
     FFT_conj_slices = {}
 
     for i_channel in all_channels:
-        Slices = np.zeros((n_slices, n_freqs), dtype=np.complex)
+        Slices = np.zeros((n_slices, n_freqs), dtype=complex)
         for iSlice in range(n_slices):
             thisSlice = time_series[i_channel,
                                     i_times[iSlice]:i_times[iSlice] + NFFT]
@@ -1161,7 +1161,7 @@ def cache_to_relative_phase(cache, ij):
     channels_i = max(1, max(ij_array[:, 0]) + 1)
     channels_j = max(1, max(ij_array[:, 1]) + 1)
     # Pre-allocate for speed:
-    Phi_xy = np.zeros((channels_i, channels_j, freqs), dtype=np.complex)
+    Phi_xy = np.zeros((channels_i, channels_j, freqs), dtype=complex)
 
     # These checks take time, so do them up front, not in every iteration:
     if list(FFT_slices.items())[0][1].shape[0] > 1:
@@ -1221,7 +1221,7 @@ def cache_to_coherency(cache, ij):
 
     channels_i = max(1, max(ij_array[:, 0]) + 1)
     channels_j = max(1, max(ij_array[:, 1]) + 1)
-    Cxy = np.zeros((channels_i, channels_j, freqs), dtype=np.complex)
+    Cxy = np.zeros((channels_i, channels_j, freqs), dtype=complex)
 
     #These checks take time, so do them up front, not in every iteration:
     if list(FFT_slices.items())[0][1].shape[0] > 1:

@@ -653,10 +653,10 @@ class SeedCoherenceAnalyzer(object):
         if len(self.seed.shape) > 1:
             Cxy = np.empty((self.seed.data.shape[0],
                             self.target.data.shape[0],
-                            self.frequencies.shape[0]), dtype=np.complex)
+                            self.frequencies.shape[0]), dtype=complex)
         else:
             Cxy = np.empty((self.target.data.shape[0],
-                            self.frequencies.shape[0]), dtype=np.complex)
+                            self.frequencies.shape[0]), dtype=complex)
 
         #Get the fft window cache for the target time-series:
         cache = self.target_cache

@@ -147,7 +147,7 @@ class SeedCorrelationAnalyzer(object):
 
             # Preallocate results
             Cxy = np.empty((self.seed.data.shape[0],
-                            self.target.data.shape[0]), dtype=np.float)
+                            self.target.data.shape[0]), dtype=float)
 
             for seed_idx, this_seed in enumerate(self.seed.data):
 
