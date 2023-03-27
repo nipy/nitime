@@ -3,4 +3,3 @@ pytest
 pytest-cov
 nibabel
 networkx
-flake8
