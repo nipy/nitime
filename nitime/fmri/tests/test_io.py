@@ -65,7 +65,7 @@ def test_time_series_from_file():
     npt.assert_equal(t4.sampling_interval,nitime.TimeArray(1.35))
 
     # Test the default behavior:
-    data = io.load(fmri_file1).get_data()
+    data = io.load(fmri_file1).get_fdata()
     t5 = ts_ff(fmri_file1)
     npt.assert_equal(t5.shape, data.shape)
     npt.assert_equal(t5.sampling_interval, ts.TimeArray(1, time_unit='s'))
