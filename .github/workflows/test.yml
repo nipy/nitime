@@ -1,6 +1,19 @@
 name: Test suite
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "*"
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 
 jobs:
   build:
@@ -9,13 +22,13 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.7, 3.8]
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v1
+      uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install
@@ -26,7 +39,7 @@ jobs:
         python -m pip install .
     - name: Lint
       run: |
-        flake8 --ignore N802,N806,W504 --select W503 `find . -name \*.py | grep -v setup.py | grep -v version.py | grep -v __init__.py | grep -v /docs/`
+        pipx run flake8 --ignore N802,N806,W504 --select W503 nitime/ tools/
     - name: Test
       run: |
         cd && mkdir for_test && cd for_test && pytest --pyargs nitime --cov-report term-missing --cov=AFQ

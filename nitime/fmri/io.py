@@ -88,7 +88,7 @@ def time_series_from_file(nifti_files, coords=None, TR=None, normalize=None,
         if verbose:
             print("Reading %s" % nifti_files)
         im = load(nifti_files)
-        data = im.get_data()
+        data = im.get_fdata()
         # If coordinates are provided as input, read data only from these coordinates:
         if coords is not None:
             #If the input is the coords of several ROIs
@@ -118,7 +118,7 @@ def time_series_from_file(nifti_files, coords=None, TR=None, normalize=None,
             if verbose:
                 print("Reading %s" % f)
             im = load(f)
-            data = im.get_data()
+            data = im.get_fdata()
             if coords is not None:
                 #If the input is the coords of several ROIs
                 if isinstance(coords, tuple) or isinstance(coords, list):
