@@ -52,3 +52,25 @@ jobs:
         with:
           name: ${{ matrix.python }}-${{ startsWith(matrix.buildplat[1], 'macosx') && 'macosx' || matrix.buildplat[1] }}
           path: ./wheelhouse/*.whl
+
+  test-sdist:
+    name: Test sdist
+    needs: [build_sdist]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: sdist
+          path: ./dist
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+      - name: Install sdist
+        run: pip install dist/*.tar.gz
+      - run: python -c 'import nitime; print(nitime.__version__)'
+      - name: Install pytest
+        run: pip install pytest
+      - name: Run tests
+        run: pytest -v --pyargs nitime
