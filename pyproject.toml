@@ -15,3 +15,5 @@ requires-python = ">=3.7"
 
 [tool.cibuildwheel]
 skip = "pp*"
+
+archs = ["auto64"]
