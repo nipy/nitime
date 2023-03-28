@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build_sdist:
+  build-sdist:
     name: Build sdist
     runs-on: ubuntu-latest
     steps:
@@ -27,35 +27,37 @@ jobs:
           name: sdist
           path: ./dist/*.tar.gz
 
-  build_wheels:
+  build-wheel:
     name: Build wheel for ${{ matrix.python }}-${{ matrix.buildplat[1] }}
     runs-on: ${{ matrix.buildplat[0] }}
     strategy:
       fail-fast: false
       matrix:
         buildplat:
-          - [ubuntu-20.04, manylinux_x86_64]
           - [ubuntu-20.04, musllinux_x86_64]
           - [macos-12, macosx_*]
           - [windows-2019, win_amd64]
         python: ["cp37", "cp38", "cp39", "cp310", "cp311"]
+        include:
+          # Manylinux builds are cheap, do all in one
+          - {buildplat: ["ubuntu-20.04", "manylinux_x86_64"], python: "*"}
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Build wheels
+      - name: Build wheel(s)
         run: pipx run cibuildwheel
         env:
           CIBW_BUILD: ${{ matrix.python }}-${{ matrix.buildplat[1] }}
 
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.python }}-${{ startsWith(matrix.buildplat[1], 'macosx') && 'macosx' || matrix.buildplat[1] }}
+          name: ${{ matrix.python == '*' && 'all' || matrix.python }}-${{ startsWith(matrix.buildplat[1], 'macosx') && 'macosx' || matrix.buildplat[1] }}
           path: ./wheelhouse/*.whl
 
   test-sdist:
     name: Test sdist
-    needs: [build_sdist]
+    needs: [build-sdist]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
@@ -74,3 +76,15 @@ jobs:
         run: pip install pytest
       - name: Run tests
         run: pytest -v --pyargs nitime
+
+  pre-publish:
+    runs-on: ubuntu-latest
+    needs: [test-sdist, build-wheel]
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: dist/
+      - run: ls -lR
+      - run: mv dist/*/*.{tar.gz,whl} dist
+      - run: rmdir dist/*/
+      - run: ls -lR
