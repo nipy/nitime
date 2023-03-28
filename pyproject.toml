@@ -10,10 +10,11 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-[project]
-requires-python = ">=3.7"
-
 [tool.cibuildwheel]
-skip = "pp*"
+# Disable CPython 3.6 here; if project.requires-python gets defined,
+# cp36* can be removed
+skip = "pp* cp36*"
 
+# 64-bit builds only; 32-bit builds seem pretty niche these days, so
+# don't bother unless someone asks
 archs = ["auto64"]
