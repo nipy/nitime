@@ -62,7 +62,7 @@ jobs:
         python: ["cp37", "cp38", "cp39", "cp310", "cp311"]
         include:
           # Manylinux builds are cheap, do all in one
-          - {buildplat: ["ubuntu-20.04", "manylinux_x86_64"], python: "*"}
+          - { buildplat: ["ubuntu-20.04", "manylinux_x86_64"], python: "*" }
 
     steps:
       - uses: actions/checkout@v3
