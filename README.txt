@@ -21,7 +21,7 @@ Mailing Lists
 
 Please see the developer's list here::
 
-    http://mail.scipy.org/mailman/listinfo/nipy-devel
+    https://mail.python.org/mailman/listinfo/neuroimaging
 
 Code
 ====
@@ -48,5 +48,5 @@ for usage, and a DISCLAIMER OF ALL WARRANTIES.
 
 All trademarks referenced herein are property of their respective holders.
 
-Copyright (c) 2006-2011, NIPY Developers
+Copyright (c) 2006-2023, NIPY Developers
 All rights reserved.
