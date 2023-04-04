@@ -9,8 +9,7 @@ import sys
 if os.path.exists('MANIFEST'):
     os.remove('MANIFEST')
 
-from setuptools import find_packages
-from distutils.core import setup
+from setuptools import find_packages, setup
 
 # Get version and release info, which is all stored in nitime/version.py
 ver_file = os.path.join('nitime', 'version.py')
@@ -49,14 +48,13 @@ opts = dict(name=NAME,
             )
 
 try:
-    from distutils.extension import Extension
-    from Cython.Distutils import build_ext as build_pyx_ext
+    from setuptools import Extension
+    from Cython.Build import cythonize
     from numpy import get_include
     # add Cython extensions to the setup options
     exts = [Extension('nitime._utils', ['nitime/_utils.pyx'],
                       include_dirs=[get_include()])]
-    opts['cmdclass'] = dict(build_ext=build_pyx_ext)
-    opts['ext_modules'] = exts
+    opts['ext_modules'] = cythonize(exts, language_level='3')
 except ImportError:
     # no loop for you!
     pass

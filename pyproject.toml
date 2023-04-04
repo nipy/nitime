@@ -1,0 +1,20 @@
+[build-system]
+requires = [
+  "setuptools",
+  "cython",
+  # Newer than NEP29-minimum: compile against oldest numpy available
+  "numpy==1.24; python_version >= '3.11'",
+  "numpy==1.22; python_version >= '3.10' and python_version < '3.11'",
+  # NEP29-minimum as of Jan 31, 2023
+  "numpy==1.21; python_version >= '3.7' and python_version < '3.10'",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.cibuildwheel]
+# Disable CPython 3.6 here; if project.requires-python gets defined,
+# cp36* can be removed
+skip = "pp* cp36*"
+
+# 64-bit builds only; 32-bit builds seem pretty niche these days, so
+# don't bother unless someone asks
+archs = ["auto64"]
