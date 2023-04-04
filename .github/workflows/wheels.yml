@@ -15,6 +15,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  job_metadata:
+    runs-on: ubuntu-latest
+    outputs:
+      commit_message: ${{ steps.get_commit_message.outputs.commit_message }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - name: Print head git commit message
+        id: get_commit_message
+        run: |
+          if [[ -z "$COMMIT_MSG" ]]; then
+            COMMIT_MSG=$(git show -s --format=%s $REF)
+          fi
+          echo commit_message=$COMMIT_MSG | tee -a $GITHUB_OUTPUT
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          REF: ${{ github.event.pull_request.head.sha }}
+
   build-sdist:
     name: Build sdist
     runs-on: ubuntu-latest
@@ -29,8 +49,9 @@ jobs:
 
   build-wheel:
     name: Build wheel for ${{ matrix.python }}-${{ matrix.buildplat[1] }}
+    needs: [job_metadata]
     runs-on: ${{ matrix.buildplat[0] }}
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') || contains(github.event.head_commit.message, '[build wheels]')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') || contains(needs.job_metadata.outputs.commit_message, '[build wheels]')
     strategy:
       fail-fast: false
       matrix:
