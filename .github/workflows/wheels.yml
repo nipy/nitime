@@ -113,7 +113,7 @@ jobs:
           mv dist/*/*.{tar.gz,whl} dist
           rmdir dist/*/
           ls -lR
-      - run: pipx run twine dist/*
+      - run: pipx run twine check dist/*
 
   publish:
     runs-on: ubuntu-latest
