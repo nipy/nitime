@@ -1,6 +1,7 @@
 [build-system]
 requires = [
   "setuptools",
+  "setuptools_scm[toml]>=6.2",
   "cython",
   # Newer than NEP29-minimum: compile against oldest numpy available
   "numpy==1.24; python_version >= '3.11'",
@@ -59,6 +60,9 @@ nitime = [
   "data/*.txt",
   "data/*.csv",
 ]
+
+[tool.setuptools_scm]
+write_to = "nitime/_version.py"
 
 [tool.cibuildwheel]
 # Disable PyPy
