@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-"""Setup file for the Python nitime package."""
+"""Setup file for the Python nitime package.
+
+This file only contains cython components.
+See pyproject.toml for the remaining configuration.
+"""
 from setuptools import setup
 
 try:
