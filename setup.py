@@ -13,6 +13,7 @@ try:
             'nitime._utils',
             ['nitime/_utils.pyx'],
             include_dirs=[get_include()],
+            define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')],
         )
     ]
     opts = {'ext_modules': cythonize(exts, language_level='3')}
