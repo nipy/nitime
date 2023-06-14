@@ -61,9 +61,8 @@ nitime = [
 ]
 
 [tool.cibuildwheel]
-# Disable CPython 3.6 here; if project.requires-python gets defined,
-# cp36* can be removed
-skip = "pp* cp36*"
+# Disable PyPy
+skip = "pp*"
 
 # 64-bit builds only; 32-bit builds seem pretty niche these days, so
 # don't bother unless someone asks
