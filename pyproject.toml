@@ -52,15 +52,6 @@ Homepage = "http://nipy.org/nitime"
 [tool.setuptools.packages.find]
 include = ["nitime*"]
 
-[tool.setuptools.package-data]
-nitime = [
-  "tests/*.txt",
-  "tests/*.npy",
-  "data/*.nii.gz",
-  "data/*.txt",
-  "data/*.csv",
-]
-
 [tool.setuptools_scm]
 write_to = "nitime/_version.py"
 
