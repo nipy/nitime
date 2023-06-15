@@ -1,63 +1,29 @@
 #!/usr/bin/env python
-"""Setup file for the Python nitime package."""
+"""Setup file for the Python nitime package.
 
-import os
-import sys
-
-# BEFORE importing distutils, remove MANIFEST. distutils doesn't properly
-# update it when the contents of directories change.
-if os.path.exists('MANIFEST'):
-    os.remove('MANIFEST')
-
-from setuptools import find_packages, setup
-
-# Get version and release info, which is all stored in nitime/version.py
-ver_file = os.path.join('nitime', 'version.py')
-with open(ver_file) as f:
-    exec(f.read())
-
-REQUIRES = []
-
-with open('requirements.txt') as f:
-    ll = f.readline()[:-1]
-    while ll:
-        REQUIRES.append(ll)
-        ll = f.readline()[:-1]
-
-PACKAGES = find_packages()
-
-
-opts = dict(name=NAME,
-            maintainer=MAINTAINER,
-            maintainer_email=MAINTAINER_EMAIL,
-            description=DESCRIPTION,
-            long_description=LONG_DESCRIPTION,
-            url=URL,
-            download_url=DOWNLOAD_URL,
-            license=LICENSE,
-            classifiers=CLASSIFIERS,
-            author=AUTHOR,
-            author_email=AUTHOR_EMAIL,
-            platforms=PLATFORMS,
-            version=VERSION,
-            packages=PACKAGES,
-            package_data=PACKAGE_DATA,
-            install_requires=REQUIRES,
-            requires=REQUIRES,
-            python_requires=PYTHON_REQUIRES,
-            )
+This file only contains cython components.
+See pyproject.toml for the remaining configuration.
+"""
+from setuptools import setup
 
 try:
     from setuptools import Extension
     from Cython.Build import cythonize
     from numpy import get_include
+
     # add Cython extensions to the setup options
-    exts = [Extension('nitime._utils', ['nitime/_utils.pyx'],
-                      include_dirs=[get_include()])]
-    opts['ext_modules'] = cythonize(exts, language_level='3')
+    exts = [
+        Extension(
+            'nitime._utils',
+            ['nitime/_utils.pyx'],
+            include_dirs=[get_include()],
+            define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')],
+        )
+    ]
+    opts = {'ext_modules': cythonize(exts, language_level='3')}
 except ImportError:
     # no loop for you!
-    pass
+    opts = {}
 
 # Now call the actual setup function
 if __name__ == '__main__':

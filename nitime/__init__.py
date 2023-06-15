@@ -21,7 +21,7 @@ have all of these things at their fingertips.
 
 __docformat__ = 'restructuredtext'
 
-from .version import  __version__
+from ._version import  __version__
 
 from . import algorithms
 from . import timeseries

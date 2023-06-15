@@ -1,6 +1,7 @@
 [build-system]
 requires = [
   "setuptools",
+  "setuptools_scm[toml]>=6.2",
   "cython",
   # Newer than NEP29-minimum: compile against oldest numpy available
   "numpy==1.24; python_version >= '3.11'",
@@ -10,10 +11,53 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "nitime"
+dynamic = ["version"]
+description = "Nitime: timeseries analysis for neuroscience data"
+readme = "README.txt"
+license = { file = "LICENSE" }
+requires-python = ">=3.7"
+authors = [
+    { name = "Nitime developers", email = "neuroimaging@python.org" },
+]
+maintainers = [
+    { name = "Nipy Developers", email = "neuroimaging@python.org" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "scipy",
+]
+
+[project.optional-dependencies]
+full = [
+    "networkx",
+    "nibabel",
+]
+
+[project.urls]
+Download = "http://github.com/nipy/nitime/downloads"
+Homepage = "http://nipy.org/nitime"
+
+[tool.setuptools.packages.find]
+include = ["nitime*"]
+
+[tool.setuptools_scm]
+write_to = "nitime/_version.py"
+
 [tool.cibuildwheel]
-# Disable CPython 3.6 here; if project.requires-python gets defined,
-# cp36* can be removed
-skip = "pp* cp36*"
+# Disable PyPy
+skip = "pp*"
 
 # 64-bit builds only; 32-bit builds seem pretty niche these days, so
 # don't bother unless someone asks

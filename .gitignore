@@ -1,6 +1,16 @@
+# Compiled python files
 *.pyc
-*~
 
+# Editor swap files
+*~
+.*.swp
+
+# Build artifacts
 *.so
 *.c
+*.egg-info/
 build/
+dist/
+
+# setuptools_scm
+nitime/_version.py
