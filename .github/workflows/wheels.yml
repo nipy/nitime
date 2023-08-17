@@ -71,8 +71,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-python@v3
+
+      - name: Update pip/pipx
+        run: pip install --upgrade pip pipx
+
       - name: Build wheel(s)
-        run: pipx run cibuildwheel
+        run: pipx run --spec "cibuildwheel>=2.15" cibuildwheel
         env:
           CIBW_BUILD: ${{ matrix.python }}-${{ matrix.buildplat[1] }}
 
