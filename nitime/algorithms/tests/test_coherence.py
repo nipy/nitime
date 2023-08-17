@@ -203,7 +203,7 @@ def test_correlation_spectrum():
 # XXX FIXME: http://github.com/nipy/nitime/issues/issue/1
 @pytest.mark.skipif(True, reason="http://github.com/nipy/nitime/issues/issue/1")
 def test_coherence_linear_dependence():
-    """
+    r"""
     Tests that the coherence between two linearly dependent time-series
     behaves as expected.
 
