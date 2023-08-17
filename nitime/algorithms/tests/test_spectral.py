@@ -70,12 +70,12 @@ def test_get_spectra_complex():
         r, _, _ = utils.ar_generator(N=2 ** 16)  # It needs to be that long for
                                                  # the answers to converge
         c, _, _ = utils.ar_generator(N=2 ** 16)
-        arsig1 = r + c * scipy.sqrt(-1)
+        arsig1 = r + c * 1j
 
         r, _, _ = utils.ar_generator(N=2 ** 16)
         c, _, _ = utils.ar_generator(N=2 ** 16)
 
-        arsig2 = r + c * scipy.sqrt(-1)
+        arsig2 = r + c * 1j
         avg_pwr1.append((arsig1 * arsig1.conjugate()).mean())
         avg_pwr2.append((arsig2 * arsig2.conjugate()).mean())
 
@@ -118,7 +118,7 @@ def test_periodogram():
     N = 1024
     r, _, _ = utils.ar_generator(N=N)
     c, _, _ = utils.ar_generator(N=N)
-    arsig = r + c * scipy.sqrt(-1)
+    arsig = r + c * 1j
 
     f, c = tsa.periodogram(arsig)
     npt.assert_equal(f.shape[0], N)  # Should be N, not the one-sided N/2 + 1
@@ -143,11 +143,11 @@ def test_periodogram_csd():
     N = 1024
     r, _, _ = utils.ar_generator(N=N)
     c, _, _ = utils.ar_generator(N=N)
-    arsig1 = r + c * scipy.sqrt(-1)
+    arsig1 = r + c * 1j
 
     r, _, _ = utils.ar_generator(N=N)
     c, _, _ = utils.ar_generator(N=N)
-    arsig2 = r + c * scipy.sqrt(-1)
+    arsig2 = r + c * 1j
 
     tseries = np.vstack([arsig1, arsig2])
 
