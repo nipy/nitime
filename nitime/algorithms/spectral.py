@@ -523,7 +523,7 @@ def multi_taper_psd(
     """
     # have last axis be time series for now
     N = s.shape[-1]
-    M = int(np.product(s.shape[:-1]))
+    M = int(np.prod(s.shape[:-1]))
 
     if BW is not None:
         # BW wins in a contest (since it was the original implementation)
@@ -663,7 +663,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
     """
     # have last axis be time series for now
     N = s.shape[-1]
-    M = int(np.product(s.shape[:-1]))
+    M = int(np.prod(s.shape[:-1]))
 
     if BW is not None:
         # BW wins in a contest (since it was the original implementation)
