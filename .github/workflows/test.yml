@@ -46,4 +46,4 @@ jobs:
         pipx run flake8 --ignore N802,N806,W504 --select W503 nitime/ tools/
     - name: Test
       run: |
-        cd && mkdir for_test && cd for_test && pytest --pyargs nitime --cov-report term-missing --cov=AFQ
+        mkdir ~/for_test && cd ~/for_test && pytest --pyargs nitime --cov-report term-missing --cov=nitime
