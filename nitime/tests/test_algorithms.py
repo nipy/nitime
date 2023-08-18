@@ -3,8 +3,7 @@ import os
 import numpy as np
 import numpy.testing as npt
 
-from scipy.signal import signaltools
-from scipy import fftpack
+from scipy import fftpack, signal
 
 import nitime
 from nitime import algorithms as tsa
@@ -24,16 +23,16 @@ def test_scipy_resample():
          for f in freq_list]
     tst = np.array(a).sum(axis=0)
     # interpolate to 128 Hz sampling
-    t_up = signaltools.resample(tst, 128)
+    t_up = signal.resample(tst, 128)
     np.testing.assert_array_almost_equal(t_up[::2], tst)
     # downsample to 32 Hz
-    t_dn = signaltools.resample(tst, 32)
+    t_dn = signal.resample(tst, 32)
     np.testing.assert_array_almost_equal(t_dn, tst[::2])
 
     # downsample to 48 Hz, and compute the sampling analytically for comparison
     dn_samp_ana = np.array([np.sin(2 * np.pi * f * np.linspace(0, 1, 48, endpoint=False))
                             for f in freq_list]).sum(axis=0)
-    t_dn2 = signaltools.resample(tst, 48)
+    t_dn2 = signal.resample(tst, 48)
     npt.assert_array_almost_equal(t_dn2, dn_samp_ana)
 
 

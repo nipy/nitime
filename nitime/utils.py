@@ -730,9 +730,8 @@ def tapered_spectra(s, tapers, NFFT=None, low_bias=True):
     if NFFT is None or NFFT < N:
         NFFT = N
     rest_of_dims = s.shape[:-1]
-    M = int(np.product(rest_of_dims))
 
-    s = s.reshape(int(np.product(rest_of_dims)), N)
+    s = s.reshape(-1, N)
     # de-mean this sucker
     s = remove_bias(s, axis=-1)
 
@@ -1193,7 +1192,7 @@ def fftconvolve(in1, in2, mode="full", axis=None):
     if mode == "full":
         return ret
     elif mode == "same":
-        if np.product(s1, axis=0) > np.product(s2, axis=0):
+        if np.prod(s1, axis=0) > np.prod(s2, axis=0):
             osize = s1
         else:
             osize = s2

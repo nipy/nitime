@@ -37,6 +37,6 @@ def test_lazy_noreload():
         with pytest.raises(ImportError) as e_info:
             reload(mod)
     elif major == 3:
-        import imp
+        import importlib
         with pytest.raises(ImportError) as e_info:
-            imp.reload(mod)
+            importlib.reload(mod)

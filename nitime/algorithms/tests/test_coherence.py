@@ -8,7 +8,7 @@ import warnings
 
 import numpy as np
 import numpy.testing as npt
-from scipy.signal import signaltools
+from scipy import signal
 import pytest
 
 import matplotlib
@@ -203,7 +203,7 @@ def test_correlation_spectrum():
 # XXX FIXME: http://github.com/nipy/nitime/issues/issue/1
 @pytest.mark.skipif(True, reason="http://github.com/nipy/nitime/issues/issue/1")
 def test_coherence_linear_dependence():
-    """
+    r"""
     Tests that the coherence between two linearly dependent time-series
     behaves as expected.
 
@@ -239,7 +239,7 @@ def test_coherence_linear_dependence():
               "Fs": 2 * np.pi}
 
     f, c = tsa.coherence(np.vstack([x, y]), csd_method=method)
-    c_t = np.abs(signaltools.resample(c_t, c.shape[-1]))
+    c_t = np.abs(signal.resample(c_t, c.shape[-1]))
 
     npt.assert_array_almost_equal(c[0, 1], c_t, 2)
 
