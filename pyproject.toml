@@ -34,15 +34,15 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "matplotlib",
-    "numpy",
-    "scipy",
+    "matplotlib>=3.5",
+    "numpy>=1.22",
+    "scipy>=1.8",
 ]
 
 [project.optional-dependencies]
 full = [
-    "networkx",
-    "nibabel",
+    "networkx>=2.7",
+    "nibabel>=4.0",
 ]
 
 [project.urls]
