@@ -61,7 +61,7 @@ jobs:
           - [ubuntu-20.04, musllinux_x86_64]
           - [macos-12, macosx_*]
           - [windows-2019, win_amd64]
-        python: ["cp37", "cp38", "cp39", "cp310", "cp311"]
+        python: ["cp38", "cp39", "cp310", "cp311", "cp312"]
         include:
           # Manylinux builds are cheap, do all in one
           - { buildplat: ["ubuntu-20.04", "manylinux_x86_64"], python: "*" }
@@ -71,8 +71,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-python@v3
+
+      - name: Update pip/pipx
+        run: pip install --upgrade pip pipx
+
       - name: Build wheel(s)
-        run: pipx run cibuildwheel
+        run: pipx run --spec "cibuildwheel>=2.15" cibuildwheel
         env:
           CIBW_BUILD: ${{ matrix.python }}-${{ matrix.buildplat[1] }}
 
