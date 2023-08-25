@@ -680,7 +680,7 @@ def draw_graph(G,
 
     # Build a 'weighted degree' array obtained by adding the (absolute value)
     # of the weights for all edges pointing to each node:
-    amat = nx.adjacency_matrix(G).todense()  # get a normal array out of it
+    amat = nx.to_numpy_array(G)  # get a normal array out of it
     degarr = abs(amat).sum(0)  # weights are sums across rows
 
     # Map the degree to the 0-1 range so we can use it for sizing the nodes.
