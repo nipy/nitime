@@ -2,8 +2,7 @@
 --only-binary numpy,scipy
 --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
 matplotlib>=3.5
-numpy>=1.26.0b1; python_version > '3.11'
-numpy>=1.22; python_version <= '3.11'
+numpy>=1.22
 scipy>=1.8
 networkx>=2.7
 nibabel>=4.0
