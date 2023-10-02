@@ -3,7 +3,6 @@ requires = [
   "setuptools",
   "setuptools_scm[toml]>=6.2",
   "cython",
-  "numpy==1.26b1; python_version >= '3.12rc1'",  # Until 3.12 and 1.26 are released
   # As of numpy 1.25, you can now build against older APIs.
   # https://numpy.org/doc/stable/release/1.25.0-notes.html
   "numpy>=1.25; python_version > '3.8'",
