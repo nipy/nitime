@@ -1,6 +1,7 @@
 [build-system]
 requires = [
   "setuptools",
+  "wheel",
   "setuptools_scm[toml]>=6.2",
   "cython",
   # As of numpy 1.25, you can now build against older APIs.

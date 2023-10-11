@@ -4,27 +4,31 @@
 This file only contains cython components.
 See pyproject.toml for the remaining configuration.
 """
-from setuptools import setup
+from setuptools import setup, Extension
+from wheel.bdist_wheel import bdist_wheel
+from Cython.Build import cythonize
+from numpy import get_include
 
-try:
-    from setuptools import Extension
-    from Cython.Build import cythonize
-    from numpy import get_include
 
-    # add Cython extensions to the setup options
-    exts = [
+class bdist_wheel_abi3(bdist_wheel):
+    def get_tag(self):
+        python, abi, plat = super().get_tag()
+
+        # We support back to cp38
+        if python.startswith('cp3'):
+            python, abi = 'cp38', 'abi3'
+
+        return python, abi, plat
+
+setup(
+    ext_modules=[
         Extension(
             'nitime._utils',
             ['nitime/_utils.pyx'],
             include_dirs=[get_include()],
             define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')],
+            py_limited_api=True,
         )
-    ]
-    opts = {'ext_modules': cythonize(exts, language_level='3')}
-except ImportError:
-    # no loop for you!
-    opts = {}
-
-# Now call the actual setup function
-if __name__ == '__main__':
-    setup(**opts)
+    ],
+    cmdclass={'bdist_wheel': bdist_wheel_abi3},
+)
