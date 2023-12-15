@@ -63,15 +63,15 @@ def plot_tseries(time_series, fig=None, axis=0,
     subplot: an axis number (if there are several in the figure to be opened),
         defaults to 0.
 
-    xticks: optional, list, specificies what values to put xticks on. Defaults
+    xticks: optional, list, specifies what values to put xticks on. Defaults
     to the matlplotlib-generated.
 
-    yticks: optional, list, specificies what values to put xticks on. Defaults
+    yticks: optional, list, specifies what values to put xticks on. Defaults
     to the matlplotlib-generated.
 
-    xlabel: optional, list, specificies what labels to put on xticks
+    xlabel: optional, list, specifies what labels to put on xticks
 
-    ylabel: optional, list, specificies what labels to put on yticks
+    ylabel: optional, list, specifies what labels to put on yticks
 
     yerror: optional, UniformTimeSeries with the same sampling_rate and number
     of samples and channels as time_series, the error will be displayed as a
