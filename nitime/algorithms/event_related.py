@@ -84,7 +84,7 @@ def freq_domain_xcorr(tseries, events, t_before, t_after, Fs=1):
     -------
     xcorr: float array
         The correlation function between the tseries and the events. Can be
-        interperted as a linear filter from events to responses (the
+        interpreted as a linear filter from events to responses (the
         time-series) of an LTI.
 
     """
@@ -125,9 +125,9 @@ def freq_domain_xcorr_zscored(tseries, events, t_before, t_after, Fs=1):
     -------
     xcorr: float array
         The correlation function between the tseries and the events. Can be
-        interperted as a linear filter from events to responses (the
+        interpreted as a linear filter from events to responses (the
         time-series) of an LTI. Because it is normalized to its own mean and
-        variance, it can be interperted as measuring statistical significance
+        variance, it can be interpreted as measuring statistical significance
         relative to all time-shifted versions of the events.
 
     """

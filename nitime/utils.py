@@ -188,11 +188,11 @@ def circularize(x, bottom=0, top=2 * np.pi, deg=False):
 
     bottom : float, optional (defaults to 0).
         If you want to set the bottom of the interval into which you
-        modulu to something else than 0.
+        modulo to something else than 0.
 
     top : float, optional (defaults to 2*pi).
         If you want to set the top of the interval into which you
-        modulu to something else than 2*pi
+        modulo to something else than 2*pi
 
     Returns
     -------
@@ -307,7 +307,7 @@ def jackknifed_sdf_variance(yk, eigvals, sides='onesided', adaptive=True):
     sides : str, optional
        Compute the jackknife pseudovalues over as one-sided or
        two-sided spectra
-    adpative : bool, optional
+    adaptive : bool, optional
        Compute the adaptive weighting for each jackknife pseudovalue
 
     Returns
@@ -1538,7 +1538,7 @@ def tril_indices(n, k=0):
 
     Examples
     --------
-    Commpute two different sets of indices to access 4x4 arrays, one for the
+    Compute two different sets of indices to access 4x4 arrays, one for the
     lower triangular part starting at the main diagonal, and one starting two
     diagonals further right:
 
@@ -1613,7 +1613,7 @@ def triu_indices(n, k=0):
 
     Examples
     --------
-    Commpute two different sets of indices to access 4x4 arrays, one for the
+    Compute two different sets of indices to access 4x4 arrays, one for the
     upper triangular part starting at the main diagonal, and one starting two
     diagonals further right:
 
@@ -2094,7 +2094,7 @@ def fir_design_matrix(events, len_hrf):
        corresponding to the bin represented by each slot in the array. In
        time-bins in which no event occurred, a 0 should be entered. If negative
        event values are entered, they will be used as "negative" events, as in
-       events that should be contrasted with the postitive events (typically -1
+       events that should be contrasted with the positive events (typically -1
        and 1 can be used for a simple contrast of two conditions)
 
     len_hrf : int

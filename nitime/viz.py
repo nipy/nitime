@@ -276,7 +276,7 @@ def drawmatrix_channels(in_m, channel_names=None, fig=None, x_tick_rot=0,
     # diagonal values:
     idx_null = tril_indices(m.shape[0])
     m[idx_null] = np.nan
-    # tranpose the upper triangle to lower
+    # transpose the upper triangle to lower
     m = m.T
 
     # Extract the minimum and maximum values for scaling of the
@@ -709,7 +709,7 @@ def draw_graph(G,
     # Set default edge colormap
     if edge_cmap is None:
         # Make an object with the colormap API, that maps all input values to
-        # the default color (with proper alhpa)
+        # the default color (with proper alpha)
         edge_cmap = (lambda val, alpha:
                      colors.colorConverter.to_rgba(default_edge_color, alpha))
 

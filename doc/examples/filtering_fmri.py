@@ -242,7 +242,7 @@ attenuation within the stop-bands.
 We can do that by initializng a SpectralAnalyzer for each one of the filtered
 time-series resulting from the above operation and plotting their spectra. For
 ease of compariso, we only plot the spectra using the multi-taper spectral
-estimation. At the level of granularity provided by this method, the diferences
+estimation. At the level of granularity provided by this method, the differences
 between the methods are emphasized:
 
 """

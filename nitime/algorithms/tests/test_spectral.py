@@ -94,7 +94,7 @@ def test_get_spectra_complex():
 
 def test_get_spectra_unknown_method():
     """
-    Test that providing an unknown method to get_spectra rasies a ValueError
+    Test that providing an unknown method to get_spectra raises a ValueError
 
     """
     tseries = np.array([[1, 2, 3], [4, 5, 6]])
@@ -179,7 +179,7 @@ def test_dpss_properties():
     N = 2000
     NW = 200
     d, lam = tsa.dpss_windows(N, NW, 2*NW-2)
-    # 2NW-2 lamdas should be all > 0.9
+    # 2NW-2 lambdas should be all > 0.9
     npt.assert_(
         (lam > 0.9).all(), 'Eigenvectors show poor spectral concentration'
         )
