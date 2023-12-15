@@ -16,7 +16,7 @@ General JN definitions
 | **pseudovalues**
 | :math:`\hat{\theta}_i = n\hat{\theta} - (n-1)\hat{\theta}_{-i}`
 
-Now the jackknifed esimator is computed as
+Now the jackknifed estimator is computed as
 
 :math:`\tilde{\theta} = \dfrac{1}{n}\sum_i \hat{\theta}_i = n\hat{\theta} - \dfrac{n-1}{n}\sum_i \hat{\theta}_{-i}`
 

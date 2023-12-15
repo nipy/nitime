@@ -47,7 +47,7 @@ smaller.
 ~~~~~~~~~~~~~~~~~~~~
 
 :func:`ut.index_at` returns the indices of the values in the array that are
-the largest time values, smaller thatn the input values t. That is, it returns i
+the largest time values, smaller than the input values t. That is, it returns i
 for which $t_i$ is the maximal one, which still fulfills: $t_i<t$.  
 
 Questions
@@ -56,7 +56,7 @@ The following questions apply to all three cases:
 
 * what happens when the t is smaller than the smallest entry in the array
   return None?
-* what happens when t is larget than the last entry in the time array? return
+* what happens when t is larger than the last entry in the time array? return
   None?
 
 :func:`at`

@@ -13,7 +13,7 @@ The module has several sub-modules:
 - ``analysis``: Contains *Analyzer* objects, which implement particular
   analysis methods on the time-series objects
 
-- ``viz``: Vizualization
+- ``viz``: Visualization
 
 All of the sub-modules will be imported as part of ``__init__``, so that users
 have all of these things at their fingertips.

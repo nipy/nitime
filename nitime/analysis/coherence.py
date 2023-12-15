@@ -28,7 +28,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
 
         method : dict, optional,
             This is the method used for spectral analysis of the signal for the
-            coherence caclulation. See :func:`algorithms.get_spectra`
+            coherence calculation. See :func:`algorithms.get_spectra`
             documentation for details.
 
         unwrap_phases : bool, optional
@@ -167,7 +167,7 @@ class CoherenceAnalyzer(BaseAnalyzer):
         """ The frequency-dependent phase relationship between all the pairwise
         combinations of time-series in the data"""
 
-        #XXX calcluate this from the standard output, instead of recalculating:
+        #XXX calculate this from the standard output, instead of recalculating:
 
         tseries_length = self.input.data.shape[0]
         spectrum_length = self.spectrum.shape[-1]
@@ -693,7 +693,7 @@ class SeedCoherenceAnalyzer(object):
                     cache['FFT_conj_slices'][-1] = \
                                             seed_cache['FFT_conj_slices'][0]
 
-                #This performs the caclulation for this seed:
+                #This performs the calculation for this seed:
                 Cxy[seed_idx] = tsa.cache_to_coherency(cache, ij)
 
         #In the case where there is only one channel in the seed time-series:

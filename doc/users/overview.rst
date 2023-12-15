@@ -67,7 +67,7 @@ object does not trigger any intensive computations. Instead the computation of
 the attributes of analyzer objects is delayed until the moment the user calls
 these attributes. In addition, once a computation is triggered it is stored as
 an attribute of the object, which assures that accessing the results of an
-analysis will trigger the computation only on the first time the analysis resut
+analysis will trigger the computation only on the first time the analysis result
 is required. Thereafter, the result of the analysis is stored for further use
 of this result.
 

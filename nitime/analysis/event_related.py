@@ -228,7 +228,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
     def et_data(self):
         """The event-triggered data (all occurrences).
 
-        This gets the time-series corresponding to the inidividual event
+        This gets the time-series corresponding to the individual event
         occurrences. Returns a list of lists of time-series. The first dimension
         is the different channels in the original time-series data and the
         second dimension is each type of event in the event time series

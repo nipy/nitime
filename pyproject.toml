@@ -62,3 +62,9 @@ skip = "pp*"
 # 64-bit builds only; 32-bit builds seem pretty niche these days, so
 # don't bother unless someone asks
 archs = ["auto64"]
+
+[tool.codespell]
+skip = '.git,*.pdf,*.svg,go.sum,*.css'
+check-hidden = true
+ignore-regex = '\b(Ines Samengo)\b'
+ignore-words-list = 'nd,ans'

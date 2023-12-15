@@ -49,7 +49,7 @@ consistent, in the same manner that is already implemented in
   represent a time offset, relative to the attributes :attr:`t_start` and
   :attr:`t_stop`. That is, it can tell us where relative to these two
   time-points some interesting even, which this interval surrounds, or this
-  interval is close to, occurs. This can be used in order to interpert how
+  interval is close to, occurs. This can be used in order to interpret how
   time-series access is done using the :class:`TimeInterval` object. See
   :ref:`time_series_access`. This attribute can be implemented as an optional
   input on initialization, such that it defaults to be equal to

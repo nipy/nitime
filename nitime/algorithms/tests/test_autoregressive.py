@@ -61,7 +61,7 @@ def test_AR_LD():
     """
 
     Test the Levinson Durbin estimate of the AR coefficients against the
-    expercted PSD
+    expected PSD
 
     """
     arsig, _, _ = utils.ar_generator(N=512)

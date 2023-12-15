@@ -117,7 +117,7 @@ winspect(sig.barthann(npts), fig02, 'Modified Bartlett-Hann')
 .. image:: fig/multi_taper_spectral_estimation_02.png
 
 As before, the left figure displays the windowing function in the temporal
-domain and the figure on the left displays the attentuation of spectral leakage
+domain and the figure on the left displays the attenuation of spectral leakage
 in the other frequency bands in the spectrum. Notice that though different
 windowing functions have different spectral attenuation profiles, trading off
 attenuation of leakage from frequency bands near the frequency of interest
@@ -302,7 +302,7 @@ fig06 = plot_spectral_estimate(freqs, psd, (adaptive_psd_mt,), hyp_limits,
 
 .. image:: fig/multi_taper_spectral_estimation_06.png
 
-As metioned above, in addition to estimating the spectrum itself, an estimate
+As mentioned above, in addition to estimating the spectrum itself, an estimate
 of the confidence interval of the spectrum can be generated using a
 jack-knifing procedure [Thomson2007]_.
 

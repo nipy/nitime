@@ -207,7 +207,7 @@ def test_TimeArray_convert_unit():
 
 def test_TimeArray_div():
 
-    #divide singelton by singleton:
+    #divide singleton by singleton:
     a = 2.0
     b = 6.0
     time1 = ts.TimeArray(a, time_unit='s')
@@ -217,7 +217,7 @@ def test_TimeArray_div():
     div2 = time1 / time2
     npt.assert_equal(div1, div2)
 
-    #Divide a TimeArray by a singelton:
+    #Divide a TimeArray by a singleton:
     a = np.array([1, 2, 3])
     b = 6.0
     time1 = ts.TimeArray(a, time_unit='s')
@@ -500,7 +500,7 @@ def test_TimeSeries():
     tseries3 = ts.TimeSeries(data=[1, 2, 3, 4], sampling_rate=1000,
                                     time_unit='ms')
     #you can specify the sampling_rate or the sampling_interval, to the same
-    #effect, where specificying the sampling_interval is in the units of that
+    #effect, where specifying the sampling_interval is in the units of that
     #time-series:
     tseries4 = ts.TimeSeries(data=[1, 2, 3, 4], sampling_interval=1,
                                         time_unit='ms')
@@ -534,7 +534,7 @@ def test_TimeSeries():
     with pytest.raises(ValueError) as e_info:
         ts.TimeSeries(dict(data=data, time=t))
 
-    # test basic arithmetics with TimeSeries
+    # test basic arithmetic with TimeSeries
     tseries1 = ts.TimeSeries([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], sampling_rate=1)
     tseries2 = tseries1 + 1
     npt.assert_equal(tseries1.data + 1, tseries2.data)

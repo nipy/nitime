@@ -289,7 +289,7 @@ def AR_psd(ak, sigma_v, n_freqs=1024, sides='onesided'):
     Returns
     -------
     (w, ar_psd)
-    w : Array of normalized frequences from [-.5, .5) or [0,.5]
+    w : Array of normalized frequencies from [-.5, .5) or [0,.5]
     ar_psd : A PSD estimate computed by sigma_v / |1-a(f)|**2 , where
              a(f) = DTFT(ak)
 
