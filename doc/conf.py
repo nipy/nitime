@@ -94,12 +94,12 @@ copyright = u'2009, Neuroimaging in Python team'
 # We read the version info from the source file.
 ver = {}
 
-ver_file = os.path.join('..', 'nitime', 'version.py')
+ver_file = os.path.join('..', 'nitime', '_version.py')
 with open(ver_file) as f:
     exec(f.read())
 
 # The short X.Y version.
-version = '%s.%s' % (_version_major, _version_minor)
+version = '%s.%s' % (version_tuple[0], version_tuple[1])
 # The full version, including alpha/beta/rc tags.
 release = __version__
 
