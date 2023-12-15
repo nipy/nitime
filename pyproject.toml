@@ -66,5 +66,5 @@ archs = ["auto64"]
 [tool.codespell]
 skip = '.git,*.pdf,*.svg,go.sum,*.css'
 check-hidden = true
-# ignore-regex = ''
-# ignore-words-list = ''
+ignore-regex = '\b(Ines Samengo)\b'
+ignore-words-list = 'nd,ans'
