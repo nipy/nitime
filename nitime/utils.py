@@ -881,7 +881,7 @@ def detect_lines(s, tapers, p=None, **taper_kws):
 
 # If we can get it, we want the cythonized version
 try:
-    from _utils import tridisolve
+    from ._utils import tridisolve
 
 # If that doesn't work, we define it here:
 except ImportError:
