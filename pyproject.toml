@@ -61,7 +61,10 @@ skip = "pp* cp38-*_aarch64"
 
 # 64-bit builds only; 32-bit builds seem pretty niche these days, so
 # don't bother unless someone asks
-archs = ["auto64", "aarch64"]
+archs = ["native"]
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64", "aarch64"]
 
 [tool.codespell]
 skip = '.git,*.pdf,*.svg,go.sum,*.css'
