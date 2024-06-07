@@ -56,12 +56,12 @@ include = ["nitime*"]
 write_to = "nitime/_version.py"
 
 [tool.cibuildwheel]
-# Disable PyPy
-skip = "pp*"
+# Disable PyPy, and no NumPy wheels for 3.8 Linux aarch64
+skip = "pp* cp38-*_aarch64"
 
 # 64-bit builds only; 32-bit builds seem pretty niche these days, so
 # don't bother unless someone asks
-archs = ["auto64"]
+archs = ["auto64", "aarch64"]
 
 [tool.codespell]
 skip = '.git,*.pdf,*.svg,go.sum,*.css'
