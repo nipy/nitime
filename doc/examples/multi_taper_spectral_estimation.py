@@ -394,7 +394,7 @@ References
 
 .. [Welch1967] P.D. Welch (1967), The use of the fast fourier transform for the
                estimation of power spectra: a method based on time averaging
-               over short modified periodograms. IEEE Transcations on Audio and
+               over short modified periodograms. IEEE Transactions on Audio and
                Electroacoustics.
 
 .. [Slepian1978] Slepian, D. Prolate spheroidal wave functions, Fourier
