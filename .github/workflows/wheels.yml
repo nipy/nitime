@@ -65,10 +65,10 @@ jobs:
         python: ["cp38", "cp39", "cp310", "cp311", "cp312"]
         # No NumPy wheels on 3.8 aarch64 or musl
         exclude:
-          - python: "cp38"
-            buildplat: [ubuntu-latest, manylinux_aarch64]
-          - python: "cp38"
-            buildplat: [ubuntu-latest, cp38-musllinux_x86_64]
+          - buildplat: [ubuntu-latest, manylinux_aarch64]
+            python: "cp38"
+          - buildplat: [ubuntu-latest, musllinux_x86_64]
+            python: "cp38"
         include:
           # Manylinux and arm64 builds (on native hardware) are cheap, do all in one
           - { buildplat: ["ubuntu-latest", "manylinux_x86_64"], python: "*" }
