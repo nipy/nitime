@@ -3,9 +3,8 @@ requires = [
   "setuptools",
   "setuptools_scm[toml]>=6.2",
   "cython",
-  # As of numpy 1.25, you can now build against older APIs.
-  # https://numpy.org/doc/stable/release/1.25.0-notes.html
-  "numpy>=1.25; python_version > '3.8'",
+  # Wheels need to be built with NumPy 2.0 to be compatible with 2.0 and 1.x
+  "numpy>=2.0.0rc1,<3; python_version > '3.8'",
   # NEP29-minimum as of Aug 17, 2023 (1.25 doesn't support 3.8)
   "numpy==1.22; python_version == '3.8'",
 ]
@@ -56,8 +55,8 @@ include = ["nitime*"]
 write_to = "nitime/_version.py"
 
 [tool.cibuildwheel]
-# Disable PyPy, and no NumPy wheels for 3.8 Linux aarch64
-skip = "pp* cp38-*_aarch64"
+# Disable PyPy, and no NumPy wheels for 3.8 Linux aarch64 or musl
+skip = "pp* cp38-*_aarch64 cp38-musllinux_*"
 
 # 64-bit builds only; 32-bit builds seem pretty niche these days, so
 # don't bother unless someone asks
