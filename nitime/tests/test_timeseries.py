@@ -923,13 +923,13 @@ def test_timearray_math_functions(f, tu):
     a = np.arange(2, 11)
     b = ts.TimeArray(a, time_unit=tu)
     if f == "ptp" and ts._NP_2:
-        with pytest.raises(AttributeError, match='`ptp` was removed'):
-            a.ptp()  # ndarray.ptp removed in 2.0
-        return
+        want = np.ptp(a)
+    else:
+        want = getattr(a, f)()
     npt.assert_(getattr(b, f)().__class__ == ts.TimeArray)
     npt.assert_(getattr(b, f)().time_unit == b.time_unit)
     # comparison with unitless should convert to the TimeArray's units
-    npt.assert_(getattr(b, f)() == getattr(a, f)())
+    npt.assert_(getattr(b, f)() == want)
 
 
 def test_timearray_var_prod():
