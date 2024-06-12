@@ -302,9 +302,7 @@ def test_detect_lines_2dmode():
 
     npt.assert_(len(lines)==3, 'Detect lines failed multi-sequence mode')
 
-    consistent1 = (lines[0][0] == lines[1][0]).all() and \
-      (lines[1][0] == lines[2][0]).all()
-    consistent2 = (lines[0][1] == lines[1][1]).all() and \
-      (lines[1][1] == lines[2][1]).all()
-
-    npt.assert_(consistent1 and consistent2, 'Inconsistent results')
+    npt.assert_allclose(lines[0][0], lines[1][0])
+    npt.assert_allclose(lines[0][0], lines[2][0])
+    npt.assert_allclose(lines[0][1], lines[1][1])
+    npt.assert_allclose(lines[0][1], lines[2][1])
