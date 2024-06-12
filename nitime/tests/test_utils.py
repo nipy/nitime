@@ -230,26 +230,27 @@ def test_detect_lines():
     """
     Tests detect_lines utility in the reliable low-SNR scenario.
     """
+    rng = np.random.RandomState(0)
     N = 1000
     fft_pow = int( np.ceil(np.log2(N) + 2) )
     NW = 4
-    lines = np.sort(np.random.randint(100, 2**(fft_pow-4), size=(3,)))
+    lines = np.sort(rng.randint(100, 2**(fft_pow-4), size=(3,)))
     while np.any( np.diff(lines) < 2*NW ):
-        lines = np.sort(np.random.randint(2**(fft_pow-4), size=(3,)))
+        lines = np.sort(rng.randint(2**(fft_pow-4), size=(3,)))
     lines = lines.astype('d')
-    #lines += np.random.randn(3) # displace from grid locations
+    #lines += rng.randn(3) # displace from grid locations
     lines /= 2.0**(fft_pow-2) # ensure they are well separated
 
-    phs = np.random.rand(3) * 2 * np.pi
+    phs = rng.rand(3) * 2 * np.pi
     # amps approximately such that RMS power = 1 +/- N(0,1)
-    amps = np.sqrt(2)/2 + np.abs( np.random.randn(3) )
+    amps = np.sqrt(2)/2 + np.abs( rng.randn(3) )
 
     nz_sig = 0.05
     tx = np.arange(N)
 
     harmonics = amps[:,None]*np.cos( 2*np.pi*tx*lines[:,None] + phs[:,None] )
     harmonic = np.sum(harmonics, axis=0)
-    nz = np.random.randn(N) * nz_sig
+    nz = rng.randn(N) * nz_sig
     sig = harmonic + nz
 
     f, b = utils.detect_lines(sig, (NW, 2*NW), low_bias=True, NFFT=2**fft_pow)
@@ -286,11 +287,13 @@ def test_detect_lines_2dmode():
     Test multi-sequence operation
     """
 
+    rng = np.random.RandomState(0)
+
     N = 1000
 
-    sig = np.cos( 2*np.pi*np.arange(N) * 20./N ) + np.random.randn(N) * .01
+    sig = np.cos( 2*np.pi*np.arange(N) * 20./N ) + rng.randn(N) * .01
 
-    sig2d = np.row_stack( (sig, sig, sig) )
+    sig2d = np.vstack( (sig, sig, sig) )
 
     lines = utils.detect_lines(sig2d, (4, 8), low_bias=True, NFFT=2**12)
 
