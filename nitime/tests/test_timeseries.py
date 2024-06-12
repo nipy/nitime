@@ -916,20 +916,20 @@ def test_index_int64():
     assert repr(b[0]) == repr(b[np.int32(0)])
 
 
-def test_timearray_math_functions():
+@pytest.mark.parametrize('f', ['min', 'max', 'mean', 'ptp', 'sum'])
+@pytest.mark.parametrize('tu', ['s', 'ms', 'ps', 'D'])
+def test_timearray_math_functions(f, tu):
     "Calling TimeArray.min() .max(), mean() should return TimeArrays"
     a = np.arange(2, 11)
-    for f in ['min', 'max', 'mean', 'ptp', 'sum']:
-        for tu in ['s', 'ms', 'ps', 'D']:
-            b = ts.TimeArray(a, time_unit=tu)
-            npt.assert_(getattr(b, f)().__class__ == ts.TimeArray)
-            npt.assert_(getattr(b, f)().time_unit == b.time_unit)
-            # comparison with unitless should convert to the TimeArray's units
-            if f == "ptp":
-                want = np.ptp(a)  # ndarray.ptp removed in 2.0
-            else:
-                want = getattr(a, f)()
-            npt.assert_(getattr(b, f)() == want)
+    b = ts.TimeArray(a, time_unit=tu)
+    if f == "ptp" and ts._NP_2:
+        with pytest.raises(AttributeError, match='`ptp` was removed'):
+            a.ptp()  # ndarray.ptp removed in 2.0
+        return
+    npt.assert_(getattr(b, f)().__class__ == ts.TimeArray)
+    npt.assert_(getattr(b, f)().time_unit == b.time_unit)
+    # comparison with unitless should convert to the TimeArray's units
+    npt.assert_(getattr(b, f)() == getattr(a, f)())
 
 
 def test_timearray_var_prod():
