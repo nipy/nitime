@@ -317,11 +317,10 @@ class TimeArray(np.ndarray, TimeInterface):
 
     def ptp(self, *args, **kwargs):
         if _NP_2:
-            raise AttributeError(
-                "`ptp` was removed from the ndarray class in NumPy 2.0. "
-                "Use np.ptp(arr, ...) instead."
-            )
-        ret = TimeArray(np.ndarray.ptp(self, *args, **kwargs),
+            ptp = np.ptp
+        else:
+            ptp = np.ndarray.ptp
+        ret = TimeArray(ptp(self, *args, **kwargs),
                         time_unit=base_unit)
         ret.convert_unit(self.time_unit)
         return ret

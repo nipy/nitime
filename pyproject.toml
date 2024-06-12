@@ -64,9 +64,9 @@ archs = ["native"]
 
 test-requires = [
     "pytest",
-    "pytest-cov",
+    "nitime[full]",  # Enable all optional behavior
 ]
-test-command = "pytest {project}/nitime/tests"
+test-command = "pytest -rsx --pyargs nitime"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]
