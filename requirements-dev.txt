@@ -1,6 +1,5 @@
 sphinx
 pytest
-pytest-cov
 nibabel
 networkx
 tomli; python_version < '3.11'
