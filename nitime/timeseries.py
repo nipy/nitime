@@ -152,7 +152,7 @@ class TimeArray(np.ndarray, TimeInterface):
                 e_s += 'TimeArray in object, or int64 times, in %s' % base_unit
                 raise ValueError(e_s)
 
-            time = np.array(data, copy=False)
+            time = np.asarray(data)
         else:
             if isinstance(data, TimeInterface):
                 time = data.copy()
@@ -309,7 +309,7 @@ class TimeArray(np.ndarray, TimeInterface):
         return ret
 
     def ptp(self, *args, **kwargs):
-        ret = TimeArray(np.ndarray.ptp(self, *args, **kwargs),
+        ret = TimeArray(np.ptp(self, *args, **kwargs),
                         time_unit=base_unit)
         ret.convert_unit(self.time_unit)
         return ret

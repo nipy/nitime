@@ -925,7 +925,11 @@ def test_timearray_math_functions():
             npt.assert_(getattr(b, f)().__class__ == ts.TimeArray)
             npt.assert_(getattr(b, f)().time_unit == b.time_unit)
             # comparison with unitless should convert to the TimeArray's units
-            npt.assert_(getattr(b, f)() == getattr(a, f)())
+            if f == "ptp":
+                want = np.ptp(a)  # ndarray.ptp removed in 2.0
+            else:
+                want = getattr(a, f)()
+            npt.assert_(getattr(b, f)() == want)
 
 
 def test_timearray_var_prod():
