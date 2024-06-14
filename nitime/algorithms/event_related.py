@@ -10,7 +10,7 @@ from nitime.lazy import scipy_fftpack as fftpack
 
 
 def fir(timeseries, design):
-    """
+    r"""
     Calculate the FIR (finite impulse response) HRF, according to [Burock2000]_
 
     Parameters

@@ -230,6 +230,8 @@ def test_detect_lines():
     """
     Tests detect_lines utility in the reliable low-SNR scenario.
     """
+    np.random.seed(0)
+
     N = 1000
     fft_pow = int( np.ceil(np.log2(N) + 2) )
     NW = 4
@@ -286,19 +288,21 @@ def test_detect_lines_2dmode():
     Test multi-sequence operation
     """
 
+    # This seed affects not just the signal we generate below, but then also
+    # detect_lines->dpss_windows->tridi_inverse_iteration
+    np.random.seed(0)
+
     N = 1000
 
     sig = np.cos( 2*np.pi*np.arange(N) * 20./N ) + np.random.randn(N) * .01
 
-    sig2d = np.row_stack( (sig, sig, sig) )
+    sig2d = np.vstack( (sig, sig, sig) )
 
     lines = utils.detect_lines(sig2d, (4, 8), low_bias=True, NFFT=2**12)
 
     npt.assert_(len(lines)==3, 'Detect lines failed multi-sequence mode')
 
-    consistent1 = (lines[0][0] == lines[1][0]).all() and \
-      (lines[1][0] == lines[2][0]).all()
-    consistent2 = (lines[0][1] == lines[1][1]).all() and \
-      (lines[1][1] == lines[2][1]).all()
-
-    npt.assert_(consistent1 and consistent2, 'Inconsistent results')
+    npt.assert_allclose(lines[0][0], lines[1][0])
+    npt.assert_allclose(lines[0][0], lines[2][0])
+    npt.assert_allclose(lines[0][1], lines[1][1])
+    npt.assert_allclose(lines[0][1], lines[2][1])

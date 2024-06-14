@@ -33,6 +33,11 @@ import numpy as np
 # Our own
 from nitime import descriptors as desc
 
+try:
+    _NP_2 = int(np.__version__.split(".")[0]) >= 2
+except Exception:
+    _NP_2 = True
+
 #-----------------------------------------------------------------------------
 # Module globals
 #-----------------------------------------------------------------------------
@@ -112,7 +117,9 @@ class TimeArray(np.ndarray, TimeInterface):
             which are SI units of time. Default: 's'
 
         copy : bool, optional
-            Whether to create this instance by  copy of a
+            Whether to create this instance by copy of a. If False,
+            a copy will not be forced but might still be required depending
+            on the data array.
 
         Note
         ----
@@ -152,7 +159,7 @@ class TimeArray(np.ndarray, TimeInterface):
                 e_s += 'TimeArray in object, or int64 times, in %s' % base_unit
                 raise ValueError(e_s)
 
-            time = np.array(data, copy=False)
+            time = np.asarray(data)
         else:
             if isinstance(data, TimeInterface):
                 time = data.copy()
@@ -309,7 +316,11 @@ class TimeArray(np.ndarray, TimeInterface):
         return ret
 
     def ptp(self, *args, **kwargs):
-        ret = TimeArray(np.ndarray.ptp(self, *args, **kwargs),
+        if _NP_2:
+            ptp = np.ptp
+        else:
+            ptp = np.ndarray.ptp
+        ret = TimeArray(ptp(self, *args, **kwargs),
                         time_unit=base_unit)
         ret.convert_unit(self.time_unit)
         return ret

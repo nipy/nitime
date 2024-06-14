@@ -62,6 +62,12 @@ skip = "pp* cp38-*_aarch64 cp38-musllinux_*"
 # don't bother unless someone asks
 archs = ["native"]
 
+test-requires = [
+    "pytest",
+    "nitime[full]",  # Enable all optional behavior
+]
+test-command = "pytest -rsx --pyargs nitime"
+
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]
 

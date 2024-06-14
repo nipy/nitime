@@ -246,8 +246,7 @@ def test_mtm_lin_combo():
         mtm_cross = tsa.mtm_cross_spectrum(
             spec1, spec2, (weights[0], weights[1]), sides=sides
             )
-        npt.assert_(mtm_cross.dtype in np.sctypes['complex'],
-               'Wrong dtype for crossspectrum')
+        assert mtm_cross.dtype == np.complex128, 'Wrong dtype for crossspectrum'
         npt.assert_(len(mtm_cross) == 51,
                'Wrong length for halfband spectrum')
         sides = 'twosided'
@@ -260,8 +259,7 @@ def test_mtm_lin_combo():
         mtm_auto = tsa.mtm_cross_spectrum(
             spec1, spec1, weights[0], sides=sides
             )
-        npt.assert_(mtm_auto.dtype in np.sctypes['float'],
-               'Wrong dtype for autospectrum')
+        assert mtm_auto.dtype == np.float64, 'Wrong dtype for autospectrum'
         npt.assert_(len(mtm_auto) == 51,
                'Wrong length for halfband spectrum')
         sides = 'twosided'
