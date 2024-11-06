@@ -21,7 +21,7 @@ jobs:
       commit_message: ${{ steps.get_commit_message.outputs.commit_message }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 2
       - name: Print head git commit message
@@ -39,7 +39,7 @@ jobs:
     name: Build sdist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Build sdist
@@ -75,11 +75,11 @@ jobs:
           - { buildplat: ["macos-14", "macosx_arm64"], python: "*" }
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v5
 
       - name: Update pip/pipx
         run: python -m pip install --upgrade pip pipx
@@ -110,7 +110,7 @@ jobs:
         with:
           name: source-dist
           path: ./dist
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - name: Display Python version
