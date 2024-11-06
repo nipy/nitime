@@ -145,7 +145,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: dist/
-          pattern: '*'
+          pattern: '*-dist'
           merge-multiple: true
       - run: ls -lR dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
