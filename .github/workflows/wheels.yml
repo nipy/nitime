@@ -46,7 +46,7 @@ jobs:
         run: pipx run build -s
       - uses: actions/upload-artifact@v4
         with:
-          name: sdist
+          name: source-dist
           path: ./dist/*.tar.gz
 
   build-wheel:
@@ -98,7 +98,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.python == '*' && 'all' || matrix.python }}-${{ startsWith(matrix.buildplat[1], 'macosx') && 'macosx' || matrix.buildplat[1] }}
+          name: ${{ matrix.python == '*' && 'all' || matrix.python }}-${{ startsWith(matrix.buildplat[1], 'macosx') && 'macosx' || matrix.buildplat[1] }}-dist
           path: ./wheelhouse/*.whl
 
   test-sdist:
@@ -108,7 +108,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: sdist
+          name: source-dist
           path: ./dist
       - uses: actions/setup-python@v4
         with:
@@ -130,17 +130,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: dist/
-          pattern: '*'
+          pattern: '*-dist'
           merge-multiple: true
       - name: Check artifacts
-        run: ls -lR
-      - name: Consolidate and re-check
-        run: |
-          set -eo pipefail
-          ls -lR dist/
-          mv dist/*/*.{tar.gz,whl} dist
-          rmdir dist/*/
-          ls -lR dist/
+        run: ls -lR dist/
       - run: pipx run twine check dist/*
 
   publish:
@@ -154,13 +147,7 @@ jobs:
           path: dist/
           pattern: '*'
           merge-multiple: true
-      - name: Consolidate artifacts
-        run: |
-          set -eo pipefail
-          ls -lR dist/
-          mv dist/*/*.{tar.gz,whl} dist
-          rmdir dist/*/
-          ls -lR dist/
+      - run: ls -lR dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
