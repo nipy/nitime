@@ -14,7 +14,7 @@ build-backend = "setuptools.build_meta"
 name = "nitime"
 dynamic = ["version"]
 description = "Nitime: timeseries analysis for neuroscience data"
-readme = "README.txt"
+readme = "README.rst"
 license = { file = "LICENSE" }
 requires-python = ">=3.8"
 authors = [
