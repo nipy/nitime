@@ -82,7 +82,7 @@ jobs:
       - uses: actions/setup-python@v3
 
       - name: Update pip/pipx
-        run: pip install --upgrade pip pipx
+        run: python -m pip install --upgrade pip pipx
 
       # For aarch64 support
       # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
