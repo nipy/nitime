@@ -132,8 +132,7 @@ jobs:
           path: dist/
           pattern: '*-dist'
           merge-multiple: true
-      - name: Check artifacts
-        run: ls -lR dist/
+      - run: ls -lR dist/
       - run: pipx run twine check dist/*
 
   publish:
