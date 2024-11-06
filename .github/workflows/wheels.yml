@@ -44,9 +44,9 @@ jobs:
           fetch-depth: 0
       - name: Build sdist
         run: pipx run build -s
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: sdist
+          name: source-dist
           path: ./dist/*.tar.gz
 
   build-wheel:
@@ -82,7 +82,7 @@ jobs:
       - uses: actions/setup-python@v3
 
       - name: Update pip/pipx
-        run: pip install --upgrade pip pipx
+        run: python -m pip install --upgrade pip pipx
 
       # For aarch64 support
       # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
@@ -96,9 +96,9 @@ jobs:
         env:
           CIBW_BUILD: ${{ matrix.python }}-${{ matrix.buildplat[1] }}
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.python == '*' && 'all' || matrix.python }}-${{ startsWith(matrix.buildplat[1], 'macosx') && 'macosx' || matrix.buildplat[1] }}
+          name: ${{ matrix.python == '*' && 'all' || matrix.python }}-${{ startsWith(matrix.buildplat[1], 'macosx') && 'macosx' || matrix.buildplat[1] }}-dist
           path: ./wheelhouse/*.whl
 
   test-sdist:
@@ -106,9 +106,9 @@ jobs:
     needs: [build-sdist]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: sdist
+          name: source-dist
           path: ./dist
       - uses: actions/setup-python@v4
         with:
@@ -127,16 +127,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-sdist, build-wheel]
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: dist/
-      - name: Check artifacts
-        run: ls -lR
-      - name: Consolidate and re-check
-        run: |
-          mv dist/*/*.{tar.gz,whl} dist
-          rmdir dist/*/
-          ls -lR
+          pattern: '*-dist'
+          merge-multiple: true
+      - run: ls -lR dist/
       - run: pipx run twine check dist/*
 
   publish:
@@ -145,13 +141,12 @@ jobs:
     needs: [pre-publish]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: dist/
-      - name: Consolidate artifacts
-        run: |
-          mv dist/*/*.{tar.gz,whl} dist
-          rmdir dist/*/
+          pattern: '*-dist'
+          merge-multiple: true
+      - run: ls -lR dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
