@@ -137,6 +137,7 @@ jobs:
       - name: Consolidate and re-check
         run: |
           set -eo pipefail
+          ls -lR dist/
           mv dist/*/*.{tar.gz,whl} dist
           rmdir dist/*/
           ls -lR dist/
@@ -156,6 +157,7 @@ jobs:
       - name: Consolidate artifacts
         run: |
           set -eo pipefail
+          ls -lR dist/
           mv dist/*/*.{tar.gz,whl} dist
           rmdir dist/*/
           ls -lR dist/
