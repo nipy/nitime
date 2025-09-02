@@ -1517,7 +1517,7 @@ class Events(TimeInterface):
         if not np.iterable(time):
             time = [time]
 
-        # First initilaize the TimeArray from the time-stamps
+        # First initialize the TimeArray from the time-stamps
         self.time = TimeArray(time, time_unit=time_unit)
         self.time_unit = self.time.time_unit
 
