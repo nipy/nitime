@@ -21,7 +21,7 @@ jobs:
       commit_message: ${{ steps.get_commit_message.outputs.commit_message }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 2
       - name: Print head git commit message
@@ -39,7 +39,7 @@ jobs:
     name: Build sdist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Build sdist
@@ -75,7 +75,7 @@ jobs:
           - { buildplat: ["macos-14", "macosx_arm64"], python: "*" }
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -106,7 +106,7 @@ jobs:
     needs: [build-sdist]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: source-dist
           path: ./dist
@@ -127,7 +127,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-sdist, build-wheel]
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           path: dist/
           pattern: '*-dist'
@@ -141,7 +141,7 @@ jobs:
     needs: [pre-publish]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           path: dist/
           pattern: '*-dist'
