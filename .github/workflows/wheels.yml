@@ -79,7 +79,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
 
       - name: Update pip/pipx
         run: python -m pip install --upgrade pip pipx
@@ -110,7 +110,7 @@ jobs:
         with:
           name: source-dist
           path: ./dist
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Display Python version
