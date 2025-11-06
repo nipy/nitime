@@ -3,8 +3,6 @@
 Depends on matplotlib. Some functions depend also on networkx
 
 """
-from __future__ import print_function
-
 # If you are running nosetests right now, you might want to use 'agg' as a backend:
 import sys
 
@@ -21,14 +19,6 @@ from nitime import timeseries as ts
 import nitime.utils as tsu
 from nitime.utils import threshold_arr, minmax_norm, rescale_arr
 import nitime.analysis as nta
-
-# Matplotlib 1.3 has a bug in it, so if that's what you have, we'll replace it
-# for you with a fixed version of that module:
-import matplotlib
-if matplotlib.__version__[:3] == '1.3' or matplotlib.__version__[:3] == '1.4':
-    import nitime._mpl_units as mpl_units
-    import matplotlib.axis as ax
-    ax.munits = mpl_units
 
 from nitime.utils import tril_indices
 
