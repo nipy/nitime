@@ -55,7 +55,7 @@ jobs:
 
       - uses: actions/upload-artifact@v5
         with:
-          name: ${{ startsWith(matrix.buildplat[1], 'macosx') && 'macosx' || matrix.buildplat[1] }}-dist
+          name: ${{ matrix.buildplat[1] }}-dist
           path: ./wheelhouse/*.whl
 
   test-sdist:
