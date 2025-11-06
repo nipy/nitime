@@ -1381,7 +1381,7 @@ def fill_diagonal(a, val):
     else:
         # For more than d=2, the strided formula is only valid for arrays with
         # all dimensions equal, so we check first.
-        if not np.alltrue(np.diff(a.shape) == 0):
+        if not np.all(np.diff(a.shape) == 0):
             raise ValueError("All dimensions of input must be of equal length")
         step = np.cumprod((1,) + a.shape[:-1]).sum()
 
@@ -1460,7 +1460,7 @@ def diag_indices_from(arr):
         raise ValueError("input array must be at least 2-d")
     # For more than d=2, the strided formula is only valid for arrays with
     # all dimensions equal, so we check first.
-    if not np.alltrue(np.diff(arr.shape) == 0):
+    if not np.all(np.diff(arr.shape) == 0):
         raise ValueError("All dimensions of input must be of equal length")
 
     return diag_indices(arr.shape[0], arr.ndim)
