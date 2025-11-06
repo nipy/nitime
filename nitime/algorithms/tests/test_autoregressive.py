@@ -3,6 +3,7 @@ import numpy.testing as npt
 
 import nitime.algorithms as tsa
 import nitime.utils as utils
+from nitime._compat import trapezoid
 
 # Set the random seed:
 np.random.seed(1)
@@ -46,14 +47,14 @@ def test_AR_YW():
 
     # evaluate this integral numerically from 0 to pi
     dw = np.pi / len(psd)
-    avg_pwr_est = np.trapz(psd, dx=dw) / (2 * np.pi)
+    avg_pwr_est = trapezoid(psd, dx=dw) / (2 * np.pi)
     # consistency on the order of 10**0 is pretty good for this test
     npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
 
     # Test for providing the autocovariance as an input:
     ak, sigma_v = tsa.AR_est_YW(arsig, order, utils.autocov(arsig))
     w, psd = tsa.AR_psd(ak, sigma_v)
-    avg_pwr_est = np.trapz(psd, dx=dw) / (2 * np.pi)
+    avg_pwr_est = trapezoid(psd, dx=dw) / (2 * np.pi)
     npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
 
 
@@ -76,13 +77,13 @@ def test_AR_LD():
 
     # evaluate this integral numerically from 0 to pi
     dw = np.pi / len(psd)
-    avg_pwr_est = np.trapz(psd, dx=dw) / (2 * np.pi)
+    avg_pwr_est = trapezoid(psd, dx=dw) / (2 * np.pi)
     npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
 
     # Test for providing the autocovariance as an input:
     ak, sigma_v = tsa.AR_est_LD(arsig, order, utils.autocov(arsig))
     w, psd = tsa.AR_psd(ak, sigma_v)
-    avg_pwr_est = np.trapz(psd, dx=dw) / (2 * np.pi)
+    avg_pwr_est = trapezoid(psd, dx=dw) / (2 * np.pi)
     npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=0)
 
 

@@ -8,6 +8,7 @@ from scipy import fftpack, signal
 import nitime
 from nitime import algorithms as tsa
 from nitime import utils as ut
+from nitime._compat import trapezoid
 
 #Define globally
 test_dir_path = os.path.join(nitime.__path__[0], 'tests')
@@ -70,7 +71,7 @@ def test_periodogram():
     avg_pwr = (arsig * arsig.conjugate()).mean()
     f, psd = tsa.periodogram(arsig, N=2048)
     df = 2. * np.pi / 2048
-    avg_pwr_est = np.trapz(psd, dx=df)
+    avg_pwr_est = trapezoid(psd, dx=df)
     npt.assert_almost_equal(avg_pwr, avg_pwr_est, decimal=1)
 
 
