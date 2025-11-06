@@ -60,15 +60,9 @@ jobs:
         buildplat:
           - [ubuntu-latest, musllinux_x86_64]
           - [ubuntu-latest, manylinux_aarch64]
-          - [macos-13, macosx_x86_64]  # native Intel hardware
+          - [macos-15-intel, macosx_x86_64]  # native Intel hardware
           - [windows-latest, win_amd64]
-        python: ["cp38", "cp39", "cp310", "cp311", "cp312"]
-        # No NumPy wheels on 3.8 aarch64 or musl
-        exclude:
-          - buildplat: [ubuntu-latest, manylinux_aarch64]
-            python: "cp38"
-          - buildplat: [ubuntu-latest, musllinux_x86_64]
-            python: "cp38"
+        python: ["cp310", "cp311", "cp312", "cp313", "cp314"]
         include:
           # Manylinux and arm64 builds (on native hardware) are cheap, do all in one
           - { buildplat: ["ubuntu-latest", "manylinux_x86_64"], python: "*" }
@@ -79,10 +73,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v6
-
-      - name: Update pip/pipx
-        run: python -m pip install --upgrade pip pipx
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v6
 
       # For aarch64 support
       # https://cibuildwheel.pypa.io/en/stable/faq/#emulation
@@ -92,7 +84,7 @@ jobs:
         if: runner.os == 'Linux' && endsWith(matrix.buildplat[1], 'aarch64')
 
       - name: Build wheel(s)
-        run: pipx run --spec "cibuildwheel>=2.15" cibuildwheel
+        run: uvx cibuildwheel
         env:
           CIBW_BUILD: ${{ matrix.python }}-${{ matrix.buildplat[1] }}
 
