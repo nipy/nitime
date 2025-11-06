@@ -31,15 +31,15 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "matplotlib>=3.5",
-    "numpy>=1.22",
-    "scipy>=1.8",
+    "matplotlib>=3.7",
+    "numpy>=1.24",
+    "scipy>=1.10",
 ]
 
 [project.optional-dependencies]
 full = [
-    "networkx>=2.7",
-    "nibabel>=4.0",
+    "networkx>=3.0",
+    "nibabel>=5.0",
 ]
 
 [project.urls]
@@ -51,6 +51,15 @@ include = ["nitime*"]
 
 [tool.setuptools_scm]
 write_to = "nitime/_version.py"
+
+[dependency-groups]
+test = [
+    "pytest>=8",
+    "pytest-cov>=2.11",
+    "pytest-doctestplus>=1.5",
+    "networkx>=3.0",
+    "nibabel>=5.0",
+]
 
 [tool.cibuildwheel]
 # Disable PyPy, and no NumPy wheels for 3.8 Linux aarch64 or musl
@@ -68,6 +77,25 @@ test-command = "pytest -rsx --pyargs nitime"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]
+
+[tool.pytest.ini_options]
+minversion = "8"
+testpaths = ["nitime"]
+log_cli_level = "INFO"
+xfail_strict = true
+norecursedirs = [".git", "dist", "build", ".tox", ".venv"]
+addopts = [
+  "-rsx",
+  "--strict-config",
+  "--strict-markers",
+  "--doctest-modules",
+  # Config pytest-cov
+  "--cov=nitime",
+  "--cov-report=xml",
+  # Comment out above and uncomment below to autofix doctests
+  # "--doctest-only",
+  # "--doctest-plus-generate-diff=overwrite",
+]
 
 [tool.codespell]
 skip = '.git,*.pdf,*.svg,go.sum,*.css'
