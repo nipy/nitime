@@ -14,3 +14,10 @@ dist/
 
 # setuptools_scm
 nitime/_version.py
+
+# coverage
+.coverage
+coverage.xml
+
+# tox
+.tox
