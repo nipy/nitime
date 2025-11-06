@@ -42,6 +42,7 @@ exts = [
         ['nitime/_utils.pyx'],
         include_dirs=[get_include()],
         define_macros=macros,
+        **ext_kwargs,
     )
 ]
 opts = {'ext_modules': cythonize(exts, language_level='3'), **setup_kwargs}
