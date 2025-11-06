@@ -131,10 +131,10 @@ def test_TimeArray_repr():
     """
 >>> a = ts.TimeArray([1.1,2,3])
 >>> a
-TimeArray([ 1.1,  2. ,  3. ], time_unit='s')
+TimeArray([1.1, 2. , 3. ], time_unit='s')
 >>> t = ts.TimeArray(a,time_unit='ms')
 >>> t
-TimeArray([ 1100.,  2000.,  3000.], time_unit='ms')
+TimeArray([1100., 2000., 3000.], time_unit='ms')
 >>> t[0]
 1100.0 ms
     """
@@ -195,12 +195,12 @@ def test_TimeArray_convert_unit():
     >>> a = ts.TimeArray([1,2,3,4])
     >>> a.convert_unit('ms')
     >>> a
-    TimeArray([ 1000.,  2000.,  3000.,  4000.], time_unit='ms')
+    TimeArray([1000., 2000., 3000., 4000.], time_unit='ms')
     >>> a.time_unit
     'ms'
     >>> b = ts.TimeArray([1,2,3,4],'s')
     >>> a==b
-    array([ True,  True,  True,  True], dtype=bool)
+    array([ True,  True,  True,  True])
     """
 
 
@@ -431,13 +431,13 @@ def test_UniformTime_repr():
     >>> time1.sampling_rate
     1000.0 Hz
     >>> time1
-    UniformTime([ 0.,  1.,  2.], time_unit='ms')
+    UniformTime([0., 1., 2.], time_unit='ms')
 
     >>> time2= ts.UniformTime(sampling_rate=1000,time_unit='s',length=3)
     >>> time2.sampling_rate
     1000.0 Hz
     >>> time2
-    UniformTime([ 0.   ,  0.001,  0.002], time_unit='s')
+    UniformTime([0.   , 0.001, 0.002], time_unit='s')
 
     >>> a = ts.UniformTime(length=5,sampling_rate=1,time_unit='ms')
 
@@ -452,7 +452,7 @@ def test_UniformTime_repr():
     >>> b = ts.UniformTime(a,time_unit='s')
 
     >>> b
-    UniformTime([ 0.,  1.,  2.,  3.,  4.], time_unit='s')
+    UniformTime([0., 1., 2., 3., 4.], time_unit='s')
 
     >>> a = ts.UniformTime(length=1,sampling_rate=2)
 
@@ -574,7 +574,7 @@ def test_TimeSeries_repr():
     3.0 Hz
     >>> tseries1 = ts.TimeSeries(data=[3,5,8],sampling_rate=3)
     >>> tseries1.time
-    UniformTime([ 0.    ,  0.3333,  0.6667], time_unit='s')
+    UniformTime([0.    , 0.3333, 0.6667], time_unit='s')
     >>> tseries1.sampling_rate
     3.0 Hz
     >>> tseries1.sampling_interval

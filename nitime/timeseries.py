@@ -1107,7 +1107,7 @@ class TimeSeries(TimeSeriesBase):
 
         >>> ts = TimeSeries([1,2,3],sampling_interval=0.25)
         >>> ts.time
-        UniformTime([ 0.  ,  0.25,  0.5 ], time_unit='s')
+        UniformTime([0.  , 0.25, 0.5 ], time_unit='s')
         >>> ts.t0
         0.0 s
         >>> ts.sampling_rate
@@ -1117,7 +1117,7 @@ class TimeSeries(TimeSeriesBase):
 
         >>> ts = TimeSeries([1,2,3],sampling_rate=2)
         >>> ts.time
-        UniformTime([ 0. ,  0.5,  1. ], time_unit='s')
+        UniformTime([0. , 0.5, 1. ], time_unit='s')
         >>> ts.t0
         0.0 s
         >>> ts.sampling_interval
@@ -1129,7 +1129,7 @@ class TimeSeries(TimeSeriesBase):
         >>> ts.data
         array([1, 2, 3])
         >>> ts.time
-        UniformTime([ 4.25,  4.75,  5.25], time_unit='s')
+        UniformTime([4.25, 4.75, 5.25], time_unit='s')
         >>> ts.t0
         4.25 s
         >>> ts.sampling_interval
@@ -1141,7 +1141,7 @@ class TimeSeries(TimeSeriesBase):
         >>> ts.data
         array([1, 2, 3])
         >>> ts.time
-        UniformTime([ 4.25,  4.75,  5.25], time_unit='s')
+        UniformTime([4.25, 4.75, 5.25], time_unit='s')
         >>> ts.t0
         4.25 s
         >>> ts.sampling_interval

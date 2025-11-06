@@ -1704,12 +1704,11 @@ def structured_rand_arr(size, sample_func=np.random.random,
     Examples
     --------
     >>> np.random.seed(0)  # for doctesting
-    >>> np.set_printoptions(precision=4)  # for doctesting
     >>> structured_rand_arr(4)
-    array([[ 0.5488,  0.7152,  0.6028,  0.5449],
-           [ 0.7152,  0.6459,  0.4376,  0.8918],
-           [ 0.6028,  0.4376,  0.7917,  0.5289],
-           [ 0.5449,  0.8918,  0.5289,  0.0871]])
+    array([[0.5488, 0.7152, 0.6028, 0.5449],
+           [0.7152, 0.6459, 0.4376, 0.8918],
+           [0.6028, 0.4376, 0.7917, 0.5289],
+           [0.5449, 0.8918, 0.5289, 0.0871]])
     >>> structured_rand_arr(4,ltfac=-10,utfac=10,fill_diag=0.5)
     array([[ 0.5   ,  8.3262,  7.7816,  8.7001],
            [-8.3262,  0.5   ,  4.6148,  7.8053],
@@ -1765,17 +1764,16 @@ def symm_rand_arr(size, sample_func=np.random.random, fill_diag=None):
     Examples
     --------
     >>> np.random.seed(0)  # for doctesting
-    >>> np.set_printoptions(precision=4)  # for doctesting
     >>> symm_rand_arr(4)
-    array([[ 0.5488,  0.7152,  0.6028,  0.5449],
-           [ 0.7152,  0.6459,  0.4376,  0.8918],
-           [ 0.6028,  0.4376,  0.7917,  0.5289],
-           [ 0.5449,  0.8918,  0.5289,  0.0871]])
+    array([[0.5488, 0.7152, 0.6028, 0.5449],
+           [0.7152, 0.6459, 0.4376, 0.8918],
+           [0.6028, 0.4376, 0.7917, 0.5289],
+           [0.5449, 0.8918, 0.5289, 0.0871]])
     >>> symm_rand_arr(4,fill_diag=4)
-    array([[ 4.    ,  0.8326,  0.7782,  0.87  ],
-           [ 0.8326,  4.    ,  0.4615,  0.7805],
-           [ 0.7782,  0.4615,  4.    ,  0.9447],
-           [ 0.87  ,  0.7805,  0.9447,  4.    ]])
+    array([[4.    , 0.8326, 0.7782, 0.87  ],
+           [0.8326, 4.    , 0.4615, 0.7805],
+           [0.7782, 0.4615, 4.    , 0.9447],
+           [0.87  , 0.7805, 0.9447, 4.    ]])
       """
     return structured_rand_arr(size, sample_func, fill_diag=fill_diag)
 
@@ -1797,7 +1795,6 @@ def antisymm_rand_arr(size, sample_func=np.random.random):
     Examples
     --------
     >>> np.random.seed(0)  # for doctesting
-    >>> np.set_printoptions(precision=4)  # for doctesting
     >>> antisymm_rand_arr(4)
     array([[ 0.    ,  0.7152,  0.6028,  0.5449],
            [-0.7152,  0.    ,  0.4376,  0.8918],
@@ -1830,16 +1827,15 @@ def threshold_arr(cmat, threshold=0.0, threshold2=None):
 
     Examples
     --------
-    >>> np.set_printoptions(precision=4)  # For doctesting
     >>> a = np.linspace(0,0.2,5)
     >>> a
-    array([ 0.  ,  0.05,  0.1 ,  0.15,  0.2 ])
+    array([0.  , 0.05, 0.1 , 0.15, 0.2 ])
     >>> threshold_arr(a,0.1)
-    (array([3, 4]), array([ 0.15,  0.2 ]))
+    (array([3, 4]), array([0.15, 0.2 ]))
 
     With two thresholds:
     >>> threshold_arr(a,0.1,0.2)
-    (array([0, 1]), array([ 0.  ,  0.05]))
+    (array([0, 1]), array([0.  , 0.05]))
     """
     # Select thresholds
     if threshold2 is None:
@@ -1906,7 +1902,7 @@ def rescale_arr(arr, amin, amax):
     >>> a = np.arange(5)
 
     >>> rescale_arr(a,3,6)
-    array([ 3.  ,  3.75,  4.5 ,  5.25,  6.  ])
+    array([3.  , 3.75, 4.5 , 5.25, 6.  ])
     """
 
     # old bounds
@@ -1941,16 +1937,15 @@ def minmax_norm(arr, mode='direct', folding_edges=None):
 
     Examples
     --------
-    >>> np.set_printoptions(precision=4)  # for doctesting
     >>> a = np.linspace(0.3,0.8,4)
     >>> minmax_norm(a)
-    array([ 0.    ,  0.3333,  0.6667,  1.    ])
+    array([0.    , 0.3333, 0.6667, 1.    ])
     >>> b = np.concatenate([np.linspace(-0.7,-0.3,3),
     ...                             np.linspace(0.3,0.8,3)])
     >>> b
     array([-0.7 , -0.5 , -0.3 ,  0.3 ,  0.55,  0.8 ])
     >>> minmax_norm(b,'folding',[-0.3,0.3])
-    array([ 0.8,  0.4,  0. ,  0. ,  0.5,  1. ])
+    array([0.8, 0.4, 0. , 0. , 0.5, 1. ])
     """
     if mode == 'direct':
         return rescale_arr(arr, 0, 1)
