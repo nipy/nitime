@@ -51,8 +51,7 @@ jobs:
       - name: Build wheel(s)
         uses: pypa/cibuildwheel@v3.2.1
         env:
-          CIBW_BUILD: "cp*-${{ matrix.buildplat[1] }}"
-          CIBW_SKIP: "cp312-* cp313-* cp314-*"
+          CIBW_BUILD: "cp310-${{ matrix.buildplat[1] }} cp311-${{ matrix.buildplat[1] }} "
 
       - uses: actions/upload-artifact@v5
         with:
