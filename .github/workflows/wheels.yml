@@ -59,31 +59,27 @@ jobs:
       matrix:
         buildplat:
           - [ubuntu-latest, musllinux_x86_64]
+          - [ubuntu-latest, manylinux_x86_64]
           - [ubuntu-24.04-arm64, manylinux_aarch64]
-          - [macos-15-intel, macosx_x86_64]  # native Intel hardware
+          - [macos-latest, macosx_arm64]
+          - [macos-15-intel, macosx_x86_64]
           - [windows-latest, win_amd64]
-        python: ["cp310", "cp311"]
-        include:
-          # Manylinux and arm64 builds (on native hardware) are cheap, do all in one
-          - { buildplat: ["ubuntu-latest", "manylinux_x86_64"], python: "*" }
-          - { buildplat: ["macos-14", "macosx_arm64"], python: "*" }
 
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@v6
-
       - name: Build wheel(s)
-        run: uvx cibuildwheel
-        env:
-          CIBW_BUILD: ${{ matrix.python }}-${{ matrix.buildplat[1] }}
+        uses: pypa/cibuildwheel@v3.2.1
+        with:
+          env:
+            CIBW_BUILD: "cp*-${{ matrix.buildplat[1] }}"
+            CIBW_SKIP: "cp312-* cp313-* cp314-*"
 
       - uses: actions/upload-artifact@v5
         with:
-          name: ${{ matrix.python == '*' && 'all' || matrix.python }}-${{ startsWith(matrix.buildplat[1], 'macosx') && 'macosx' || matrix.buildplat[1] }}-dist
+          name: ${{ startsWith(matrix.buildplat[1], 'macosx') && 'macosx' || matrix.buildplat[1] }}-dist
           path: ./wheelhouse/*.whl
 
   test-sdist:
