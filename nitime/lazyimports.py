@@ -36,20 +36,20 @@ class LazyImport(types.ModuleType):
     respect to introspection and tab completion) with the *exception* of
     reload()- reloading a :class:`LazyImport` raises an :class:`ImportError`.
 
-    >>> mlab = LazyImport('matplotlib.mlab')
+    >>> numpy = LazyImport('numpy')
 
     No import happens on the above line, until we do something like call an
-    ``mlab`` method or try to do tab completion or introspection on ``mlab``
+    ``numpy`` method or try to do tab completion or introspection on ``numpy``
     in IPython.
 
-    >>> mlab
-    <module 'matplotlib.mlab' will be lazily loaded>
+    >>> numpy
+    <module 'numpy' will be lazily loaded>
 
-    Now the :class:`LazyImport` will do an actual import, and call the dist
+    Now the :class:`LazyImport` will do an actual import, and call the hypot
     function of the imported module.
 
-    >>> mlab.dist(1969,2011)
-    42.0
+    >>> numpy.diff([1969, 2011])
+    array([42])
     """
     def __getattribute__(self,x):
         # This method will be called only once, since we'll change
