@@ -192,13 +192,16 @@ class TimeArray(np.ndarray, TimeInterface):
         time._conversion_factor = time_unit_conversion[time_unit]
         return time
 
-    def __array_wrap__(self, out_arr, context=None):
+    def __array_wrap__(self, out_arr, context=None, return_scalar=False):
         # When doing comparisons between TimeArrays, make sure that you return
         # a boolean array, not a time array:
         if out_arr.dtype == bool:
-            return np.asarray(out_arr)
+            ret = np.asarray(out_arr)
+            if return_scalar:
+                ret = ret[()]
+            return ret
         else:
-            return np.ndarray.__array_wrap__(self, out_arr, context)
+            return np.ndarray.__array_wrap__(self, out_arr, context, return_scalar)
 
     def __array_finalize__(self, obj):
         """XXX """
@@ -691,13 +694,16 @@ class UniformTime(np.ndarray, TimeInterface):
 
         return time
 
-    def __array_wrap__(self, out_arr, context=None):
+    def __array_wrap__(self, out_arr, context=None, return_scalar=False):
         # When doing comparisons between UniformTime, make sure that you return
         # a boolean array, not a time array:
         if out_arr.dtype == bool:
-            return np.asarray(out_arr)
+            ret = np.asarray(out_arr)
+            if return_scalar:
+                ret = ret[()]
+            return ret
         else:
-            return np.ndarray.__array_wrap__(self, out_arr, context)
+            return np.ndarray.__array_wrap__(self, out_arr, context, return_scalar)
 
     def __array_finalize__(self, obj):
         """XXX """
