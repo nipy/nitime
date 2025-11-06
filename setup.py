@@ -7,10 +7,10 @@ See pyproject.toml for the remaining configuration.
 import platform
 import sys
 
-from setuptools import setup
-from setuptools import Extension
 from Cython.Build import cythonize
 from numpy import get_include
+from setuptools import setup, Extension
+from wheel.bdist_wheel import bdist_wheel
 
 # add Cython extensions to the setup options
 
