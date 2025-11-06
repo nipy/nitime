@@ -2,6 +2,8 @@
  Nitime news
 =============
 
+November 6 2025: Version 0.12.1 released.
+
 November 6 2025: Version 0.12 released.
 
 June 17 2024: Version 0.11 released.
