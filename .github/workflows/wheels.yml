@@ -38,7 +38,7 @@ jobs:
         buildplat:
           - [ubuntu-latest, musllinux_x86_64]
           - [ubuntu-latest, manylinux_x86_64]
-          - [ubuntu-24.04-arm64, manylinux_aarch64]
+          - [ubuntu-24.04-arm, manylinux_aarch64]
           - [macos-latest, macosx_arm64]
           - [macos-15-intel, macosx_x86_64]
           - [windows-latest, win_amd64]
