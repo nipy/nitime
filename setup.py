@@ -25,6 +25,7 @@ class bdist_wheel_abi3(bdist_wheel):  # noqa: D101
 
         return python, abi, plat
 
+
 macros = [('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')]
 ext_kwargs = {}
 setup_kwargs = {}
