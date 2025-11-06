@@ -62,8 +62,8 @@ test = [
 ]
 
 [tool.cibuildwheel]
-# Disable PyPy, and no NumPy wheels for 3.8 Linux aarch64 or musl
-skip = "pp* cp38-*_aarch64 cp38-musllinux_*"
+# Disable PyPy
+skip = "pp*"
 
 # 64-bit builds only; 32-bit builds seem pretty niche these days, so
 # don't bother unless someone asks
