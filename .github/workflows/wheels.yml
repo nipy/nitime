@@ -19,7 +19,7 @@ jobs:
     name: Build sdist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Build sdist
@@ -44,12 +44,12 @@ jobs:
           - [windows-latest, win_amd64]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Build wheel(s)
-        uses: pypa/cibuildwheel@v3.2.1
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BUILD: "cp310-${{ matrix.buildplat[1] }} cp311-${{ matrix.buildplat[1] }} "
 
