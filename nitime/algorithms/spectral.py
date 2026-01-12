@@ -308,7 +308,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
 
     """
     s_shape = s.shape
-    s.shape = (-1, s_shape[-1])
+    s = s.reshape((-1, s_shape[-1]), copy=False)
     # defining an Sk_loc is a little opaque, but it avoids having to
     # reset the shape of any user-given Sk later on
     if Sk is not None:
@@ -322,7 +322,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
             N = s.shape[-1]
         Sk_loc = fftpack.fft(s, n=N)
     # reset s.shape
-    s.shape = s_shape
+    s = s.reshape(s_shape, copy=False)
 
     M = Sk_loc.shape[0]
 
@@ -550,7 +550,7 @@ def multi_taper_psd(
     NFFT = spectra.shape[-1]
     K = len(eigvals)
     # collapse spectra's shape back down to 3 dimensions
-    spectra.shape = (M, K, NFFT)
+    spectra = spectra.reshape((M, K, NFFT), copy=False)
 
     last_freq = NFFT // 2 + 1 if sides == 'onesided' else NFFT
 
@@ -593,12 +593,12 @@ def multi_taper_psd(
         freqs = np.linspace(0, Fs, NFFT, endpoint=False)
 
     out_shape = s.shape[:-1] + (len(freqs),)
-    sdf_est.shape = out_shape
+    sdf_est = sdf_est.reshape(out_shape, copy=False)
     if jackknife:
-        jk_var.shape = out_shape
+        jk_var = jk_var.reshape(out_shape, copy=False)
         return freqs, sdf_est, jk_var
     else:
-        nu.shape = out_shape
+        nu = nu.reshape(out_shape, copy=False)
         return freqs, sdf_est, nu
 
 
@@ -690,7 +690,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
     NFFT = spectra.shape[-1]
     K = len(eigvals)
     # collapse spectra's shape back down to 3 dimensions
-    spectra.shape = (M, K, NFFT)
+    spectra = spectra.reshape((M, K, NFFT), copy=False)
 
     # compute the cross-spectral density functions
     last_freq = NFFT // 2 + 1 if sides == 'onesided' else NFFT
