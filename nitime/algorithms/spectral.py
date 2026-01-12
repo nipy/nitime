@@ -20,6 +20,8 @@ from nitime.utils import tapered_spectra, dpss_windows
 # To support older versions of numpy that don't have tril_indices:
 from nitime.index_utils import tril_indices, triu_indices
 
+from nitime._compat import _reshape_view
+
 
 # Set global variables for the default NFFT to be used in spectral analysis and
 # the overlap:
@@ -308,7 +310,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
 
     """
     s_shape = s.shape
-    s = s.reshape((-1, s_shape[-1]), copy=False)
+    s = _reshape_view(s, (-1, s_shape[-1]))
     # defining an Sk_loc is a little opaque, but it avoids having to
     # reset the shape of any user-given Sk later on
     if Sk is not None:
@@ -322,7 +324,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
             N = s.shape[-1]
         Sk_loc = fftpack.fft(s, n=N)
     # reset s.shape
-    s = s.reshape(s_shape, copy=False)
+    s = _reshape_view(s, s_shape)
 
     M = Sk_loc.shape[0]
 
@@ -550,7 +552,7 @@ def multi_taper_psd(
     NFFT = spectra.shape[-1]
     K = len(eigvals)
     # collapse spectra's shape back down to 3 dimensions
-    spectra = spectra.reshape((M, K, NFFT), copy=False)
+    spectra = _reshape_view(spectra, (M, K, NFFT))
 
     last_freq = NFFT // 2 + 1 if sides == 'onesided' else NFFT
 
@@ -593,12 +595,12 @@ def multi_taper_psd(
         freqs = np.linspace(0, Fs, NFFT, endpoint=False)
 
     out_shape = s.shape[:-1] + (len(freqs),)
-    sdf_est = sdf_est.reshape(out_shape, copy=False)
+    sdf_est = _reshape_view(sdf_est, out_shape)
     if jackknife:
-        jk_var = jk_var.reshape(out_shape, copy=False)
+        jk_var = _reshape_view(jk_var, out_shape)
         return freqs, sdf_est, jk_var
     else:
-        nu = nu.reshape(out_shape, copy=False)
+        nu = _reshape_view(nu, out_shape)
         return freqs, sdf_est, nu
 
 
@@ -690,7 +692,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
     NFFT = spectra.shape[-1]
     K = len(eigvals)
     # collapse spectra's shape back down to 3 dimensions
-    spectra = spectra.reshape((M, K, NFFT), copy=False)
+    spectra = _reshape_view(spectra, (M, K, NFFT))
 
     # compute the cross-spectral density functions
     last_freq = NFFT // 2 + 1 if sides == 'onesided' else NFFT
