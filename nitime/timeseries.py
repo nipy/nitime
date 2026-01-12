@@ -29,6 +29,7 @@ __all__ = ['time_unit_conversion',
 #-----------------------------------------------------------------------------
 
 import numpy as np
+from packaging.version import Version
 
 # Our own
 from nitime import descriptors as desc
@@ -315,7 +316,11 @@ class TimeArray(np.ndarray, TimeInterface):
         return ret
 
     def ptp(self, *args, **kwargs):
-        ret = TimeArray(np.ptp(self, *args, **kwargs),
+        if Version(np.__version__) >= Version("2.0"):
+            ptp = np.ptp
+        else:
+            ptp = np.ndarray.ptp
+        ret = TimeArray(ptp(self, *args, **kwargs),
                         time_unit=base_unit)
         ret.convert_unit(self.time_unit)
         return ret
