@@ -2,7 +2,7 @@
 --only-binary numpy,scipy
 --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
 matplotlib>=3.7
-numpy>=1.24
+numpy>=2.0
 scipy>=1.10
 networkx>=3.0
 nibabel>=5.0
