@@ -3,6 +3,6 @@
 --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
 matplotlib==3.9
 numpy==2.0
-scipy==1.12
+scipy==1.13
 networkx==3.3
 nibabel==5.3
