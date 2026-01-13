@@ -20,7 +20,6 @@ from nitime.utils import tapered_spectra, dpss_windows
 # To support older versions of numpy that don't have tril_indices:
 from nitime.index_utils import tril_indices, triu_indices
 
-
 # Set global variables for the default NFFT to be used in spectral analysis and
 # the overlap:
 default_nfft = 64
@@ -308,7 +307,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
 
     """
     s_shape = s.shape
-    s.shape = (-1, s_shape[-1])
+    s = s.reshape((-1, s_shape[-1]))
     # defining an Sk_loc is a little opaque, but it avoids having to
     # reset the shape of any user-given Sk later on
     if Sk is not None:
@@ -322,7 +321,7 @@ def periodogram_csd(s, Fs=2 * np.pi, Sk=None, NFFT=None, sides='default',
             N = s.shape[-1]
         Sk_loc = fftpack.fft(s, n=N)
     # reset s.shape
-    s.shape = s_shape
+    s = s.reshape(s_shape)
 
     M = Sk_loc.shape[0]
 
@@ -550,7 +549,7 @@ def multi_taper_psd(
     NFFT = spectra.shape[-1]
     K = len(eigvals)
     # collapse spectra's shape back down to 3 dimensions
-    spectra.shape = (M, K, NFFT)
+    spectra = spectra.reshape((M, K, NFFT))
 
     last_freq = NFFT // 2 + 1 if sides == 'onesided' else NFFT
 
@@ -593,12 +592,12 @@ def multi_taper_psd(
         freqs = np.linspace(0, Fs, NFFT, endpoint=False)
 
     out_shape = s.shape[:-1] + (len(freqs),)
-    sdf_est.shape = out_shape
+    sdf_est = sdf_est.reshape(out_shape)
     if jackknife:
-        jk_var.shape = out_shape
+        jk_var = jk_var.reshape(out_shape)
         return freqs, sdf_est, jk_var
     else:
-        nu.shape = out_shape
+        nu = nu.reshape(out_shape)
         return freqs, sdf_est, nu
 
 
@@ -690,7 +689,7 @@ def multi_taper_csd(s, Fs=2 * np.pi, NW=None, BW=None, low_bias=True,
     NFFT = spectra.shape[-1]
     K = len(eigvals)
     # collapse spectra's shape back down to 3 dimensions
-    spectra.shape = (M, K, NFFT)
+    spectra = spectra.reshape((M, K, NFFT))
 
     # compute the cross-spectral density functions
     last_freq = NFFT // 2 + 1 if sides == 'onesided' else NFFT

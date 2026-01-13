@@ -33,10 +33,6 @@ import numpy as np
 # Our own
 from nitime import descriptors as desc
 
-try:
-    _NP_2 = int(np.__version__.split(".")[0]) >= 2
-except Exception:
-    _NP_2 = True
 
 #-----------------------------------------------------------------------------
 # Module globals
@@ -319,11 +315,7 @@ class TimeArray(np.ndarray, TimeInterface):
         return ret
 
     def ptp(self, *args, **kwargs):
-        if _NP_2:
-            ptp = np.ptp
-        else:
-            ptp = np.ndarray.ptp
-        ret = TimeArray(ptp(self, *args, **kwargs),
+        ret = TimeArray(np.ptp(self, *args, **kwargs),
                         time_unit=base_unit)
         ret.convert_unit(self.time_unit)
         return ret

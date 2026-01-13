@@ -922,7 +922,7 @@ def test_timearray_math_functions(f, tu):
     "Calling TimeArray.min() .max(), mean() should return TimeArrays"
     a = np.arange(2, 11)
     b = ts.TimeArray(a, time_unit=tu)
-    if f == "ptp" and ts._NP_2:
+    if f == "ptp":
         want = np.ptp(a)
     else:
         want = getattr(a, f)()
