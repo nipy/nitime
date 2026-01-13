@@ -1,9 +1,10 @@
 import numpy as np
 import numpy.testing as npt
 
+from numpy import trapezoid
+
 import nitime.algorithms as tsa
 import nitime.utils as utils
-from nitime._compat import trapezoid
 
 # Set the random seed:
 np.random.seed(1)

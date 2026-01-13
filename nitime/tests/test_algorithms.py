@@ -6,9 +6,10 @@ import numpy.testing as npt
 from scipy import fftpack, signal
 
 import nitime
+from numpy import trapezoid
+
 from nitime import algorithms as tsa
 from nitime import utils as ut
-from nitime._compat import trapezoid
 
 #Define globally
 test_dir_path = os.path.join(nitime.__path__[0], 'tests')
