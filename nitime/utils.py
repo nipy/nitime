@@ -13,8 +13,6 @@ from nitime.lazy import scipy_signal_signaltools as signaltools
 from nitime.lazy import scipy_stats_distributions as dists
 from nitime.lazy import scipy_interpolate as interpolate
 
-from nitime._compat import _reshape_view
-
 
 #-----------------------------------------------------------------------------
 # Spectral estimation testing utilities
@@ -758,7 +756,7 @@ def tapered_spectra(s, tapers, NFFT=None, low_bias=True):
     # compute the y_{i,k}(f) -- full FFT takes ~1.5x longer, but unpacking
     # results of real-valued FFT eats up memory
     t_spectra = fftpack.fft(tapered, n=NFFT, axis=-1)
-    t_spectra = _reshape_view(t_spectra, rest_of_dims + (K, NFFT))
+    t_spectra = t_spectra.reshape(rest_of_dims + (K, NFFT))
     if eigvals is None:
         return t_spectra
     return t_spectra, eigvals
@@ -836,7 +834,7 @@ def detect_lines(s, tapers, p=None, **taper_kws):
     numr[...,0] = 1; # don't care about DC
     # denominator -- strength of residual
     spectra = np.rollaxis(spectra, -2, 0)
-    U0 = _reshape_view(U0, (K,) + (1,) * (spectra.ndim-1))
+    U0 = U0.reshape((K,) + (1,) * (spectra.ndim-1))
     denomr = spectra - U0*mu
     denomr = np.sum(np.abs(denomr)**2, axis=0) / (2*K-2)
     denomr[...,0] = 1;
