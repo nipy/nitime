@@ -9,7 +9,6 @@ import scipy.ndimage as ndimage
 from nitime.lazy import scipy_linalg as linalg
 from nitime.lazy import scipy_signal as sig
 from nitime.lazy import scipy_fftpack as fftpack
-from nitime.lazy import scipy_signal_signaltools as signaltools
 from nitime.lazy import scipy_stats_distributions as dists
 from nitime.lazy import scipy_interpolate as interpolate
 
@@ -1196,9 +1195,20 @@ def fftconvolve(in1, in2, mode="full", axis=None):
             osize = s1
         else:
             osize = s2
-        return signaltools._centered(ret, osize)
+        return _centered(ret, osize)
     elif mode == "valid":
-        return signaltools._centered(ret, abs(s2 - s1) + 1)
+        return _centered(ret, abs(s2 - s1) + 1)
+
+
+# Vendored from scipy.signal.signaltools 2026/08/14
+def _centered(arr, newshape):
+    # Return the center newshape portion of the array.
+    newshape = np.asarray(newshape)
+    currshape = np.array(arr.shape)
+    startind = (currshape - newshape) // 2
+    endind = startind + newshape
+    myslice = [slice(startind[k], endind[k]) for k in range(len(endind))]
+    return arr[tuple(myslice)]
 
 
 #-----------------------------------------------------------------------------
