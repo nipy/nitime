@@ -443,10 +443,10 @@ def test_UniformTime_repr():
 
     >>> b = ts.UniformTime(a)
 
-    >>> b
+    >>> b  # doctest: +NORMALIZE_WHITESPACE
     UniformTime([    0.,  1000.,  2000.,  3000.,  4000.], time_unit='ms')
 
-    >>> a
+    >>> a  # doctest: +NORMALIZE_WHITESPACE
     UniformTime([    0.,  1000.,  2000.,  3000.,  4000.], time_unit='ms')
 
     >>> b = ts.UniformTime(a,time_unit='s')
