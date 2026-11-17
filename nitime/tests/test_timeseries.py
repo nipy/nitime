@@ -411,6 +411,15 @@ def test_UniformTime():
 
     npt.assert_equal(b.sampling_rate, a.sampling_rate)
 
+    # A UniformTime can be resampled by giving only a new sampling_interval
+    # (or, equivalently, a new sampling_rate): the duration is preserved
+    c = ts.UniformTime(sampling_rate=10., duration=4., time_unit='s')
+    c_interval = ts.UniformTime(c, sampling_interval=0.2)
+    c_rate = ts.UniformTime(c, sampling_rate=5.)
+    npt.assert_equal(len(c_interval), 20)
+    npt.assert_equal(c_interval.duration, c.duration)
+    npt.assert_equal(np.asarray(c_interval), np.asarray(c_rate))
+
     b = ts.UniformTime(duration=10,
                        sampling_rate=a.sampling_rate)
 
