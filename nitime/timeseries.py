@@ -599,7 +599,7 @@ class UniformTime(np.ndarray, TimeInterface):
                 sampling_rate = data.sampling_rate
                 duration = data.duration
             elif tspec == tspecs_w_data['sampling_interval']:
-                duration == data.duration
+                duration = data.duration
             elif tspec == tspecs_w_data['sampling_rate']:
                 if isinstance(sampling_rate, Frequency):
                     sampling_interval = sampling_rate.to_period()
