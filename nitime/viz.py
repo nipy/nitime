@@ -1108,10 +1108,6 @@ def plot_corr_diff(tseries1, tseries2, fig=None,
        These are the time-series to compare, with each of them having the
        dims: (n_channels, n_reps, time), where n_channels1 = n_channels2
 
-    lb,ub: float
-       Lower and upper bounds on the frequency range over which to
-       calculate the information rate (default to [0,Nyquist]).
-
     fig: matplotlib figure object
        If you want to do this on already existing figure. Otherwise, a new
        figure object will be generated.
@@ -1119,8 +1115,6 @@ def plot_corr_diff(tseries1, tseries2, fig=None,
     ts_names: list of str
        Labels for the two inputs, to be used in plotting (defaults to
        ['1','2'])
-
-    bandwidth, adaptive, low_bias: See :func:`SNRAnalyzer` for details
 
 
     Returns

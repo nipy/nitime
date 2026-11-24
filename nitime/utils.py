@@ -1598,8 +1598,9 @@ def tril_indices_from(arr, k=0):
 
     Parameters
     ----------
-    n : int
-      Sets the size of the arrays for which the returned indices will be valid.
+    arr : array_like
+      The indices will be valid for square arrays whose dimensions are
+      the same as arr.
 
     k : int, optional
       Diagonal offset (see tril() for details).
@@ -1673,8 +1674,9 @@ def triu_indices_from(arr, k=0):
 
     Parameters
     ----------
-    n : int
-      Sets the size of the arrays for which the returned indices will be valid.
+    arr : array_like
+      The indices will be valid for square arrays whose dimensions are
+      the same as arr.
 
     k : int, optional
       Diagonal offset (see triu() for details).
@@ -1760,7 +1762,7 @@ def symm_rand_arr(size, sample_func=np.random.random, fill_diag=None):
 
     Parameters
     ----------
-    n : int
+    size : int
       Size of the output array.
 
     sample_func : function, optional.
@@ -1794,7 +1796,7 @@ def antisymm_rand_arr(size, sample_func=np.random.random):
     Parameters
     ----------
 
-    n : int
+    size : int
       Size of the output array.
 
     sample_func : function, optional.
@@ -2032,7 +2034,7 @@ def zscore(time_series, axis=-1):
         the axis of time_series along which to compute means and stdevs
 
     Returns
-    _______
+    -------
     zt : ndarray
         the renormalized time series array
     """
@@ -2340,9 +2342,6 @@ def bayesian_information_criterion(ecov, p, m, Ntotal):
 
     m : int
         the model order.
-
-    corrected : boolean (optional)
-        Whether to correct for small sample size
 
 
     Returns

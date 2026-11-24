@@ -24,7 +24,7 @@ class EventRelatedAnalyzer(desc.ResetMixin):
         time_series : a time-series object
            A time-series with data on which the event-related analysis proceeds
 
-        events_time_series : a TimeSeries object or an Events object
+        events : a TimeSeries object or an Events object
             The events which occurred in tandem with the time-series in the
             EventRelatedAnalyzer. This object's data has to have the same
             dimensions as the data in the EventRelatedAnalyzer object. In each
