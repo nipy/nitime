@@ -19,7 +19,7 @@ jobs:
     name: Build sdist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Build sdist
@@ -44,12 +44,12 @@ jobs:
           - [windows-latest, win_amd64]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Build wheel(s)
-        uses: pypa/cibuildwheel@v3.4.1
+        uses: pypa/cibuildwheel@v4.2.0
         env:
           CIBW_BUILD: "cp310-${{ matrix.buildplat[1] }} cp311-${{ matrix.buildplat[1] }} "
 
@@ -67,7 +67,7 @@ jobs:
         with:
           name: source-dist
           path: ./dist
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
       - name: Display Python version
